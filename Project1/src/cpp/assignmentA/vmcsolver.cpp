@@ -89,6 +89,8 @@ double VMCSolver::localEnergy(Matrix &r)
 {
 
     rPlus = rMinus = r;
+    prPlus = rPlus.getArrayPointer();
+    prMinus = rMinus.getArrayPointer();
 
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
@@ -100,13 +102,13 @@ double VMCSolver::localEnergy(Matrix &r)
     double kineticEnergy = 0;
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-            rPlus(i,j) += h;
-            rMinus(i,j) -= h;
+            prPlus[i][j] += h;
+            prMinus[i][j] -= h;
             waveFunctionMinus = waveFunction(rMinus.getArrayPointer());
             waveFunctionPlus = waveFunction(rPlus.getArrayPointer());
             kineticEnergy -= (waveFunctionMinus + waveFunctionPlus - 2 * waveFunctionCurrent);
-            rPlus(i,j) = r(i,j);
-            rMinus(i,j) = r(i,j);
+            prPlus[i][j] = r(i,j);
+            prMinus[i][j] = r(i,j);
         }
     }
     kineticEnergy = 0.5 * h2 * kineticEnergy / waveFunctionCurrent;

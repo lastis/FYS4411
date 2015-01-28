@@ -35,6 +35,8 @@ private:
 
     double** prOld;
     double** prNew;
+    double** prPlus;
+    double** prMinus;
 };
 
 #endif // VMCSOLVER_H
