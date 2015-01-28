@@ -22,6 +22,8 @@ void VMCSolver::runMonteCarloIntegration()
 {
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
+    prNew = rNew.getArrayPointer();
+    prOld = rOld.getArrayPointer();
 
     rPlus = Matrix(nParticles, nDimensions);
     rMinus = Matrix(nParticles, nDimensions);
@@ -37,36 +39,39 @@ void VMCSolver::runMonteCarloIntegration()
     // initial trial positions
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-            rOld(i,j) = stepLength * (Random::ran2(idum) - 0.5);
+            prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5);
         }
     }
+
     rNew = rOld;
+    prNew = rNew.getArrayPointer();
+    prOld = rOld.getArrayPointer();
 
     // loop over Monte Carlo cycles
     for(int cycle = 0; cycle < nCycles; cycle++) {
 
         // Store the current value of the wave function
-        waveFunctionOld = waveFunction(rOld.getArrayPointer());
+        waveFunctionOld = waveFunction(prOld);
 
         // New position to test
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                rNew(i,j) = rOld(i,j) + stepLength*(Random::ran2(idum) - 0.5);
+                prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
             }
 
             // Recalculate the value of the wave function
-            waveFunctionNew = waveFunction(rNew.getArrayPointer());
+            waveFunctionNew = waveFunction(prNew);
 
             // Check for step acceptance (if yes, update position, if no, reset position)
             if(Random::ran2(idum) <= (waveFunctionNew*waveFunctionNew) / 
 			    (waveFunctionOld*waveFunctionOld)) {
                 for(int j = 0; j < nDimensions; j++) {
-                    rOld(i,j) = rNew(i,j);
+                    prOld[i][j] = prNew[i][j];
                     waveFunctionOld = waveFunctionNew;
                 }
             } else {
                 for(int j = 0; j < nDimensions; j++) {
-                    rNew(i,j) = rOld(i,j);
+                    prNew[i][j] = prOld[i][j];
                 }
             }
             // update energies
