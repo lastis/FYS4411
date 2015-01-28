@@ -46,7 +46,7 @@ void VMCSolver::runMonteCarloIntegration()
     for(int cycle = 0; cycle < nCycles; cycle++) {
 
         // Store the current value of the wave function
-        waveFunctionOld = waveFunction(rOld);
+        waveFunctionOld = waveFunction(rOld.getArrayPointer());
 
         // New position to test
         for(int i = 0; i < nParticles; i++) {
@@ -55,7 +55,7 @@ void VMCSolver::runMonteCarloIntegration()
             }
 
             // Recalculate the value of the wave function
-            waveFunctionNew = waveFunction(rNew);
+            waveFunctionNew = waveFunction(rNew.getArrayPointer());
 
             // Check for step acceptance (if yes, update position, if no, reset position)
             if(Random::ran2(idum) <= (waveFunctionNew*waveFunctionNew) / 
@@ -88,7 +88,7 @@ double VMCSolver::localEnergy(Matrix &r)
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
 
-    double waveFunctionCurrent = waveFunction(r);
+    double waveFunctionCurrent = waveFunction(r.getArrayPointer());
 
     // Kinetic energy
 
@@ -97,8 +97,8 @@ double VMCSolver::localEnergy(Matrix &r)
         for(int j = 0; j < nDimensions; j++) {
             rPlus(i,j) += h;
             rMinus(i,j) -= h;
-            waveFunctionMinus = waveFunction(rMinus);
-            waveFunctionPlus = waveFunction(rPlus);
+            waveFunctionMinus = waveFunction(rMinus.getArrayPointer());
+            waveFunctionPlus = waveFunction(rPlus.getArrayPointer());
             kineticEnergy -= (waveFunctionMinus + waveFunctionPlus - 2 * waveFunctionCurrent);
             rPlus(i,j) = r(i,j);
             rMinus(i,j) = r(i,j);
@@ -131,13 +131,13 @@ double VMCSolver::localEnergy(Matrix &r)
     return kineticEnergy + potentialEnergy;
 }
 
-double VMCSolver::waveFunction(Matrix &r)
+double VMCSolver::waveFunction(double** r)
 {
     double argument = 0;
     for(int i = 0; i < nParticles; i++) {
         double rSingleParticle = 0;
         for(int j = 0; j < nDimensions; j++) {
-            rSingleParticle += r(i,j) * r(i,j);
+            rSingleParticle += r[i][j] * r[i][j];
         }
         argument += sqrt(rSingleParticle);
     }
