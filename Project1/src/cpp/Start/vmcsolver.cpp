@@ -57,7 +57,8 @@ void VMCSolver::runMonteCarloIntegration()
             waveFunctionNew = waveFunction(rNew);
 
             // Check for step acceptance (if yes, update position, if no, reset position)
-            if(ran2(&idum) <= (waveFunctionNew*waveFunctionNew) / (waveFunctionOld*waveFunctionOld)) {
+            if(ran2(&idum) <= (waveFunctionNew*waveFunctionNew) / 
+			    (waveFunctionOld*waveFunctionOld)) {
                 for(int j = 0; j < nDimensions; j++) {
                     rOld(i,j) = rNew(i,j);
                     waveFunctionOld = waveFunctionNew;

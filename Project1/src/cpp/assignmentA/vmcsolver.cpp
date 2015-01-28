@@ -1,7 +1,6 @@
 #include "vmcsolver.h"
-#include <iostream>
-#include <stdio.h>
 #include <math.h>
+#include <iostream>
 
 using namespace CPhys;
 using namespace std;
@@ -13,9 +12,8 @@ VMCSolver::VMCSolver() :
     nParticles(2),
     h(0.001),
     h2(1000000),
-    idum(0),
+    idum(-1),
     alpha(0.5*charge),
-    beta(0.5*charge),
     nCycles(1000000)
 {
 }
@@ -24,9 +22,6 @@ void VMCSolver::runMonteCarloIntegration()
 {
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
-
-    prOld = rOld.getArrayPointer();
-    prNew = rOld.getArrayPointer();
 
     double waveFunctionOld = 0;
     double waveFunctionNew = 0;
@@ -39,7 +34,6 @@ void VMCSolver::runMonteCarloIntegration()
     // initial trial positions
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-            /* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
             rOld(i,j) = stepLength * (Random::ran2(idum) - 0.5);
         }
     }
@@ -49,29 +43,26 @@ void VMCSolver::runMonteCarloIntegration()
     for(int cycle = 0; cycle < nCycles; cycle++) {
 
         // Store the current value of the wave function
-        waveFunctionOld = waveFunction1(rOld);
+        waveFunctionOld = waveFunction(rOld);
 
         // New position to test
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                /* prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
                 rNew(i,j) = rOld(i,j) + stepLength*(Random::ran2(idum) - 0.5);
             }
 
             // Recalculate the value of the wave function
-            waveFunctionNew = waveFunction1(rNew);
+            waveFunctionNew = waveFunction(rNew);
 
             // Check for step acceptance (if yes, update position, if no, reset position)
-            if(Random::ran2(idum) <= (waveFunctionNew*waveFunctionNew) /
+            if(Random::ran2(idum) <= (waveFunctionNew*waveFunctionNew) / 
 			    (waveFunctionOld*waveFunctionOld)) {
                 for(int j = 0; j < nDimensions; j++) {
-                    /* prOld[i][j] = prNew[i][j]; */
                     rOld(i,j) = rNew(i,j);
                     waveFunctionOld = waveFunctionNew;
                 }
             } else {
                 for(int j = 0; j < nDimensions; j++) {
-                    /* prNew[i][j] = prOld[i][j]; */
                     rNew(i,j) = rOld(i,j);
                 }
             }
@@ -92,30 +83,22 @@ double VMCSolver::localEnergy(Matrix &r)
     Matrix rMinus = Matrix(nParticles, nDimensions);
 
     rPlus = rMinus = r;
-    double** prPlus = rPlus.getArrayPointer();
-    double** prMinus = rMinus.getArrayPointer();
-    double** pr = r.getArrayPointer();
 
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
 
-    double waveFunctionCurrent = waveFunction1(r);
+    double waveFunctionCurrent = waveFunction(r);
 
     // Kinetic energy
 
     double kineticEnergy = 0;
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-            /* prPlus[i][j] += h; */
-            /* prMinus[i][j] -= h; */
             rPlus(i,j) += h;
             rMinus(i,j) -= h;
-            waveFunctionMinus = waveFunction1(rMinus);
-            waveFunctionPlus = waveFunction1(rPlus);
-            kineticEnergy -= (waveFunctionMinus + waveFunctionPlus 
-			    - 2 * waveFunctionCurrent);
-            /* prPlus[i][j] = pr[i][j]; */
-            /* prMinus[i][j] = pr[i][j]; */
+            waveFunctionMinus = waveFunction(rMinus);
+            waveFunctionPlus = waveFunction(rPlus);
+            kineticEnergy -= (waveFunctionMinus + waveFunctionPlus - 2 * waveFunctionCurrent);
             rPlus(i,j) = r(i,j);
             rMinus(i,j) = r(i,j);
         }
@@ -128,7 +111,6 @@ double VMCSolver::localEnergy(Matrix &r)
     for(int i = 0; i < nParticles; i++) {
         rSingleParticle = 0;
         for(int j = 0; j < nDimensions; j++) {
-            /* rSingleParticle += pr[i][j]*pr[i][j]; */
             rSingleParticle += r(i,j)*r(i,j);
         }
         potentialEnergy -= charge / sqrt(rSingleParticle);
@@ -139,8 +121,7 @@ double VMCSolver::localEnergy(Matrix &r)
         for(int j = i + 1; j < nParticles; j++) {
             r12 = 0;
             for(int k = 0; k < nDimensions; k++) {
-                /* r12 += (pr[i][k] - pr[j][k]) * (pr[i][k] - pr[j][k]); */
-                r12 += (r(i,j) - r(j,k)) * (r(i,k) - r(j,k));
+                r12 += (r(i,k) - r(j,k)) * (r(i,k) - r(j,k));
             }
             potentialEnergy += 1 / sqrt(r12);
         }
@@ -149,20 +130,7 @@ double VMCSolver::localEnergy(Matrix &r)
     return kineticEnergy + potentialEnergy;
 }
 
-double VMCSolver::waveFunction1(Matrix &r)
-{
-    double argument = 0;
-    for(int i = 0; i < nParticles; i++) {
-        double rSingleParticle = 0;
-        for(int j = 0; j < nDimensions; j++) {
-            rSingleParticle += r(i,j) * r(i,j);
-        }
-        argument += sqrt(rSingleParticle);
-    }
-    return exp(-argument * alpha);
-}
-
-double VMCSolver::waveFunction2(Matrix &r)
+double VMCSolver::waveFunction(Matrix &r)
 {
     double argument = 0;
     for(int i = 0; i < nParticles; i++) {
