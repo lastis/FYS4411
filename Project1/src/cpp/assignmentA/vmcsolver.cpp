@@ -88,28 +88,30 @@ void VMCSolver::runMonteCarloIntegration()
 double VMCSolver::localEnergy(Matrix &r)
 {
 
-    rPlus = rMinus = r;
     double** pr = r.getArrayPointer();
-    prPlus 	= rPlus.getArrayPointer();
-    prMinus 	= rMinus.getArrayPointer();
 
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
-
     double waveFunctionCurrent = waveFunction(pr);
 
     // Kinetic energy
 
+    double rPlus;
+    double rMinus;
+    double r0;
     double kineticEnergy = 0;
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-            prPlus[i][j] += h;
-            prMinus[i][j] -= h;
-            waveFunctionMinus = waveFunction(prMinus);
-            waveFunctionPlus = waveFunction(prPlus);
+	    rPlus 	= pr[i][j] + h;
+	    rMinus 	= pr[i][j] - h;
+	    r0 		= pr[i][j];
+
+	    pr[i][j] = rMinus;
+            waveFunctionMinus = waveFunction(pr);
+	    pr[i][j] = rPlus;
+            waveFunctionPlus = waveFunction(pr);
+	    pr[i][j] = r0;
             kineticEnergy -= (waveFunctionMinus + waveFunctionPlus - 2 * waveFunctionCurrent);
-            prPlus[i][j] = pr[i][j];
-            prMinus[i][j] = pr[i][j];
         }
     }
     kineticEnergy = 0.5 * h2 * kineticEnergy / waveFunctionCurrent;
