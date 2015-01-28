@@ -30,6 +30,8 @@ private:
 
     Matrix rOld;
     Matrix rNew;
+    Matrix rPlus;
+    Matrix rMinus;
 
     double** prOld;
     double** prNew;

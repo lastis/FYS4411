@@ -23,6 +23,9 @@ void VMCSolver::runMonteCarloIntegration()
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
 
+    rPlus = Matrix(nParticles, nDimensions);
+    rMinus = Matrix(nParticles, nDimensions);
+
     double waveFunctionOld = 0;
     double waveFunctionNew = 0;
 
@@ -79,8 +82,6 @@ void VMCSolver::runMonteCarloIntegration()
 
 double VMCSolver::localEnergy(Matrix &r)
 {
-    Matrix rPlus = Matrix(nParticles, nDimensions);
-    Matrix rMinus = Matrix(nParticles, nDimensions);
 
     rPlus = rMinus = r;
 
