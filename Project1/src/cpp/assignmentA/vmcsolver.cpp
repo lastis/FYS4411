@@ -23,11 +23,22 @@ VMCSolver::VMCSolver() :
 bool VMCSolver::initFromFile(std::string fName){
     ifstream myFile;
     string  paramName;
-    int     paramValue;
     string  discard;
+    string line;
 
     myFile.open(fName.c_str());
-    myFile >> paramName >> discard >> paramValue;
+    
+    myFile >> paramName >> discard >> charge;
+    myFile >> paramName >> discard >> alpha;
+    myFile >> paramName >> discard >> beta;
+    myFile >> paramName >> discard >> nDimensions;
+    myFile >> paramName >> discard >> nParticles;
+    myFile >> paramName >> discard >> stepLength;
+    myFile >> paramName >> discard >> nCycles;
+    myFile >> paramName >> discard >> waveFunctionType;
+    myFile >> paramName >> discard >> h;
+    myFile >> paramName >> discard >> h2;
+
     myFile.close();
     return true;
 }
