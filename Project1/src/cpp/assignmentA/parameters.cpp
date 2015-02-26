@@ -13,6 +13,7 @@ double h2 = 1000000;
 double alpha = 0.5*charge;
 double beta = 1;
 int nCycles = 1000000;
+int waveFunctionType = 1;
 
 int main()
 {
@@ -27,12 +28,12 @@ int main()
     myFile << "nParticles = " << nParticles <<  endl;
     myFile << "stepLength = " << stepLength << endl;
     myFile << "nCycles = " << nCycles << endl;
+    myFile << "waveFunctionType = " << waveFunctionType << endl;
     myFile << "h = " << h << endl;
     myFile << "h2 = " << h2 << endl;
     myFile.close();
 
     VMCSolver solver = VMCSolver();
-    solver.useWaveType1();
     solver.runMonteCarloIntegration();
     return 0;
 }
