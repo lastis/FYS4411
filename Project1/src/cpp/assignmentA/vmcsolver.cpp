@@ -14,6 +14,7 @@ VMCSolver::VMCSolver() :
     h2(1000000),
     idum(-1),
     alpha(0.5*charge),
+    beta(0),
     nCycles(1000000)
 {
 }
@@ -51,7 +52,7 @@ void VMCSolver::runMonteCarloIntegration()
     for(int cycle = 0; cycle < nCycles; cycle++) {
 
         // Store the current value of the wave function
-        waveFunctionOld = waveFunction(prOld);
+        waveFunctionOld = waveFunction1(prOld);
 
         // New position to test
         for(int i = 0; i < nParticles; i++) {
@@ -60,7 +61,7 @@ void VMCSolver::runMonteCarloIntegration()
             }
 
             // Recalculate the value of the wave function
-            waveFunctionNew = waveFunction(prNew);
+            waveFunctionNew = waveFunction1(prNew);
 
             // Check for step acceptance (if yes, update position, if no, reset position)
             if(Random::ran2(idum) <= (waveFunctionNew*waveFunctionNew) / 
@@ -92,7 +93,7 @@ double VMCSolver::localEnergy(Matrix &r)
 
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
-    double waveFunctionCurrent = waveFunction(pr);
+    double waveFunctionCurrent = waveFunction1(pr);
 
     // Kinetic energy
 
@@ -107,9 +108,9 @@ double VMCSolver::localEnergy(Matrix &r)
 	    r0 		= pr[i][j];
 
 	    pr[i][j] = rMinus;
-            waveFunctionMinus = waveFunction(pr);
+            waveFunctionMinus = waveFunction1(pr);
 	    pr[i][j] = rPlus;
-            waveFunctionPlus = waveFunction(pr);
+            waveFunctionPlus = waveFunction1(pr);
 	    pr[i][j] = r0;
             kineticEnergy -= (waveFunctionMinus + waveFunctionPlus - 2 * waveFunctionCurrent);
         }
@@ -141,7 +142,7 @@ double VMCSolver::localEnergy(Matrix &r)
     return kineticEnergy + potentialEnergy;
 }
 
-double VMCSolver::waveFunction(double** r)
+double VMCSolver::waveFunction1(double** r)
 {
     double argument = 0;
     for(int i = 0; i < nParticles; i++) {
@@ -152,4 +153,18 @@ double VMCSolver::waveFunction(double** r)
         argument += sqrt(rSingleParticle);
     }
     return exp(-argument * alpha);
+}
+
+double VMCSolver::waveFunction2(double* r1, double* r2){
+    double r1sq = 0;
+    double r2sq = 0;
+    double r12sq = 0;
+    for(int j = 0; j < nDimensions; j++) {
+	r1sq += r1[j] * r1[j];
+	r2sq += r2[j] * r2[j];
+	r12sq  += (r2[j] - r1[j])*(r2[j] - r1[j]);
+    }
+    double argument = sqrt(r1sq) + sqrt(r2sq);
+    double r12 = sqrt(r12sq);
+    return exp(-argument*alpha*r12/(2*(1+beta*r12)));
 }

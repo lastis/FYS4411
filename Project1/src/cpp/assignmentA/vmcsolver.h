@@ -11,7 +11,8 @@ public:
     void runMonteCarloIntegration();
 
 private:
-    double waveFunction(double** r);
+    double waveFunction1(double** r);
+    double waveFunction2(double* r1, double* r2);
     double localEnergy(Matrix &r);
 
     int nDimensions;
@@ -25,6 +26,7 @@ private:
     long idum;
 
     double alpha;
+    double beta;
 
     int nCycles;
 
