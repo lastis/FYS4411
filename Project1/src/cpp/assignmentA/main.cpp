@@ -8,7 +8,7 @@ int main()
 {
     VMCSolver solver = VMCSolver();
     clock_t start = clock();
-    solver.useWaveType2();
+    solver.useWaveType1();
     solver.runMonteCarloIntegration();
     clock_t end = clock();
     double time = double(end - start)/CLOCKS_PER_SEC;

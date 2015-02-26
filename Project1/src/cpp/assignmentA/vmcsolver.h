@@ -13,15 +13,19 @@ public:
     void useWaveType2();
 
 private:
-    int waveFunctionType;
     double waveFunction1(double** r);
     double waveFunction2(double* r1, double* r2);
+    void reset();
+    
+    int waveFunctionType;
     double localEnergy(Matrix &r);
 
+    int accepts;
+    int rejects;
     int nDimensions;
     int charge;
-    double stepLength;
     int nParticles;
+    double stepLength;
 
     double h;
     double h2;

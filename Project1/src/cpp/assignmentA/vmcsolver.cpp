@@ -7,6 +7,8 @@ using namespace std;
 
 VMCSolver::VMCSolver() :
     waveFunctionType(1),
+    accepts(0),
+    rejects(0),
     nDimensions(3),
     charge(2),
     stepLength(1.0),
@@ -26,6 +28,11 @@ void VMCSolver::useWaveType1(){
 
 void VMCSolver::useWaveType2(){
     waveFunctionType = 2;
+}
+
+void VMCSolver::reset(){
+    accepts = 0;
+    rejects = 0;
 }
 
 void VMCSolver::runMonteCarloIntegration()
@@ -80,10 +87,12 @@ void VMCSolver::runMonteCarloIntegration()
                 for(int j = 0; j < nDimensions; j++) {
                     prOld[i][j] = prNew[i][j];
                     waveFunctionOld = waveFunctionNew;
+		    accepts++;
                 }
             } else {
                 for(int j = 0; j < nDimensions; j++) {
                     prNew[i][j] = prOld[i][j];
+		    rejects++;
                 }
             }
             // update energies
@@ -94,7 +103,11 @@ void VMCSolver::runMonteCarloIntegration()
     }
     double energy = energySum/(nCycles * nParticles);
     double energySquared = energySquaredSum/(nCycles * nParticles);
-    cout << "Energy: " << energy << " Energy (squared sum): " << energySquared << endl;
+    cout << "Energy: " << energy << " Energy (squared sum): " 
+	<< energySquared << endl;
+    cout << "Accepted moves: " << int(double(accepts)*100/(rejects+accepts))
+	<< " %" << endl;
+    reset();
 }
 
 double VMCSolver::localEnergy(Matrix &r)
