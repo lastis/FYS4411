@@ -44,7 +44,7 @@ void adjustStepLength(double deltaL, double epsilon, double targetRatio){
         solver.runMonteCarloIntegration();
         ratio = solver.getStepAcceptance();
         cout << "Adjust step length: " << endl;
-        cout << "\tRatio \t= " << ratio << endl;
+        cout << "\tRatio \t\t= " << ratio << endl;
         cout << "\tStep length \t= " <<  stepLength << endl;
     }
 }
