@@ -6,6 +6,7 @@ using namespace CPhys;
 using namespace std;
 
 VMCSolver::VMCSolver() :
+    waveFunctionType(1),
     nDimensions(3),
     charge(2),
     stepLength(1.0),
@@ -14,9 +15,17 @@ VMCSolver::VMCSolver() :
     h2(1000000),
     idum(-1),
     alpha(0.5*charge),
-    beta(0),
+    beta(1),
     nCycles(1000000)
 {
+}
+
+void VMCSolver::useWaveType1(){
+    waveFunctionType = 1;
+}
+
+void VMCSolver::useWaveType2(){
+    waveFunctionType = 2;
 }
 
 void VMCSolver::runMonteCarloIntegration()
@@ -52,7 +61,8 @@ void VMCSolver::runMonteCarloIntegration()
     for(int cycle = 0; cycle < nCycles; cycle++) {
 
         // Store the current value of the wave function
-        waveFunctionOld = waveFunction1(prOld);
+	if (waveFunctionType == 1) waveFunctionOld = waveFunction1(prOld);
+	else waveFunctionOld = waveFunction2(prOld[0],prOld[1]);
 
         // New position to test
         for(int i = 0; i < nParticles; i++) {
@@ -61,7 +71,8 @@ void VMCSolver::runMonteCarloIntegration()
             }
 
             // Recalculate the value of the wave function
-            waveFunctionNew = waveFunction1(prNew);
+            if(waveFunctionType == 1) waveFunctionNew = waveFunction1(prNew);
+	    else waveFunctionNew = waveFunction2(prNew[0], prOld[1]);
 
             // Check for step acceptance (if yes, update position, if no, reset position)
             if(Random::ran2(idum) <= (waveFunctionNew*waveFunctionNew) / 
@@ -93,7 +104,9 @@ double VMCSolver::localEnergy(Matrix &r)
 
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
-    double waveFunctionCurrent = waveFunction1(pr);
+    double waveFunctionCurrent;
+    if (waveFunctionType == 1) waveFunctionCurrent = waveFunction1(pr);
+    else waveFunctionCurrent = waveFunction2(pr[0], pr[1]);
 
     // Kinetic energy
 
@@ -108,9 +121,11 @@ double VMCSolver::localEnergy(Matrix &r)
 	    r0 		= pr[i][j];
 
 	    pr[i][j] = rMinus;
-            waveFunctionMinus = waveFunction1(pr);
+	    if (waveFunctionType == 1) waveFunctionMinus = waveFunction1(pr);
+	    else waveFunctionMinus = waveFunction2(pr[0], pr[1]);
 	    pr[i][j] = rPlus;
-            waveFunctionPlus = waveFunction1(pr);
+	    if (waveFunctionType == 1) waveFunctionPlus = waveFunction1(pr);
+	    else waveFunctionPlus = waveFunction2(pr[0], pr[1]);
 	    pr[i][j] = r0;
             kineticEnergy -= (waveFunctionMinus + waveFunctionPlus - 2 * waveFunctionCurrent);
         }

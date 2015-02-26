@@ -6,9 +6,10 @@ using namespace std;
 
 int main()
 {
-    VMCSolver *solver = new VMCSolver();
+    VMCSolver solver = VMCSolver();
     clock_t start = clock();
-    solver->runMonteCarloIntegration();
+    solver.useWaveType2();
+    solver.runMonteCarloIntegration();
     clock_t end = clock();
     double time = double(end - start)/CLOCKS_PER_SEC;
     cout << "Time = " << time << endl;  

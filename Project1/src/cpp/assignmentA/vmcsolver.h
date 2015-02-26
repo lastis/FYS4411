@@ -9,8 +9,11 @@ public:
     VMCSolver();
 
     void runMonteCarloIntegration();
+    void useWaveType1();
+    void useWaveType2();
 
 private:
+    int waveFunctionType;
     double waveFunction1(double** r);
     double waveFunction2(double* r1, double* r2);
     double localEnergy(Matrix &r);
