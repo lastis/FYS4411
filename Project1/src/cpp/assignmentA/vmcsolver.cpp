@@ -1,6 +1,4 @@
 #include "vmcsolver.h"
-#include <math.h>
-#include <iostream>
 
 using namespace CPhys;
 using namespace std;
@@ -20,6 +18,13 @@ VMCSolver::VMCSolver() :
     beta(1),
     nCycles(1000000)
 {
+}
+
+bool VMCSolver::initFromFile(std::string fName){
+    ofstream myFile;
+    myFile.open("main.ini");
+    myFile.close();
+    return true;
 }
 
 void VMCSolver::useWaveType1(){

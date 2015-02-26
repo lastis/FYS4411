@@ -1,6 +1,10 @@
 #ifndef VMCSOLVER_H
 #define VMCSOLVER_H
 
+#include <math.h>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include "CPhys.h"
 
 class VMCSolver
@@ -11,15 +15,15 @@ public:
     void runMonteCarloIntegration();
     void useWaveType1();
     void useWaveType2();
+    bool initFromFile(std::string fName);
 
 private:
     double waveFunction1(double** r);
     double waveFunction2(double* r1, double* r2);
     void reset();
-    
-    int waveFunctionType;
     double localEnergy(Matrix &r);
 
+    int waveFunctionType;
     int accepts;
     int rejects;
     int nDimensions;
