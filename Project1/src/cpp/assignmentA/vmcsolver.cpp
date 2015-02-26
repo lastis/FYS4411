@@ -19,6 +19,9 @@ VMCSolver::VMCSolver() :
     nCycles(1000000)
 {
 }
+void VMCSolver::setStepLength(double stepLength){
+    this->stepLength = stepLength;
+}
 
 bool VMCSolver::initFromFile(std::string fName){
     ifstream myFile;

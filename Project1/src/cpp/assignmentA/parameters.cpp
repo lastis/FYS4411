@@ -32,6 +32,20 @@ int main()
 
 void adjustStepLength(){
     VMCSolver solver = VMCSolver();
+    exportParamters();
+    solver.initFromFile();
+    solver.runMonteCarloIntegration();
+    double ratio = solver.getStepAcceptance();
+    while (ratio < 48 || ratio > 52) {
+        if (ratio < 48) stepLength -= 0.5;
+        else            stepLength += 0.5;
+        solver.setStepLength(stepLength);
+        solver.runMonteCarloIntegration();
+        ratio = solver.getStepAcceptance();
+        cout << "Adjust step length: " << endl;
+        cout << "\tRatio \t= " << ratio << endl;
+        cout << "\tStep length \t= " <<  stepLength << endl;
+    }
     solver.runMonteCarloIntegration();
 }
 
