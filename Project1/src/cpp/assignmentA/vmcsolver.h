@@ -16,6 +16,7 @@ public:
     void useWaveType1();
     void useWaveType2();
     bool initFromFile(std::string fName = "main.ini");
+    double getStepAcceptance();
 
 private:
     double waveFunction1(double** r);

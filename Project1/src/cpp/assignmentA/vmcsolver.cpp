@@ -56,6 +56,10 @@ void VMCSolver::reset(){
     rejects = 0;
 }
 
+double VMCSolver::getStepAcceptance(){
+    return double(accepts)*100/(rejects+accepts);
+}
+
 void VMCSolver::runMonteCarloIntegration(){
     reset();
     rOld = Matrix(nParticles, nDimensions);
@@ -126,9 +130,6 @@ void VMCSolver::runMonteCarloIntegration(){
     double energySquared = energySquaredSum/(nCycles * nParticles);
     cout << "Energy: " << energy << " Energy (squared sum): " 
 	<< energySquared << endl;
-    cout << "Accepted moves: " << int(double(accepts)*100/(rejects+accepts))
-	<< " %" << endl;
-    reset();
 }
 
 double VMCSolver::localEnergy(Matrix &r)
