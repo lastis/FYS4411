@@ -15,7 +15,7 @@ public:
     void runMonteCarloIntegration();
     void useWaveType1();
     void useWaveType2();
-    bool initFromFile(std::string fName);
+    bool initFromFile(std::string fName = "main.ini");
 
 private:
     double waveFunction1(double** r);

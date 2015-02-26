@@ -22,7 +22,7 @@ VMCSolver::VMCSolver() :
 
 bool VMCSolver::initFromFile(std::string fName){
     ofstream myFile;
-    myFile.open("main.ini");
+    myFile.open(fName.c_str());
     myFile.close();
     return true;
 }
@@ -42,6 +42,7 @@ void VMCSolver::reset(){
 
 void VMCSolver::runMonteCarloIntegration()
 {
+    reset();
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
     prNew = rNew.getArrayPointer();
