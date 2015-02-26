@@ -4,6 +4,12 @@
 
 using namespace std;
 
+// Functions
+void exportParamters();
+void adjustStepLength();
+
+// Paramters 
+// NB! These paramters can be overwritten during the program.
 int nDimensions = 3;
 int charge 	= 2;
 int nParticles = 2;
@@ -17,8 +23,20 @@ int waveFunctionType = 1;
 
 int main()
 {
-    // TODO Varify that the values are written "exactly" so they can be read
-    // correctly. 
+
+    adjustStepLength();
+    exportParamters();
+
+    return 0;
+}
+
+void adjustStepLength(){
+    VMCSolver solver = VMCSolver();
+    solver.runMonteCarloIntegration();
+}
+
+
+void exportParamters(){
     ofstream myFile;
     myFile.open("main.ini");
     myFile << "charge = " << charge <<  endl;
@@ -33,7 +51,4 @@ int main()
     myFile << "h2 = " << h2 << endl;
     myFile.close();
 
-    VMCSolver solver = VMCSolver();
-    solver.runMonteCarloIntegration();
-    return 0;
 }
