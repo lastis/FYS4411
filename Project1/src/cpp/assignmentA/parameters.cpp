@@ -6,14 +6,15 @@ using namespace std;
 
 // Functions
 void exportParamters();
-void adjustStepLength();
+void adjustStepLength(double deltaL = 0.5, 
+        double epsilon = 2, double targetRatio = 50);
 
 // Paramters 
 // NB! These paramters can be overwritten during the program.
 int nDimensions = 3;
 int charge 	= 2;
 int nParticles = 2;
-double stepLength = 1;
+double stepLength = 2.5;
 double h = 0.001;
 double h2 = 1000000;
 double alpha = 0.5*charge;
@@ -24,21 +25,21 @@ int waveFunctionType = 1;
 int main()
 {
 
-    adjustStepLength();
+    adjustStepLength(0.01, 0.1);
     exportParamters();
 
     return 0;
 }
 
-void adjustStepLength(){
+void adjustStepLength(double deltaL, double epsilon, double targetRatio){
     VMCSolver solver = VMCSolver();
     exportParamters();
     solver.initFromFile();
     solver.runMonteCarloIntegration();
     double ratio = solver.getStepAcceptance();
-    while (ratio < 48 || ratio > 52) {
-        if (ratio < 48) stepLength -= 0.5;
-        else            stepLength += 0.5;
+    while (ratio < targetRatio - epsilon || ratio > targetRatio + epsilon) {
+        if (ratio < targetRatio - epsilon)  stepLength -= deltaL;
+        else                                stepLength += deltaL;
         solver.setStepLength(stepLength);
         solver.runMonteCarloIntegration();
         ratio = solver.getStepAcceptance();
@@ -46,7 +47,6 @@ void adjustStepLength(){
         cout << "\tRatio \t= " << ratio << endl;
         cout << "\tStep length \t= " <<  stepLength << endl;
     }
-    solver.runMonteCarloIntegration();
 }
 
 
