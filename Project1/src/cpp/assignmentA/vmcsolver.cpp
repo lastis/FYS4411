@@ -21,8 +21,13 @@ VMCSolver::VMCSolver() :
 }
 
 bool VMCSolver::initFromFile(std::string fName){
-    ofstream myFile;
+    ifstream myFile;
+    string  paramName;
+    int     paramValue;
+    string  discard;
+
     myFile.open(fName.c_str());
+    myFile >> paramName >> discard >> paramValue;
     myFile.close();
     return true;
 }
@@ -40,8 +45,7 @@ void VMCSolver::reset(){
     rejects = 0;
 }
 
-void VMCSolver::runMonteCarloIntegration()
-{
+void VMCSolver::runMonteCarloIntegration(){
     reset();
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
