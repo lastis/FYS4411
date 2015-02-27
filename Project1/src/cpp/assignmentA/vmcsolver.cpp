@@ -93,6 +93,9 @@ bool VMCSolver::runMonteCarloIntegration(){
 
     double energySum = 0;
     double energySquaredSum = 0;
+    
+    
+    rSum = 0;
 
     double deltaE;
 
