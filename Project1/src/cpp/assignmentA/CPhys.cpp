@@ -90,7 +90,7 @@ Matrix	Lattice::getFCC(int Nc, double b){
 	return r;
 }
 
-double Random::ran0(long &seed)
+double Random::ran0(long seed)
 {
 
 	#define IA 16807
@@ -122,7 +122,7 @@ double Random::ran0(long &seed)
 
 
 
-double Random::ran2(long &seed) {
+double Random::ran2(long seed) {
  	#define IM1 2147483563
   	#define IM2 2147483399
   	#define AM (1.0/IM1)
@@ -187,7 +187,7 @@ double Random::ran2(long &seed) {
 
 
 // random numbers with gaussian distribution
-double Random::gauss(long &seed) {
+double Random::gauss(long seed) {
 	using namespace Random;
 	static int iset = 0;
 	static double gset;

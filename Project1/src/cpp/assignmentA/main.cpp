@@ -18,5 +18,6 @@ int main()
 
     cout << "Accepted moves: " << int(solver.getStepAcceptance())
 	    << " %" << endl;
+    solver.exportParamters();
     return 0;
 }
