@@ -8,6 +8,7 @@ using namespace std;
 void adjustStepLength(double deltaL = 0.5, 
         double epsilon = 2, double targetRatio = 50);
 void adjustAlpha(double deltaAlpha);
+void adjustBeta(double deltaBeta);
 
 
 VMCSolver solver;
@@ -15,11 +16,59 @@ VMCSolver solver;
 int main()
 {
     solver = VMCSolver();
-    solver.initFromFile("trial1.ini");
-    adjustAlpha(0.01);
-    solver.exportParamters("trial1.ini");
+    solver.initFromFile("trial2.ini");
+    adjustBeta(1);
+    solver.exportParamters("trial2.ini");
 
     return 0;
+}
+
+void adjustBeta(double deltaBeta){
+    double deltaEnergy;
+
+    // Set previous beta value
+    double betaOld = solver.beta;
+    solver.runMonteCarloIntegration();
+    double energyOld = solver.getEnergy();
+    cout << "Beta : " << betaOld << endl;
+
+    // Set new beta value
+    double betaNew = betaOld + deltaBeta;
+    bool goUp = true;
+    solver.runMonteCarloIntegration();
+    double energyNew = solver.getEnergy();
+    cout << "Beta : " << betaNew << endl;
+
+    // Itterate one time to find which way we must adjust beta. 
+    // New beta value should give lower energy
+    if (energyNew > energyOld) {
+	goUp = false;
+    	betaNew = betaOld - deltaBeta;
+	solver.runMonteCarloIntegration();
+	energyNew = solver.getEnergy();
+	cout << "Beta : " << betaNew << endl;
+    }
+    // If it doesn't, we are at a minima (With the current deltaAlpha).
+    if (energyNew > energyOld) {
+	cout << "Could not adjust beta with the current adjustment step." 
+	    << endl;
+	return;
+    }
+
+    // Adjust as long as we have a lower energy.
+    while (energyNew < energyOld) {
+	// Copy new to old values
+	betaOld = betaNew;
+	energyOld = energyNew;
+	// Update new values
+	if(goUp) betaNew = betaOld + deltaBeta;
+	else betaNew = betaOld - deltaBeta;
+	solver.runMonteCarloIntegration();
+	energyNew = solver.getEnergy();
+	cout << "Beta : " << betaNew << endl;
+    }
+    
+    solver.beta = betaOld;
 }
 
 void adjustAlpha(double deltaAlpha){

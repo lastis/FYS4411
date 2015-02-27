@@ -4,7 +4,7 @@ using namespace CPhys;
 using namespace std;
 
 VMCSolver::VMCSolver(){
-    reset();
+    clearAll();
 }
 
 
@@ -232,7 +232,7 @@ void VMCSolver::clearAll(){
     nParticles = 0;
     h = 0;
     h2 = 0;
-    idum = -1;
+    idum = 1;
     alpha = 0;
     beta = 0;
     nCycles = 0;
