@@ -22,6 +22,7 @@ public:
     double getR12Mean();
     double getEnergy();
     void exportParamters(std::string fName);
+    void reset();
 
 
     // Paramters
@@ -31,7 +32,6 @@ public:
 private:
     double waveFunction1(double** r);
     double waveFunction2(double** r);
-    void reset();
     double localEnergy(Matrix &r);
 
     bool initialized;
