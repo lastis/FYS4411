@@ -22,6 +22,11 @@ public:
     double getR12Mean();
     void exportParamters(std::string fName);
 
+
+    // Paramters
+    double alpha;
+    double beta;
+
 private:
     double waveFunction1(double** r);
     double waveFunction2(double** r);
@@ -38,8 +43,6 @@ private:
     int nCycles;
     int nParticles;
     double stepLength;
-    double alpha;
-    double beta;
     double h;
     double h2;
     long idum;
