@@ -19,7 +19,7 @@ public:
     double getStepAcceptance();
     void setStepLength(double stepLength);
     double getStepLength();
-    void exportParamters();
+    void exportParamters(std::string fName = "main.ini");
 
 private:
     double waveFunction1(double** r);

@@ -236,9 +236,9 @@ double VMCSolver::waveFunction2(double* r1, double* r2){
     return exp(-argument*alpha*r12/(2*(1+beta*r12)));
 }
 
-void VMCSolver::exportParamters(){
+void VMCSolver::exportParamters(std::string fName){
     ofstream myFile;
-    myFile.open("main.ini");
+    myFile.open(fName.c_str());
     myFile << "charge = " << charge <<  endl;
     myFile << "alpha = " << alpha << endl;
     myFile << "beta = " << beta << endl;

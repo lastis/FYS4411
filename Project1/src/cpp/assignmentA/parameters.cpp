@@ -13,7 +13,6 @@ VMCSolver solver;
 
 int main()
 {
-
     solver = VMCSolver();
     solver.initFromFile();
     adjustStepLength(0.1, 3);
