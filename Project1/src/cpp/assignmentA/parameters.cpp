@@ -20,12 +20,12 @@ double h2 = 1000000;
 double alpha = 0.5*charge;
 double beta = 1;
 int nCycles = 1000000;
-int waveFunctionType = 1;
+int waveFunctionType = 2;
 
 int main()
 {
 
-    adjustStepLength(0.01, 0.1);
+    adjustStepLength(0.01, 1);
     exportParamters();
 
     return 0;
@@ -33,18 +33,23 @@ int main()
 
 void adjustStepLength(double deltaL, double epsilon, double targetRatio){
     VMCSolver solver = VMCSolver();
-    exportParamters();
+    // Initialize the solver from paramters in this file
+    /* exportParamters(); */
     solver.initFromFile();
+
+    // Find better value for stepLength
     solver.runMonteCarloIntegration();
     double ratio = solver.getStepAcceptance();
+    cout << "\tRatio \t\t= " << ratio << " %" << endl;
+    cout << "\tStep length \t= " <<  stepLength << endl;
     while (ratio < targetRatio - epsilon || ratio > targetRatio + epsilon) {
+        cout << "Adjust step length: " << endl;
         if (ratio < targetRatio - epsilon)  stepLength -= deltaL;
         else                                stepLength += deltaL;
         solver.setStepLength(stepLength);
         solver.runMonteCarloIntegration();
         ratio = solver.getStepAcceptance();
-        cout << "Adjust step length: " << endl;
-        cout << "\tRatio \t\t= " << ratio << endl;
+        cout << "\tRatio \t\t= " << ratio << " %" << endl;
         cout << "\tStep length \t= " <<  stepLength << endl;
     }
 }
@@ -64,5 +69,4 @@ void exportParamters(){
     myFile << "h = " << h << endl;
     myFile << "h2 = " << h2 << endl;
     myFile.close();
-
 }

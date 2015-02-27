@@ -28,6 +28,7 @@ bool VMCSolver::initFromFile(std::string fName){
     string  paramName;
     string  discard;
     string line;
+    cout << "Initializing from file : " << fName << endl;
 
     myFile.open(fName.c_str());
     
@@ -125,6 +126,7 @@ void VMCSolver::runMonteCarloIntegration(){
             }
             // update energies
             deltaE = localEnergy(rNew);
+	    /* meanDistance() */
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
         }
@@ -220,4 +222,20 @@ double VMCSolver::waveFunction2(double* r1, double* r2){
     double argument = sqrt(r1sq) + sqrt(r2sq);
     double r12 = sqrt(r12sq);
     return exp(-argument*alpha*r12/(2*(1+beta*r12)));
+}
+
+void VMCSolver::exportParamters(){
+    ofstream myFile;
+    myFile.open("main.ini");
+    myFile << "charge = " << charge <<  endl;
+    myFile << "alpha = " << alpha << endl;
+    myFile << "beta = " << beta << endl;
+    myFile << "nDimensions = " << nDimensions <<  endl;
+    myFile << "nParticles = " << nParticles <<  endl;
+    myFile << "stepLength = " << stepLength << endl;
+    myFile << "nCycles = " << nCycles << endl;
+    myFile << "waveFunctionType = " << waveFunctionType << endl;
+    myFile << "h = " << h << endl;
+    myFile << "h2 = " << h2 << endl;
+    myFile.close();
 }
