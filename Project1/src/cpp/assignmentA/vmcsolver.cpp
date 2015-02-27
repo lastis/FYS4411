@@ -65,6 +65,8 @@ void VMCSolver::reset(){
     accepts = 0;
     rejects = 0;
 
+    rSum = 0;
+
     initialized = false;
 }
 
@@ -141,11 +143,19 @@ bool VMCSolver::runMonteCarloIntegration(){
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
         }
+
+	double rsq = 0;
+	for(int j = 0; j < nDimensions; j++) {
+	    rsq += (prOld[1][j] - prOld[0][j])*(prOld[1][j] - prOld[0][j]);
+	}
+	rSum += sqrt(rsq);
     }
+    mean = rSum/(nCycles);
     double energy = energySum/(nCycles * nParticles);
     double energySquared = energySquaredSum/(nCycles * nParticles);
     cout << "Energy: " << energy << " Energy (squared sum): " 
 	<< energySquared << endl;
+    cout << "r12 mean: " << mean << endl;
     return true;
 }
 

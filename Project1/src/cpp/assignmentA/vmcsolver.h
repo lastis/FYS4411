@@ -43,6 +43,9 @@ private:
     double h2;
     long idum;
 
+    double rSum;
+    double mean;
+
 
 
     Matrix rOld;
