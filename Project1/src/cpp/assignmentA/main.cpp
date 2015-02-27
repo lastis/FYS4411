@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
     VMCSolver solver = VMCSolver();
-    solver.initFromFile("trial2.ini");
+    solver.initFromFile("trial1.ini");
 
     clock_t start = clock();
     solver.runMonteCarloIntegration();

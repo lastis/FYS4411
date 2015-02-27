@@ -29,9 +29,8 @@ bool VMCSolver::runMonteCarloIntegration(){
     double energySquaredSum = 0;
     
     
-    // TODO put these "resets" in an own method.
-    rSum = 0;
-    energy = 0;
+
+    reset();
 
     double deltaE;
 
