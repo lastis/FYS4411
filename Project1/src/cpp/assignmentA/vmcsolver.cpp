@@ -6,8 +6,13 @@ using namespace std;
 VMCSolver::VMCSolver(){
     reset();
 }
+
 void VMCSolver::setStepLength(double stepLength){
     this->stepLength = stepLength;
+}
+
+double VMCSolver::getStepLength(){
+    return stepLength;
 }
 
 bool VMCSolver::initFromFile(std::string fName){
@@ -45,20 +50,6 @@ void VMCSolver::useWaveType2(){
 }
 
 void VMCSolver::reset(){
-    /* waveFunctionType(1), */
-    /* accepts(0), */
-    /* rejects(0), */
-    /* nDimensions(3), */
-    /* charge(2), */
-    /* stepLength(1.0), */
-    /* nParticles(2), */
-    /* h(0.001), */
-    /* h2(1000000), */
-    /* idum(-1), */
-    /* alpha(0.5*charge), */
-    /* beta(1), */
-    /* nCycles(1000000) */
-
     waveFunctionType = 1;
     nDimensions = 0;
     charge = 0;

@@ -18,6 +18,7 @@ public:
     bool initFromFile(std::string fName = "main.ini");
     double getStepAcceptance();
     void setStepLength(double stepLength);
+    double getStepLength();
     void exportParamters();
 
 private:
