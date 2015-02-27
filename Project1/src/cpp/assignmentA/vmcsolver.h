@@ -12,7 +12,7 @@ class VMCSolver
 public:
     VMCSolver();
 
-    void runMonteCarloIntegration();
+    bool runMonteCarloIntegration();
     void useWaveType1();
     void useWaveType2();
     bool initFromFile(std::string fName = "main.ini");
@@ -26,6 +26,7 @@ private:
     void reset();
     double localEnergy(Matrix &r);
 
+    bool initialized;
     int waveFunctionType;
     int accepts;
     int rejects;

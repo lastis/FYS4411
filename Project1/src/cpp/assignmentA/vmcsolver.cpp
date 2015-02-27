@@ -3,21 +3,8 @@
 using namespace CPhys;
 using namespace std;
 
-VMCSolver::VMCSolver() :
-    waveFunctionType(1),
-    accepts(0),
-    rejects(0),
-    nDimensions(3),
-    charge(2),
-    stepLength(1.0),
-    nParticles(2),
-    h(0.001),
-    h2(1000000),
-    idum(-1),
-    alpha(0.5*charge),
-    beta(1),
-    nCycles(1000000)
-{
+VMCSolver::VMCSolver(){
+    reset();
 }
 void VMCSolver::setStepLength(double stepLength){
     this->stepLength = stepLength;
@@ -44,6 +31,8 @@ bool VMCSolver::initFromFile(std::string fName){
     myFile >> paramName >> discard >> h2;
 
     myFile.close();
+
+    initialized = true;
     return true;
 }
 
@@ -56,16 +45,47 @@ void VMCSolver::useWaveType2(){
 }
 
 void VMCSolver::reset(){
+    /* waveFunctionType(1), */
+    /* accepts(0), */
+    /* rejects(0), */
+    /* nDimensions(3), */
+    /* charge(2), */
+    /* stepLength(1.0), */
+    /* nParticles(2), */
+    /* h(0.001), */
+    /* h2(1000000), */
+    /* idum(-1), */
+    /* alpha(0.5*charge), */
+    /* beta(1), */
+    /* nCycles(1000000) */
+
+    waveFunctionType = 1;
+    nDimensions = 0;
+    charge = 0;
+    stepLength = 0;
+    nParticles = 0;
+    h = 0;
+    h2 = 0;
+    idum = -1;
+    alpha = 0;
+    beta = 0;
+    nCycles = 0;
     accepts = 0;
     rejects = 0;
+
+    initialized = false;
 }
 
 double VMCSolver::getStepAcceptance(){
     return double(accepts)*100/(rejects+accepts);
 }
 
-void VMCSolver::runMonteCarloIntegration(){
-    reset();
+bool VMCSolver::runMonteCarloIntegration(){
+    if (!initialized) {
+	cout << "Error: Solver not initialized, integration not running."
+	    << endl;
+	return false;
+    }
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
     prNew = rNew.getArrayPointer();
@@ -135,6 +155,7 @@ void VMCSolver::runMonteCarloIntegration(){
     double energySquared = energySquaredSum/(nCycles * nParticles);
     cout << "Energy: " << energy << " Energy (squared sum): " 
 	<< energySquared << endl;
+    return true;
 }
 
 double VMCSolver::localEnergy(Matrix &r)
