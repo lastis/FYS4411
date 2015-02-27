@@ -15,7 +15,7 @@ int main()
 {
     solver = VMCSolver();
     solver.initFromFile();
-    adjustStepLength(0.1, 3);
+    adjustStepLength(0.01, 3);
     solver.exportParamters();
 
     return 0;

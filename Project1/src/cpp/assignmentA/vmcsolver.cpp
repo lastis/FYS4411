@@ -34,6 +34,7 @@ bool VMCSolver::initFromFile(std::string fName){
     myFile >> paramName >> discard >> waveFunctionType;
     myFile >> paramName >> discard >> h;
     myFile >> paramName >> discard >> h2;
+    myFile >> paramName >> discard >> idum;
 
     myFile.close();
 
@@ -137,7 +138,6 @@ bool VMCSolver::runMonteCarloIntegration(){
             }
             // update energies
             deltaE = localEnergy(rNew);
-	    /* meanDistance() */
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
         }
@@ -249,5 +249,6 @@ void VMCSolver::exportParamters(std::string fName){
     myFile << "waveFunctionType = " << waveFunctionType << endl;
     myFile << "h = " << h << endl;
     myFile << "h2 = " << h2 << endl;
+    myFile << "idum = " << idum << endl;
     myFile.close();
 }

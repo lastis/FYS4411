@@ -8,3 +8,4 @@ nCycles = 1000000
 waveFunctionType = 2
 h = 0.001
 h2 = 1e+06
+idum = 1

@@ -28,23 +28,22 @@ private:
     double localEnergy(Matrix &r);
 
     bool initialized;
+    // Next paramters are gathered from file. 
     int waveFunctionType;
     int accepts;
     int rejects;
-    int nDimensions;
     int charge;
+    int nDimensions;
+    int nCycles;
     int nParticles;
     double stepLength;
-
-    double h;
-    double h2;
-
-    long idum;
-
     double alpha;
     double beta;
+    double h;
+    double h2;
+    long idum;
 
-    int nCycles;
+
 
     Matrix rOld;
     Matrix rNew;
