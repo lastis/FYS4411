@@ -162,6 +162,9 @@ void VMCSolver::setStepLength(double stepLength){
 double VMCSolver::getStepLength(){
     return stepLength;
 }
+double VMCSolver::getR12Mean(){
+    return mean;
+}
 
 bool VMCSolver::initFromFile(std::string fName){
     ifstream myFile;
@@ -239,7 +242,6 @@ double VMCSolver::waveFunction1(double** r)
 }
 
 double VMCSolver::waveFunction2(double** r){
-    // Contribution from electron-electron potential
     double argument = 0;
     double rsq = 0;
     double r12sq = 0;

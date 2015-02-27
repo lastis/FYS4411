@@ -19,6 +19,7 @@ public:
     double getStepAcceptance();
     void setStepLength(double stepLength);
     double getStepLength();
+    double getR12Mean();
     void exportParamters(std::string fName);
 
 private:
