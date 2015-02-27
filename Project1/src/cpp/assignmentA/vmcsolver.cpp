@@ -20,10 +20,13 @@ bool VMCSolver::initFromFile(std::string fName){
     string  paramName;
     string  discard;
     string line;
-    cout << "Initializing from file : " << fName << endl;
 
     myFile.open(fName.c_str());
-    
+    if (!myFile) {
+	cout << fName << "does not exist. Solver could not initialize." << endl;
+	return false;
+    }
+    cout << "Initializing from file : " << fName << endl;
     myFile >> paramName >> discard >> charge;
     myFile >> paramName >> discard >> alpha;
     myFile >> paramName >> discard >> beta;

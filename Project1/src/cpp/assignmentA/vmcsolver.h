@@ -15,11 +15,11 @@ public:
     bool runMonteCarloIntegration();
     void useWaveType1();
     void useWaveType2();
-    bool initFromFile(std::string fName = "main.ini");
+    bool initFromFile(std::string fName);
     double getStepAcceptance();
     void setStepLength(double stepLength);
     double getStepLength();
-    void exportParamters(std::string fName = "main.ini");
+    void exportParamters(std::string fName);
 
 private:
     double waveFunction1(double** r);
