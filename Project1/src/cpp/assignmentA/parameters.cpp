@@ -16,7 +16,8 @@ int main()
 {
     solver = VMCSolver();
     solver.initFromFile("trial1.ini");
-    adjustAlpha(0.5);
+    adjustAlpha(0.01);
+    solver.exportParamters("trial1.ini");
 
     return 0;
 }
