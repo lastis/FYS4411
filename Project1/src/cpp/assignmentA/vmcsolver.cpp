@@ -29,7 +29,9 @@ bool VMCSolver::runMonteCarloIntegration(){
     double energySquaredSum = 0;
     
     
+    // TODO put these "resets" in an own method.
     rSum = 0;
+    energy = 0;
 
     double deltaE;
 
@@ -88,7 +90,7 @@ bool VMCSolver::runMonteCarloIntegration(){
 	rSum += sqrt(rsq);
     }
     mean = rSum/(nCycles);
-    double energy = energySum/(nCycles * nParticles);
+    energy = energySum/(nCycles * nParticles);
     double energySquared = energySquaredSum/(nCycles * nParticles);
     cout << "Energy: " << energy << " Energy (squared sum): " 
 	<< energySquared << endl;
@@ -162,6 +164,11 @@ void VMCSolver::setStepLength(double stepLength){
 double VMCSolver::getStepLength(){
     return stepLength;
 }
+
+double VMCSolver::getEnergy(){
+    return energy;
+}
+
 double VMCSolver::getR12Mean(){
     return mean;
 }
