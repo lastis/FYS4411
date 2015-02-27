@@ -7,75 +7,6 @@ VMCSolver::VMCSolver(){
     reset();
 }
 
-void VMCSolver::setStepLength(double stepLength){
-    this->stepLength = stepLength;
-}
-
-double VMCSolver::getStepLength(){
-    return stepLength;
-}
-
-bool VMCSolver::initFromFile(std::string fName){
-    ifstream myFile;
-    string  paramName;
-    string  discard;
-    string line;
-
-    myFile.open(fName.c_str());
-    if (!myFile) {
-	cout << fName << "does not exist. Solver could not initialize." << endl;
-	return false;
-    }
-    cout << "Initializing from file : " << fName << endl;
-    myFile >> paramName >> discard >> charge;
-    myFile >> paramName >> discard >> alpha;
-    myFile >> paramName >> discard >> beta;
-    myFile >> paramName >> discard >> nDimensions;
-    myFile >> paramName >> discard >> nParticles;
-    myFile >> paramName >> discard >> stepLength;
-    myFile >> paramName >> discard >> nCycles;
-    myFile >> paramName >> discard >> waveFunctionType;
-    myFile >> paramName >> discard >> h;
-    myFile >> paramName >> discard >> h2;
-    myFile >> paramName >> discard >> idum;
-
-    myFile.close();
-
-    initialized = true;
-    return true;
-}
-
-void VMCSolver::useWaveType1(){
-    waveFunctionType = 1;
-}
-
-void VMCSolver::useWaveType2(){
-    waveFunctionType = 2;
-}
-
-void VMCSolver::reset(){
-    waveFunctionType = 1;
-    nDimensions = 0;
-    charge = 0;
-    stepLength = 0;
-    nParticles = 0;
-    h = 0;
-    h2 = 0;
-    idum = -1;
-    alpha = 0;
-    beta = 0;
-    nCycles = 0;
-    accepts = 0;
-    rejects = 0;
-
-    rSum = 0;
-
-    initialized = false;
-}
-
-double VMCSolver::getStepAcceptance(){
-    return double(accepts)*100/(rejects+accepts);
-}
 
 bool VMCSolver::runMonteCarloIntegration(){
     if (!initialized) {
@@ -222,6 +153,76 @@ double VMCSolver::localEnergy(Matrix &r)
     }
 
     return kineticEnergy + potentialEnergy;
+}
+
+void VMCSolver::setStepLength(double stepLength){
+    this->stepLength = stepLength;
+}
+
+double VMCSolver::getStepLength(){
+    return stepLength;
+}
+
+bool VMCSolver::initFromFile(std::string fName){
+    ifstream myFile;
+    string  paramName;
+    string  discard;
+    string line;
+
+    myFile.open(fName.c_str());
+    if (!myFile) {
+	cout << fName << "does not exist. Solver could not initialize." << endl;
+	return false;
+    }
+    cout << "Initializing from file : " << fName << endl;
+    myFile >> paramName >> discard >> charge;
+    myFile >> paramName >> discard >> alpha;
+    myFile >> paramName >> discard >> beta;
+    myFile >> paramName >> discard >> nDimensions;
+    myFile >> paramName >> discard >> nParticles;
+    myFile >> paramName >> discard >> stepLength;
+    myFile >> paramName >> discard >> nCycles;
+    myFile >> paramName >> discard >> waveFunctionType;
+    myFile >> paramName >> discard >> h;
+    myFile >> paramName >> discard >> h2;
+    myFile >> paramName >> discard >> idum;
+
+    myFile.close();
+
+    initialized = true;
+    return true;
+}
+
+void VMCSolver::useWaveType1(){
+    waveFunctionType = 1;
+}
+
+void VMCSolver::useWaveType2(){
+    waveFunctionType = 2;
+}
+
+void VMCSolver::reset(){
+    waveFunctionType = 1;
+    nDimensions = 0;
+    charge = 0;
+    stepLength = 0;
+    nParticles = 0;
+    h = 0;
+    h2 = 0;
+    idum = -1;
+    alpha = 0;
+    beta = 0;
+    nCycles = 0;
+    accepts = 0;
+    rejects = 0;
+
+    rSum = 0;
+
+    initialized = false;
+}
+
+double VMCSolver::getStepAcceptance(){
+    return double(accepts)*100/(rejects+accepts);
 }
 
 double VMCSolver::waveFunction1(double** r)
