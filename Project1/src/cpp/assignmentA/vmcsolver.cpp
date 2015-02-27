@@ -158,7 +158,6 @@ bool VMCSolver::runMonteCarloIntegration(){
     double energySquared = energySquaredSum/(nCycles * nParticles);
     cout << "Energy: " << energy << " Energy (squared sum): " 
 	<< energySquared << endl;
-    cout << "r12 mean: " << mean << endl;
     return true;
 }
 
@@ -272,6 +271,7 @@ double VMCSolver::waveFunction2(double** r){
 
 void VMCSolver::exportParamters(std::string fName){
     ofstream myFile;
+    cout << "Dumption to file : " << fName << endl;
     myFile.open(fName.c_str());
     myFile << "charge = " << charge <<  endl;
     myFile << "alpha = " << alpha << endl;

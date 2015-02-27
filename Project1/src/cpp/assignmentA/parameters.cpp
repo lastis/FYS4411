@@ -14,9 +14,9 @@ VMCSolver solver;
 int main()
 {
     solver = VMCSolver();
-    solver.initFromFile();
-    adjustStepLength(0.01, 0.5);
-    solver.exportParamters();
+    solver.initFromFile("trial2.ini");
+    adjustStepLength(0.05, 1);
+    solver.exportParamters("trial2.ini");
 
     return 0;
 }
