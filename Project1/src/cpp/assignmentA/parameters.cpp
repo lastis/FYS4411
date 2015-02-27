@@ -15,15 +15,13 @@ int main()
 {
     solver = VMCSolver();
     solver.initFromFile();
-    adjustStepLength(0.01, 3);
+    adjustStepLength(0.01, 0.5);
     solver.exportParamters();
 
     return 0;
 }
 
 void adjustStepLength(double deltaL, double epsilon, double targetRatio){
-    // Initialize the solver from paramters in this file
-
     // Find better value for stepLength
     double stepLength = solver.getStepLength();
     solver.runMonteCarloIntegration();
