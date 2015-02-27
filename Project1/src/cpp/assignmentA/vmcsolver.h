@@ -23,6 +23,7 @@ public:
     double getEnergy();
     void exportParamters(std::string fName);
     void reset();
+    void clearAll();
 
 
     // Paramters
@@ -35,7 +36,7 @@ private:
     double localEnergy(Matrix &r);
 
     bool initialized;
-    // Next paramters are gathered from file. 
+    // Paramters are gathered from file. 
     int waveFunctionType;
     int accepts;
     int rejects;
@@ -48,11 +49,10 @@ private:
     double h2;
     long idum;
 
+    // Values from the simulation. 
     double rSum;
     double mean;
     double energy;
-
-
 
     Matrix rOld;
     Matrix rNew;

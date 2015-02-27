@@ -212,6 +212,19 @@ void VMCSolver::useWaveType2(){
 }
 
 void VMCSolver::reset(){
+    mean = 0;
+    energy = 0;
+    accepts = 0;
+    rejects = 0;
+
+    rOld.reset();
+    rNew.reset();
+    rPlus.reset();
+    rMinus.reset();
+
+}
+
+void VMCSolver::clearAll(){
     waveFunctionType = 1;
     nDimensions = 0;
     charge = 0;
@@ -223,10 +236,13 @@ void VMCSolver::reset(){
     alpha = 0;
     beta = 0;
     nCycles = 0;
+
     accepts = 0;
     rejects = 0;
 
     rSum = 0;
+    energy = 0;
+    mean = 0;
 
     initialized = false;
 }
