@@ -81,6 +81,8 @@ bool VMCSolver::runMonteCarloIntegration(){
 		deltaE = localEnergy(rNew); 
 	    else if(localEnergyFunction == 2) 
 		deltaE = localEnergyAnalytic1(prNew[0], prNew[1]);
+	    else if(localEnergyFunction == 3) 
+		deltaE = localEnergyAnalytic2(prNew[0], prNew[1]);
             
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
@@ -118,7 +120,35 @@ double VMCSolver::localEnergyAnalytic1(double* r1, double* r2){
     r1Abs = sqrt(r1Abs);
     r2Abs = sqrt(r2Abs);
     r12Abs = sqrt(r12Abs);
-    return exp(alpha-charge)*(1/r1Abs + 1/r2Abs) + 1/r12Abs - alpha*alpha;
+    return (alpha-charge)*(1/r1Abs + 1/r2Abs) + 1/r12Abs - alpha*alpha;
+}
+
+double VMCSolver::localEnergyAnalytic2(double* r1, double* r2){
+    double temp = 0;
+    double r12Abs = 0;
+    double r1Abs = 0;
+    double r2Abs = 0;
+    double r1r2 = 0; // Dot product.
+    for(int j = 0; j < nDimensions; j++) {
+	temp = r1[j] * r1[j];
+	r1Abs += temp;
+	temp = r2[j] * r2[j];
+	r2Abs += temp;
+	temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
+	r12Abs += temp;
+	temp = r1[j]*r2[j];
+	r1r2 += temp;
+    }
+    r1Abs = sqrt(r1Abs);
+    r2Abs = sqrt(r2Abs);
+    r12Abs = sqrt(r12Abs);
+    double E1 = (alpha-charge)*(1/r1Abs + 1/r2Abs) + 1/r12Abs - alpha*alpha;
+    double betaR12 = 1/((1+beta*r12Abs));
+    return E1 + betaR12*betaR12/2 * (
+	    alpha*(r1Abs + r2Abs)/r12Abs*(1-(r1r2/(r1Abs*r2Abs)))
+	    - betaR12*betaR12/2 - 2/r12Abs + 2*beta*betaR12
+	    );
+
 }
 
 double VMCSolver::localEnergy(Matrix &r)
@@ -232,7 +262,7 @@ void VMCSolver::useGenericLocalEnergy(){
     localEnergyFunction = 1;
 }
 
-void VMCSolver::useAnalyticLocalEnergy(){
+void VMCSolver::useAnalyticLocalEnergy1(){
     if(nParticles != 2) {
 	cout << "Cannot use this analytic local energy function \
 	    for 2 particles." << endl;
@@ -243,6 +273,16 @@ void VMCSolver::useAnalyticLocalEnergy(){
     localEnergyFunction = 2;
 }
 
+void VMCSolver::useAnalyticLocalEnergy2(){
+    if(nParticles != 2) {
+	cout << "Cannot use this analytic local energy function " 
+	    << "for 2 particles." << endl;
+	cout << "Using generic one." << endl;
+	localEnergyFunction = 1;
+	return;
+    }
+    localEnergyFunction = 3;
+}
 void VMCSolver::useWaveType1(){
     waveFunctionType = 1;
 }

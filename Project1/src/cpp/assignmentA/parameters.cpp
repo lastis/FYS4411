@@ -17,9 +17,10 @@ int main()
 {
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
+    solver.useAnalyticLocalEnergy2();
     /* adjustStepLength(0.005, 0.1); */
-    adjustAlpha(0.001);
-    /* adjustBeta(0.01); */
+    /* adjustAlpha(0.0005); */
+    adjustBeta(0.0005);
     solver.exportParamters("helium2.ini");
 
     return 0;
