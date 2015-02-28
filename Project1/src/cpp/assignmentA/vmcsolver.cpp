@@ -283,7 +283,7 @@ double VMCSolver::waveFunction2(double** r){
 	    r12 += sqrt(r12sq);
         }
     }
-    return exp(-argument*alpha+r12/(2*(1+beta*r12)));
+    return exp(-argument*alpha)*exp(r12/(2*(1+beta*r12)));
 }
 
 void VMCSolver::exportParamters(std::string fName){
