@@ -49,8 +49,10 @@ bool VMCSolver::runMonteCarloIntegration(){
     for(int cycle = 0; cycle < nCycles; cycle++) {
 
         // Store the current value of the wave function
-	if (waveFunctionType == 1) waveFunctionOld = waveFunction1(prOld);
-	else waveFunctionOld = waveFunction2(prOld[0],prOld[1]);
+	if (waveFunction == WAVE_FUNCTION_1) 
+	    waveFunctionOld = wave1(prOld);
+	else 
+	    waveFunctionOld = wave2(prOld[0],prOld[1]);
 
         // New position to test
         for(int i = 0; i < nParticles; i++) {
@@ -59,8 +61,10 @@ bool VMCSolver::runMonteCarloIntegration(){
             }
 
             // Recalculate the value of the wave function
-            if(waveFunctionType == 1) waveFunctionNew = waveFunction1(prNew);
-	    else waveFunctionNew = waveFunction2(prNew[0],prNew[1]);
+            if(waveFunction == WAVE_FUNCTION_1) 
+		waveFunctionNew = wave1(prNew);
+	    else 
+		waveFunctionNew = wave2(prNew[0],prNew[1]);
 
             // Check for step acceptance (if yes, update position, if no, reset position)
             if(Random::ran2(idum) <= (waveFunctionNew*waveFunctionNew) / 
@@ -77,12 +81,12 @@ bool VMCSolver::runMonteCarloIntegration(){
                 }
             }
             // update energies
-	    if (localEnergyFunction == 1) 
+	    if (localEnergyFunction == LOCAL_ENERGY_GENERIC) 
 		deltaE = localEnergy(rNew); 
-	    else if(localEnergyFunction == 2) 
-		deltaE = localEnergyAnalytic1(prNew[0], prNew[1]);
-	    else if(localEnergyFunction == 3) 
-		deltaE = localEnergyAnalytic2(prNew[0], prNew[1]);
+	    else if(localEnergyFunction == LOCAL_ENERGY_HELIUM) 
+		deltaE = localEnergyHelium(prNew[0], prNew[1]);
+	    else if(localEnergyFunction == LOCAL_ENERGY_HYDROGEN) 
+		/* deltaE = localEnergyHydrogen(prNew[0]); */
             
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
@@ -103,27 +107,7 @@ bool VMCSolver::runMonteCarloIntegration(){
     return true;
 }
 
-double VMCSolver::localEnergyAnalytic1(double* r1, double* r2){
-    double temp = 0;
-    double r12Abs = 0;
-    double r1Abs = 0;
-    double r2Abs = 0;
-    for(int j = 0; j < nDimensions; j++) {
-	temp = r1[j] * r1[j];
-	r1Abs += temp;
-	temp = r2[j] * r2[j];
-	r2Abs += temp;
-
-	temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
-	r12Abs += temp;
-    }
-    r1Abs = sqrt(r1Abs);
-    r2Abs = sqrt(r2Abs);
-    r12Abs = sqrt(r12Abs);
-    return (alpha-charge)*(1/r1Abs + 1/r2Abs) + 1/r12Abs - alpha*alpha;
-}
-
-double VMCSolver::localEnergyAnalytic2(double* r1, double* r2){
+double VMCSolver::localEnergyHelium(double* r1, double* r2){
     double temp = 0;
     double r12Abs = 0;
     double r1Abs = 0;
@@ -159,8 +143,10 @@ double VMCSolver::localEnergy(Matrix &r)
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
-    if (waveFunctionType == 1) waveFunctionCurrent = waveFunction1(pr);
-    else waveFunctionCurrent = waveFunction2(pr[0],pr[1]);
+    if (waveFunction == WAVE_FUNCTION_1) 
+	waveFunctionCurrent = wave1(pr);
+    else 
+	waveFunctionCurrent = wave2(pr[0],pr[1]);
 
     // Kinetic energy
 
@@ -175,13 +161,18 @@ double VMCSolver::localEnergy(Matrix &r)
 	    r0 		= pr[i][j];
 
 	    pr[i][j] = rMinus;
-	    if (waveFunctionType == 1) waveFunctionMinus = waveFunction1(pr);
-	    else waveFunctionMinus = waveFunction2(pr[0],pr[1]);
+	    if (waveFunction == WAVE_FUNCTION_1) 
+		waveFunctionMinus = wave1(pr);
+	    else 
+		waveFunctionMinus = wave2(pr[0],pr[1]);
 	    pr[i][j] = rPlus;
-	    if (waveFunctionType == 1) waveFunctionPlus = waveFunction1(pr);
-	    else waveFunctionPlus = waveFunction2(pr[0],pr[1]);
+	    if (waveFunction == WAVE_FUNCTION_1) 
+		waveFunctionPlus = wave1(pr);
+	    else 
+		waveFunctionPlus = wave2(pr[0],pr[1]);
 	    pr[i][j] = r0;
-            kineticEnergy -= (waveFunctionMinus + waveFunctionPlus - 2 * waveFunctionCurrent);
+            kineticEnergy -= (waveFunctionMinus + waveFunctionPlus 
+		    - 2 * waveFunctionCurrent);
         }
     }
     kineticEnergy = 0.5 * h2 * kineticEnergy / waveFunctionCurrent;
@@ -247,7 +238,7 @@ bool VMCSolver::initFromFile(std::string fName){
     myFile >> paramName >> discard >> nParticles;
     myFile >> paramName >> discard >> stepLength;
     myFile >> paramName >> discard >> nCycles;
-    myFile >> paramName >> discard >> waveFunctionType;
+    myFile >> paramName >> discard >> waveFunction;
     myFile >> paramName >> discard >> h;
     myFile >> paramName >> discard >> h2;
     myFile >> paramName >> discard >> idum;
@@ -259,37 +250,37 @@ bool VMCSolver::initFromFile(std::string fName){
     return true;
 }
 
-void VMCSolver::useGenericLocalEnergy(){
-    localEnergyFunction = 1;
+void VMCSolver::useLocalEnergyGeneric(){
+    localEnergyFunction = LOCAL_ENERGY_GENERIC;
 }
 
-void VMCSolver::useAnalyticLocalEnergy1(){
+void VMCSolver::useLocalEnergyHelium(){
     if(nParticles != 2) {
-	cout << "Cannot use this analytic local energy function \
-	    for 2 particles." << endl;
+	cout << "Cannot use this analytic local energy function "
+	    << "for other than 2 particles." << endl;
 	cout << "Using generic one." << endl;
-	localEnergyFunction = 1;
+	localEnergyFunction = LOCAL_ENERGY_GENERIC;
 	return;
     }
-    localEnergyFunction = 2;
+    localEnergyFunction = LOCAL_ENERGY_HELIUM;
 }
 
-void VMCSolver::useAnalyticLocalEnergy2(){
-    if(nParticles != 2) {
+void VMCSolver::useLocalEnergyHydrogen(){
+    if(nParticles != 1) {
 	cout << "Cannot use this analytic local energy function " 
-	    << "for 2 particles." << endl;
+	    << "for other than 1 particle." << endl;
 	cout << "Using generic one." << endl;
-	localEnergyFunction = 1;
+	localEnergyFunction = LOCAL_ENERGY_GENERIC;
 	return;
     }
-    localEnergyFunction = 3;
+    localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
 }
-void VMCSolver::useWaveType1(){
-    waveFunctionType = 1;
+void VMCSolver::useWaveFunction1(){
+    waveFunction = WAVE_FUNCTION_1;
 }
 
-void VMCSolver::useWaveType2(){
-    waveFunctionType = 2;
+void VMCSolver::useWaveFunction2(){
+    waveFunction = WAVE_FUNCTION_2;
 }
 
 void VMCSolver::reset(){
@@ -306,7 +297,8 @@ void VMCSolver::reset(){
 }
 
 void VMCSolver::clearAll(){
-    waveFunctionType = 1;
+    waveFunction = WAVE_FUNCTION_1;
+    localEnergyFunction = LOCAL_ENERGY_GENERIC;
     nDimensions = 0;
     charge = 0;
     stepLength = 0;
@@ -332,7 +324,7 @@ double VMCSolver::getStepAcceptance(){
     return double(accepts)*100/(rejects+accepts);
 }
 
-double VMCSolver::waveFunction1(double** r)
+double VMCSolver::wave1(double** r)
 {
     double argument = 0;
     for(int i = 0; i < nParticles; i++) {
@@ -345,7 +337,7 @@ double VMCSolver::waveFunction1(double** r)
     return exp(-argument * alpha);
 }
 
-double VMCSolver::waveFunction2(double* r1, double* r2){
+double VMCSolver::wave2(double* r1, double* r2){
     double temp = 0;
     double r = 0;
     double r12 = 0;
@@ -374,7 +366,7 @@ void VMCSolver::exportParamters(std::string fName){
     myFile << "nParticles = " << nParticles <<  endl;
     myFile << "stepLength = " << stepLength << endl;
     myFile << "nCycles = " << nCycles << endl;
-    myFile << "waveFunctionType = " << waveFunctionType << endl;
+    myFile << "waveFunction = " << waveFunction << endl;
     myFile << "h = " << h << endl;
     myFile << "h2 = " << h2 << endl;
     myFile << "idum = " << idum << endl;

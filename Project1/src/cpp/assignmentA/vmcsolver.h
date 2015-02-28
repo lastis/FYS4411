@@ -13,18 +13,18 @@ public:
     VMCSolver();
 
     bool runMonteCarloIntegration();
-    void useWaveType1();
-    void useWaveType2();
-    void useAnalyticLocalEnergy1();
-    void useAnalyticLocalEnergy2();
-    void useGenericLocalEnergy();
     bool initFromFile(std::string fName);
+    void exportParamters(std::string fName);
+    void useWaveFunction1();
+    void useWaveFunction2();
+    void useLocalEnergyHelium();
+    void useLocalEnergyHydrogen();
+    void useLocalEnergyGeneric();
     double getStepAcceptance();
     void setStepLength(double stepLength);
     double getStepLength();
     double getR12Mean();
     double getEnergy();
-    void exportParamters(std::string fName);
     void reset();
     void clearAll();
 
@@ -34,15 +34,21 @@ public:
     double beta;
 
 private:
-    double waveFunction1(double** r);
-    double waveFunction2(double* r1, double* r2);
+    static const int LOCAL_ENERGY_GENERIC = 1;
+    static const int LOCAL_ENERGY_HELIUM = 2;
+    static const int LOCAL_ENERGY_HYDROGEN = 3;
+    static const int WAVE_FUNCTION_1 = 1;
+    static const int WAVE_FUNCTION_2 = 2;
+
+    double wave1(double** r);
+    double wave2(double* r1, double* r2);
     double localEnergy(Matrix &r);
-    double localEnergyAnalytic1(double* r1, double* r2);
-    double localEnergyAnalytic2(double* r1, double* r2);
+    double localEnergyHelium(double* r1, double* r2);
+    double localEnergyHydrogen(double* r1);
 
     bool initialized;
     // Paramters are gathered from file. 
-    int waveFunctionType;
+    int waveFunction;
     int accepts;
     int rejects;
     int charge;

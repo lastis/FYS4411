@@ -17,7 +17,7 @@ int main()
 {
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
-    solver.useAnalyticLocalEnergy2();
+    solver.useLocalEnergyHelium();
     /* adjustStepLength(0.005, 0.1); */
     /* adjustAlpha(0.0005); */
     adjustBeta(0.0005);

@@ -8,7 +8,7 @@ int main()
 {
     VMCSolver solver = VMCSolver();
     solver.initFromFile("helium2.ini");
-    solver.useAnalyticLocalEnergy2();
+    solver.useLocalEnergyHelium();
 
     clock_t start = clock();
     solver.runMonteCarloIntegration();
