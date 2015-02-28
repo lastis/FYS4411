@@ -4,6 +4,7 @@ public:
 	Vector(int  N);
 	Vector(const Vector& vec);
 	~Vector();
+
 	void 	sort();
 	void	reset();
 	void	print();

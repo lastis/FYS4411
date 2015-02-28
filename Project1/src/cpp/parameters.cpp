@@ -9,6 +9,7 @@ void adjustStepLength(double deltaL = 0.05,
         double epsilon = 1, double targetRatio = 50);
 void adjustAlpha(double deltaAlpha);
 void adjustBeta(double deltaBeta);
+void createAlphaBetaData(int N);
 
 
 VMCSolver solver;
@@ -16,11 +17,30 @@ VMCSolver solver;
 int main()
 {
 
+    VMCSolver solver = VMCSolver();
+    solver.initFromFile("helium2.ini");
+    createAlphaBetaData(10);
     return 0;
 }
 
-void createAlphaBetaData(){
+void createAlphaBetaData(int N){
+    Vector alpha = Vector(N);
+    Vector beta = Vector(N);
 
+    alpha.linspace(0,3.6);
+    beta.linspace(0,3.6);
+    double* pAlpha = alpha.getArrayPointer();
+    double* pBeta = beta.getArrayPointer();
+    
+    double energy;
+    for (int i = 0; i < N; i++) {
+    	for (int j = 0; j < N; j++) {
+    		solver.alpha = pAlpha[i];
+		solver.beta = pBeta[j];
+		solver.runMonteCarloIntegration();
+		energy = solver.getEnergy();
+    	}
+    }
 }
 
 
