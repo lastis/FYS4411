@@ -19,7 +19,7 @@ int main()
 
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
-    createAlphaBetaData(11);
+    createAlphaBetaData(5);
     return 0;
 }
 
@@ -28,8 +28,8 @@ void createAlphaBetaData(int N){
     Vector beta = Vector(N);
     Matrix energy = Matrix(N,N);
 
-    alpha.linspace(1,2.6);
-    beta.linspace(1,2);
+    alpha.linspace(solver.alpha-0.2,solver.alpha+0.2);
+    beta.linspace(solver.beta-0.2,solver.beta+0.2);
     double* pAlpha = alpha.getArrayPointer();
     double* pBeta = beta.getArrayPointer();
     double** pEnergy = energy.getArrayPointer();
