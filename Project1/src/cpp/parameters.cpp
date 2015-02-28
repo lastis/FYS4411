@@ -17,30 +17,54 @@ VMCSolver solver;
 int main()
 {
 
-    VMCSolver solver = VMCSolver();
+    solver = VMCSolver();
     solver.initFromFile("helium2.ini");
-    createAlphaBetaData(10);
+    createAlphaBetaData(3);
     return 0;
 }
 
 void createAlphaBetaData(int N){
     Vector alpha = Vector(N);
     Vector beta = Vector(N);
+    Matrix energy = Matrix(N,N);
 
-    alpha.linspace(0,3.6);
-    beta.linspace(0,3.6);
+    alpha.linspace(1,2.6);
+    beta.linspace(1,2);
     double* pAlpha = alpha.getArrayPointer();
     double* pBeta = beta.getArrayPointer();
-    
-    double energy;
+    double** pEnergy = energy.getArrayPointer();
     for (int i = 0; i < N; i++) {
     	for (int j = 0; j < N; j++) {
-    		solver.alpha = pAlpha[i];
-		solver.beta = pBeta[j];
-		solver.runMonteCarloIntegration();
-		energy = solver.getEnergy();
+	    solver.alpha = pAlpha[i];
+	    solver.beta = pBeta[j];
+	    solver.runMonteCarloIntegration();
+	    pEnergy[i][j] = solver.getEnergy();
     	}
     }
+    ofstream myFile;
+    cout << "Creating plot file : " << "/res/alphadata.txt" << endl;
+    myFile.open("../../res/alphadata.txt");
+    for (int i = 0; i < N; i++) {
+    	myFile << pAlpha[i] << " ";
+    }
+    myFile.close();
+
+    myFile.open("../../res/betadata.txt");
+    cout << "Creating plot file : " << "/res/betadata.txt" << endl;
+    for (int i = 0; i < N; i++) {
+    	myFile << pBeta[i] << " ";
+    }
+    myFile.close();
+
+    cout << "Creating plot file : " << "/res/energydata.txt" << endl;
+    myFile.open("../../res/energydata.txt");
+    for (int i = 0; i < N; i++) {
+	for (int j = 0; j < N; j++) {
+	    myFile << pEnergy[i][j] << " ";
+	}
+	myFile << endl;
+    }
+    myFile.close();
 }
 
 

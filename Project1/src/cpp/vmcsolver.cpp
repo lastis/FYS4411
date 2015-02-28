@@ -87,6 +87,7 @@ bool VMCSolver::runMonteCarloIntegration(){
 		deltaE = localEnergyHelium(prNew[0], prNew[1]);
 	    else if(localEnergyFunction == LOCAL_ENERGY_HYDROGEN) 
 		/* deltaE = localEnergyHydrogen(prNew[0]); */
+		cout << "Should go here" << endl;
             
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
