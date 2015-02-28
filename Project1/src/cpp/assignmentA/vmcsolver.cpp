@@ -77,7 +77,11 @@ bool VMCSolver::runMonteCarloIntegration(){
                 }
             }
             // update energies
-            deltaE = localEnergy(rNew);
+	    if (localEnergyFunction == 1) 
+		deltaE = localEnergy(rNew); 
+	    else if(localEnergyFunction == 2) 
+		deltaE = localEnergyAnalytic1(prNew[0], prNew[1]);
+            
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
         }
@@ -194,6 +198,7 @@ double VMCSolver::getR12Mean(){
 }
 
 bool VMCSolver::initFromFile(std::string fName){
+    localEnergyFunction = 1;
     ifstream myFile;
     string  paramName;
     string  discard;
