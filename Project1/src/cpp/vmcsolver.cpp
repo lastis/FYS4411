@@ -220,13 +220,12 @@ double VMCSolver::getR12Mean(){
 }
 
 bool VMCSolver::initFromFile(std::string fName){
-    localEnergyFunction = 1;
     ifstream myFile;
     string  paramName;
     string  discard;
-    string line;
 
-    myFile.open(fName.c_str());
+    string adress = "../../res/" + fName;
+    myFile.open(adress.c_str());
     if (!myFile) {
 	cout << fName << "does not exist. Solver could not initialize." << endl;
 	return false;
@@ -357,9 +356,10 @@ double VMCSolver::wave2(double* r1, double* r2){
 }
 
 void VMCSolver::exportParamters(std::string fName){
+    string adress = "../../res/" + fName;
     ofstream myFile;
     cout << "Dumption to file : " << fName << endl;
-    myFile.open(fName.c_str());
+    myFile.open(adress.c_str());
     myFile << "charge = " << charge <<  endl;
     myFile << "alpha = " << alpha << endl;
     myFile << "beta = " << beta << endl;

@@ -19,7 +19,7 @@ int main()
 
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
-    createAlphaBetaData(3);
+    createAlphaBetaData(11);
     return 0;
 }
 
