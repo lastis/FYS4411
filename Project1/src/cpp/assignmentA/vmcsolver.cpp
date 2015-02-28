@@ -251,6 +251,7 @@ bool VMCSolver::initFromFile(std::string fName){
     myFile >> paramName >> discard >> h;
     myFile >> paramName >> discard >> h2;
     myFile >> paramName >> discard >> idum;
+    myFile >> paramName >> discard >> localEnergyFunction;
 
     myFile.close();
 
@@ -377,5 +378,6 @@ void VMCSolver::exportParamters(std::string fName){
     myFile << "h = " << h << endl;
     myFile << "h2 = " << h2 << endl;
     myFile << "idum = " << idum << endl;
+    myFile << "localEnergyFunction = " << localEnergyFunction << endl;
     myFile.close();
 }
