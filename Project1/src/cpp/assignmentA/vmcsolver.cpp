@@ -283,18 +283,7 @@ double VMCSolver::waveFunction2(double** r){
 	    r12 += sqrt(r12sq);
         }
     }
-    return exp(-argument*alpha*r12/(2*(1+beta*r12)));
-    /* double r1sq = 0; */
-    /* double r2sq = 0; */
-    /* double r12sq = 0; */
-    /* for(int j = 0; j < nDimensions; j++) { */
-	/* r1sq += r1[j] * r1[j]; */
-	/* r2sq += r2[j] * r2[j]; */
-	/* r12sq  += (r2[j] - r1[j])*(r2[j] - r1[j]); */
-    /* } */
-    /* double argument = sqrt(r1sq) + sqrt(r2sq); */
-    /* double r12 = sqrt(r12sq); */
-    /* return exp(-argument*alpha*r12/(2*(1+beta*r12))); */
+    return exp(-argument*alpha+r12/(2*(1+beta*r12)));
 }
 
 void VMCSolver::exportParamters(std::string fName){

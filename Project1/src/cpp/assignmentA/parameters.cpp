@@ -5,8 +5,8 @@
 using namespace std;
 
 // Functions
-void adjustStepLength(double deltaL = 0.5, 
-        double epsilon = 2, double targetRatio = 50);
+void adjustStepLength(double deltaL = 0.05, 
+        double epsilon = 1, double targetRatio = 50);
 void adjustAlpha(double deltaAlpha);
 void adjustBeta(double deltaBeta);
 
@@ -17,7 +17,9 @@ int main()
 {
     solver = VMCSolver();
     solver.initFromFile("trial2.ini");
-    adjustBeta(1);
+    /* adjustStepLength(0.1, 3); */
+    adjustAlpha(0.01);
+    adjustBeta(0.01);
     solver.exportParamters("trial2.ini");
 
     return 0;
@@ -85,6 +87,7 @@ void adjustAlpha(double deltaAlpha){
     bool goUp = true;
     solver.runMonteCarloIntegration();
     double energyNew = solver.getEnergy();
+    cout << "Alpha : " << alphaNew << endl;
 
     // Itterate one time to find which way we must adjust alpha. 
     // New alpha value should give lower energy
@@ -93,6 +96,7 @@ void adjustAlpha(double deltaAlpha){
     	alphaNew = alphaOld - deltaAlpha;
 	solver.runMonteCarloIntegration();
 	energyNew = solver.getEnergy();
+	cout << "Alpha : " << alphaNew << endl;
     }
     // If it doesn't, we are at a minima (With the current deltaAlpha).
     if (energyNew > energyOld) {
@@ -100,7 +104,6 @@ void adjustAlpha(double deltaAlpha){
 	    << endl;
 	return;
     }
-    cout << "Alpha : " << alphaNew << endl;
 
     // Adjust as long as we have a lower energy.
     while (energyNew < energyOld) {
