@@ -97,6 +97,26 @@ bool VMCSolver::runMonteCarloIntegration(){
     return true;
 }
 
+double VMCSolver::localEnergyAnalytic1(double* r1, double* r2){
+    double temp = 0;
+    double r12Abs = 0;
+    double r1Abs = 0;
+    double r2Abs = 0;
+    for(int j = 0; j < nDimensions; j++) {
+	temp = r1[j] * r1[j];
+	r1Abs += temp;
+	temp = r2[j] * r2[j];
+	r2Abs += temp;
+
+	temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
+	r12Abs += temp;
+    }
+    r1Abs = sqrt(r1Abs);
+    r2Abs = sqrt(r2Abs);
+    r12Abs = sqrt(r12Abs);
+    return exp(alpha-charge)*(1/r1Abs + 1/r2Abs) + 1/r12Abs - alpha*alpha;
+}
+
 double VMCSolver::localEnergy(Matrix &r)
 {
 

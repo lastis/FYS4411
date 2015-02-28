@@ -3,12 +3,12 @@
 
 using namespace std;
 
-double hydrogenSolution(){
-
+double localEnergy1(){
+    return (alpha - charge)*(1/r)
 }
 int main(){
     VMCSolver solver = VMCSolver();
-    solver.initFromFile("trial1.ini");
+    solver.initFromFile("helium1.ini");
 
     return 0;
 }

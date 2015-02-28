@@ -34,6 +34,7 @@ private:
     double waveFunction1(double** r);
     double waveFunction2(double* r1, double* r2);
     double localEnergy(Matrix &r);
+    double localEnergyAnalytic1(double* r1, double* r2);
 
     bool initialized;
     // Paramters are gathered from file. 
