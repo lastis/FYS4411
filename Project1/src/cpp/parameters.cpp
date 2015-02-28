@@ -15,16 +15,14 @@ VMCSolver solver;
 
 int main()
 {
-    solver = VMCSolver();
-    solver.initFromFile("helium2.ini");
-    solver.useLocalEnergyHelium();
-    /* adjustStepLength(0.005, 0.1); */
-    /* adjustAlpha(0.0005); */
-    adjustBeta(0.0005);
-    solver.exportParamters("helium2.ini");
 
     return 0;
 }
+
+void createAlphaBetaData(){
+
+}
+
 
 void adjustBeta(double deltaBeta){
     double deltaEnergy;
