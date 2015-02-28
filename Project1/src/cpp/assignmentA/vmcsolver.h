@@ -15,6 +15,8 @@ public:
     bool runMonteCarloIntegration();
     void useWaveType1();
     void useWaveType2();
+    void useAnalyticLocalEnergy();
+    void useGenericLocalEnergy();
     bool initFromFile(std::string fName);
     double getStepAcceptance();
     void setStepLength(double stepLength);
@@ -49,6 +51,7 @@ private:
     double h;
     double h2;
     long idum;
+    int localEnergyFunction;
 
     // Values from the simulation. 
     double rSum;

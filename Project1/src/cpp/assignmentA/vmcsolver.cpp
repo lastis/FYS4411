@@ -223,6 +223,21 @@ bool VMCSolver::initFromFile(std::string fName){
     return true;
 }
 
+void VMCSolver::useGenericLocalEnergy(){
+    localEnergyFunction = 1;
+}
+
+void VMCSolver::useAnalyticLocalEnergy(){
+    if(nParticles != 2) {
+	cout << "Cannot use this analytic local energy function \
+	    for 2 particles." << endl;
+	cout << "Using generic one." << endl;
+	localEnergyFunction = 1;
+	return;
+    }
+    localEnergyFunction = 2;
+}
+
 void VMCSolver::useWaveType1(){
     waveFunctionType = 1;
 }
