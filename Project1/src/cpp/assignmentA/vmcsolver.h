@@ -32,7 +32,7 @@ public:
 
 private:
     double waveFunction1(double** r);
-    double waveFunction2(double** r);
+    double waveFunction2(double* r1, double* r2);
     double localEnergy(Matrix &r);
 
     bool initialized;

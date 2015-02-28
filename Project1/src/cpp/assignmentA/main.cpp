@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
     VMCSolver solver = VMCSolver();
-    solver.initFromFile("trial1.ini");
+    solver.initFromFile("trial2.ini");
 
     clock_t start = clock();
     solver.runMonteCarloIntegration();
@@ -18,6 +18,6 @@ int main()
 
     cout << "Accepted moves: " << int(solver.getStepAcceptance())
 	    << " %" << endl;
-    cout << "Mean distance: " << solver.getR12Mean() << endl;
+    /* cout << "Mean distance: " << solver.getR12Mean() << endl; */
     return 0;
 }

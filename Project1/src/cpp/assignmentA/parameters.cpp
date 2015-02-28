@@ -18,8 +18,8 @@ int main()
     solver = VMCSolver();
     solver.initFromFile("trial2.ini");
     /* adjustStepLength(0.1, 3); */
-    /* adjustAlpha(0.01); */
-    adjustBeta(0.1);
+    adjustAlpha(0.01);
+    adjustBeta(0.01);
     solver.exportParamters("trial2.ini");
 
     return 0;

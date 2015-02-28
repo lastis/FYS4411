@@ -50,7 +50,7 @@ bool VMCSolver::runMonteCarloIntegration(){
 
         // Store the current value of the wave function
 	if (waveFunctionType == 1) waveFunctionOld = waveFunction1(prOld);
-	else waveFunctionOld = waveFunction2(prOld);
+	else waveFunctionOld = waveFunction2(prOld[0],prOld[1]);
 
         // New position to test
         for(int i = 0; i < nParticles; i++) {
@@ -60,7 +60,7 @@ bool VMCSolver::runMonteCarloIntegration(){
 
             // Recalculate the value of the wave function
             if(waveFunctionType == 1) waveFunctionNew = waveFunction1(prNew);
-	    else waveFunctionNew = waveFunction2(prNew);
+	    else waveFunctionNew = waveFunction2(prNew[0],prNew[1]);
 
             // Check for step acceptance (if yes, update position, if no, reset position)
             if(Random::ran2(idum) <= (waveFunctionNew*waveFunctionNew) / 
@@ -93,6 +93,7 @@ bool VMCSolver::runMonteCarloIntegration(){
     double energySquared = energySquaredSum/(nCycles * nParticles);
     cout << "Energy: " << energy << " Energy (squared sum): " 
 	<< energySquared << endl;
+    cout << "Variance : " << energySquared - energy*energy << endl;
     return true;
 }
 
@@ -105,7 +106,7 @@ double VMCSolver::localEnergy(Matrix &r)
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
     if (waveFunctionType == 1) waveFunctionCurrent = waveFunction1(pr);
-    else waveFunctionCurrent = waveFunction2(pr);
+    else waveFunctionCurrent = waveFunction2(pr[0],pr[1]);
 
     // Kinetic energy
 
@@ -121,10 +122,10 @@ double VMCSolver::localEnergy(Matrix &r)
 
 	    pr[i][j] = rMinus;
 	    if (waveFunctionType == 1) waveFunctionMinus = waveFunction1(pr);
-	    else waveFunctionMinus = waveFunction2(pr);
+	    else waveFunctionMinus = waveFunction2(pr[0],pr[1]);
 	    pr[i][j] = rPlus;
 	    if (waveFunctionType == 1) waveFunctionPlus = waveFunction1(pr);
-	    else waveFunctionPlus = waveFunction2(pr);
+	    else waveFunctionPlus = waveFunction2(pr[0],pr[1]);
 	    pr[i][j] = r0;
             kineticEnergy -= (waveFunctionMinus + waveFunctionPlus - 2 * waveFunctionCurrent);
         }
@@ -263,27 +264,22 @@ double VMCSolver::waveFunction1(double** r)
     return exp(-argument * alpha);
 }
 
-double VMCSolver::waveFunction2(double** r){
-    double argument = 0;
-    double rsq = 0;
-    double r12sq = 0;
+double VMCSolver::waveFunction2(double* r1, double* r2){
+    double temp = 0;
+    double r = 0;
     double r12 = 0;
-    for(int i = 0; i < nParticles; i++) {
-	// Alpha part
-        for(int j = 0; j < nDimensions; j++) {
-            rsq += r[i][j] * r[i][j];
-        }
-	argument += sqrt(rsq);
-	// Beta part
-        for(int j = i + 1; j < nParticles; j++) {
-            r12sq = 0;
-            for(int k = 0; k < nDimensions; k++) {
-                r12sq += (r[i][k] - r[j][k]) * (r[i][k] - r[j][k]);
-            }
-	    r12 += sqrt(r12sq);
-        }
+    for(int j = 0; j < nDimensions; j++) {
+	temp = r1[j] * r1[j];
+	r += temp;
+	temp = r2[j] * r2[j];
+	r += temp;
+
+	temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
+	r12 += temp;
     }
-    return exp(-argument*alpha)*exp(r12/(2*(1+beta*r12)));
+    r = sqrt(r);
+    r12 = sqrt(r12);
+    return exp(-r*alpha)*exp(r12/(2*(1+beta*r12)));
 }
 
 void VMCSolver::exportParamters(std::string fName){
