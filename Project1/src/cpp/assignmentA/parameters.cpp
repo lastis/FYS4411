@@ -16,7 +16,7 @@ VMCSolver solver;
 int main()
 {
     solver = VMCSolver();
-    solver.initFromFile("trial2.ini");
+    solver.initFromFile("helium2.ini");
     /* adjustStepLength(0.1, 3); */
     adjustAlpha(0.01);
     adjustBeta(0.01);
