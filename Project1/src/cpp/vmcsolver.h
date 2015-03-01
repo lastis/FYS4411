@@ -25,6 +25,7 @@ public:
     void useLocalEnergyHelium();
     void useLocalEnergyHydrogen();
     void useLocalEnergyGeneric();
+    void useImportanceSampling();
     double getAcceptanceRatio();
     void setStepLength(double stepLength);
     double getStepLength();
@@ -54,6 +55,9 @@ private:
 
     bool initialized;
     bool outputSupressed;
+    bool importanceSampling;
+
+
     // Paramters are gathered from file. 
     int waveFunction;
     int localEnergyFunction;
@@ -64,6 +68,8 @@ private:
     int nCycles;
     int nParticles;
     double stepLength;
+    double timeStep;
+    double D;
     double h;
     double h2;
 

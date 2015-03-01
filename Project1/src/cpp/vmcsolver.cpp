@@ -289,6 +289,19 @@ void VMCSolver::useLocalEnergyHydrogen(){
     }
     localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
 }
+void VMCSolver::useImportanceSampling(){
+    if (timeStep == 0) {
+	cout << "Error : Cannot use importance sampling with timeStep = 0" 
+	    << endl;
+	return;
+    }
+    if (D == 0) {
+	cout << "Error : Cannot use importance sampling with D = 0" 
+	    << endl;
+	return;
+    }
+    importanceSampling = true;
+}
 
 void VMCSolver::useLocalEnergyGeneric(){
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
