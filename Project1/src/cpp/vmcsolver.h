@@ -64,7 +64,6 @@ private:
     int localEnergyFunction;
 
     // Values from the simulation. 
-    double rSum;
     double mean;
     double energy;
 

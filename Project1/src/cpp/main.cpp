@@ -10,6 +10,7 @@ int main()
     solver.initFromFile("helium2.ini");
 
     clock_t start = clock();
+    solver.useWaveFunction2();
     solver.runMonteCarloIntegration();
     clock_t end = clock();
 

@@ -25,10 +25,10 @@ int main()
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
     solver.useLocalEnergyHelium();
-    solver.useWaveFunction1();
-    createAlphaData(11,0.1,3.6, "alphaPlot.txt");
-    /* createBetaData(51, 0.001, 0.321); */
-    /* createAlphaBetaData(5,0.1,6.1,0.001,0.321); */
+    solver.useWaveFunction2();
+    /* createAlphaData(11,0.1,3.6, "alphaPlot.txt"); */
+    createBetaData(101, 0.10, 1.10);
+    /* createAlphaBetaData(5,0.1,3.6,0.001,0.321); */
     return 0;
 }
 

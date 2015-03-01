@@ -27,12 +27,11 @@ bool VMCSolver::runMonteCarloIntegration(){
 
     double energySum = 0;
     double energySquaredSum = 0;
-    
-    
+
+    double deltaE = 0;
+    double rSum = 0;
 
     reset();
-
-    double deltaE;
 
     // initial trial positions
     for(int i = 0; i < nParticles; i++) {
@@ -81,6 +80,7 @@ bool VMCSolver::runMonteCarloIntegration(){
 		    rejects++;
                 }
             }
+
             // update energies
 	    if (localEnergyFunction == LOCAL_ENERGY_GENERIC) 
 		deltaE = localEnergy(rNew); 
@@ -104,6 +104,7 @@ bool VMCSolver::runMonteCarloIntegration(){
     energy = energySum/(nCycles * nParticles);
     double energySquared = energySquaredSum/(nCycles * nParticles);
 
+    // Output 
     if (outputSupressed) {
 	outputSupressed = false;
 	return true;
@@ -143,7 +144,6 @@ double VMCSolver::localEnergyHelium(double* r1, double* r2){
 	    alpha*(r1Abs + r2Abs)/r12Abs*(1-(r1r2/(r1Abs*r2Abs)))
 	    - betaR12*betaR12/2 - 2/r12Abs + 2*beta*betaR12
 	    );
-
 }
 
 double VMCSolver::localEnergy(Matrix &r)
@@ -257,11 +257,8 @@ bool VMCSolver::initFromFile(std::string fName){
     myFile.close();
 
     initialized = true;
+    outputSupressed = false;
     return true;
-}
-
-void VMCSolver::useLocalEnergyGeneric(){
-    localEnergyFunction = LOCAL_ENERGY_GENERIC;
 }
 
 void VMCSolver::useLocalEnergyHelium(){
@@ -285,6 +282,11 @@ void VMCSolver::useLocalEnergyHydrogen(){
     }
     localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
 }
+
+void VMCSolver::useLocalEnergyGeneric(){
+    localEnergyFunction = LOCAL_ENERGY_GENERIC;
+}
+
 void VMCSolver::useWaveFunction1(){
     waveFunction = WAVE_FUNCTION_1;
 }
@@ -323,7 +325,6 @@ void VMCSolver::clearAll(){
     accepts = 0;
     rejects = 0;
 
-    rSum = 0;
     energy = 0;
     mean = 0;
 
