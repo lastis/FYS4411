@@ -20,7 +20,7 @@ public:
     void useLocalEnergyHelium();
     void useLocalEnergyHydrogen();
     void useLocalEnergyGeneric();
-    double getStepAcceptance();
+    double getAcceptanceRatio();
     void setStepLength(double stepLength);
     double getStepLength();
     double getR12Mean();

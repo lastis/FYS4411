@@ -15,6 +15,7 @@ bool VMCSolver::runIntegration(){
 	    << endl;
 	return false;
     }
+    // Set the local energy function as function pointer
     double (VMCSolver::*localEnergy)(double** r);
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
 	localEnergy = &VMCSolver::localEnergyGeneric;
@@ -341,7 +342,7 @@ void VMCSolver::clearAll(){
     initialized = false;
 }
 
-double VMCSolver::getStepAcceptance(){
+double VMCSolver::getAcceptanceRatio(){
     return double(accepts)*100/(rejects+accepts);
 }
 
