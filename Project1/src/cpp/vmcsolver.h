@@ -27,11 +27,13 @@ public:
     double getEnergy();
     void reset();
     void clearAll();
+    void supressOutput();
 
 
-    // Paramters
+    // Parameters
     double alpha;
     double beta;
+    long idum;
 
 private:
     static const int LOCAL_ENERGY_GENERIC = 1;
@@ -47,6 +49,7 @@ private:
     double localEnergyHydrogen(double* r1);
 
     bool initialized;
+    bool outputSupressed;
     // Paramters are gathered from file. 
     int waveFunction;
     int accepts;
@@ -58,7 +61,6 @@ private:
     double stepLength;
     double h;
     double h2;
-    long idum;
     int localEnergyFunction;
 
     // Values from the simulation. 

@@ -102,10 +102,16 @@ bool VMCSolver::runMonteCarloIntegration(){
     mean = rSum/(nCycles);
     energy = energySum/(nCycles * nParticles);
     double energySquared = energySquaredSum/(nCycles * nParticles);
+
+    if (outputSupressed) return true;
     cout << "Energy: " << energy << " Energy (squared sum): " 
 	<< energySquared << endl;
     cout << "Variance : " << energySquared - energy*energy << endl;
     return true;
+}
+
+void VMCSolver::supressOutput(){
+    outputSupressed = true;
 }
 
 double VMCSolver::localEnergyHelium(double* r1, double* r2){
@@ -293,6 +299,7 @@ void VMCSolver::reset(){
     rNew.reset();
     rPlus.reset();
     rMinus.reset();
+    outputSupressed = false;
 
 }
 

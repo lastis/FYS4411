@@ -10,6 +10,7 @@ void adjustStepLength(double deltaL = 0.05,
 void adjustAlpha(double deltaAlpha);
 void adjustBeta(double deltaBeta);
 void createAlphaBetaData(int N);
+void calculateSolverVariance(int N);
 
 
 VMCSolver solver;
@@ -19,8 +20,23 @@ int main()
 
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
-    createAlphaBetaData(5);
+    solver.useLocalEnergyHelium();
+    calculateSolverVariance(5);
     return 0;
+}
+
+void calculateSolverVariance(int N){
+    double energy;
+    double energysq;
+    for (int i = 0; i < N; i++) {
+	solver.idum++;
+	solver.runMonteCarloIntegration();
+	energy += solver.getEnergy();
+	energysq += energy*energy;
+    }
+    energy /= N;
+    energysq /= N;
+    cout << "Variance : " << sqrt(energysq - energy*energy) << endl;
 }
 
 void createAlphaBetaData(int N){
