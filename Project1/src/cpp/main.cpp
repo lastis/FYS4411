@@ -9,9 +9,10 @@ int main()
     VMCSolver solver = VMCSolver();
     solver.initFromFile("helium2.ini");
 
-    clock_t start = clock();
     solver.useWaveFunction2();
-    solver.runMonteCarloIntegration();
+    solver.useLocalEnergyHelium();
+    clock_t start = clock();
+    solver.runIntegration();
     clock_t end = clock();
 
     double time = double(end - start)/CLOCKS_PER_SEC;

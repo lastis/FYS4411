@@ -8,12 +8,28 @@ VMCSolver::VMCSolver(){
 }
 
 
-bool VMCSolver::runMonteCarloIntegration(){
+bool VMCSolver::runIntegration(){
+
     if (!initialized) {
 	cout << "Error: Solver not initialized, integration not running."
 	    << endl;
 	return false;
     }
+    double (VMCSolver::*localEnergy)(double** r);
+    if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
+	localEnergy = &VMCSolver::localEnergyGeneric;
+    else if (localEnergyFunction == LOCAL_ENERGY_HELIUM)
+	localEnergy = &VMCSolver::localEnergyHelium;
+    /* else if (localEnergyFunction == LOCAL_ENERGY_HELIUM); */
+	/* double (VMCSolver::*localEnergy)(double** r) */ 
+	/*     = &VMCSolver::localEnergyHelium; */
+    else {
+	cout << "Error: Local energy function not set, integration not running."
+	    << endl;
+	return false;
+    }
+
+
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
     prNew = rNew.getArrayPointer();
@@ -82,13 +98,8 @@ bool VMCSolver::runMonteCarloIntegration(){
             }
 
             // update energies
-	    if (localEnergyFunction == LOCAL_ENERGY_GENERIC) 
-		deltaE = localEnergy(rNew); 
-	    else if(localEnergyFunction == LOCAL_ENERGY_HELIUM) 
-		deltaE = localEnergyHelium(prNew[0], prNew[1]);
-	    else if(localEnergyFunction == LOCAL_ENERGY_HYDROGEN) 
-		/* deltaE = localEnergyHydrogen(prNew[0]); */
-		cout << "Should go here" << endl;
+	    deltaE = (this->*localEnergy)(prNew); 
+	    /* deltaE = this->localEnergyHelium(prNew); */ 
             
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
@@ -119,7 +130,9 @@ void VMCSolver::supressOutput(){
     outputSupressed = true;
 }
 
-double VMCSolver::localEnergyHelium(double* r1, double* r2){
+double VMCSolver::localEnergyHelium(double** r){
+    double* r1 = r[0];
+    double* r2 = r[1];
     double temp = 0;
     double r12Abs = 0;
     double r1Abs = 0;
@@ -146,18 +159,15 @@ double VMCSolver::localEnergyHelium(double* r1, double* r2){
 	    );
 }
 
-double VMCSolver::localEnergy(Matrix &r)
-{
-
-    double** pr = r.getArrayPointer();
+double VMCSolver::localEnergyGeneric(double** r){
 
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
     if (waveFunction == WAVE_FUNCTION_1) 
-	waveFunctionCurrent = wave1(pr);
+	waveFunctionCurrent = wave1(r);
     else 
-	waveFunctionCurrent = wave2(pr[0],pr[1]);
+	waveFunctionCurrent = wave2(r[0],r[1]);
 
     // Kinetic energy
 
@@ -167,21 +177,21 @@ double VMCSolver::localEnergy(Matrix &r)
     double kineticEnergy = 0;
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-	    rPlus 	= pr[i][j] + h;
-	    rMinus 	= pr[i][j] - h;
-	    r0 		= pr[i][j];
+	    rPlus 	= r[i][j] + h;
+	    rMinus 	= r[i][j] - h;
+	    r0 		= r[i][j];
 
-	    pr[i][j] = rMinus;
+	    r[i][j] = rMinus;
 	    if (waveFunction == WAVE_FUNCTION_1) 
-		waveFunctionMinus = wave1(pr);
+		waveFunctionMinus = wave1(r);
 	    else 
-		waveFunctionMinus = wave2(pr[0],pr[1]);
-	    pr[i][j] = rPlus;
+		waveFunctionMinus = wave2(r[0],r[1]);
+	    r[i][j] = rPlus;
 	    if (waveFunction == WAVE_FUNCTION_1) 
-		waveFunctionPlus = wave1(pr);
+		waveFunctionPlus = wave1(r);
 	    else 
-		waveFunctionPlus = wave2(pr[0],pr[1]);
-	    pr[i][j] = r0;
+		waveFunctionPlus = wave2(r[0],r[1]);
+	    r[i][j] = r0;
             kineticEnergy -= (waveFunctionMinus + waveFunctionPlus 
 		    - 2 * waveFunctionCurrent);
         }
@@ -194,7 +204,7 @@ double VMCSolver::localEnergy(Matrix &r)
     for(int i = 0; i < nParticles; i++) {
         rSingleParticle = 0;
         for(int j = 0; j < nDimensions; j++) {
-            rSingleParticle += pr[i][j]*pr[i][j];
+            rSingleParticle += r[i][j]*r[i][j];
         }
         potentialEnergy -= charge / sqrt(rSingleParticle);
     }
@@ -204,7 +214,7 @@ double VMCSolver::localEnergy(Matrix &r)
         for(int j = i + 1; j < nParticles; j++) {
             r12 = 0;
             for(int k = 0; k < nDimensions; k++) {
-                r12 += (pr[i][k] - pr[j][k]) * (pr[i][k] - pr[j][k]);
+                r12 += (r[i][k] - r[j][k]) * (r[i][k] - r[j][k]);
             }
             potentialEnergy += 1 / sqrt(r12);
         }

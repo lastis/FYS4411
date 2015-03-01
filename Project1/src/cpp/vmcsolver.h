@@ -12,7 +12,7 @@ class VMCSolver
 public:
     VMCSolver();
 
-    bool runMonteCarloIntegration();
+    bool runIntegration();
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
     void useWaveFunction1();
@@ -44,8 +44,8 @@ private:
 
     double wave1(double** r);
     double wave2(double* r1, double* r2);
-    double localEnergy(Matrix &r);
-    double localEnergyHelium(double* r1, double* r2);
+    double localEnergyGeneric(double** r);
+    double localEnergyHelium(double** r);
     double localEnergyHydrogen(double* r1);
 
     bool initialized;
