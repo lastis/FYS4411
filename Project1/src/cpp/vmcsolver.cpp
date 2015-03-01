@@ -53,9 +53,6 @@ bool VMCSolver::runIntegration(){
 
     initPositions();
 
-    rNew = rOld;
-    prNew = rNew.getArrayPointer();
-    prOld = rOld.getArrayPointer();
 
     // loop over Monte Carlo cycles
     for(int cycle = 0; cycle < nCycles; cycle++) {
@@ -119,6 +116,9 @@ void VMCSolver::supressOutput(){
 }
 
 void VMCSolver::initPositions(){
+    qForceOld = Matrix(nParticles, nDimensions);
+    qForceNew = Matrix(nParticles, nDimensions);
+
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
     prNew = rNew.getArrayPointer();
@@ -128,12 +128,25 @@ void VMCSolver::initPositions(){
     rMinus = Matrix(nParticles, nDimensions);
 
     // initial trial positions
-    for(int i = 0; i < nParticles; i++) {
-        for(int j = 0; j < nDimensions; j++) {
-            /* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
-            prOld[i][j] = (Random::ran2(idum) - 0.5);
-        }
+    if (importanceSampling == true) {
+	for(int i = 0; i < nParticles; i++) {
+	    for(int j = 0; j < nDimensions; j++) {
+		prOld[i][j] = Random::gauss(idum)*sqrt(timeStep);
+	    }
+	}
     }
+    else {
+	for(int i = 0; i < nParticles; i++) {
+	    for(int j = 0; j < nDimensions; j++) {
+		/* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
+		prOld[i][j] = (Random::ran2(idum) - 0.5);
+	    }
+	}
+    }
+
+    rNew = rOld;
+    prNew = rNew.getArrayPointer();
+    prOld = rOld.getArrayPointer();
 }
 
 double VMCSolver::localEnergyHelium(double** r){
@@ -163,6 +176,10 @@ double VMCSolver::localEnergyHelium(double** r){
 	    alpha*(r1Abs + r2Abs)/r12Abs*(1-(r1r2/(r1Abs*r2Abs)))
 	    - betaR12*betaR12/2 - 2/r12Abs + 2*beta*betaR12
 	    );
+}
+
+double VMCSolver::quantumForce(double** r, double ** qForce){
+    return 0;
 }
 
 double VMCSolver::localEnergyGeneric(double** r){
@@ -289,6 +306,7 @@ void VMCSolver::useLocalEnergyHydrogen(){
     }
     localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
 }
+
 void VMCSolver::useImportanceSampling(){
     if (timeStep == 0) {
 	cout << "Error : Cannot use importance sampling with timeStep = 0" 
@@ -349,6 +367,7 @@ void VMCSolver::clearAll(){
     mean = 0;
 
     initialized = false;
+    importanceSampling = false;
 }
 
 double VMCSolver::getAcceptanceRatio(){

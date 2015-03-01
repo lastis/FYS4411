@@ -18,7 +18,6 @@ ax = fig.gca(projection='3d')
 X, Y = np.meshgrid(alpha, beta)
 
 Z = np.transpose(Z)
-print X,Y,Z
 
 surf = ax.plot_surface(X, Y, Z, 
         rstride=1, cstride=1, cmap=cm.coolwarm,

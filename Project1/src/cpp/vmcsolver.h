@@ -51,6 +51,7 @@ private:
     double localEnergyGeneric(double** r);
     double localEnergyHelium(double** r);
     double localEnergyHydrogen(double* r1);
+    double quantumForce(double** r, double ** qForce);
     void   initPositions();
 
     bool initialized;
@@ -77,6 +78,8 @@ private:
     double mean;
     double energy;
 
+    Matrix qForceOld;
+    Matrix qForceNew;
     Matrix rOld;
     Matrix rNew;
     Matrix rPlus;
