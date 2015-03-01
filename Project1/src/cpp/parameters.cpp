@@ -9,7 +9,9 @@ void adjustStepLength(double deltaL = 0.05,
         double epsilon = 1, double targetRatio = 50);
 void adjustAlpha(double deltaAlpha);
 void adjustBeta(double deltaBeta);
-void createAlphaBetaData(int N);
+void createAlphaBetaData(int N, double alphaStart, double alphaEnd, 
+	double betaStart, double betaEnd);
+void createAlphaData(int N, double alphaStart, double alphaEnd);
 void calculateSolverVariance(int N);
 
 
@@ -21,8 +23,33 @@ int main()
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
     solver.useLocalEnergyHelium();
-    calculateSolverVariance(5);
+    createAlphaData(11, 0.1, 3.1);
     return 0;
+}
+
+void createAlphaData(int N, double alphaStart, double alphaEnd){
+    Vector alpha = Vector(N);
+    Vector energy = Vector(N);
+
+    alpha.linspace(alphaStart,alphaEnd);
+    double* pAlpha = alpha.getArrayPointer();
+    double* pEnergy = energy.getArrayPointer();
+    for (int i = 0; i < N; i++) {
+	solver.alpha = pAlpha[i];
+	solver.runMonteCarloIntegration();
+	pEnergy[i] = solver.getEnergy();
+    }
+    ofstream myFile;
+    cout << "Creating plot file : " << "/res/alphaPlot.txt" << endl;
+    myFile.open("../../res/alphaPlot.txt");
+    for (int i = 0; i < N; i++) {
+    	myFile << pAlpha[i] << " ";
+    }
+    myFile << endl;
+    for (int i = 0; i < N; i++) {
+    	myFile << pEnergy[i] << " ";
+    }
+    myFile.close();
 }
 
 void calculateSolverVariance(int N){
@@ -44,13 +71,14 @@ void calculateSolverVariance(int N){
     cout << "Variance : " << sqrt(energysq - energy*energy) << endl;
 }
 
-void createAlphaBetaData(int N){
+void createAlphaBetaData(int N, double alphaStart, double alphaEnd, 
+	double betaStart, double betaEnd){
     Vector alpha = Vector(N);
     Vector beta = Vector(N);
     Matrix energy = Matrix(N,N);
 
-    alpha.linspace(solver.alpha-0.2,solver.alpha+0.2);
-    beta.linspace(solver.beta-0.2,solver.beta+0.2);
+    alpha.linspace(alphaStart,alphaEnd);
+    beta.linspace(betaStart,betaEnd);
     double* pAlpha = alpha.getArrayPointer();
     double* pBeta = beta.getArrayPointer();
     double** pEnergy = energy.getArrayPointer();
