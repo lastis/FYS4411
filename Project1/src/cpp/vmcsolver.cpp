@@ -15,8 +15,16 @@ bool VMCSolver::runIntegration(){
 	    << endl;
 	return false;
     }
+    if (waveFunction == WAVE_FUNCTION_1)
+	wave = &VMCSolver::wave1;
+    else if (waveFunction == WAVE_FUNCTION_2)
+	wave = &VMCSolver::wave2;
+    else {
+	cout << "Error: Wave function not set, integration not running."
+	    << endl;
+	return false;
+    }
     // Set the local energy function as function pointer
-    double (VMCSolver::*localEnergy)(double** r);
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
 	localEnergy = &VMCSolver::localEnergyGeneric;
     else if (localEnergyFunction == LOCAL_ENERGY_HELIUM)
@@ -66,10 +74,7 @@ bool VMCSolver::runIntegration(){
     for(int cycle = 0; cycle < nCycles; cycle++) {
 
         // Store the current value of the wave function
-	if (waveFunction == WAVE_FUNCTION_1) 
-	    waveFunctionOld = wave1(prOld);
-	else 
-	    waveFunctionOld = wave2(prOld[0],prOld[1]);
+	waveFunctionOld = (this->*wave)(prOld);
 
         // New position to test
         for(int i = 0; i < nParticles; i++) {
@@ -78,11 +83,7 @@ bool VMCSolver::runIntegration(){
             }
 
             // Recalculate the value of the wave function
-            if(waveFunction == WAVE_FUNCTION_1) 
-		waveFunctionNew = wave1(prNew);
-	    else 
-		waveFunctionNew = wave2(prNew[0],prNew[1]);
-
+	    waveFunctionNew = (this->*wave)(prNew);
             // Check for step acceptance (if yes, update position, if no, reset position)
             if(Random::ran2(idum) <= (waveFunctionNew*waveFunctionNew) / 
 			    (waveFunctionOld*waveFunctionOld)) {
@@ -100,7 +101,6 @@ bool VMCSolver::runIntegration(){
 
             // update energies
 	    deltaE = (this->*localEnergy)(prNew); 
-	    /* deltaE = this->localEnergyHelium(prNew); */ 
             
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
@@ -165,10 +165,7 @@ double VMCSolver::localEnergyGeneric(double** r){
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
-    if (waveFunction == WAVE_FUNCTION_1) 
-	waveFunctionCurrent = wave1(r);
-    else 
-	waveFunctionCurrent = wave2(r[0],r[1]);
+    waveFunctionCurrent = (this->*wave)(r);
 
     // Kinetic energy
 
@@ -183,15 +180,9 @@ double VMCSolver::localEnergyGeneric(double** r){
 	    r0 		= r[i][j];
 
 	    r[i][j] = rMinus;
-	    if (waveFunction == WAVE_FUNCTION_1) 
-		waveFunctionMinus = wave1(r);
-	    else 
-		waveFunctionMinus = wave2(r[0],r[1]);
+	    waveFunctionMinus = (this->*wave)(r);
 	    r[i][j] = rPlus;
-	    if (waveFunction == WAVE_FUNCTION_1) 
-		waveFunctionPlus = wave1(r);
-	    else 
-		waveFunctionPlus = wave2(r[0],r[1]);
+	    waveFunctionPlus = (this->*wave)(r);
 	    r[i][j] = r0;
             kineticEnergy -= (waveFunctionMinus + waveFunctionPlus 
 		    - 2 * waveFunctionCurrent);
@@ -359,7 +350,9 @@ double VMCSolver::wave1(double** r)
     return exp(-argument * alpha);
 }
 
-double VMCSolver::wave2(double* r1, double* r2){
+double VMCSolver::wave2(double** r){
+    double* r1 = r[0];
+    double* r2 = r[1];
     double temp = 0;
     double r1Abs = 0;
     double r2Abs = 0;

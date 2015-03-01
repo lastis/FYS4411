@@ -18,7 +18,7 @@ int main()
     double time = double(end - start)/CLOCKS_PER_SEC;
     cout << "Time = " << time << endl;  
 
-    cout << "Accepted moves: " << int(solver.getStepAcceptance())
+    cout << "Accepted moves: " << int(solver.getAcceptanceRatio())
 	    << " %" << endl;
     cout << "Mean distance: " << solver.getR12Mean() << endl;
     return 0;

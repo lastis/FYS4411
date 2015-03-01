@@ -42,8 +42,10 @@ private:
     static const int WAVE_FUNCTION_1 = 1;
     static const int WAVE_FUNCTION_2 = 2;
 
+    double (VMCSolver::*wave)(double** r);
     double wave1(double** r);
-    double wave2(double* r1, double* r2);
+    double wave2(double** r);
+    double (VMCSolver::*localEnergy)(double** r);
     double localEnergyGeneric(double** r);
     double localEnergyHelium(double** r);
     double localEnergyHydrogen(double* r1);
@@ -52,6 +54,7 @@ private:
     bool outputSupressed;
     // Paramters are gathered from file. 
     int waveFunction;
+    int localEnergyFunction;
     int accepts;
     int rejects;
     int charge;
@@ -61,7 +64,6 @@ private:
     double stepLength;
     double h;
     double h2;
-    int localEnergyFunction;
 
     // Values from the simulation. 
     double mean;
