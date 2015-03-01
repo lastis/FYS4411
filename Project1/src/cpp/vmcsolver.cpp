@@ -103,7 +103,10 @@ bool VMCSolver::runMonteCarloIntegration(){
     energy = energySum/(nCycles * nParticles);
     double energySquared = energySquaredSum/(nCycles * nParticles);
 
-    if (outputSupressed) return true;
+    if (outputSupressed) {
+	outputSupressed = false;
+	return true;
+    }
     cout << "Energy: " << energy << " Energy (squared sum): " 
 	<< energySquared << endl;
     cout << "Variance : " << energySquared - energy*energy << endl;
@@ -299,7 +302,6 @@ void VMCSolver::reset(){
     rNew.reset();
     rPlus.reset();
     rMinus.reset();
-    outputSupressed = false;
 
 }
 
