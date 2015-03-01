@@ -12,6 +12,7 @@ void adjustBeta(double deltaBeta);
 void createAlphaBetaData(int N, double alphaStart, double alphaEnd, 
 	double betaStart, double betaEnd);
 void createAlphaData(int N, double alphaStart, double alphaEnd);
+void createBetaData(int N, double betaStart, double betaEnd);
 void calculateSolverVariance(int N);
 
 
@@ -23,7 +24,7 @@ int main()
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
     solver.useLocalEnergyHelium();
-    createAlphaData(31, 0.1, 6.1);
+    createBetaData(21, 0.001, 0.321);
     return 0;
 }
 
