@@ -1,6 +1,7 @@
 #include "vmcsolver.h"
 #include <iostream>
 #include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -11,7 +12,7 @@ void adjustAlpha(double deltaAlpha);
 void adjustBeta(double deltaBeta);
 void createAlphaBetaData(int N, double alphaStart, double alphaEnd, 
 	double betaStart, double betaEnd);
-void createAlphaData(int N, double alphaStart, double alphaEnd);
+void createAlphaData(int N, double alphaStart, double alphaEnd, string fName);
 void createBetaData(int N, double betaStart, double betaEnd);
 void calculateSolverVariance(int N);
 
@@ -24,7 +25,10 @@ int main()
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
     solver.useLocalEnergyHelium();
-    createBetaData(21, 0.001, 0.321);
+    solver.useWaveFunction1();
+    createAlphaData(11,0.1,3.6, "alphaPlot.txt");
+    /* createBetaData(51, 0.001, 0.321); */
+    /* createAlphaBetaData(5,0.1,6.1,0.001,0.321); */
     return 0;
 }
 
@@ -56,7 +60,7 @@ void createBetaData(int N, double betaStart, double betaEnd){
     myFile.close();
 }
 
-void createAlphaData(int N, double alphaStart, double alphaEnd){
+void createAlphaData(int N, double alphaStart, double alphaEnd, string fName){
     Vector alpha = Vector(N);
     Vector energy = Vector(N);
 
@@ -72,8 +76,9 @@ void createAlphaData(int N, double alphaStart, double alphaEnd){
 	cout << "Alpha  : " << pAlpha[i] << endl;
     }
     ofstream myFile;
-    cout << "Creating plot file : " << "/res/alphaPlot.txt" << endl;
-    myFile.open("../../res/alphaPlot.txt");
+    string adress = "../../res/" + fName;
+    cout << "Creating plot file : " << "/res/" + fName << endl;
+    myFile.open(adress.c_str());
     for (int i = 0; i < N; i++) {
     	myFile << pAlpha[i] << " ";
     }

@@ -37,7 +37,8 @@ bool VMCSolver::runMonteCarloIntegration(){
     // initial trial positions
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-            prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5);
+            /* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
+            prOld[i][j] = (Random::ran2(idum) - 0.5);
         }
     }
 
@@ -348,20 +349,22 @@ double VMCSolver::wave1(double** r)
 
 double VMCSolver::wave2(double* r1, double* r2){
     double temp = 0;
-    double r = 0;
+    double r1Abs = 0;
+    double r2Abs = 0;
     double r12 = 0;
     for(int j = 0; j < nDimensions; j++) {
 	temp = r1[j] * r1[j];
-	r += temp;
+	r1Abs += temp;
 	temp = r2[j] * r2[j];
-	r += temp;
+	r2Abs += temp;
 
-	temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
+	temp = (r2[j] - r1[j]) * (r2[j] - r1[j]);
 	r12 += temp;
     }
-    r = sqrt(r);
+    r1Abs = sqrt(r1Abs);
+    r2Abs = sqrt(r2Abs);
     r12 = sqrt(r12);
-    return exp(-r*alpha)*exp(r12/(2*(1+beta*r12)));
+    return exp(-(r1Abs + r2Abs)*alpha)*exp(r12/(2*(1+beta*r12)));
 }
 
 void VMCSolver::exportParamters(std::string fName){
