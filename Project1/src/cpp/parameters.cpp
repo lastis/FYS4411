@@ -26,13 +26,18 @@ int main()
 }
 
 void calculateSolverVariance(int N){
+    double tmp;
     double energy;
     double energysq;
     for (int i = 0; i < N; i++) {
 	solver.idum++;
+	solver.supressOutput();
 	solver.runMonteCarloIntegration();
-	energy += solver.getEnergy();
-	energysq += energy*energy;
+	tmp = solver.getEnergy();
+	energy += tmp;
+	energysq += tmp*tmp;
+
+	cout << "Energy : " << tmp << endl;
     }
     energy /= N;
     energysq /= N;
