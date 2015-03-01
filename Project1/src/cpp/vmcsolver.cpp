@@ -57,7 +57,7 @@ bool VMCSolver::runIntegration(){
     // loop over Monte Carlo cycles
     for(int cycle = 0; cycle < nCycles; cycle++) {
 
-        // Store the current value of the wave function
+    // Store the current value of the wave function
 	waveFuncValOld = (this->*getWaveFuncVal)(prOld);
 
         // New position to test
@@ -67,34 +67,35 @@ bool VMCSolver::runIntegration(){
             }
 
             // Recalculate the value of the wave function
-	    waveFuncValNew = (this->*getWaveFuncVal)(prNew);
-            // Check for step acceptance (if yes, update position, if no, reset position)
-            if(Random::ran2(idum) <= (waveFuncValNew*waveFuncValNew) / 
-			    (waveFuncValOld*waveFuncValOld)) {
+            waveFuncValNew = (this->*getWaveFuncVal)(prNew);
+            // Check for step acceptance (if yes, 
+            // update position, if no, reset position)
+            if(Random::ran2(idum) <= (waveFuncValNew*waveFuncValNew)
+                    / (waveFuncValOld*waveFuncValOld)) {
                 for(int j = 0; j < nDimensions; j++) {
                     prOld[i][j] = prNew[i][j];
                     waveFuncValOld = waveFuncValNew;
-		    accepts++;
                 }
+                accepts++;
             } else {
                 for(int j = 0; j < nDimensions; j++) {
                     prNew[i][j] = prOld[i][j];
-		    rejects++;
                 }
+                rejects++;
             }
 
             // update energies
-	    deltaE = (this->*getLocalEnergy)(prNew); 
+            deltaE = (this->*getLocalEnergy)(prNew); 
             
             energySum += deltaE;
             energySquaredSum += deltaE*deltaE;
         }
 
-	double rsq = 0;
-	for(int j = 0; j < nDimensions; j++) {
-	    rsq += (prOld[1][j] - prOld[0][j])*(prOld[1][j] - prOld[0][j]);
-	}
-	rSum += sqrt(rsq);
+        double rsq = 0;
+        for(int j = 0; j < nDimensions; j++) {
+            rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
+        }
+        rSum += sqrt(rsq);
     }
     mean = rSum/(nCycles);
     energy = energySum/(nCycles * nParticles);
@@ -109,6 +110,10 @@ bool VMCSolver::runIntegration(){
 	<< energySquared << endl;
     cout << "Variance : " << energySquared - energy*energy << endl;
     return true;
+}
+
+void VMCSolver::runRandomWalk(){
+
 }
 
 void VMCSolver::supressOutput(){
@@ -206,7 +211,7 @@ double VMCSolver::getLocalEnergyGeneric(double** r){
 	    r[i][j] = rPlus;
 	    waveFunctionPlus = (this->*getWaveFuncVal)(r);
 	    r[i][j] = r0;
-            kineticEnergy -= (waveFunctionMinus + waveFunctionPlus 
+        kineticEnergy -= (waveFunctionMinus + waveFunctionPlus 
 		    - 2 * waveFunctionCurrent);
         }
     }

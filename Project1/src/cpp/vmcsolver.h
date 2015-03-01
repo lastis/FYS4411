@@ -53,6 +53,7 @@ private:
     double getLocalEnergyHydrogen(double* r1);
     double getQuantumForce(double** r, double ** qForce);
     void   initPositions();
+    void   runRandomWalk();
 
     bool initialized;
     bool outputSupressed;
