@@ -9,8 +9,8 @@ int main()
     VMCSolver solver = VMCSolver();
     solver.initFromFile("helium2.ini");
 
-    solver.useWaveFunction2();
-    solver.useLocalEnergyHelium();
+    solver.setWaveFunction2();
+    solver.setLocalEnergyHelium();
     clock_t start = clock();
     solver.runIntegration();
     clock_t end = clock();

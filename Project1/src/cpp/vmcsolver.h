@@ -20,12 +20,12 @@ public:
     bool runIntegration();
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
-    void useWaveFunction1();
-    void useWaveFunction2();
-    void useLocalEnergyHelium();
-    void useLocalEnergyHydrogen();
-    void useLocalEnergyGeneric();
-    void useImportanceSampling();
+    void setWaveFunction1();
+    void setWaveFunction2();
+    void setLocalEnergyHelium();
+    void setLocalEnergyHydrogen();
+    void setLocalEnergyGeneric();
+    void setImportanceSampling();
     double getAcceptanceRatio();
     void setStepLength(double stepLength);
     double getStepLength();
@@ -44,19 +44,19 @@ public:
 private:
 
     // Private functions
-    double (VMCSolver::*wave)(double** r);
-    double wave1(double** r);
-    double wave2(double** r);
-    double (VMCSolver::*localEnergy)(double** r);
-    double localEnergyGeneric(double** r);
-    double localEnergyHelium(double** r);
-    double localEnergyHydrogen(double* r1);
-    double quantumForce(double** r, double ** qForce);
+    double (VMCSolver::*getWaveFuncVal)(double** r);
+    double getWaveFunc1Val(double** r);
+    double getWaveFunc2Val(double** r);
+    double (VMCSolver::*getLocalEnergy)(double** r);
+    double getLocalEnergyGeneric(double** r);
+    double getLocalEnergyHelium(double** r);
+    double getLocalEnergyHydrogen(double* r1);
+    double getQuantumForce(double** r, double ** qForce);
     void   initPositions();
 
     bool initialized;
     bool outputSupressed;
-    bool importanceSampling;
+    bool useImportanceSampling;
 
 
     // Paramters are gathered from file. 
