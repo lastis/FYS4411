@@ -23,8 +23,36 @@ int main()
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
     solver.useLocalEnergyHelium();
-    createAlphaData(11, 0.1, 3.1);
+    createAlphaData(31, 0.1, 6.1);
     return 0;
+}
+
+void createBetaData(int N, double betaStart, double betaEnd){
+    Vector beta = Vector(N);
+    Vector energy = Vector(N);
+
+    beta.linspace(betaStart,betaEnd);
+    double* pBeta = beta.getArrayPointer();
+    double* pEnergy = energy.getArrayPointer();
+    for (int i = 0; i < N; i++) {
+	solver.beta = pBeta[i];
+	solver.supressOutput();
+	solver.runMonteCarloIntegration();
+	pEnergy[i] = solver.getEnergy();
+	cout << "Energy : " << pEnergy[i] << endl;
+	cout << "Beta  : " << pBeta[i] << endl;
+    }
+    ofstream myFile;
+    cout << "Creating plot file : " << "/res/betaPlot.txt" << endl;
+    myFile.open("../../res/betaPlot.txt");
+    for (int i = 0; i < N; i++) {
+    	myFile << pBeta[i] << " ";
+    }
+    myFile << endl;
+    for (int i = 0; i < N; i++) {
+    	myFile << pEnergy[i] << " ";
+    }
+    myFile.close();
 }
 
 void createAlphaData(int N, double alphaStart, double alphaEnd){
@@ -36,8 +64,11 @@ void createAlphaData(int N, double alphaStart, double alphaEnd){
     double* pEnergy = energy.getArrayPointer();
     for (int i = 0; i < N; i++) {
 	solver.alpha = pAlpha[i];
+	solver.supressOutput();
 	solver.runMonteCarloIntegration();
 	pEnergy[i] = solver.getEnergy();
+	cout << "Energy : " << pEnergy[i] << endl;
+	cout << "Alpha  : " << pAlpha[i] << endl;
     }
     ofstream myFile;
     cout << "Creating plot file : " << "/res/alphaPlot.txt" << endl;
