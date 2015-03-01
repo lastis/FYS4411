@@ -9,6 +9,11 @@
 
 class VMCSolver
 {
+    static const int LOCAL_ENERGY_GENERIC = 1;
+    static const int LOCAL_ENERGY_HELIUM = 2;
+    static const int LOCAL_ENERGY_HYDROGEN = 3;
+    static const int WAVE_FUNCTION_1 = 1;
+    static const int WAVE_FUNCTION_2 = 2;
 public:
     VMCSolver();
 
@@ -36,12 +41,8 @@ public:
     long idum;
 
 private:
-    static const int LOCAL_ENERGY_GENERIC = 1;
-    static const int LOCAL_ENERGY_HELIUM = 2;
-    static const int LOCAL_ENERGY_HYDROGEN = 3;
-    static const int WAVE_FUNCTION_1 = 1;
-    static const int WAVE_FUNCTION_2 = 2;
 
+    // Private functions
     double (VMCSolver::*wave)(double** r);
     double wave1(double** r);
     double wave2(double** r);
@@ -49,6 +50,7 @@ private:
     double localEnergyGeneric(double** r);
     double localEnergyHelium(double** r);
     double localEnergyHydrogen(double* r1);
+    void   initPositions();
 
     bool initialized;
     bool outputSupressed;

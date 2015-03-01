@@ -15,6 +15,7 @@ bool VMCSolver::runIntegration(){
 	    << endl;
 	return false;
     }
+    // Set the wave function as a function pointer
     if (waveFunction == WAVE_FUNCTION_1)
 	wave = &VMCSolver::wave1;
     else if (waveFunction == WAVE_FUNCTION_2)
@@ -24,7 +25,7 @@ bool VMCSolver::runIntegration(){
 	    << endl;
 	return false;
     }
-    // Set the local energy function as function pointer
+    // Set the local energy function as a function pointer
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
 	localEnergy = &VMCSolver::localEnergyGeneric;
     else if (localEnergyFunction == LOCAL_ENERGY_HELIUM)
@@ -39,14 +40,6 @@ bool VMCSolver::runIntegration(){
     }
 
 
-    rOld = Matrix(nParticles, nDimensions);
-    rNew = Matrix(nParticles, nDimensions);
-    prNew = rNew.getArrayPointer();
-    prOld = rOld.getArrayPointer();
-
-    rPlus = Matrix(nParticles, nDimensions);
-    rMinus = Matrix(nParticles, nDimensions);
-
     double waveFunctionOld = 0;
     double waveFunctionNew = 0;
 
@@ -58,13 +51,7 @@ bool VMCSolver::runIntegration(){
 
     reset();
 
-    // initial trial positions
-    for(int i = 0; i < nParticles; i++) {
-        for(int j = 0; j < nDimensions; j++) {
-            /* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
-            prOld[i][j] = (Random::ran2(idum) - 0.5);
-        }
-    }
+    initPositions();
 
     rNew = rOld;
     prNew = rNew.getArrayPointer();
@@ -129,6 +116,24 @@ bool VMCSolver::runIntegration(){
 
 void VMCSolver::supressOutput(){
     outputSupressed = true;
+}
+
+void VMCSolver::initPositions(){
+    rOld = Matrix(nParticles, nDimensions);
+    rNew = Matrix(nParticles, nDimensions);
+    prNew = rNew.getArrayPointer();
+    prOld = rOld.getArrayPointer();
+
+    rPlus = Matrix(nParticles, nDimensions);
+    rMinus = Matrix(nParticles, nDimensions);
+
+    // initial trial positions
+    for(int i = 0; i < nParticles; i++) {
+        for(int j = 0; j < nDimensions; j++) {
+            /* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
+            prOld[i][j] = (Random::ran2(idum) - 0.5);
+        }
+    }
 }
 
 double VMCSolver::localEnergyHelium(double** r){
