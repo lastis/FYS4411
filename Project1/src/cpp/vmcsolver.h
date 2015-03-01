@@ -52,10 +52,10 @@ private:
     double getLocalEnergyHelium(double** r);
     double getLocalEnergyHydrogen(double* r1);
     double getQuantumForce(double** r, double ** qForce);
-    void   initPositions();
-    void   runRandomWalk();
+    bool   initRunVariables();
+    inline void   runRandomWalk();
 
-    bool initialized;
+    bool ready;
     bool outputSupressed;
     bool useImportanceSampling;
 
@@ -78,6 +78,7 @@ private:
     // Values from the simulation. 
     double mean;
     double energy;
+    double energySquared;
 
     Matrix qForceOld;
     Matrix qForceNew;
@@ -85,6 +86,13 @@ private:
     Matrix rNew;
     Matrix rPlus;
     Matrix rMinus;
+
+    double deltaE;
+    double waveFuncValOld;
+    double waveFuncValNew;
+    double energySum;
+    double energySquaredSum;
+    double rAbsSum;
 
     double** prOld;
     double** prNew;

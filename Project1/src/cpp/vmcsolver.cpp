@@ -10,11 +10,82 @@ VMCSolver::VMCSolver(){
 
 bool VMCSolver::runIntegration(){
 
-    if (!initialized) {
-	cout << "Error: Solver not initialized, integration not running."
+    reset();
+    ready = initRunVariables();
+    if (!ready) {
+	cout << "Error: Solver not initialized properly, integration not running."
 	    << endl;
 	return false;
     }
+
+    // loop over Monte Carlo cycles
+    for(int cycle = 0; cycle < nCycles; cycle++) {
+        runRandomWalk();
+    }
+
+    mean = rAbsSum/(nCycles);
+    energy = energySum/(nCycles * nParticles);
+    energySquared = energySquaredSum/(nCycles * nParticles);
+
+    // Output 
+    if (outputSupressed) {
+        outputSupressed = false;
+        return true;
+    }
+    cout << "Energy: " << energy << " Energy (squared sum): " 
+	<< energySquared << endl;
+    cout << "Variance : " << energySquared - energy*energy << endl;
+    return true;
+}
+
+inline void VMCSolver::runRandomWalk(){
+    // Store the current value of the wave function
+    waveFuncValOld = (this->*getWaveFuncVal)(prOld);
+
+    // New position to test
+    for(int i = 0; i < nParticles; i++) {
+        for(int j = 0; j < nDimensions; j++) {
+            prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
+        }
+
+        // Recalculate the value of the wave function
+        waveFuncValNew = (this->*getWaveFuncVal)(prNew);
+        // Check for step acceptance (if yes, 
+        // update position, if no, reset position)
+        if(Random::ran2(idum) <= (waveFuncValNew*waveFuncValNew)
+                / (waveFuncValOld*waveFuncValOld)) {
+            for(int j = 0; j < nDimensions; j++) {
+                prOld[i][j] = prNew[i][j];
+                waveFuncValOld = waveFuncValNew;
+            }
+            accepts++;
+        } else {
+            for(int j = 0; j < nDimensions; j++) {
+                prNew[i][j] = prOld[i][j];
+            }
+            rejects++;
+        }
+
+        // update energies
+        deltaE = (this->*getLocalEnergy)(prNew); 
+        
+        energySum += deltaE;
+        energySquaredSum += deltaE*deltaE;
+    }
+
+    double rsq = 0;
+    for(int j = 0; j < nDimensions; j++) {
+        rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
+    }
+    rAbsSum += sqrt(rsq);
+}
+
+void VMCSolver::supressOutput(){
+    outputSupressed = true;
+}
+
+bool VMCSolver::initRunVariables(){
+
     // Set the wave function as a function pointer
     if (waveFunction == WAVE_FUNCTION_1)
 	getWaveFuncVal = &VMCSolver::getWaveFunc1Val;
@@ -27,9 +98,9 @@ bool VMCSolver::runIntegration(){
     }
     // Set the local energy function as a function pointer
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
-	getLocalEnergy = &VMCSolver::getLocalEnergyGeneric;
+        getLocalEnergy = &VMCSolver::getLocalEnergyGeneric;
     else if (localEnergyFunction == LOCAL_ENERGY_HELIUM)
-	getLocalEnergy = &VMCSolver::getLocalEnergyHelium;
+        getLocalEnergy = &VMCSolver::getLocalEnergyHelium;
     /* else if (localEnergyFunction == LOCAL_ENERGY_HELIUM); */
 	/* double (VMCSolver::*localEnergy)(double** r) */ 
 	/*     = &VMCSolver::localEnergyHelium; */
@@ -39,88 +110,7 @@ bool VMCSolver::runIntegration(){
 	return false;
     }
 
-
-    double waveFuncValOld = 0;
-    double waveFuncValNew = 0;
-
-    double energySum = 0;
-    double energySquaredSum = 0;
-
-    double deltaE = 0;
-    double rSum = 0;
-
-    reset();
-
-    initPositions();
-
-
-    // loop over Monte Carlo cycles
-    for(int cycle = 0; cycle < nCycles; cycle++) {
-
-    // Store the current value of the wave function
-	waveFuncValOld = (this->*getWaveFuncVal)(prOld);
-
-        // New position to test
-        for(int i = 0; i < nParticles; i++) {
-            for(int j = 0; j < nDimensions; j++) {
-                prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
-            }
-
-            // Recalculate the value of the wave function
-            waveFuncValNew = (this->*getWaveFuncVal)(prNew);
-            // Check for step acceptance (if yes, 
-            // update position, if no, reset position)
-            if(Random::ran2(idum) <= (waveFuncValNew*waveFuncValNew)
-                    / (waveFuncValOld*waveFuncValOld)) {
-                for(int j = 0; j < nDimensions; j++) {
-                    prOld[i][j] = prNew[i][j];
-                    waveFuncValOld = waveFuncValNew;
-                }
-                accepts++;
-            } else {
-                for(int j = 0; j < nDimensions; j++) {
-                    prNew[i][j] = prOld[i][j];
-                }
-                rejects++;
-            }
-
-            // update energies
-            deltaE = (this->*getLocalEnergy)(prNew); 
-            
-            energySum += deltaE;
-            energySquaredSum += deltaE*deltaE;
-        }
-
-        double rsq = 0;
-        for(int j = 0; j < nDimensions; j++) {
-            rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
-        }
-        rSum += sqrt(rsq);
-    }
-    mean = rSum/(nCycles);
-    energy = energySum/(nCycles * nParticles);
-    double energySquared = energySquaredSum/(nCycles * nParticles);
-
-    // Output 
-    if (outputSupressed) {
-	outputSupressed = false;
-	return true;
-    }
-    cout << "Energy: " << energy << " Energy (squared sum): " 
-	<< energySquared << endl;
-    cout << "Variance : " << energySquared - energy*energy << endl;
-    return true;
-}
-
-void VMCSolver::runRandomWalk(){
-
-}
-
-void VMCSolver::supressOutput(){
-    outputSupressed = true;
-}
-
-void VMCSolver::initPositions(){
+    // Initialize arrays
     qForceOld = Matrix(nParticles, nDimensions);
     qForceNew = Matrix(nParticles, nDimensions);
 
@@ -134,24 +124,26 @@ void VMCSolver::initPositions(){
 
     // initial trial positions
     if (useImportanceSampling == true) {
-	for(int i = 0; i < nParticles; i++) {
-	    for(int j = 0; j < nDimensions; j++) {
-		prOld[i][j] = Random::gauss(idum)*sqrt(timeStep);
-	    }
-	}
+        for(int i = 0; i < nParticles; i++) {
+            for(int j = 0; j < nDimensions; j++) {
+                prOld[i][j] = Random::gauss(idum)*sqrt(timeStep);
+            }
+        }
     }
     else {
-	for(int i = 0; i < nParticles; i++) {
-	    for(int j = 0; j < nDimensions; j++) {
-		/* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
-		prOld[i][j] = (Random::ran2(idum) - 0.5);
-	    }
-	}
+        for(int i = 0; i < nParticles; i++) {
+            for(int j = 0; j < nDimensions; j++) {
+                /* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
+                prOld[i][j] = (Random::ran2(idum) - 0.5);
+            }
+        }
     }
 
     rNew = rOld;
     prNew = rNew.getArrayPointer();
     prOld = rOld.getArrayPointer();
+    // Finished without error (hopefully).
+    return true;
 }
 
 double VMCSolver::getLocalEnergyHelium(double** r){
@@ -285,7 +277,7 @@ bool VMCSolver::initFromFile(std::string fName){
 
     myFile.close();
 
-    initialized = true;
+    ready = true;
     outputSupressed = false;
     return true;
 }
@@ -371,7 +363,7 @@ void VMCSolver::clearAll(){
     energy = 0;
     mean = 0;
 
-    initialized = false;
+    ready = false;
     useImportanceSampling = false;
 }
 
