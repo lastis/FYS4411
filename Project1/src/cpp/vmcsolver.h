@@ -53,7 +53,7 @@ private:
     double getLocalEnergyGeneric(double** r);
     double getLocalEnergyHelium(double** r);
     double getLocalEnergyHydrogen(double* r1);
-    double getQuantumForce(double** r, double ** qForce);
+    void   updateQuantumForce(double** r, double ** qForce);
     bool   initRunVariables();
     inline void runRandomWalk();
     inline void runQuantumWalk();

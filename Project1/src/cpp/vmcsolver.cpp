@@ -45,7 +45,7 @@ inline void VMCSolver::runQuantumWalk(){
     double greensFunction;
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
-    getQuantumForce(prOld,pqForceOld);
+    updateQuantumForce(prOld,pqForceOld);
 
     // New position to test
     for(int i = 0; i < nParticles; i++) {
@@ -66,7 +66,7 @@ inline void VMCSolver::runQuantumWalk(){
         // Recalculate the value of the wave function
         waveFuncValNew = (this->*getWaveFuncVal)(prNew);
 	// TODO something strange here!
-	getQuantumForce(prNew,pqForceNew);
+	updateQuantumForce(prNew,pqForceNew);
 	// Compute the log ratio of the greens functions to be used in the 
 	// Metropolis-Hastings algorithm.
 	greensFunction = 0;
@@ -250,7 +250,7 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 	    );
 }
 
-double VMCSolver::getQuantumForce(double** r, double ** qForce){
+void VMCSolver::updateQuantumForce(double** r, double ** qForce){
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
@@ -276,7 +276,6 @@ double VMCSolver::getQuantumForce(double** r, double ** qForce){
 	    qForce[i][j] = waveFunctionPlus - waveFunctionMinus;
         }
     }
-    return 0;
 }
 
 double VMCSolver::getLocalEnergyGeneric(double** r){
