@@ -25,20 +25,33 @@ public:
     void setLocalEnergyHelium();
     void setLocalEnergyHydrogen();
     void setLocalEnergyGeneric();
-    void setImportanceSampling();
+    void setImportanceSampling(bool param);
+    void setRecordDensity(bool param);
+    void setRecordChargeDensity();
     double getAcceptanceRatio();
     void setStepLength(double stepLength);
     double getStepLength();
     double getR12Mean();
     double getEnergy();
     void reset();
-    void clearAll();
+    void clear();
     void supressOutput();
 
 
     // Parameters gathered from file TODO.
     double alpha;
     double beta;
+    int waveFunction;
+    int localEnergyFunction;
+    int accepts;
+    int rejects;
+    int charge;
+    int nDimensions;
+    int nCycles;
+    int nParticles;
+    double stepLength;
+    double h;
+    double h2;
     long idum;
     double timeStep;
     double D;
@@ -58,45 +71,40 @@ private:
     inline void runRandomWalk();
     inline void runQuantumWalk();
 
-    bool ready;
-    bool outputSupressed;
-    bool useImportanceSampling;
-
-
-    // Paramters are gathered from file. 
-    int waveFunction;
-    int localEnergyFunction;
-    int accepts;
-    int rejects;
-    int charge;
-    int nDimensions;
-    int nCycles;
-    int nParticles;
-    double stepLength;
-    double h;
-    double h2;
 
     // Values from the simulation. 
     double mean;
     double energy;
     double energySquared;
+
+    // Run variables
     double energySum;
     double energySquaredSum;
     double rAbsSum;
     double deltaE;
     double waveFuncValOld;
     double waveFuncValNew;
+    bool ready;
+    bool outputSupressed;
+    bool useImportanceSampling;
+    bool recordDensity;
+    bool recordChargeDensity;
 
     Matrix qForceOld;
     Matrix qForceNew;
-    Matrix rOld;
-    Matrix rNew;
-
-
     double** pqForceOld;
     double** pqForceNew;
+    Matrix rOld;
+    Matrix rNew;
     double** prOld;
     double** prNew;
+
+    Matrix density;
+    Matrix densityCharge;
+    double** pDensity;
+    double** pDensityCharge;
+
+
 };
 
 #endif // VMCSOLVER_H

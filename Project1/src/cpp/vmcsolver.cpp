@@ -4,7 +4,7 @@ using namespace CPhys;
 using namespace std;
 
 VMCSolver::VMCSolver(){
-    clearAll();
+    clear();
 }
 
 
@@ -138,7 +138,6 @@ inline void VMCSolver::runRandomWalk(){
             }
             rejects++;
         }
-
         // update energies
         deltaE = (this->*getLocalEnergy)(prNew); 
         
@@ -146,6 +145,16 @@ inline void VMCSolver::runRandomWalk(){
         energySquaredSum += deltaE*deltaE;
     }
 
+    // Update density
+    double bin;
+    if (recordDensity) {
+	for(int i = 0; i < nParticles; i++) {
+	    for(int j = 0; j < nDimensions; j++) {
+		pDensity[i][j] = prNew[i][j];
+		pDensity[i][j+nDimensions] = waveFuncValNew*waveFuncValOld;
+	    }
+	}
+    }
     double rsq = 0;
     for(int j = 0; j < nDimensions; j++) {
         rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
@@ -186,6 +195,17 @@ bool VMCSolver::initRunVariables(){
 
     // Initialize arrays
 
+
+    if (recordDensity) {
+	// Density matrix looks like this -> N * (x,y,z,fx,fy,fz) 
+	density = Matrix(nParticles,2*nDimensions);
+	pDensity = density.getArrayPointer();
+    }
+    if (recordChargeDensity) {
+	// Density charge matrix looks like this -> N * (x,y,z,fx,fy,fz)
+	densityCharge = Matrix(nParticles,2*nDimensions);
+	pDensityCharge = density.getArrayPointer();
+    }
     if (useImportanceSampling) {
 	qForceOld = Matrix(nParticles, nDimensions);
 	qForceNew = Matrix(nParticles, nDimensions);
@@ -403,7 +423,11 @@ void VMCSolver::setLocalEnergyHydrogen(){
     localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
 }
 
-void VMCSolver::setImportanceSampling(){
+void VMCSolver::setImportanceSampling(bool param){
+    if (param == false) {
+	useImportanceSampling = false;
+	return;
+    }
     if (timeStep == 0) {
 	cout << "Error : Cannot use importance sampling with timeStep = 0" 
 	    << endl;
@@ -415,6 +439,10 @@ void VMCSolver::setImportanceSampling(){
 	return;
     }
     useImportanceSampling = true;
+}
+
+void VMCSolver::setRecordDensity(bool param){
+    recordDensity = param;
 }
 
 void VMCSolver::setLocalEnergyGeneric(){
@@ -448,9 +476,10 @@ void VMCSolver::reset(){
     deltaE = 0;
     waveFuncValOld = 0;
     waveFuncValNew = 0;
+
 }
 
-void VMCSolver::clearAll(){
+void VMCSolver::clear(){
     reset();
     waveFunction = WAVE_FUNCTION_1;
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
@@ -466,7 +495,9 @@ void VMCSolver::clearAll(){
     nCycles = 0;
 
     ready = false;
-    useImportanceSampling = false;
+    setImportanceSampling(false);
+    setRecordDensity(false);
+    /* setRecordChargeDensity(false); */
 }
 
 double VMCSolver::getAcceptanceRatio(){

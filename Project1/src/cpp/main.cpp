@@ -11,7 +11,7 @@ int main()
 
     solver.D = 0.5;
     solver.timeStep = 0.01;
-    solver.setImportanceSampling();
+    /* solver.setImportanceSampling(true); */
     solver.setWaveFunction2();
     solver.setLocalEnergyHelium();
     clock_t start = clock();
