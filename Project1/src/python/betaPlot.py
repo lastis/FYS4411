@@ -11,4 +11,4 @@ plt.plot(data[0], data[1])
 
 plt.show()
 
-alphafile.close()
+betafile.close()
