@@ -52,8 +52,8 @@ private:
     double (VMCSolver::*getLocalEnergy)(double** r);
     double getLocalEnergyGeneric(double** r);
     double getLocalEnergyHelium(double** r);
-    double getLocalEnergyHydrogen(double* r1);
-    void   updateQuantumForce(double** r, double ** qForce);
+    double getLocalEnergyHydrogen(double** r);
+    void   updateQuantumForce(double** r, double ** qForce,double factor);
     bool   initRunVariables();
     inline void runRandomWalk();
     inline void runQuantumWalk();
