@@ -411,7 +411,7 @@ bool VMCSolver::initFromFile(std::string fName){
     string  paramName;
     string  discard;
 
-    string adress = "../../res/" + fName;
+    string adress = "../../../res/" + fName;
     myFile.open(adress.c_str());
     if (!myFile) {
 	cout << fName << "does not exist. Solver could not initialize." << endl;
@@ -558,7 +558,7 @@ double VMCSolver::getWaveFunc2Val(double** r){
 }
 
 void VMCSolver::exportParamters(std::string fName){
-    string adress = "../../res/" + fName;
+    string adress = "../../../res/" + fName;
     ofstream myFile;
     cout << "Dumption paramters to file : " << fName << endl;
     myFile.open(adress.c_str());
@@ -577,7 +577,7 @@ void VMCSolver::exportParamters(std::string fName){
     myFile.close();
 }
 void VMCSolver::exportDensity(std::string fName){
-    string adress = "../../res/" + fName;
+    string adress = "../../../res/" + fName;
     ofstream myFile;
     cout << "Dumption densities to file : " << fName << endl;
     myFile.open(adress.c_str());

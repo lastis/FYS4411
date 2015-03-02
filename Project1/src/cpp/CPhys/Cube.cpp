@@ -7,9 +7,9 @@
 using namespace std;
 
 Cube::Cube(){
-	mN = 0;
-	mM = 0;
-	mO = 0;
+	mN = 1;
+	mM = 1;
+	mO = 1;
 	allocateMemory(mN,mM,mO);
 }
 

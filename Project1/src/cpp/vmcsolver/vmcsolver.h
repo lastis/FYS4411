@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "CPhys.h"
+#include "../CPhys/CPhys.h"
 
 class VMCSolver
 {

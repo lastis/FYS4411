@@ -49,7 +49,7 @@ void createBetaData(int N, double betaStart, double betaEnd){
     }
     ofstream myFile;
     cout << "Creating plot file : " << "/res/betaPlot.txt" << endl;
-    myFile.open("../../res/betaPlot.txt");
+    myFile.open("../../../res/betaPlot.txt");
     for (int i = 0; i < N; i++) {
     	myFile << pBeta[i] << " ";
     }
@@ -76,7 +76,7 @@ void createAlphaData(int N, double alphaStart, double alphaEnd, string fName){
 	cout << "Alpha  : " << pAlpha[i] << endl;
     }
     ofstream myFile;
-    string adress = "../../res/" + fName;
+    string adress = "../../../res/" + fName;
     cout << "Creating plot file : " << "/res/" + fName << endl;
     myFile.open(adress.c_str());
     for (int i = 0; i < N; i++) {
@@ -129,13 +129,13 @@ void createAlphaBetaData(int N, double alphaStart, double alphaEnd,
     }
     ofstream myFile;
     cout << "Creating plot file : " << "/res/alphadata.txt" << endl;
-    myFile.open("../../res/alphadata.txt");
+    myFile.open("../../../res/alphadata.txt");
     for (int i = 0; i < N; i++) {
     	myFile << pAlpha[i] << " ";
     }
     myFile.close();
 
-    myFile.open("../../res/betadata.txt");
+    myFile.open("../../../res/betadata.txt");
     cout << "Creating plot file : " << "/res/betadata.txt" << endl;
     for (int i = 0; i < N; i++) {
     	myFile << pBeta[i] << " ";
@@ -143,7 +143,7 @@ void createAlphaBetaData(int N, double alphaStart, double alphaEnd,
     myFile.close();
 
     cout << "Creating plot file : " << "/res/energydata.txt" << endl;
-    myFile.open("../../res/energydata.txt");
+    myFile.open("../../../res/energydata.txt");
     for (int i = 0; i < N; i++) {
 	for (int j = 0; j < N; j++) {
 	    myFile << pEnergy[i][j] << " ";
