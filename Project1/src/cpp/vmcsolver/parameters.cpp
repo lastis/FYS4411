@@ -1,4 +1,4 @@
-#include "vmcsolver.h"
+#include "VMCSolver.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -27,7 +27,7 @@ int main()
     solver.setLocalEnergyHelium();
     solver.setWaveFunction2();
     /* createAlphaData(11,0.1,3.6, "alphaPlot.txt"); */
-    createBetaData(51, 0.10, 1.10);
+    createBetaData(11, 0.10, 1.10);
     /* createAlphaBetaData(5,0.1,3.6,0.001,0.321); */
     return 0;
 }

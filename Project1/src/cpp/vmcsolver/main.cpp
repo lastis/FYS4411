@@ -1,4 +1,4 @@
-#include "vmcsolver.h"
+#include "VMCSolver.h"
 #include <time.h>
 #include <iostream>
 

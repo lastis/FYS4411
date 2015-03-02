@@ -1,4 +1,4 @@
-#include "vmcsolver.h"
+#include "VMCSolver.h"
 
 using namespace CPhys;
 using namespace std;
@@ -6,7 +6,6 @@ using namespace std;
 VMCSolver::VMCSolver(){
     clear();
 }
-
 
 bool VMCSolver::runIntegration(){
     ready = initRunVariables();
