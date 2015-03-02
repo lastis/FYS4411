@@ -413,7 +413,7 @@ bool VMCSolver::initFromFile(std::string fName){
     string adress = "../../../res/" + fName;
     myFile.open(adress.c_str());
     if (!myFile) {
-	cout << fName << "does not exist. Solver could not initialize." << endl;
+	cout << fName << " does not exist. Solver could not initialize." << endl;
 	return false;
     }
     cout << "Initializing from file : " << fName << endl;
