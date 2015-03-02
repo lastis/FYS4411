@@ -580,6 +580,7 @@ void VMCSolver::exportDensity(std::string fName){
     ofstream myFile;
     cout << "Dumption densities to file : " << fName << endl;
     myFile.open(adress.c_str());
+    myFile << rMax << endl;
     for (int i = 0; i < nParticles; i++) {
 	for (int j = 0; j < bins; j++) {
 	    myFile << pDensity[i][j] << " ";

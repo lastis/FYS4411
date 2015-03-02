@@ -12,7 +12,7 @@ int main()
     /* solver.D = 0.5; */
     /* solver.timeStep = 0.01; */
     /* solver.setImportanceSampling(true); */
-    solver.setRecordDensity(true,21,2);
+    solver.setRecordDensity(true,100,2);
     solver.setWaveFunction2();
     solver.setLocalEnergyHelium();
     clock_t start = clock();
