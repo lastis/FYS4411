@@ -7,21 +7,17 @@ def blocking(indata, outdata, blocksizes):
 
     array = np.loadtxt(infile)
 
-    meanvector = []
-
     for nb in blocksizes:
         tmplist = []
-        
+
         for i in range(len(array)/nb):
             tmp = np.mean(array[nb*i:nb*(i+1)])
             tmplist.append(tmp)
-            #outfile.write(str(tmp)+' ')
 
         tmpvar = np.var(tmplist)
         tmpmean = np.mean(tmplist)
 
         outfile.write(str(nb)+': '+' '+str(tmpmean)+' '+str(tmpvar)+'\n')
-        meanvector.append(tmplist)
 
     infile.close()
     outfile.close()
