@@ -3,16 +3,22 @@ import matplotlib.pyplot as plt
 
 infile = open('../../res/density.txt')
 
+rMin = 0
+rMax = int(infile.readline())
+
+# density = infile.readlines()
 density = np.loadtxt(infile)
 
-l1 = len(density[1])
-p1 = denisty[0][0]
+l = len(density[0])
+print l
 
-l2 = len(density[3])
-p2 = denisty[2][0]
+p1 = density[0]
 
+p2 = density[1]
 
-plt.hist(0,p2,l2, density[1])
+pos = np.linspace(0,rMax,l)
+
+plt.plot(pos, density[0])
 plt.hold('on')
-plt.hist(linspace(0,p2,l2), density[3])
+plt.plot(pos, density[1])
 plt.show()
