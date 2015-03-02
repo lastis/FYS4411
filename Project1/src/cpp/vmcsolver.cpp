@@ -38,6 +38,76 @@ bool VMCSolver::runIntegration(){
     return true;
 }
 
+inline void VMCSolver::runQuantumWalk(){
+    double greensFunction;
+    // Store the current value of the wave function
+    waveFuncValOld = (this->*getWaveFuncVal)(prOld);
+    getQuantumForce(prOld,pqForceOld);
+
+    // New position to test
+    for(int i = 0; i < nParticles; i++) {
+        for(int j = 0; j < nDimensions; j++) {
+            prNew[i][j] = prOld[i][j] + Random::gauss(idum)*sqrt(timeStep) 
+		+ pqForceOld[i][j]*timeStep*D;
+        }
+	//For the other particles we need to set the position to the old
+	//position since we move only one particle at the time. 
+	for (int k = 0; k < nParticles; k++) {
+		if (k != i) {
+			for (int j = 0; j < nDimensions; j++) {
+				prNew[k][j] = prOld[k][j];
+			}
+		}
+	}
+
+        // Recalculate the value of the wave function
+        waveFuncValNew = (this->*getWaveFuncVal)(prNew);
+	// TODO something strange here!
+	getQuantumForce(prNew,pqForceNew);
+	// Compute the log ratio of the greens functions to be used in the 
+	// Metropolis-Hastings algorithm.
+	greensFunction = 0;
+	for (int j = 0; j < nDimensions; j++) {
+		greensFunction += 0.5*(pqForceOld[i][j]+pqForceNew[i][j])*
+		    (D*timeStep*0.5*(pqForceOld[i][j]-pqForceNew[i][j])
+		    - prNew[i][j] + prOld[i][j]);
+	}
+	greensFunction = exp(greensFunction);
+
+        // Check for step acceptance (if yes, 
+        // update position, if no, reset position)
+	// The metropolis test is performed by moving one particle at the time.
+        if(Random::ran2(idum) <= greensFunction*(waveFuncValNew*waveFuncValNew)
+                / (waveFuncValOld*waveFuncValOld)) {
+            for(int j = 0; j < nDimensions; j++) {
+                prOld[i][j] = prNew[i][j];
+		pqForceOld[i][j] = pqForceNew[i][j];
+                waveFuncValOld = waveFuncValNew;
+            }
+            accepts++;
+        } else {
+            for(int j = 0; j < nDimensions; j++) {
+                prNew[i][j] = prOld[i][j];
+		pqForceNew[i][j] = pqForceOld[i][j];
+            }
+            rejects++;
+        }
+
+        // update energies
+        deltaE = (this->*getLocalEnergy)(prNew); 
+        
+        energySum += deltaE;
+        energySquaredSum += deltaE*deltaE;
+    }
+
+    double rsq = 0;
+    for(int j = 0; j < nDimensions; j++) {
+        rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
+    }
+    rAbsSum += sqrt(rsq);
+
+}
+
 inline void VMCSolver::runRandomWalk(){
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
@@ -96,6 +166,7 @@ bool VMCSolver::initRunVariables(){
 	    << endl;
 	return false;
     }
+
     // Set the local energy function as a function pointer
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
         getLocalEnergy = &VMCSolver::getLocalEnergyGeneric;
@@ -111,16 +182,17 @@ bool VMCSolver::initRunVariables(){
     }
 
     // Initialize arrays
-    qForceOld = Matrix(nParticles, nDimensions);
-    qForceNew = Matrix(nParticles, nDimensions);
 
+    if (useImportanceSampling) {
+	qForceOld = Matrix(nParticles, nDimensions);
+	qForceNew = Matrix(nParticles, nDimensions);
+	pqForceOld = qForceOld.getArrayPointer();
+	pqForceNew = qForceNew.getArrayPointer();
+    }
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
     prNew = rNew.getArrayPointer();
     prOld = rOld.getArrayPointer();
-
-    rPlus = Matrix(nParticles, nDimensions);
-    rMinus = Matrix(nParticles, nDimensions);
 
     // initial trial positions
     if (useImportanceSampling == true) {
@@ -176,11 +248,35 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 }
 
 double VMCSolver::getQuantumForce(double** r, double ** qForce){
+    double waveFunctionMinus = 0;
+    double waveFunctionPlus = 0;
+    double waveFunctionCurrent;
+    waveFunctionCurrent = (this->*getWaveFuncVal)(r);
+
+    double rPlus;
+    double rMinus;
+    double r0;
+    double kineticEnergy = 0;
+    // Kinetic energy
+
+    for(int i = 0; i < nParticles; i++) {
+        for(int j = 0; j < nDimensions; j++) {
+	    rPlus 	= r[i][j] + h;
+	    rMinus 	= r[i][j] - h;
+	    r0 		= r[i][j];
+
+	    r[i][j] = rMinus;
+	    waveFunctionMinus = (this->*getWaveFuncVal)(r);
+	    r[i][j] = rPlus;
+	    waveFunctionPlus = (this->*getWaveFuncVal)(r);
+	    r[i][j] = r0;
+	    qForce[i][j] = waveFunctionPlus - waveFunctionMinus;
+        }
+    }
     return 0;
 }
 
 double VMCSolver::getLocalEnergyGeneric(double** r){
-
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
@@ -338,8 +434,6 @@ void VMCSolver::reset(){
 
     rOld.reset();
     rNew.reset();
-    rPlus.reset();
-    rMinus.reset();
 
 }
 

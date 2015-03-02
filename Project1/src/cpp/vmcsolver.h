@@ -53,7 +53,8 @@ private:
     double getLocalEnergyHydrogen(double* r1);
     double getQuantumForce(double** r, double ** qForce);
     bool   initRunVariables();
-    inline void   runRandomWalk();
+    inline void runRandomWalk();
+    inline void runQuantumWalk();
 
     bool ready;
     bool outputSupressed;
@@ -84,8 +85,6 @@ private:
     Matrix qForceNew;
     Matrix rOld;
     Matrix rNew;
-    Matrix rPlus;
-    Matrix rMinus;
 
     double deltaE;
     double waveFuncValOld;
@@ -94,6 +93,8 @@ private:
     double energySquaredSum;
     double rAbsSum;
 
+    double** pqForceOld;
+    double** pqForceNew;
     double** prOld;
     double** prNew;
     double** prPlus;
