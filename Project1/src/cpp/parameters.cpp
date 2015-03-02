@@ -24,10 +24,10 @@ int main()
 
     solver = VMCSolver();
     solver.initFromFile("helium2.ini");
-    solver.useLocalEnergyHelium();
-    solver.useWaveFunction2();
+    solver.setLocalEnergyHelium();
+    solver.setWaveFunction2();
     /* createAlphaData(11,0.1,3.6, "alphaPlot.txt"); */
-    createBetaData(101, 0.10, 1.10);
+    createBetaData(51, 0.10, 1.10);
     /* createAlphaBetaData(5,0.1,3.6,0.001,0.321); */
     return 0;
 }
@@ -41,8 +41,8 @@ void createBetaData(int N, double betaStart, double betaEnd){
     double* pEnergy = energy.getArrayPointer();
     for (int i = 0; i < N; i++) {
 	solver.beta = pBeta[i];
-	solver.supressOutput();
-	solver.runMonteCarloIntegration();
+	/* solver.supressOutput(); */
+	solver.runIntegration();
 	pEnergy[i] = solver.getEnergy();
 	cout << "Energy : " << pEnergy[i] << endl;
 	cout << "Beta  : " << pBeta[i] << endl;
@@ -70,7 +70,7 @@ void createAlphaData(int N, double alphaStart, double alphaEnd, string fName){
     for (int i = 0; i < N; i++) {
 	solver.alpha = pAlpha[i];
 	solver.supressOutput();
-	solver.runMonteCarloIntegration();
+	solver.runIntegration();
 	pEnergy[i] = solver.getEnergy();
 	cout << "Energy : " << pEnergy[i] << endl;
 	cout << "Alpha  : " << pAlpha[i] << endl;
@@ -96,7 +96,7 @@ void calculateSolverVariance(int N){
     for (int i = 0; i < N; i++) {
 	solver.idum++;
 	solver.supressOutput();
-	solver.runMonteCarloIntegration();
+	solver.runIntegration();
 	tmp = solver.getEnergy();
 	energy += tmp;
 	energysq += tmp*tmp;
@@ -123,7 +123,7 @@ void createAlphaBetaData(int N, double alphaStart, double alphaEnd,
     	for (int j = 0; j < N; j++) {
 	    solver.alpha = pAlpha[i];
 	    solver.beta = pBeta[j];
-	    solver.runMonteCarloIntegration();
+	    solver.runIntegration();
 	    pEnergy[i][j] = solver.getEnergy();
     	}
     }
@@ -159,14 +159,14 @@ void adjustBeta(double deltaBeta){
 
     // Set previous beta value
     double betaOld = solver.beta;
-    solver.runMonteCarloIntegration();
+    solver.runIntegration();
     double energyOld = solver.getEnergy();
     cout << "Beta : " << betaOld << endl;
 
     // Set new beta value
     double betaNew = betaOld + deltaBeta;
     bool goUp = true;
-    solver.runMonteCarloIntegration();
+    solver.runIntegration();
     double energyNew = solver.getEnergy();
     cout << "Beta : " << betaNew << endl;
 
@@ -175,7 +175,7 @@ void adjustBeta(double deltaBeta){
     if (energyNew > energyOld) {
 	goUp = false;
     	betaNew = betaOld - deltaBeta;
-	solver.runMonteCarloIntegration();
+	solver.runIntegration();
 	energyNew = solver.getEnergy();
 	cout << "Beta : " << betaNew << endl;
     }
@@ -194,7 +194,7 @@ void adjustBeta(double deltaBeta){
 	// Update new values
 	if(goUp) betaNew = betaOld + deltaBeta;
 	else betaNew = betaOld - deltaBeta;
-	solver.runMonteCarloIntegration();
+	solver.runIntegration();
 	energyNew = solver.getEnergy();
 	cout << "Beta : " << betaNew << endl;
     }
@@ -207,14 +207,14 @@ void adjustAlpha(double deltaAlpha){
 
     // Set previous alpha value
     double alphaOld = solver.alpha;
-    solver.runMonteCarloIntegration();
+    solver.runIntegration();
     double energyOld = solver.getEnergy();
     cout << "Alpha : " << alphaOld << endl;
 
     // Set new alpha value
     double alphaNew = alphaOld + deltaAlpha;
     bool goUp = true;
-    solver.runMonteCarloIntegration();
+    solver.runIntegration();
     double energyNew = solver.getEnergy();
     cout << "Alpha : " << alphaNew << endl;
 
@@ -223,7 +223,7 @@ void adjustAlpha(double deltaAlpha){
     if (energyNew > energyOld) {
 	goUp = false;
     	alphaNew = alphaOld - deltaAlpha;
-	solver.runMonteCarloIntegration();
+	solver.runIntegration();
 	energyNew = solver.getEnergy();
 	cout << "Alpha : " << alphaNew << endl;
     }
@@ -242,7 +242,7 @@ void adjustAlpha(double deltaAlpha){
 	// Update new values
 	if(goUp) alphaNew = alphaOld + deltaAlpha;
 	else alphaNew = alphaOld - deltaAlpha;
-	solver.runMonteCarloIntegration();
+	solver.runIntegration();
 	energyNew = solver.getEnergy();
 	if (energyNew > energyOld) cout << "Alpha : " << alphaNew << endl;
     }
@@ -253,8 +253,8 @@ void adjustAlpha(double deltaAlpha){
 void adjustStepLength(double deltaL, double epsilon, double targetRatio){
     // Find better value for stepLength
     double stepLength = solver.getStepLength();
-    solver.runMonteCarloIntegration();
-    double ratio = solver.getStepAcceptance();
+    solver.runIntegration();
+    double ratio = solver.getAcceptanceRatio();
     cout << "\tRatio \t\t= " << ratio << " %" << endl;
     cout << "\tStep length \t= " <<  stepLength << endl;
     while (ratio < targetRatio - epsilon || ratio > targetRatio + epsilon) {
@@ -262,8 +262,8 @@ void adjustStepLength(double deltaL, double epsilon, double targetRatio){
         if (ratio < targetRatio - epsilon)  stepLength -= deltaL;
         else                                stepLength += deltaL;
         solver.setStepLength(stepLength);
-        solver.runMonteCarloIntegration();
-        ratio = solver.getStepAcceptance();
+        solver.runIntegration();
+        ratio = solver.getAcceptanceRatio();
         cout << "\tRatio \t\t= " << ratio << " %" << endl;
         cout << "\tStep length \t= " <<  stepLength << endl;
     }

@@ -36,10 +36,12 @@ public:
     void supressOutput();
 
 
-    // Parameters
+    // Parameters gathered from file TODO.
     double alpha;
     double beta;
     long idum;
+    double timeStep;
+    double D;
 
 private:
 
@@ -50,10 +52,11 @@ private:
     double (VMCSolver::*getLocalEnergy)(double** r);
     double getLocalEnergyGeneric(double** r);
     double getLocalEnergyHelium(double** r);
-    double getLocalEnergyHydrogen(double* r1);
-    double getQuantumForce(double** r, double ** qForce);
+    double getLocalEnergyHydrogen(double** r);
+    void   updateQuantumForce(double** r, double ** qForce,double factor);
     bool   initRunVariables();
-    inline void   runRandomWalk();
+    inline void runRandomWalk();
+    inline void runQuantumWalk();
 
     bool ready;
     bool outputSupressed;
@@ -70,8 +73,6 @@ private:
     int nCycles;
     int nParticles;
     double stepLength;
-    double timeStep;
-    double D;
     double h;
     double h2;
 
@@ -79,25 +80,23 @@ private:
     double mean;
     double energy;
     double energySquared;
+    double energySum;
+    double energySquaredSum;
+    double rAbsSum;
+    double deltaE;
+    double waveFuncValOld;
+    double waveFuncValNew;
 
     Matrix qForceOld;
     Matrix qForceNew;
     Matrix rOld;
     Matrix rNew;
-    Matrix rPlus;
-    Matrix rMinus;
 
-    double deltaE;
-    double waveFuncValOld;
-    double waveFuncValNew;
-    double energySum;
-    double energySquaredSum;
-    double rAbsSum;
 
+    double** pqForceOld;
+    double** pqForceNew;
     double** prOld;
     double** prNew;
-    double** prPlus;
-    double** prMinus;
 };
 
 #endif // VMCSOLVER_H
