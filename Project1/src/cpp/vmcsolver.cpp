@@ -20,7 +20,10 @@ bool VMCSolver::runIntegration(){
 
     // loop over Monte Carlo cycles
     for(int cycle = 0; cycle < nCycles; cycle++) {
-        runRandomWalk();
+	if (useImportanceSampling) 
+	    runQuantumWalk();
+	else 
+	    runRandomWalk();
     }
 
     mean = rAbsSum/(nCycles);

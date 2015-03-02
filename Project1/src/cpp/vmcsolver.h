@@ -36,10 +36,12 @@ public:
     void supressOutput();
 
 
-    // Parameters
+    // Parameters gathered from file TODO.
     double alpha;
     double beta;
     long idum;
+    double timeStep;
+    double D;
 
 private:
 
@@ -71,8 +73,6 @@ private:
     int nCycles;
     int nParticles;
     double stepLength;
-    double timeStep;
-    double D;
     double h;
     double h2;
 
