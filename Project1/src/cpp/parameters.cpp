@@ -41,7 +41,7 @@ void createBetaData(int N, double betaStart, double betaEnd){
     double* pEnergy = energy.getArrayPointer();
     for (int i = 0; i < N; i++) {
 	solver.beta = pBeta[i];
-	solver.supressOutput();
+	/* solver.supressOutput(); */
 	solver.runIntegration();
 	pEnergy[i] = solver.getEnergy();
 	cout << "Energy : " << pEnergy[i] << endl;

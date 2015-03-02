@@ -80,25 +80,23 @@ private:
     double mean;
     double energy;
     double energySquared;
+    double energySum;
+    double energySquaredSum;
+    double rAbsSum;
+    double deltaE;
+    double waveFuncValOld;
+    double waveFuncValNew;
 
     Matrix qForceOld;
     Matrix qForceNew;
     Matrix rOld;
     Matrix rNew;
 
-    double deltaE;
-    double waveFuncValOld;
-    double waveFuncValNew;
-    double energySum;
-    double energySquaredSum;
-    double rAbsSum;
 
     double** pqForceOld;
     double** pqForceNew;
     double** prOld;
     double** prNew;
-    double** prPlus;
-    double** prMinus;
 };
 
 #endif // VMCSOLVER_H

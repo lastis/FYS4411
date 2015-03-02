@@ -431,16 +431,27 @@ void VMCSolver::setWaveFunction2(){
 
 void VMCSolver::reset(){
     mean = 0;
-    energy = 0;
     accepts = 0;
     rejects = 0;
 
+    energy = 0;
+    energySquared = 0;
+    energySum = 0;
+    energySquaredSum = 0;
+    rAbsSum = 0;
+
     rOld.reset();
     rNew.reset();
+    qForceOld.reset();
+    qForceNew.reset();
 
+    deltaE = 0;
+    waveFuncValOld = 0;
+    waveFuncValNew = 0;
 }
 
 void VMCSolver::clearAll(){
+    reset();
     waveFunction = WAVE_FUNCTION_1;
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
     nDimensions = 0;
@@ -453,12 +464,6 @@ void VMCSolver::clearAll(){
     alpha = 0;
     beta = 0;
     nCycles = 0;
-
-    accepts = 0;
-    rejects = 0;
-
-    energy = 0;
-    mean = 0;
 
     ready = false;
     useImportanceSampling = false;
