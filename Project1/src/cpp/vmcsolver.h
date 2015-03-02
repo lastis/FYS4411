@@ -103,11 +103,9 @@ private:
     double** prNew;
 
     Matrix density;
-    Matrix densityBinCnt;
-    /* Cube densityCharge; */
+    Matrix densityCharge;
     double** pDensity;
-    double** pDensityBinCnt;
-    /* double*** pDensityCharge; */
+    double** pDensityCharge;
 
 
 };

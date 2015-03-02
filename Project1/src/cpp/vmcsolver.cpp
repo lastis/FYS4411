@@ -10,13 +10,14 @@ VMCSolver::VMCSolver(){
 
 bool VMCSolver::runIntegration(){
 
-    reset();
     ready = initRunVariables();
     if (!ready) {
 	cout << "Error: Solver not initialized properly, integration not running."
 	    << endl;
 	return false;
     }
+
+    reset();
 
     // loop over Monte Carlo cycles
     for(int cycle = 0; cycle < nCycles; cycle++) {
@@ -30,9 +31,7 @@ bool VMCSolver::runIntegration(){
     if (recordDensity) {
 	for (int i = 0; i < nParticles; i++) {
 	    for (int j = 0; j < bins; j++) {
-		if (pDensityBinCnt == 0) continue;
-		pDensity[i][j] /= nCycles;//pDensityBinCnt[i][j];
-		/* pDensity[i][j] = pDensityBinCnt[i][j]/nCycles; */
+		pDensity[i][j] /= nCycles;
 	    }
 	}
     }
@@ -159,27 +158,24 @@ inline void VMCSolver::runRandomWalk(){
         energySum += deltaE;
         energySquaredSum += deltaE*deltaE;
 
-    }
-    // All particles moved one step at this point.
-
-    // Update density
-    if (recordDensity) {
-	int bin;
-	for(int i = 0; i < nParticles; i++) {
+	// Update density
+	if (recordDensity) {
+	    int bin;
 	    rAbs = 0;
 	    rsq = 0;
 	    for(int j = 0; j < nDimensions; j++) {
 		rsq += prNew[i][j]*prNew[i][j];
 	    }
 	    rAbs = sqrt(rsq);
-
-	    // Locate the bin the particle should be in
-	    if (rAbs > rMax) continue;
-	    bin = rAbs/rMax*bins;
-	    pDensity[i][bin] += waveFuncValNew*waveFuncValNew;
-	    pDensityBinCnt[i][bin] += 1;
+	    if (rAbs < rMax ) {
+		bin = rAbs/rMax*bins;
+		pDensity[i][bin] += 1;
+	    }
 	}
+
     }
+    // All particles moved one step at this point.
+
     // Calculate the radius of the particle
     rsq = 0;
     rAbs = 0;
@@ -227,11 +223,8 @@ bool VMCSolver::initRunVariables(){
 
 
     if (recordDensity) {
-	// Density charge matrix looks like this -> N * (x,y,z,fx,fy,fz)
 	density = Matrix(nParticles, bins);
-	densityBinCnt = Matrix(nParticles, bins);
 	pDensity = density.getArrayPointer();
-	pDensityBinCnt = densityBinCnt.getArrayPointer();
     }
     if (recordChargeDensity) {
 	/* densityCharge = Matrix(nParticles,2*nDimensions); */
@@ -505,10 +498,12 @@ void VMCSolver::reset(){
     rNew.reset();
     qForceOld.reset();
     qForceNew.reset();
+    density.reset();
 
     deltaE = 0;
     waveFuncValOld = 0;
     waveFuncValNew = 0;
+    
 
 }
 
