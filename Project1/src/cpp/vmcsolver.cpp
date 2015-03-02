@@ -9,7 +9,6 @@ VMCSolver::VMCSolver(){
 
 
 bool VMCSolver::runIntegration(){
-
     ready = initRunVariables();
     if (!ready) {
 	cout << "Error: Solver not initialized properly, integration not running."
@@ -17,7 +16,6 @@ bool VMCSolver::runIntegration(){
 	return false;
     }
 
-    reset();
 
     // loop over Monte Carlo cycles
     for(int cycle = 0; cycle < nCycles; cycle++) {
@@ -118,6 +116,7 @@ inline void VMCSolver::runQuantumWalk(){
     for(int j = 0; j < nDimensions; j++) {
         rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
     }
+    
     rAbsSum += sqrt(rsq);
 
 }
@@ -126,8 +125,6 @@ inline void VMCSolver::runRandomWalk(){
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
 
-    double rAbs = 0;
-    double rsq = 0;
     // New position to test
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
@@ -152,33 +149,13 @@ inline void VMCSolver::runRandomWalk(){
             }
             rejects++;
         }
-        // update energies
-        deltaE = (this->*getLocalEnergy)(prNew); 
-        
-        energySum += deltaE;
-        energySquaredSum += deltaE*deltaE;
-
-	// Update density
-	if (recordDensity) {
-	    int bin;
-	    rAbs = 0;
-	    rsq = 0;
-	    for(int j = 0; j < nDimensions; j++) {
-		rsq += prNew[i][j]*prNew[i][j];
-	    }
-	    rAbs = sqrt(rsq);
-	    if (rAbs < rMax ) {
-		bin = rAbs/rMax*bins;
-		pDensity[i][bin] += 1;
-	    }
-	}
-
+	updateSimulationParamters(i);
     }
     // All particles moved one step at this point.
 
     // Calculate the radius of the particle
-    rsq = 0;
-    rAbs = 0;
+    double rAbs = 0;
+    double rsq = 0;
     for(int j = 0; j < nDimensions; j++) {
         rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
     }
@@ -193,6 +170,20 @@ void VMCSolver::supressOutput(){
 }
 
 bool VMCSolver::initRunVariables(){
+    // Member variables
+    mean = 0;
+    accepts = 0;
+    rejects = 0;
+
+    energy = 0;
+    energySquared = 0;
+
+    energySum = 0;
+    energySquaredSum = 0;
+
+    deltaE = 0;
+    waveFuncValOld = 0;
+    waveFuncValNew = 0;
 
     // Set the wave function as a function pointer
     if (waveFunction == WAVE_FUNCTION_1)
@@ -224,6 +215,7 @@ bool VMCSolver::initRunVariables(){
 
     if (recordDensity) {
 	density = Matrix(nParticles, bins);
+	density.reset();
 	pDensity = density.getArrayPointer();
     }
     if (recordChargeDensity) {
@@ -280,6 +272,7 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 	r2Abs += temp;
 	temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
 	r12Abs += temp;
+	// Dot product.
 	temp = r1[j]*r2[j];
 	r1r2 += temp;
     }
@@ -292,6 +285,28 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 	    alpha*(r1Abs + r2Abs)/r12Abs*(1-(r1r2/(r1Abs*r2Abs)))
 	    - betaR12*betaR12/2 - 2/r12Abs + 2*beta*betaR12
 	    );
+}
+
+inline void VMCSolver::updateSimulationParamters(int i){
+        // update energies
+        deltaE = (this->*getLocalEnergy)(prNew); 
+
+        energySum += deltaE;
+        energySquaredSum += deltaE*deltaE;
+
+	// Update density
+	if (recordDensity) {
+	    int bin;
+	    double rsq = 0;
+	    for(int j = 0; j < nDimensions; j++) {
+		rsq += prNew[i][j]*prNew[i][j];
+	    }
+	    double rAbs = sqrt(rsq);
+	    if (rAbs < rMax ) {
+		bin = rAbs/rMax*bins;
+		pDensity[i][bin] += 1;
+	    }
+	}
 }
 
 void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
@@ -466,6 +481,8 @@ void VMCSolver::setImportanceSampling(bool param){
 }
 
 void VMCSolver::setRecordDensity(bool param, int bins, double maxPos){
+    // This is the only place where bins and rMax are set. But 
+    // this function is called on clear().
     recordDensity = param;
     this->bins = bins;
     rMax = maxPos;
@@ -483,32 +500,7 @@ void VMCSolver::setWaveFunction2(){
     waveFunction = WAVE_FUNCTION_2;
 }
 
-void VMCSolver::reset(){
-    mean = 0;
-    accepts = 0;
-    rejects = 0;
-
-    energy = 0;
-    energySquared = 0;
-    energySum = 0;
-    energySquaredSum = 0;
-    rAbsSum = 0;
-
-    rOld.reset();
-    rNew.reset();
-    qForceOld.reset();
-    qForceNew.reset();
-    density.reset();
-
-    deltaE = 0;
-    waveFuncValOld = 0;
-    waveFuncValNew = 0;
-    
-
-}
-
 void VMCSolver::clear(){
-    reset();
     waveFunction = WAVE_FUNCTION_1;
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
     nDimensions = 0;

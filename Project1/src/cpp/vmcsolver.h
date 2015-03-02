@@ -34,7 +34,6 @@ public:
     double getStepLength();
     double getR12Mean();
     double getEnergy();
-    void reset();
     void clear();
     void supressOutput();
 
@@ -69,6 +68,7 @@ private:
     double getLocalEnergyHydrogen(double** r);
     void   updateQuantumForce(double** r, double ** qForce,double factor);
     bool   initRunVariables();
+    inline void updateSimulationParamters(int i);
     inline void runRandomWalk();
     inline void runQuantumWalk();
 
@@ -87,6 +87,7 @@ private:
     double waveFuncValNew;
     int bins;
     double rMax;
+
     bool ready;
     bool outputSupressed;
     bool useImportanceSampling;
