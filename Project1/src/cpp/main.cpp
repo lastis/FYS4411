@@ -12,6 +12,7 @@ int main()
     solver.D = 0.5;
     solver.timeStep = 0.01;
     /* solver.setImportanceSampling(true); */
+    solver.setRecordDensity(true,100,2);
     solver.setWaveFunction2();
     solver.setLocalEnergyHelium();
     clock_t start = clock();
@@ -24,5 +25,7 @@ int main()
     cout << "Accepted moves: " << int(solver.getAcceptanceRatio())
 	    << " %" << endl;
     cout << "Mean distance: " << solver.getR12Mean() << endl;
+
+    solver.exportDensity("density.txt");
     return 0;
 }

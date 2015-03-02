@@ -26,6 +26,18 @@ bool VMCSolver::runIntegration(){
 	    runRandomWalk();
     }
 
+    // Calculate the density
+    if (recordDensity) {
+	for (int i = 0; i < nParticles; i++) {
+	    for (int j = 0; j < bins; j++) {
+		if (pDensityBinCnt == 0) continue;
+		pDensity[i][j] /= nCycles;//pDensityBinCnt[i][j];
+		/* pDensity[i][j] = pDensityBinCnt[i][j]/nCycles; */
+	    }
+	}
+    }
+
+    // Calculate the mean
     mean = rAbsSum/(nCycles);
     energy = energySum/(nCycles * nParticles);
     energySquared = energySquaredSum/(nCycles * nParticles);
@@ -115,6 +127,8 @@ inline void VMCSolver::runRandomWalk(){
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
 
+    double rAbs = 0;
+    double rsq = 0;
     // New position to test
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
@@ -135,6 +149,7 @@ inline void VMCSolver::runRandomWalk(){
         } else {
             for(int j = 0; j < nDimensions; j++) {
                 prNew[i][j] = prOld[i][j];
+		waveFuncValNew = waveFuncValOld;
             }
             rejects++;
         }
@@ -143,23 +158,38 @@ inline void VMCSolver::runRandomWalk(){
         
         energySum += deltaE;
         energySquaredSum += deltaE*deltaE;
+
     }
+    // All particles moved one step at this point.
 
     // Update density
-    double bin;
     if (recordDensity) {
+	int bin;
 	for(int i = 0; i < nParticles; i++) {
+	    rAbs = 0;
+	    rsq = 0;
 	    for(int j = 0; j < nDimensions; j++) {
-		pDensity[i][j] = prNew[i][j];
-		pDensity[i][j+nDimensions] = waveFuncValNew*waveFuncValOld;
+		rsq += prNew[i][j]*prNew[i][j];
 	    }
+	    rAbs = sqrt(rsq);
+
+	    // Locate the bin the particle should be in
+	    if (rAbs > rMax) continue;
+	    bin = rAbs/rMax*bins;
+	    pDensity[i][bin] += waveFuncValNew*waveFuncValNew;
+	    pDensityBinCnt[i][bin] += 1;
 	}
     }
-    double rsq = 0;
+    // Calculate the radius of the particle
+    rsq = 0;
+    rAbs = 0;
     for(int j = 0; j < nDimensions; j++) {
         rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
     }
-    rAbsSum += sqrt(rsq);
+    rAbs = sqrt(rsq);
+    // Add it to a sum so we can calculate the mean.
+    rAbsSum += rAbs;
+
 }
 
 void VMCSolver::supressOutput(){
@@ -197,14 +227,15 @@ bool VMCSolver::initRunVariables(){
 
 
     if (recordDensity) {
-	// Density matrix looks like this -> N * (x,y,z,fx,fy,fz) 
-	density = Matrix(nParticles,2*nDimensions);
+	// Density charge matrix looks like this -> N * (x,y,z,fx,fy,fz)
+	density = Matrix(nParticles, bins);
+	densityBinCnt = Matrix(nParticles, bins);
 	pDensity = density.getArrayPointer();
+	pDensityBinCnt = densityBinCnt.getArrayPointer();
     }
     if (recordChargeDensity) {
-	// Density charge matrix looks like this -> N * (x,y,z,fx,fy,fz)
-	densityCharge = Matrix(nParticles,2*nDimensions);
-	pDensityCharge = density.getArrayPointer();
+	/* densityCharge = Matrix(nParticles,2*nDimensions); */
+	/* pDensityCharge = density.getArrayPointer(); */
     }
     if (useImportanceSampling) {
 	qForceOld = Matrix(nParticles, nDimensions);
@@ -441,8 +472,10 @@ void VMCSolver::setImportanceSampling(bool param){
     useImportanceSampling = true;
 }
 
-void VMCSolver::setRecordDensity(bool param){
+void VMCSolver::setRecordDensity(bool param, int bins, double maxPos){
     recordDensity = param;
+    this->bins = bins;
+    rMax = maxPos;
 }
 
 void VMCSolver::setLocalEnergyGeneric(){
@@ -542,7 +575,7 @@ double VMCSolver::getWaveFunc2Val(double** r){
 void VMCSolver::exportParamters(std::string fName){
     string adress = "../../res/" + fName;
     ofstream myFile;
-    cout << "Dumption to file : " << fName << endl;
+    cout << "Dumption paramters to file : " << fName << endl;
     myFile.open(adress.c_str());
     myFile << "charge = " << charge <<  endl;
     myFile << "alpha = " << alpha << endl;
@@ -557,4 +590,18 @@ void VMCSolver::exportParamters(std::string fName){
     myFile << "idum = " << idum << endl;
     myFile << "localEnergyFunction = " << localEnergyFunction << endl;
     myFile.close();
+}
+void VMCSolver::exportDensity(std::string fName){
+    string adress = "../../res/" + fName;
+    ofstream myFile;
+    cout << "Dumption densities to file : " << fName << endl;
+    myFile.open(adress.c_str());
+    for (int i = 0; i < nParticles; i++) {
+	for (int j = 0; j < bins; j++) {
+	    myFile << pDensity[i][j] << " ";
+	}
+	myFile << endl;
+    }
+    myFile.close();
+
 }

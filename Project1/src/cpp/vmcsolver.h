@@ -20,13 +20,14 @@ public:
     bool runIntegration();
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
+    void exportDensity(std::string fName);
     void setWaveFunction1();
     void setWaveFunction2();
     void setLocalEnergyHelium();
     void setLocalEnergyHydrogen();
     void setLocalEnergyGeneric();
     void setImportanceSampling(bool param);
-    void setRecordDensity(bool param);
+    void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
     void setRecordChargeDensity();
     double getAcceptanceRatio();
     void setStepLength(double stepLength);
@@ -84,6 +85,8 @@ private:
     double deltaE;
     double waveFuncValOld;
     double waveFuncValNew;
+    int bins;
+    double rMax;
     bool ready;
     bool outputSupressed;
     bool useImportanceSampling;
@@ -100,9 +103,11 @@ private:
     double** prNew;
 
     Matrix density;
-    Matrix densityCharge;
+    Matrix densityBinCnt;
+    /* Cube densityCharge; */
     double** pDensity;
-    double** pDensityCharge;
+    double** pDensityBinCnt;
+    /* double*** pDensityCharge; */
 
 
 };
