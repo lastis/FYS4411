@@ -17,12 +17,13 @@ bool VMCSolver::runIntegration(){
     }
 
 
-    // loop over Monte Carlo cycles
+    // Main part of the code. 
+    // Loop over Monte Carlo cycles.
     for(int cycle = 0; cycle < nCycles; cycle++) {
 	if (useImportanceSampling) 
-	    runQuantumWalk();
+	    runQuantumStep();
 	else 
-	    runRandomWalk();
+	    runRandomStep();
     }
 
     // Calculate the density
@@ -34,7 +35,7 @@ bool VMCSolver::runIntegration(){
 	}
     }
 
-    // Calculate the mean
+    // Calculate the mean distance r12 and energy
     mean = rAbsSum/(nCycles);
     energy = energySum/(nCycles * nParticles);
     energySquared = energySquaredSum/(nCycles * nParticles);
@@ -50,7 +51,7 @@ bool VMCSolver::runIntegration(){
     return true;
 }
 
-inline void VMCSolver::runQuantumWalk(){
+inline void VMCSolver::runQuantumStep(){
     double greensFunction;
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
@@ -104,24 +105,20 @@ inline void VMCSolver::runQuantumWalk(){
             }
             rejects++;
         }
-
-        // update energies
-        deltaE = (this->*getLocalEnergy)(prNew); 
-        
-        energySum += deltaE;
-        energySquaredSum += deltaE*deltaE;
+	endOfSingleParticleStep(i);
     }
+    endOfStep();
 
-    double rsq = 0;
-    for(int j = 0; j < nDimensions; j++) {
-        rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
-    }
+    /* double rsq = 0; */
+    /* for(int j = 0; j < nDimensions; j++) { */
+    /*     rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]); */
+    /* } */
     
-    rAbsSum += sqrt(rsq);
+    /* rAbsSum += sqrt(rsq); */
 
 }
 
-inline void VMCSolver::runRandomWalk(){
+inline void VMCSolver::runRandomStep(){
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
 
@@ -149,20 +146,10 @@ inline void VMCSolver::runRandomWalk(){
             }
             rejects++;
         }
-	updateSimulationParamters(i);
+	endOfSingleParticleStep(i);
     }
     // All particles moved one step at this point.
-
-    // Calculate the radius of the particle
-    double rAbs = 0;
-    double rsq = 0;
-    for(int j = 0; j < nDimensions; j++) {
-        rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
-    }
-    rAbs = sqrt(rsq);
-    // Add it to a sum so we can calculate the mean.
-    rAbsSum += rAbs;
-
+    endOfStep();
 }
 
 void VMCSolver::supressOutput(){
@@ -287,26 +274,37 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 	    );
 }
 
-inline void VMCSolver::updateSimulationParamters(int i){
-        // update energies
-        deltaE = (this->*getLocalEnergy)(prNew); 
+inline void VMCSolver::endOfStep(){
+    // Calculate the radius of the particle
+    double rAbs = 0;
+    double rsq = 0;
+    for(int j = 0; j < nDimensions; j++) {
+        rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]);
+    }
+    rAbs = sqrt(rsq);
+    // Add it to a sum so we can calculate the mean.
+    rAbsSum += rAbs;
+}
 
-        energySum += deltaE;
-        energySquaredSum += deltaE*deltaE;
+inline void VMCSolver::endOfSingleParticleStep(int i){
+    // update energies
+    deltaE = (this->*getLocalEnergy)(prNew); 
+    energySum += deltaE;
+    energySquaredSum += deltaE*deltaE;
 
-	// Update density
-	if (recordDensity) {
-	    int bin;
-	    double rsq = 0;
-	    for(int j = 0; j < nDimensions; j++) {
-		rsq += prNew[i][j]*prNew[i][j];
-	    }
-	    double rAbs = sqrt(rsq);
-	    if (rAbs < rMax ) {
-		bin = rAbs/rMax*bins;
-		pDensity[i][bin] += 1;
-	    }
+    // Calculate density
+    if (recordDensity) {
+	int bin;
+	double rsq = 0;
+	for(int j = 0; j < nDimensions; j++) {
+	    rsq += prNew[i][j]*prNew[i][j];
 	}
+	double rAbs = sqrt(rsq);
+	if (rAbs < rMax ) {
+	    bin = rAbs/rMax*bins;
+	    pDensity[i][bin] += 1;
+	}
+    }
 }
 
 void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){

@@ -9,10 +9,10 @@ int main()
     VMCSolver solver = VMCSolver();
     solver.initFromFile("helium2.ini");
 
-    /* solver.D = 0.5; */
-    /* solver.timeStep = 0.01; */
-    /* solver.setImportanceSampling(true); */
-    solver.setRecordDensity(true,11,2);
+    solver.D = 0.5;
+    solver.timeStep = 0.01;
+    solver.setImportanceSampling(true);
+    solver.setRecordDensity(true,21,2);
     solver.setWaveFunction2();
     solver.setLocalEnergyHelium();
     clock_t start = clock();

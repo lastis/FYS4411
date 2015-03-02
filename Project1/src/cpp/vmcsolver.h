@@ -38,7 +38,7 @@ public:
     void supressOutput();
 
 
-    // Parameters gathered from file TODO.
+    // Parameters gathered from file. Be careful about changing these directly.
     double alpha;
     double beta;
     int waveFunction;
@@ -68,9 +68,10 @@ private:
     double getLocalEnergyHydrogen(double** r);
     void   updateQuantumForce(double** r, double ** qForce,double factor);
     bool   initRunVariables();
-    inline void updateSimulationParamters(int i);
-    inline void runRandomWalk();
-    inline void runQuantumWalk();
+    inline void endOfSingleParticleStep(int i);
+    inline void endOfStep();
+    inline void runRandomStep();
+    inline void runQuantumStep();
 
 
     // Values from the simulation. 
