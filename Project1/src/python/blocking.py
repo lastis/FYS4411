@@ -10,7 +10,7 @@ def blocking(indata, outdata, blocksizes):
     for nb in blocksizes:
         tmplist = []
 
-        for i in range(len(array)/nb):
+        for i in xrange(len(array)/nb):
             tmp = np.mean(array[nb*i:nb*(i+1)])
             tmplist.append(tmp)
 
@@ -34,4 +34,4 @@ def blocks(magnitude):
             blocksizes.append(int(N/(m*n)))
     return blocksizes
 
-blocking('test.txt','testdump.txt', np.sort(blocks(5)))
+blocking('../../res/energies.txt','testdump.txt', np.sort(blocks(5)))
