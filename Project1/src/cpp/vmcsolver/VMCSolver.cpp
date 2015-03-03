@@ -39,6 +39,11 @@ bool VMCSolver::runIntegration(){
     mean = rAbsSum/(nCycles);
     energy = energySum/(nCycles * nParticles);
     energySquared = energySquaredSum/(nCycles * nParticles);
+    if (recordEnergyArray) {
+    	for (int i = 0; i < nCycles; i++) {
+    		pEnergyArray[i] /= nParticles;
+    	}
+    }
 
     // Output 
     if (outputSupressed) {
@@ -51,7 +56,7 @@ bool VMCSolver::runIntegration(){
     return true;
 }
 
-inline void VMCSolver::runQuantumStep(int cycle){
+void VMCSolver::runQuantumStep(int cycle){
     double greensFunction;
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
@@ -109,7 +114,7 @@ inline void VMCSolver::runQuantumStep(int cycle){
     }
 }
 
-inline void VMCSolver::runRandomStep(int cycle){
+void VMCSolver::runRandomStep(int cycle){
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
 
@@ -167,6 +172,8 @@ bool VMCSolver::initRunVariables(){
 	getWaveFuncVal = &VMCSolver::getWaveFunc1Val;
     else if (waveFunction == WAVE_FUNCTION_2)
 	getWaveFuncVal = &VMCSolver::getWaveFunc2Val;
+    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM)
+	getWaveFuncVal = &VMCSolver::getWaveBerylliumVal;
     else {
 	cout << "Error: Wave function not set, integration not running."
 	    << endl;
@@ -191,7 +198,7 @@ bool VMCSolver::initRunVariables(){
 
 
     if (recordEnergyArray) {
-    	energyArray = Vector(nParticles*nCycles);
+    	energyArray = Vector(nCycles);
 	pEnergyArray = energyArray.getArrayPointer();
     }
     if (recordDensity) {
@@ -268,7 +275,7 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 	    );
 }
 
-inline void VMCSolver::endOfCycle(int cycle){
+void VMCSolver::endOfCycle(int cycle){
     // Calculate the radius of the particle
     double rAbs = 0;
     double rsq = 0;
@@ -281,7 +288,7 @@ inline void VMCSolver::endOfCycle(int cycle){
 
 }
 
-inline void VMCSolver::endOfSingleParticleStep(int cycle, int i){
+void VMCSolver::endOfSingleParticleStep(int cycle, int i){
     // update energies
     deltaE = (this->*getLocalEnergy)(prNew); 
     energySum += deltaE;
@@ -289,7 +296,7 @@ inline void VMCSolver::endOfSingleParticleStep(int cycle, int i){
 
     // Store in energy array.
     if (recordEnergyArray) {
-    	pEnergyArray[cycle*nParticles + i] = deltaE;
+    	pEnergyArray[cycle] += deltaE;
     }
 
     // Calculate density
@@ -502,6 +509,10 @@ void VMCSolver::setWaveFunction2(){
     waveFunction = WAVE_FUNCTION_2;
 }
 
+void VMCSolver::setWaveFunctionBeryllium(){
+    waveFunction = WAVE_FUNCTION_BERYLLIUM;
+}
+
 void VMCSolver::clear(){
     waveFunction = WAVE_FUNCTION_1;
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
@@ -562,6 +573,39 @@ double VMCSolver::getWaveFunc2Val(double** r){
     return exp(-(r1Abs + r2Abs)*alpha)*exp(r12/(2*(1+beta*r12)));
 }
 
+double VMCSolver::getWaveBerylliumVal(double** r){
+    double* r1 = r[0];
+    double* r2 = r[1];
+    double* r3 = r[2];
+    double* r4 = r[3];
+    double temp = 0;
+    double r1Abs = 0;
+    double r2Abs = 0;
+    double r3Abs = 0;
+    double r4Abs = 0;
+    for(int j = 0; j < nDimensions; j++) {
+	r1Abs = r1[j] * r1[j];
+	r2Abs = r2[j] * r2[j];
+	r3Abs = r3[j] * r3[j];
+	r4Abs = r4[j] * r4[j];
+    }
+    r1Abs = sqrt(r1Abs);
+    r2Abs = sqrt(r2Abs);
+    r3Abs = sqrt(r3Abs);
+    r4Abs = sqrt(r4Abs);
+    return (phi1s(r1Abs)*phi2s(r2Abs) -phi1s(r2Abs)*phi2s(r1Abs))
+	*(phi1s(r3Abs)*phi2s(r4Abs) -phi1s(r4Abs)*phi2s(r3Abs));
+    
+}
+
+double VMCSolver::phi1s(double r){
+    return exp(-alpha*r);
+}
+
+double VMCSolver::phi2s(double r){
+    return (1-alpha*r/2)*exp(-alpha*r/2);
+}
+
 void VMCSolver::exportParamters(std::string fName){
     string adress = "../../../res/" + fName;
     ofstream myFile;
@@ -602,7 +646,7 @@ void VMCSolver::exportEnergyArray(std::string fName){
     ofstream myFile;
     cout << "Dumption energies to file : " << fName << endl;
     myFile.open(adress.c_str());
-    for (int i = 0; i < nParticles*nCycles; i++) {
+    for (int i = 0; i < nCycles; i++) {
 	myFile << pEnergyArray[i] << " ";
     }
     myFile.close();
