@@ -14,6 +14,8 @@ class VMCSolver
     static const int LOCAL_ENERGY_HYDROGEN = 3;
     static const int WAVE_FUNCTION_1 = 1;
     static const int WAVE_FUNCTION_2 = 2;
+    static const int WAVE_FUNCTION_BERYLLIUM_1 = 3;
+    static const int WAVE_FUNCTION_BERYLLIUM_2 = 4;
 public:
     VMCSolver();
 
@@ -24,6 +26,8 @@ public:
     void exportEnergyArray(std::string fName);
     void setWaveFunction1();
     void setWaveFunction2();
+    void setWaveFunctionBeryllium1();
+    void setWaveFunctionBeryllium2();
     void setLocalEnergyHelium();
     void setLocalEnergyHydrogen();
     void setLocalEnergyGeneric();
@@ -31,6 +35,7 @@ public:
     void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
     void setRecordChargeDensity();
     void setRecordEnergyArray(bool param);
+    void setRecordR12Mean(bool param);
     double getAcceptanceRatio();
     void setStepLength(double stepLength);
     double getStepLength();
@@ -64,16 +69,20 @@ private:
     double (VMCSolver::*getWaveFuncVal)(double** r);
     double getWaveFunc1Val(double** r);
     double getWaveFunc2Val(double** r);
+    double getWaveBeryllium1Val(double** r);
+    double getWaveBeryllium2Val(double** r);
+    double phi1s(double r);
+    double phi2s(double r);
     double (VMCSolver::*getLocalEnergy)(double** r);
     double getLocalEnergyGeneric(double** r);
     double getLocalEnergyHelium(double** r);
     double getLocalEnergyHydrogen(double** r);
-    void   updateQuantumForce(double** r, double ** qForce,double factor);
     bool   initRunVariables();
-    inline void endOfSingleParticleStep(int cycle, int i);
-    inline void endOfCycle(int cycle);
-    inline void runRandomStep(int cycle);
-    inline void runQuantumStep(int cycle);
+    void   updateQuantumForce(double** r, double ** qForce,double factor);
+    void endOfSingleParticleStep(int cycle, int i);
+    void endOfCycle(int cycle);
+    void runRandomStep(int cycle);
+    void runQuantumStep(int cycle);
 
 
     // Values from the simulation. 
@@ -97,6 +106,7 @@ private:
     bool recordDensity;
     bool recordChargeDensity;
     bool recordEnergyArray;
+    bool recordR12Mean;
 
     Matrix qForceOld;
     Matrix qForceNew;

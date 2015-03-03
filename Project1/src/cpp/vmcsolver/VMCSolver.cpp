@@ -39,6 +39,11 @@ bool VMCSolver::runIntegration(){
     mean = rAbsSum/(nCycles);
     energy = energySum/(nCycles * nParticles);
     energySquared = energySquaredSum/(nCycles * nParticles);
+    if (recordEnergyArray) {
+    	for (int i = 0; i < nCycles; i++) {
+    		pEnergyArray[i] /= nParticles;
+    	}
+    }
 
     // Output 
     if (outputSupressed) {
@@ -51,7 +56,7 @@ bool VMCSolver::runIntegration(){
     return true;
 }
 
-inline void VMCSolver::runQuantumStep(int cycle){
+void VMCSolver::runQuantumStep(int cycle){
     double greensFunction;
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
@@ -109,7 +114,7 @@ inline void VMCSolver::runQuantumStep(int cycle){
     }
 }
 
-inline void VMCSolver::runRandomStep(int cycle){
+void VMCSolver::runRandomStep(int cycle){
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
 
@@ -167,6 +172,10 @@ bool VMCSolver::initRunVariables(){
 	getWaveFuncVal = &VMCSolver::getWaveFunc1Val;
     else if (waveFunction == WAVE_FUNCTION_2)
 	getWaveFuncVal = &VMCSolver::getWaveFunc2Val;
+    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_1)
+	getWaveFuncVal = &VMCSolver::getWaveBeryllium1Val;
+    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2)
+	getWaveFuncVal = &VMCSolver::getWaveBeryllium2Val;
     else {
 	cout << "Error: Wave function not set, integration not running."
 	    << endl;
@@ -178,9 +187,8 @@ bool VMCSolver::initRunVariables(){
         getLocalEnergy = &VMCSolver::getLocalEnergyGeneric;
     else if (localEnergyFunction == LOCAL_ENERGY_HELIUM)
         getLocalEnergy = &VMCSolver::getLocalEnergyHelium;
-    /* else if (localEnergyFunction == LOCAL_ENERGY_HELIUM); */
-	/* double (VMCSolver::*localEnergy)(double** r) */ 
-	/*     = &VMCSolver::localEnergyHelium; */
+    else if (localEnergyFunction == LOCAL_ENERGY_HYDROGEN)
+        getLocalEnergy = &VMCSolver::getLocalEnergyHydrogen;
     else {
 	cout << "Error: Local energy function not set, integration not running."
 	    << endl;
@@ -191,7 +199,7 @@ bool VMCSolver::initRunVariables(){
 
 
     if (recordEnergyArray) {
-    	energyArray = Vector(nParticles*nCycles);
+    	energyArray = Vector(nCycles);
 	pEnergyArray = energyArray.getArrayPointer();
     }
     if (recordDensity) {
@@ -238,6 +246,16 @@ bool VMCSolver::initRunVariables(){
     return true;
 }
 
+double VMCSolver::getLocalEnergyHydrogen(double** r){
+    double* r1 = r[0];
+    double rAbs = 0;
+    for(int j = 0; j < nDimensions; j++) {
+	rAbs += r1[j] * r1[j];
+    }
+    rAbs = sqrt(rAbs);
+    return  -1/rAbs - 0.5*alpha*(alpha - 2/rAbs);
+}
+
 double VMCSolver::getLocalEnergyHelium(double** r){
     double* r1 = r[0];
     double* r2 = r[1];
@@ -268,7 +286,8 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 	    );
 }
 
-inline void VMCSolver::endOfCycle(int cycle){
+void VMCSolver::endOfCycle(int cycle){
+    if (!recordR12Mean) return;
     // Calculate the radius of the particle
     double rAbs = 0;
     double rsq = 0;
@@ -281,7 +300,7 @@ inline void VMCSolver::endOfCycle(int cycle){
 
 }
 
-inline void VMCSolver::endOfSingleParticleStep(int cycle, int i){
+void VMCSolver::endOfSingleParticleStep(int cycle, int i){
     // update energies
     deltaE = (this->*getLocalEnergy)(prNew); 
     energySum += deltaE;
@@ -289,7 +308,7 @@ inline void VMCSolver::endOfSingleParticleStep(int cycle, int i){
 
     // Store in energy array.
     if (recordEnergyArray) {
-    	pEnergyArray[cycle*nParticles + i] = deltaE;
+    	pEnergyArray[cycle] += deltaE;
     }
 
     // Calculate density
@@ -388,6 +407,7 @@ double VMCSolver::getLocalEnergyGeneric(double** r){
     }
 
     return kineticEnergy + potentialEnergy;
+    /* return kineticEnergy; */
 }
 
 void VMCSolver::setStepLength(double stepLength){
@@ -490,6 +510,10 @@ void VMCSolver::setRecordDensity(bool param, int bins, double maxPos){
     rMax = maxPos;
 }
 
+void VMCSolver::setRecordR12Mean(bool param){
+    recordR12Mean = param;
+}
+
 void VMCSolver::setLocalEnergyGeneric(){
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
 }
@@ -500,6 +524,14 @@ void VMCSolver::setWaveFunction1(){
 
 void VMCSolver::setWaveFunction2(){
     waveFunction = WAVE_FUNCTION_2;
+}
+
+void VMCSolver::setWaveFunctionBeryllium1(){
+    waveFunction = WAVE_FUNCTION_BERYLLIUM_1;
+}
+
+void VMCSolver::setWaveFunctionBeryllium2(){
+    waveFunction = WAVE_FUNCTION_BERYLLIUM_2;
 }
 
 void VMCSolver::clear(){
@@ -521,6 +553,7 @@ void VMCSolver::clear(){
     setRecordDensity(false);
     /* setRecordChargeDensity(false); */
     setRecordEnergyArray(false);
+    setRecordR12Mean(false);
 }
 
 double VMCSolver::getAcceptanceRatio(){
@@ -560,6 +593,79 @@ double VMCSolver::getWaveFunc2Val(double** r){
     r2Abs = sqrt(r2Abs);
     r12 = sqrt(r12);
     return exp(-(r1Abs + r2Abs)*alpha)*exp(r12/(2*(1+beta*r12)));
+}
+
+double VMCSolver::getWaveBeryllium1Val(double** r){
+    double* r1 = r[0];
+    double* r2 = r[1];
+    double* r3 = r[2];
+    double* r4 = r[3];
+    double r1Abs = 0;
+    double r2Abs = 0;
+    double r3Abs = 0;
+    double r4Abs = 0;
+    for(int j = 0; j < nDimensions; j++) {
+	r1Abs += r1[j] * r1[j];
+	r2Abs += r2[j] * r2[j];
+	r3Abs += r3[j] * r3[j];
+	r4Abs += r4[j] * r4[j];
+    }
+    r1Abs = sqrt(r1Abs);
+    r2Abs = sqrt(r2Abs);
+    r3Abs = sqrt(r3Abs);
+    r4Abs = sqrt(r4Abs);
+    return (phi1s(r1Abs)*phi2s(r2Abs) - phi1s(r2Abs)*phi2s(r1Abs))
+	*(phi1s(r3Abs)*phi2s(r4Abs) - phi1s(r4Abs)*phi2s(r3Abs));
+}
+
+double VMCSolver::getWaveBeryllium2Val(double** r){
+    double* r1 = r[0];
+    double* r2 = r[1];
+    double* r3 = r[2];
+    double* r4 = r[3];
+    double r1Abs = 0;
+    double r2Abs = 0;
+    double r3Abs = 0;
+    double r4Abs = 0;
+    for(int j = 0; j < nDimensions; j++) {
+	r1Abs += r1[j] * r1[j];
+	r2Abs += r2[j] * r2[j];
+	r3Abs += r3[j] * r3[j];
+	r4Abs += r4[j] * r4[j];
+    }
+    r1Abs = sqrt(r1Abs);
+    r2Abs = sqrt(r2Abs);
+    r3Abs = sqrt(r3Abs);
+    r4Abs = sqrt(r4Abs);
+    double phi = (phi1s(r1Abs)*phi2s(r2Abs) -phi1s(r2Abs)*phi2s(r1Abs))
+	*(phi1s(r3Abs)*phi2s(r4Abs) -phi1s(r4Abs)*phi2s(r3Abs));
+    double cor = 0;
+    double rij = 0;
+    for (int i = 0; i < 4; i++) {
+    	for (int j = 0; j < 4; j++) {
+    	    if (i >= j) continue; 
+	    // If i < j, calculate something.
+	    rij = 0;
+	    for (int k = 0; k < nDimensions; k++) {
+	    	rij += (r[j][k] - r[i][k])*(r[j][k] - r[i][k]);
+	    }
+	    rij = sqrt(rij);
+	    if ((i == 1 || i == 2) && (j == 1 || j == 2))
+		cor += 0.25*rij/(1+beta*rij);
+	    else
+		cor += 0.5*rij/(1+beta*rij);
+    	}
+    }
+    cor = exp(cor);
+    return phi*cor;
+    
+}
+double VMCSolver::phi1s(double r){
+    return exp(-alpha*r);
+}
+
+double VMCSolver::phi2s(double r){
+    return (1-alpha*r/2)*exp(-alpha*r/2);
 }
 
 void VMCSolver::exportParamters(std::string fName){
@@ -602,7 +708,7 @@ void VMCSolver::exportEnergyArray(std::string fName){
     ofstream myFile;
     cout << "Dumption energies to file : " << fName << endl;
     myFile.open(adress.c_str());
-    for (int i = 0; i < nParticles*nCycles; i++) {
+    for (int i = 0; i < nCycles; i++) {
 	myFile << pEnergyArray[i] << " ";
     }
     myFile.close();
