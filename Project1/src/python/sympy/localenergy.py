@@ -100,7 +100,7 @@ EL2 = EL2.simplify().subs(el1, EL1)
 
 EL2 = EL2.subs(F,f.subs(r12,R12))
 
-EL2 = EL2.subs(R12,r12).subs(R12**2,r12**2).subs(R1,r1).subs(R2,r1)\
+EL2 = EL2.subs(EL1,el1).subs(R12,r12).subs(R12**2,r12**2).subs(R1,r1).subs(R2,r1)\
         .subs(R1**2,r1**2).subs(R2**2,r2**2).subs(Rdot,rdot)
 
 y = printing.latex(EL2)
