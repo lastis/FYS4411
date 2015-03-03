@@ -7,15 +7,26 @@ using namespace std;
 int main()
 {
     VMCSolver solver = VMCSolver();
-    solver.initFromFile("helium2.ini");
+    solver.initFromFile("hydrogen1.ini");
+    /* solver.initFromFile("helium2.ini"); */
+    /* solver.initFromFile("beryllium2.ini"); */
+
+    solver.setLocalEnergyHydrogen();
+    solver.setWaveFunction1();
+
+
+    /* solver.setLocalEnergyGeneric(); */
+    /* solver.setWaveFunctionBeryllium2(); */
+    /* solver.setImportanceSampling(true); */
+    /* solver.nParticles = 10000; */
 
     /* solver.D = 0.5; */
     /* solver.timeStep = 0.01; */
     /* solver.setImportanceSampling(true); */
     /* solver.setRecordDensity(true,100,2); */
-    solver.setRecordEnergyArray(true);
-    solver.setWaveFunction2();
-    solver.setLocalEnergyHelium();
+    /* solver.setRecordEnergyArray(true); */
+    /* solver.setWaveFunction2(); */
+    /* solver.setLocalEnergyHelium(); */
     clock_t start = clock();
     solver.runIntegration();
     clock_t end = clock();
@@ -25,9 +36,9 @@ int main()
 
     cout << "Accepted moves: " << int(solver.getAcceptanceRatio())
 	    << " %" << endl;
-    cout << "Mean distance: " << solver.getR12Mean() << endl;
+    /* cout << "Mean distance: " << solver.getR12Mean() << endl; */
 
-    solver.exportEnergyArray("energies.txt");
+    /* solver.exportEnergyArray("energies.txt"); */
     /* solver.exportDensity("density.txt"); */
     return 0;
 }

@@ -35,6 +35,7 @@ public:
     void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
     void setRecordChargeDensity();
     void setRecordEnergyArray(bool param);
+    void setRecordR12Mean(bool param);
     double getAcceptanceRatio();
     void setStepLength(double stepLength);
     double getStepLength();
@@ -105,6 +106,7 @@ private:
     bool recordDensity;
     bool recordChargeDensity;
     bool recordEnergyArray;
+    bool recordR12Mean;
 
     Matrix qForceOld;
     Matrix qForceNew;

@@ -187,9 +187,8 @@ bool VMCSolver::initRunVariables(){
         getLocalEnergy = &VMCSolver::getLocalEnergyGeneric;
     else if (localEnergyFunction == LOCAL_ENERGY_HELIUM)
         getLocalEnergy = &VMCSolver::getLocalEnergyHelium;
-    /* else if (localEnergyFunction == LOCAL_ENERGY_HELIUM); */
-	/* double (VMCSolver::*localEnergy)(double** r) */ 
-	/*     = &VMCSolver::localEnergyHelium; */
+    else if (localEnergyFunction == LOCAL_ENERGY_HYDROGEN)
+        getLocalEnergy = &VMCSolver::getLocalEnergyHydrogen;
     else {
 	cout << "Error: Local energy function not set, integration not running."
 	    << endl;
@@ -247,6 +246,16 @@ bool VMCSolver::initRunVariables(){
     return true;
 }
 
+double VMCSolver::getLocalEnergyHydrogen(double** r){
+    double* r1 = r[0];
+    double rAbs = 0;
+    for(int j = 0; j < nDimensions; j++) {
+	rAbs += r1[j] * r1[j];
+    }
+    rAbs = sqrt(rAbs);
+    return  -1/rAbs - 0.5*alpha*(alpha - 2/rAbs);
+}
+
 double VMCSolver::getLocalEnergyHelium(double** r){
     double* r1 = r[0];
     double* r2 = r[1];
@@ -278,6 +287,7 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 }
 
 void VMCSolver::endOfCycle(int cycle){
+    if (!recordR12Mean) return;
     // Calculate the radius of the particle
     double rAbs = 0;
     double rsq = 0;
@@ -499,6 +509,10 @@ void VMCSolver::setRecordDensity(bool param, int bins, double maxPos){
     rMax = maxPos;
 }
 
+void VMCSolver::setRecordR12Mean(bool param){
+    recordR12Mean = param;
+}
+
 void VMCSolver::setLocalEnergyGeneric(){
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
 }
@@ -538,6 +552,7 @@ void VMCSolver::clear(){
     setRecordDensity(false);
     /* setRecordChargeDensity(false); */
     setRecordEnergyArray(false);
+    setRecordR12Mean(false);
 }
 
 double VMCSolver::getAcceptanceRatio(){
