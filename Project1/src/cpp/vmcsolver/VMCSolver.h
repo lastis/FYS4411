@@ -14,7 +14,8 @@ class VMCSolver
     static const int LOCAL_ENERGY_HYDROGEN = 3;
     static const int WAVE_FUNCTION_1 = 1;
     static const int WAVE_FUNCTION_2 = 2;
-    static const int WAVE_FUNCTION_BERYLLIUM = 3;
+    static const int WAVE_FUNCTION_BERYLLIUM_1 = 3;
+    static const int WAVE_FUNCTION_BERYLLIUM_2 = 4;
 public:
     VMCSolver();
 
@@ -25,7 +26,8 @@ public:
     void exportEnergyArray(std::string fName);
     void setWaveFunction1();
     void setWaveFunction2();
-    void setWaveFunctionBeryllium();
+    void setWaveFunctionBeryllium1();
+    void setWaveFunctionBeryllium2();
     void setLocalEnergyHelium();
     void setLocalEnergyHydrogen();
     void setLocalEnergyGeneric();
@@ -66,7 +68,8 @@ private:
     double (VMCSolver::*getWaveFuncVal)(double** r);
     double getWaveFunc1Val(double** r);
     double getWaveFunc2Val(double** r);
-    double getWaveBerylliumVal(double** r);
+    double getWaveBeryllium1Val(double** r);
+    double getWaveBeryllium2Val(double** r);
     double phi1s(double r);
     double phi2s(double r);
     double (VMCSolver::*getLocalEnergy)(double** r);

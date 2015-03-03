@@ -172,8 +172,10 @@ bool VMCSolver::initRunVariables(){
 	getWaveFuncVal = &VMCSolver::getWaveFunc1Val;
     else if (waveFunction == WAVE_FUNCTION_2)
 	getWaveFuncVal = &VMCSolver::getWaveFunc2Val;
-    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM)
-	getWaveFuncVal = &VMCSolver::getWaveBerylliumVal;
+    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_1)
+	getWaveFuncVal = &VMCSolver::getWaveBeryllium1Val;
+    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2)
+	getWaveFuncVal = &VMCSolver::getWaveBeryllium2Val;
     else {
 	cout << "Error: Wave function not set, integration not running."
 	    << endl;
@@ -509,8 +511,12 @@ void VMCSolver::setWaveFunction2(){
     waveFunction = WAVE_FUNCTION_2;
 }
 
-void VMCSolver::setWaveFunctionBeryllium(){
-    waveFunction = WAVE_FUNCTION_BERYLLIUM;
+void VMCSolver::setWaveFunctionBeryllium1(){
+    waveFunction = WAVE_FUNCTION_BERYLLIUM_1;
+}
+
+void VMCSolver::setWaveFunctionBeryllium2(){
+    waveFunction = WAVE_FUNCTION_BERYLLIUM_2;
 }
 
 void VMCSolver::clear(){
@@ -573,7 +579,7 @@ double VMCSolver::getWaveFunc2Val(double** r){
     return exp(-(r1Abs + r2Abs)*alpha)*exp(r12/(2*(1+beta*r12)));
 }
 
-double VMCSolver::getWaveBerylliumVal(double** r){
+double VMCSolver::getWaveBeryllium1Val(double** r){
     double* r1 = r[0];
     double* r2 = r[1];
     double* r3 = r[2];
@@ -595,9 +601,51 @@ double VMCSolver::getWaveBerylliumVal(double** r){
     r4Abs = sqrt(r4Abs);
     return (phi1s(r1Abs)*phi2s(r2Abs) -phi1s(r2Abs)*phi2s(r1Abs))
 	*(phi1s(r3Abs)*phi2s(r4Abs) -phi1s(r4Abs)*phi2s(r3Abs));
-    
 }
 
+double VMCSolver::getWaveBeryllium2Val(double** r){
+    double* r1 = r[0];
+    double* r2 = r[1];
+    double* r3 = r[2];
+    double* r4 = r[3];
+    double temp = 0;
+    double r1Abs = 0;
+    double r2Abs = 0;
+    double r3Abs = 0;
+    double r4Abs = 0;
+    for(int j = 0; j < nDimensions; j++) {
+	r1Abs = r1[j] * r1[j];
+	r2Abs = r2[j] * r2[j];
+	r3Abs = r3[j] * r3[j];
+	r4Abs = r4[j] * r4[j];
+    }
+    r1Abs = sqrt(r1Abs);
+    r2Abs = sqrt(r2Abs);
+    r3Abs = sqrt(r3Abs);
+    r4Abs = sqrt(r4Abs);
+    double phi = (phi1s(r1Abs)*phi2s(r2Abs) -phi1s(r2Abs)*phi2s(r1Abs))
+	*(phi1s(r3Abs)*phi2s(r4Abs) -phi1s(r4Abs)*phi2s(r3Abs));
+    double cor = 0;
+    double rij = 0;
+    for (int i = 0; i < 4; i++) {
+    	for (int j = 0; j < 4; j++) {
+    	    if (i >= j) continue; 
+	    // If i < j, calculate something.
+	    rij = 0;
+	    for (int k = 0; k < nDimensions; k++) {
+	    	rij += (r[j][k] - r[i][k])*(r[j][k] - r[i][k]);
+	    }
+	    rij = sqrt(rij);
+	    if ((i == 1 || i == 2) && (j == 1 || j == 2))
+		cor += 0.25*rij/(1+beta*rij);
+	    else
+		cor += 0.5*rij/(1+beta*rij);
+    	}
+    }
+    cor = exp(cor);
+    return phi*cor;
+    
+}
 double VMCSolver::phi1s(double r){
     return exp(-alpha*r);
 }
