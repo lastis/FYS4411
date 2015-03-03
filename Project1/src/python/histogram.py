@@ -5,6 +5,8 @@ infile = open('../../res/density.txt')
 
 density = np.loadtxt(infile)
 
+print density
+
 l1 = len(density[1])
 p1 = denisty[0][0]
 
