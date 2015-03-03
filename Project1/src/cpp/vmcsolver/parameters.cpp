@@ -23,11 +23,12 @@ int main()
 {
 
     solver = VMCSolver();
-    solver.initFromFile("helium2.ini");
-    solver.setLocalEnergyHelium();
-    solver.setWaveFunction2();
+    solver.initFromFile("beryllium2.ini");
+    solver.setLocalEnergyGeneric();
+    solver.setWaveFunctionBeryllium2();
+    adjustAlpha(0.5);
     /* createAlphaData(11,0.1,3.6, "alphaPlot.txt"); */
-    createBetaData(11, 0.10, 1.10);
+    /* createBetaData(11, 0.10, 1.10); */
     /* createAlphaBetaData(5,0.1,3.6,0.001,0.321); */
     return 0;
 }
