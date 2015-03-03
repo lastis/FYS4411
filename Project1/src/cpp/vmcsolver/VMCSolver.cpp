@@ -20,9 +20,10 @@ bool VMCSolver::runIntegration(){
     // Loop over Monte Carlo cycles.
     for(int cycle = 0; cycle < nCycles; cycle++) {
 	if (useImportanceSampling) 
-	    runQuantumStep();
+	    runQuantumStep(cycle);
 	else 
-	    runRandomStep();
+	    runRandomStep(cycle);
+	endOfCycle(cycle);
     }
 
     // Calculate the density
@@ -50,7 +51,7 @@ bool VMCSolver::runIntegration(){
     return true;
 }
 
-inline void VMCSolver::runQuantumStep(){
+inline void VMCSolver::runQuantumStep(int cycle){
     double greensFunction;
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
@@ -104,20 +105,11 @@ inline void VMCSolver::runQuantumStep(){
             }
             rejects++;
         }
-	endOfSingleParticleStep(i);
+	endOfSingleParticleStep(cycle, i);
     }
-    endOfStep();
-
-    /* double rsq = 0; */
-    /* for(int j = 0; j < nDimensions; j++) { */
-    /*     rsq += (prNew[1][j] - prNew[0][j])*(prNew[1][j] - prNew[0][j]); */
-    /* } */
-    
-    /* rAbsSum += sqrt(rsq); */
-
 }
 
-inline void VMCSolver::runRandomStep(){
+inline void VMCSolver::runRandomStep(int cycle){
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
 
@@ -145,10 +137,9 @@ inline void VMCSolver::runRandomStep(){
             }
             rejects++;
         }
-	endOfSingleParticleStep(i);
+	endOfSingleParticleStep(cycle, i);
     }
     // All particles moved one step at this point.
-    endOfStep();
 }
 
 void VMCSolver::supressOutput(){
@@ -199,6 +190,10 @@ bool VMCSolver::initRunVariables(){
     // Initialize arrays
 
 
+    if (recordEnergyArray) {
+    	energyArray = Vector(nParticles*nCycles);
+	pEnergyArray = energyArray.getArrayPointer();
+    }
     if (recordDensity) {
 	density = Matrix(nParticles, bins);
 	density.reset();
@@ -273,7 +268,7 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 	    );
 }
 
-inline void VMCSolver::endOfStep(){
+inline void VMCSolver::endOfCycle(int cycle){
     // Calculate the radius of the particle
     double rAbs = 0;
     double rsq = 0;
@@ -283,13 +278,19 @@ inline void VMCSolver::endOfStep(){
     rAbs = sqrt(rsq);
     // Add it to a sum so we can calculate the mean.
     rAbsSum += rAbs;
+
 }
 
-inline void VMCSolver::endOfSingleParticleStep(int i){
+inline void VMCSolver::endOfSingleParticleStep(int cycle, int i){
     // update energies
     deltaE = (this->*getLocalEnergy)(prNew); 
     energySum += deltaE;
     energySquaredSum += deltaE*deltaE;
+
+    // Store in energy array.
+    if (recordEnergyArray) {
+    	pEnergyArray[cycle*nParticles + i] = deltaE;
+    }
 
     // Calculate density
     if (recordDensity) {
@@ -477,6 +478,10 @@ void VMCSolver::setImportanceSampling(bool param){
     useImportanceSampling = true;
 }
 
+void VMCSolver::setRecordEnergyArray(bool param){
+    recordEnergyArray = param;
+}
+
 void VMCSolver::setRecordDensity(bool param, int bins, double maxPos){
     // This is the only place where bins and rMax are set. But 
     // this function is called on clear().
@@ -515,6 +520,7 @@ void VMCSolver::clear(){
     setImportanceSampling(false);
     setRecordDensity(false);
     /* setRecordChargeDensity(false); */
+    setRecordEnergyArray(false);
 }
 
 double VMCSolver::getAcceptanceRatio(){
@@ -575,6 +581,7 @@ void VMCSolver::exportParamters(std::string fName){
     myFile << "localEnergyFunction = " << localEnergyFunction << endl;
     myFile.close();
 }
+
 void VMCSolver::exportDensity(std::string fName){
     string adress = "../../../res/" + fName;
     ofstream myFile;
@@ -586,6 +593,17 @@ void VMCSolver::exportDensity(std::string fName){
 	    myFile << pDensity[i][j] << " ";
 	}
 	myFile << endl;
+    }
+    myFile.close();
+
+}
+void VMCSolver::exportEnergyArray(std::string fName){
+    string adress = "../../../res/" + fName;
+    ofstream myFile;
+    cout << "Dumption energies to file : " << fName << endl;
+    myFile.open(adress.c_str());
+    for (int i = 0; i < nParticles*nCycles; i++) {
+	myFile << pEnergyArray[i] << " ";
     }
     myFile.close();
 

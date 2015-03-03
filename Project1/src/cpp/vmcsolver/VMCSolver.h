@@ -21,6 +21,7 @@ public:
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
     void exportDensity(std::string fName);
+    void exportEnergyArray(std::string fName);
     void setWaveFunction1();
     void setWaveFunction2();
     void setLocalEnergyHelium();
@@ -29,6 +30,7 @@ public:
     void setImportanceSampling(bool param);
     void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
     void setRecordChargeDensity();
+    void setRecordEnergyArray(bool param);
     double getAcceptanceRatio();
     void setStepLength(double stepLength);
     double getStepLength();
@@ -68,10 +70,10 @@ private:
     double getLocalEnergyHydrogen(double** r);
     void   updateQuantumForce(double** r, double ** qForce,double factor);
     bool   initRunVariables();
-    inline void endOfSingleParticleStep(int i);
-    inline void endOfStep();
-    inline void runRandomStep();
-    inline void runQuantumStep();
+    inline void endOfSingleParticleStep(int cycle, int i);
+    inline void endOfCycle(int cycle);
+    inline void runRandomStep(int cycle);
+    inline void runQuantumStep(int cycle);
 
 
     // Values from the simulation. 
@@ -94,6 +96,7 @@ private:
     bool useImportanceSampling;
     bool recordDensity;
     bool recordChargeDensity;
+    bool recordEnergyArray;
 
     Matrix qForceOld;
     Matrix qForceNew;
@@ -109,6 +112,8 @@ private:
     double** pDensity;
     double** pDensityCharge;
 
+    Vector energyArray;
+    double* pEnergyArray;
 
 };
 
