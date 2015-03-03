@@ -2,8 +2,9 @@ from sympy import symbols, diff, exp, sqrt, factor, Symbol, printing
 import os
 
 infile = open('tmp.tex', 'w')
+cfile = open('cppcode.txt', 'w')
 
-x1, y1, z1, x2, y2, z2, a, b  = symbols('x_1 y_1 z_1 x_2 y_2 z_2 a b')
+x1, y1, z1, x2, y2, z2, a, b  = symbols('x_1 y_1 z_1 x_2 y_2 z_2 alpha beta')
 
 r1 = sqrt(x1*x1 + y1*y1 + z1*z1)
 r2 = sqrt(x2*x2 + y2*y2 + z2*z2)
@@ -66,10 +67,11 @@ L1 = (L1/psiT2)
 L2 = laplace(psiT2,x2,y2,z2).collect(psiT2)
 L2 = (L2/psiT2)
 
-EL2 = -L1/2-L2/2-2/r1-2/r2+1/r12
+EL2 = -L1/2 - L2/2 - 2/r1 - 2/r2 + 1/r12
 
 ## Kinda works:
-'''
+
+
 EL2 = EL2.subs(r1,R1).subs(r2,R2).subs(r12,R12).simplify()\
         .subs(r1**2,R1**2).subs(r2**2,R2**2).subs(r12**2,R12**2)\
         .subs(f.subs(r12,R12),F)
@@ -83,6 +85,8 @@ x = '\documentclass[12pt,a3paper]{article}\n\
     \\begin{document}\n\
     \\tiny{$'
 
+
+
 el1 = a/r1 + a/r2 - 2/r1 - 2/r2 + 1/r12 - a**2
 
 el1 = el1.subs(r1,R1).subs(r2,R2).subs(r12,R12)
@@ -94,22 +98,14 @@ EL2 = EL2.subs(r1**2,R1**2).subs(r2**2,R2**2)\
 
 EL2 = EL2.simplify().subs(el1, EL1)
 
-y = printing.latex(EL2.subs(F,f.subs(r12,R12)))
-'''
+EL2 = EL2.subs(F,f.subs(r12,R12))
 
-x = '\documentclass[12pt,a3paper]{article}\n\
-    \usepackage{amsmath}\n\
-    \usepackage[landscape]{geometry}\n\
-    \\begin{document}\n\
-    \\tiny{$'
-
-
-EL2 = EL2.subs(r1,R1).subs(r2,R2).subs(r12,R12)\
-        .expand().simplify().subs(r12**2,R12**2)\
-        .subs(r1**2,R1**2).subs(r2**2,R2**2).subs(rdot,Rdot)\
-        .subs(rdot**2,Rdot**2)
+EL2 = EL2.subs(R12,r12).subs(R12**2,r12**2).subs(R1,r1).subs(R2,r1)\
+        .subs(R1**2,r1**2).subs(R2**2,r2**2).subs(Rdot,rdot)
 
 y = printing.latex(EL2)
+
+c = printing.ccode(EL2)
 
 z = '$}\n\
     \end{document}'
@@ -117,5 +113,8 @@ z = '$}\n\
 infile.write(x+'\n'+y+z)
 infile.close()
 
+cfile.write(c)
+cfile.close()
+
 os.system('pdflatex tmp.tex')
-print '\n', 1/((2*f**2).subs(r12,R12))
+#print '\n', 1/((2*f**2).subs(r12,R12))
