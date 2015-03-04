@@ -6,43 +6,47 @@ def blocking(indata, outdata, blocksizes):
     outfile = open(outdata, 'w')
 
     array = np.loadtxt(infile)
-
     varray = []
-    totarray = []
-    smplarray = []
+    
+    # totarray = []
+    # smplarray = []
 
-    totmean = np.mean(array)
-    tmpmean_dif_tot=0
-    tmpmean_dif_smpl=0
+    # totmean = np.mean(array)
+    # tmpmean_dif_tot=0
+    # tmpmean_dif_smpl=0
     
     for nb in blocksizes:
         tmplist = []
-        
-        for i in xrange(len(array)/nb):
+        N = len(array)
+        lim = N/nb
+        print lim
+        for i in xrange(lim): 
             arr = array[nb*i:nb*(i+1)]
             tmp = np.mean(arr)
             tmplist.append(tmp)
+            # tmpmean_dif_tot += tmp-totmean
             
-            tmpmean_dif_tot += tmp-totmean
-            for k in xrange(nb):
-                tmpmean_dif_smpl += arr[k]-totmean
-            
+            # for k in xrange(nb):
+            #     tmpmean_dif_smpl += arr[k]-totmean    
+        
         tmpvar = np.var(tmplist)
+        
+        print tmpvar
 
-        tmpmean_dif_tot = tmpmean_dif_tot/len(arr)
-        tmpmean_dif_smpl = tmpmean_dif_smpl/len(array)
+        # tmpmean_dif_tot = tmpmean_dif_tot
+        # tmpmean_dif_smpl = tmpmean_dif_smpl
 
         varray.append(tmpvar)
-        totarray.append(tmpmean_dif_tot)
-        smplarray.append(tmpmean_dif_smpl)
+        # totarray.append(tmpmean_dif_tot)
+        # smplarray.append(tmpmean_dif_smpl)
 
-        outfile.write(str(nb)+': '+' '+str(tmpmean_dif_tot)+' '\
-                +str(tmpmean_dif_smpl)+' '+str(tmpvar)+'\n')
+        outfile.write(str(nb)+': '+' '+str(tmpvar)+'\n')
+        # str(tmpmean_dif_tot)+' '+str(tmpmean_dif_smpl)+')
 
     infile.close()
     outfile.close()
     
-    return blocksizes, varray, totarray, smplarray 
+    return blocksizes, varray # , totarray, smplarray 
 
 def blocks(magnitude):
     N = float(10**magnitude)
@@ -54,15 +58,27 @@ def blocks(magnitude):
             blocksizes.append(int(N/(m*n)))
     return blocksizes
 
-x,y,tot,smpl = blocking('../../../res/energies.txt','blockvar.txt', np.sort(blocks(5)))
+def blocks2(m):
+    blocksizes = []
+    i = 0
+    while i < 10**m:
+        i += 10000
+        blocksizes.append(i)
+    return blocksizes
+
+print blocks(6)
+
+x,y = blocking('../../../res/heliumWave1Wave2/wave1Energies.txt','blockVarwave1Energies.txt', np.sort(blocks(6)))
 
 y = np.sort(y)
-smpl = np.sort(smpl)
-tot = np.sort(tot)
 
+plt.plot(x, np.sqrt(y))
+plt.title(r'Blocking Analysis of Ground State Energies as Function of STD with' '\n' 
+    r'Generic Energy Calculation and Trial Wavefunction $\psi_{T1}$')
+plt.xlabel(r'Blocksize', fontsize=14)
+plt.ylabel(r'$\sigma$', fontsize=14)
+plt.grid('on')
 
-#plt.plot(x, np.sqrt(y))
-plt.plot(x, tot)
-plt.plot(x,smpl)
-plt.legend(['tot','smpl'])
+plt.savefig('../../../res/heliumWave1Wave2/wave1EnergiesBlocking.eps')
 plt.show()
+plt.figure()

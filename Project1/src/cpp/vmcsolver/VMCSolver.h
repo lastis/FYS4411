@@ -50,7 +50,7 @@ public:
     void supressOutput();
 
 
-    // Parameters gathered from file. Be careful about changing these directly.
+    // Parameters to be set manually or from file.
     double alpha;
     double beta;
     int waveFunction;

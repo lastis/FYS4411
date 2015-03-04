@@ -11,7 +11,7 @@ int main()
     VMCSolver solver = VMCSolver();
     solver.charge = 2;
     solver.alpha = 0; // To be set
-    solver.beta = 0.75; 
+    solver.beta = 0.8; 
     solver.nDimensions = 3;
     solver.nParticles = 2;
     solver.stepLength = 1.52;
