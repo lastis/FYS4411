@@ -3,6 +3,7 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import matplotlib.pyplot as plt
 import numpy as np
 from math import factorial
+from scipy import interpolate
 
 betafile = open('../../../res/heliumWave2Beta/beta.txt', 'r')
 energyfile = open('../../../res/heliumWave2Beta/energy.txt', 'r')
@@ -20,6 +21,7 @@ variancefile.close()
 # print len(energyData)
 # print len(energyData[0])
 energy = np.zeros(len(energyData))
+energySpline = np.zeros(len(energyData))
 energySq = np.zeros(len(energyData))
 variance = np.zeros(len(energyData))
 std = np.zeros(len(energyData))
@@ -35,6 +37,8 @@ for i in xrange(N):
     energy[i] = energy[i]/len(energyData[0])
     energySq[i] = energySq[i]/(len(energyData[0]))
     std[i] = np.sqrt(energySq[i] - energy[i]*energy[i])
+
+s = interpolate.InterpolatedUnivariateSpline(betaData,energy)
 
 plt.plot(betaData, energy)
 plt.show()
