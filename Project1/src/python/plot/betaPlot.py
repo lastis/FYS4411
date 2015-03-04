@@ -3,8 +3,8 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import matplotlib.pyplot as plt
 import numpy as np
 
-betafile = open('../../../res/heliumWave1Beta/beta.txt', 'r')
-energyfile = open('../../../res/heliumWave1Beta/energy.txt', 'r')
+betafile = open('../../../res/heliumWave2Beta/beta.txt', 'r')
+energyfile = open('../../../res/heliumWave2Beta/energy.txt', 'r')
 betaData = np.loadtxt(betafile)
 energyData = np.loadtxt(energyfile)
 energyData = energyData.T

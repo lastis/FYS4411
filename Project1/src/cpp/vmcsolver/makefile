@@ -3,8 +3,14 @@ main:
 param:
 	g++ VMCSolver.cpp parameters.cpp ../CPhys/CPhys.a -O3
 heliumWave1Alpha:
-	g++ VMCSolver.cpp plotDataHeliumWave1Alpha.cpp ../CPhys/CPhys.a -O3
+	g++ VMCSolver.cpp heliumWave1Alpha.cpp ../CPhys/CPhys.a -O3
 heliumWave2Beta:
-	g++ VMCSolver.cpp plotDataHeliumWave2Beta.cpp ../CPhys/CPhys.a -O3
+	g++ VMCSolver.cpp heliumWave2Beta.cpp ../CPhys/CPhys.a -O3
 heliumWave2Alpha:
-	g++ VMCSolver.cpp plotDataHeliumWave2Alpha.cpp ../CPhys/CPhys.a -O3
+	g++ VMCSolver.cpp heliumWave2Alpha.cpp ../CPhys/CPhys.a -O3
+heliumWave1Wave2:
+	g++ VMCSolver.cpp heliumWave1Wave2.cpp ../CPhys/CPhys.a -O3
+heliumWave1Wave2Local:
+	g++ VMCSolver.cpp heliumWave1Wave2Local.cpp ../CPhys/CPhys.a -O3
+heliumWave1Wave2Importance:
+	g++ VMCSolver.cpp heliumWave1Wave2Importance.cpp ../CPhys/CPhys.a -O3
