@@ -54,7 +54,15 @@ def blocks(magnitude):
             blocksizes.append(int(N/(m*n)))
     return blocksizes
 
-x,y,tot,smpl = blocking('../../../res/energies.txt','blockvar.txt', np.sort(blocks(5)))
+def blocks2(m):
+    blocksizes = [0]
+    i = 0
+    while i <= 10**m:
+        i += 1000
+        blocksizes.append(i)
+    return blocksizes
+
+x,y,tot,smpl = blocking('../../../res/heliumWave1Wave2/wave2Energies.txt','blockvar.txt', np.sort(blocks2(7)))
 
 y = np.sort(y)
 smpl = np.sort(smpl)
@@ -62,7 +70,5 @@ tot = np.sort(tot)
 
 
 #plt.plot(x, np.sqrt(y))
-plt.plot(x, tot)
-plt.plot(x,smpl)
-plt.legend(['tot','smpl'])
+plt.plot(x, y)
 plt.show()
