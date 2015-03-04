@@ -15,6 +15,7 @@ public:
     static const int LOCAL_ENERGY_HELIUM_1 = 2;
     static const int LOCAL_ENERGY_HELIUM_2 = 4;
     static const int LOCAL_ENERGY_HYDROGEN = 3;
+    static const int LOCAL_ENERGY_GENERIC_NOCOR = 5;
     static const int WAVE_FUNCTION_1 = 1;
     static const int WAVE_FUNCTION_2 = 2;
     static const int WAVE_FUNCTION_BERYLLIUM_1 = 3;
@@ -34,6 +35,7 @@ public:
     void setLocalEnergyHelium2();
     void setLocalEnergyHydrogen();
     void setLocalEnergyGeneric();
+    void setLocalEnergyGenericNoCor();
     void setImportanceSampling(bool param);
     void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
     void setRecordChargeDensity();
@@ -80,6 +82,7 @@ private:
     double phi2s(double r);
     double (VMCSolver::*getLocalEnergy)(double** r);
     double getLocalEnergyGeneric(double** r);
+    double getLocalEnergyGenericNoCor(double** r);
     double getLocalEnergyHelium1(double** r);
     double getLocalEnergyHelium2(double** r);
     double getLocalEnergyHydrogen(double** r);

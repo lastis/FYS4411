@@ -191,6 +191,8 @@ bool VMCSolver::initRunVariables(){
         getLocalEnergy = &VMCSolver::getLocalEnergyHelium2;
     else if (localEnergyFunction == LOCAL_ENERGY_HYDROGEN)
         getLocalEnergy = &VMCSolver::getLocalEnergyHydrogen;
+    else if (localEnergyFunction == LOCAL_ENERGY_GENERIC_NOCOR)
+        getLocalEnergy = &VMCSolver::getLocalEnergyGenericNoCor;
     else {
 	cout << "Error: Local energy function not set, integration not running."
 	    << endl;
@@ -403,6 +405,48 @@ void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
     }
 }
 
+double VMCSolver::getLocalEnergyGenericNoCor(double** r){
+    double waveFunctionMinus = 0;
+    double waveFunctionPlus = 0;
+    double waveFunctionCurrent;
+    waveFunctionCurrent = (this->*getWaveFuncVal)(r);
+
+    // Kinetic energy
+
+    double rPlus;
+    double rMinus;
+    double r0;
+    double kineticEnergy = 0;
+    for(int i = 0; i < nParticles; i++) {
+        for(int j = 0; j < nDimensions; j++) {
+	    rPlus 	= r[i][j] + h;
+	    rMinus 	= r[i][j] - h;
+	    r0 		= r[i][j];
+
+	    r[i][j] = rMinus;
+	    waveFunctionMinus = (this->*getWaveFuncVal)(r);
+	    r[i][j] = rPlus;
+	    waveFunctionPlus = (this->*getWaveFuncVal)(r);
+	    r[i][j] = r0;
+	    kineticEnergy -= (waveFunctionMinus + waveFunctionPlus 
+			- 2 * waveFunctionCurrent);
+        }
+    }
+    kineticEnergy = 0.5 * h2 * kineticEnergy / waveFunctionCurrent;
+
+    // Potential energy
+    double potentialEnergy = 0;
+    double rSingleParticle = 0;
+    for(int i = 0; i < nParticles; i++) {
+        rSingleParticle = 0;
+        for(int j = 0; j < nDimensions; j++) {
+            rSingleParticle += r[i][j]*r[i][j];
+        }
+        potentialEnergy -= charge / sqrt(rSingleParticle);
+    }
+    return kineticEnergy + potentialEnergy;
+}
+
 double VMCSolver::getLocalEnergyGeneric(double** r){
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
@@ -584,6 +628,10 @@ void VMCSolver::setRecordPositions(bool param){
 
 void VMCSolver::setLocalEnergyGeneric(){
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
+}
+
+void VMCSolver::setLocalEnergyGenericNoCor(){
+    localEnergyFunction = LOCAL_ENERGY_GENERIC_NOCOR;
 }
 
 void VMCSolver::setWaveFunction1(){

@@ -18,3 +18,5 @@ heliumWave1Wave2Density:
 	g++ VMCSolver.cpp heliumWave1Wave2Density.cpp ../CPhys/CPhys.a -O3
 berylliumAlphaBeta:
 	g++ VMCSolver.cpp berylliumAlphaBeta.cpp ../CPhys/CPhys.a -O3
+berylliumWave1Wave2:
+	g++ VMCSolver.cpp berylliumWave1Wave2.cpp ../CPhys/CPhys.a -O3
