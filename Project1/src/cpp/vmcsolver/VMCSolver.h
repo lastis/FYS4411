@@ -12,7 +12,8 @@ class VMCSolver
 public:
     VMCSolver();
     static const int LOCAL_ENERGY_GENERIC = 1;
-    static const int LOCAL_ENERGY_HELIUM = 2;
+    static const int LOCAL_ENERGY_HELIUM_1 = 2;
+    static const int LOCAL_ENERGY_HELIUM_2 = 4;
     static const int LOCAL_ENERGY_HYDROGEN = 3;
     static const int WAVE_FUNCTION_1 = 1;
     static const int WAVE_FUNCTION_2 = 2;
@@ -29,7 +30,8 @@ public:
     void setWaveFunction2();
     void setWaveFunctionBeryllium1();
     void setWaveFunctionBeryllium2();
-    void setLocalEnergyHelium();
+    void setLocalEnergyHelium1();
+    void setLocalEnergyHelium2();
     void setLocalEnergyHydrogen();
     void setLocalEnergyGeneric();
     void setImportanceSampling(bool param);
@@ -78,7 +80,8 @@ private:
     double phi2s(double r);
     double (VMCSolver::*getLocalEnergy)(double** r);
     double getLocalEnergyGeneric(double** r);
-    double getLocalEnergyHelium(double** r);
+    double getLocalEnergyHelium1(double** r);
+    double getLocalEnergyHelium2(double** r);
     double getLocalEnergyHydrogen(double** r);
     bool   initRunVariables();
     void   updateQuantumForce(double** r, double ** qForce,double factor);

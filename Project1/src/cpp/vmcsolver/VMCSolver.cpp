@@ -185,8 +185,10 @@ bool VMCSolver::initRunVariables(){
     // Set the local energy function as a function pointer
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
         getLocalEnergy = &VMCSolver::getLocalEnergyGeneric;
-    else if (localEnergyFunction == LOCAL_ENERGY_HELIUM)
-        getLocalEnergy = &VMCSolver::getLocalEnergyHelium;
+    else if (localEnergyFunction == LOCAL_ENERGY_HELIUM_1)
+        getLocalEnergy = &VMCSolver::getLocalEnergyHelium1;
+    else if (localEnergyFunction == LOCAL_ENERGY_HELIUM_2)
+        getLocalEnergy = &VMCSolver::getLocalEnergyHelium2;
     else if (localEnergyFunction == LOCAL_ENERGY_HYDROGEN)
         getLocalEnergy = &VMCSolver::getLocalEnergyHydrogen;
     else {
@@ -256,7 +258,33 @@ double VMCSolver::getLocalEnergyHydrogen(double** r){
     return  -1/rAbs - 0.5*alpha*(alpha - 2/rAbs);
 }
 
-double VMCSolver::getLocalEnergyHelium(double** r){
+double VMCSolver::getLocalEnergyHelium1(double** r){
+    double* r1 = r[0];
+    double* r2 = r[1];
+    double temp = 0;
+    double r12Abs = 0;
+    double r1Abs = 0;
+    double r2Abs = 0;
+    double r1r2 = 0; // Dot product.
+    for(int j = 0; j < nDimensions; j++) {
+	temp = r1[j] * r1[j];
+	r1Abs += temp;
+	temp = r2[j] * r2[j];
+	r2Abs += temp;
+	temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
+	r12Abs += temp;
+	// Dot product.
+	temp = r1[j]*r2[j];
+	r1r2 += temp;
+    }
+    r1Abs = sqrt(r1Abs);
+    r2Abs = sqrt(r2Abs);
+    r12Abs = sqrt(r12Abs);
+    double E1 = (alpha-charge)*(1/r1Abs + 1/r2Abs) + 1/r12Abs - alpha*alpha;
+    return E1;
+}
+
+double VMCSolver::getLocalEnergyHelium2(double** r){
     double* r1 = r[0];
     double* r2 = r[1];
     double temp = 0;
@@ -481,7 +509,7 @@ bool VMCSolver::initFromFile(std::string fName){
     return true;
 }
 
-void VMCSolver::setLocalEnergyHelium(){
+void VMCSolver::setLocalEnergyHelium1(){
     if(nParticles != 2) {
 	cout << "Cannot use this analytic local energy function "
 	    << "for other than 2 particles." << endl;
@@ -489,7 +517,19 @@ void VMCSolver::setLocalEnergyHelium(){
 	localEnergyFunction = LOCAL_ENERGY_GENERIC;
 	return;
     }
-    localEnergyFunction = LOCAL_ENERGY_HELIUM;
+    localEnergyFunction = LOCAL_ENERGY_HELIUM_1;
+}
+
+void VMCSolver::setLocalEnergyHelium2(){
+    if(nParticles != 2) {
+	cout << "Cannot use this analytic local energy function "
+	    << "for other than 2 particles." << endl;
+	cout << "Using generic one." << endl;
+	localEnergyFunction = LOCAL_ENERGY_GENERIC;
+	return;
+    }
+    localEnergyFunction = LOCAL_ENERGY_HELIUM_2;
+
 }
 
 void VMCSolver::setLocalEnergyHydrogen(){
