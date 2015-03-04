@@ -9,7 +9,7 @@ int main()
     // Initialize the system 1.
     VMCSolver solver1 = VMCSolver();
     solver1.charge = 2;
-    solver1.alpha = 1.7;
+    solver1.alpha = 1.66;
     solver1.beta = 0.0;
     solver1.nDimensions = 3;
     solver1.nParticles = 2;
@@ -27,8 +27,8 @@ int main()
     // Initialize the system 2.
     VMCSolver solver2 = VMCSolver();
     solver2.charge = 2;
-    solver2.alpha = 1.7;
-    solver2.beta = 0.75;
+    solver2.alpha = 1.66;
+    solver2.beta = 0.8;
     solver2.nDimensions = 3;
     solver2.nParticles = 2;
     solver2.stepLength = 1.52;
