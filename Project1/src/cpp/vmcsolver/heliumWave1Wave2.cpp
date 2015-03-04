@@ -37,7 +37,7 @@ int main()
     solver2.waveFunction = solver2.WAVE_FUNCTION_2;
     solver2.h = 0.001;
     solver2.h2 = 1e+06;
-    solver2.idum = 1;
+    solver2.idum = 2;
     solver2.localEnergyFunction = solver2.LOCAL_ENERGY_GENERIC;
 
     solver2.setRecordEnergyArray(true);
