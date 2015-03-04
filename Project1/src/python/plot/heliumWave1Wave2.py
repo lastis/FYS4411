@@ -1,41 +1,99 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-infile = open('../../../res/heliumWave1Wave2/alpha_energy_variance.txt', 'r')
+def blocking(indata, outdata, blocksizes):
+    infile = open(indata, 'r')
+    outfile = open(outdata, 'w')
 
-heliumWave1Alpha = np.loadtxt(infile)
+    array = np.loadtxt(infile)
+    varray = []
+    
+    # totarray = []
+    # smplarray = []
 
-alpha = heliumWave1Alpha[0]
+    # totmean = np.mean(array)
+    # tmpmean_dif_tot=0
+    # tmpmean_dif_smpl=0
+    
+    for nb in blocksizes:
+        tmplist = []
+        N = len(array)
+        lim = N/nb
+        print lim
+        for i in xrange(lim): 
+            arr = array[nb*i:nb*(i+1)]
+            tmp = np.mean(arr)
+            tmplist.append(tmp)
+            # tmpmean_dif_tot += tmp-totmean
+            
+            # for k in xrange(nb):
+            #     tmpmean_dif_smpl += arr[k]-totmean    
+        
+        tmpvar = np.var(tmplist)
+        
+        print tmpvar
 
-energy = heliumWave1Alpha[1]
+        # tmpmean_dif_tot = tmpmean_dif_tot
+        # tmpmean_dif_smpl = tmpmean_dif_smpl
 
-variance = heliumWave1Alpha[2]
+        varray.append(tmpvar)
+        # totarray.append(tmpmean_dif_tot)
+        # smplarray.append(tmpmean_dif_smpl)
 
-infile.close()
+        outfile.write(str(nb)+': '+' '+str(tmpvar)+'\n')
+        # str(tmpmean_dif_tot)+' '+str(tmpmean_dif_smpl)+')
 
-font = {'family' : 'serif',
-        'size'   : 10}
+    infile.close()
+    outfile.close()
+    
+    return blocksizes, varray # , totarray, smplarray 
 
-plt.rc('font', **font)
+def blocks(magnitude):
+    N = float(10**magnitude)
+    blocksizes = []
+    for i in range(magnitude+1):
+        for j in range(magnitude+1):
+            n = 5**i
+            m = 2**j
+            blocksizes.append(int(N/(m*n)))
+    return blocksizes
 
-plt.plot(alpha, energy)
-plt.title(r'Ground State Energies as Function of $\alpha$ for Helium with' '\n' 
+def blocks2(m):
+    blocksizes = []
+    i = 0
+    while i < 10**m:
+        i += 10000
+        blocksizes.append(i)
+    return blocksizes
+
+print blocks(6)
+'''
+x,y = blocking('../../../res/heliumWave1Wave2/wave1Energies.txt','blockVarwave1Energies.txt', np.sort(blocks(6)))
+
+y = np.sort(y)
+
+plt.plot(x, np.sqrt(y))
+plt.title(r'Blocking Analysis of Ground State Energies as Function of STD with' '\n' 
     r'Generic Energy Calculation and Trial Wavefunction $\psi_{T1}$')
-plt.xlabel(r'$\alpha$', fontsize=14)
-plt.ylabel(r'$E_0$', fontsize=14)
+plt.xlabel(r'Blocksize', fontsize=14)
+plt.ylabel(r'$\sigma$', fontsize=14)
 plt.grid('on')
 
-plt.savefig('../../../res/heliumWave1Alpha/heliumWave1Alpha_alpha.eps')
+plt.savefig('../../../res/heliumWave1Wave2/wave1EnergiesBlocking.eps')
 plt.show()
 plt.figure()
+'''
+x,y = blocking('../../../res/heliumWave1Wave2/wave2Energies.txt','blockVarwave2Energies.txt', np.sort(blocks(6)))
 
-plt.plot(alpha, variance)
-plt.title(r'Variance as Function of $\alpha$ for Helium with' '\n' 
-    r'Generic Energy Calculation and Trial Wavefunction $\psi_{T1}$')
-plt.xlabel(r'$\alpha$', fontsize=14)
-plt.ylabel(r'$E_0$', fontsize=14)
+y = np.sort(y)
+
+plt.plot(x, np.sqrt(y))
+plt.title(r'Blocking Analysis of Ground State Energies as Function of STD with' '\n' 
+    r'Generic Energy Calculation and Trial Wavefunction $\psi_{T2}$')
+plt.xlabel(r'Blocksize', fontsize=14)
+plt.ylabel(r'$\sigma$', fontsize=14)
 plt.grid('on')
 
-plt.savefig('../../../res/heliumWave1Alpha/heliumWave1Alpha_variance.eps')
+plt.savefig('../../../res/heliumWave1Wave2/wave2EnergiesBlockingScatter.eps')
 plt.show()
 plt.figure()

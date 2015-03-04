@@ -206,6 +206,7 @@ bool VMCSolver::initRunVariables(){
     }
     if (recordEnergyArray) {
     	energyArray = Vector(nCycles);
+      energyArray.reset();
 	pEnergyArray = energyArray.getArrayPointer();
     }
     if (recordDensity) {
