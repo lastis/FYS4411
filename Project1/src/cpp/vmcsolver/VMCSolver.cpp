@@ -286,6 +286,16 @@ double VMCSolver::getLocalEnergyHelium(double** r){
 	    );
 }
 
+/* double VMCSolver::getLocalEnergyHelium(double** r){ */
+/*     double x_1 = r[0][0]; */
+/*     double y_1 = r[0][1]; */
+/*     double z_1 = r[0][2]; */
+/*     double x_2 = r[1][0]; */
+/*     double y_2 = r[1][1]; */
+/*     double z_2 = r[1][2]; */
+/*     return -pow(alpha, 2) - alpha*beta*sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2) + alpha*beta*(x_1*x_2 + y_1*y_2 + z_1*z_2)/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2)*sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))) + 2*alpha/sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2)) + alpha*sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/((beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) - alpha*(x_1*x_2 + y_1*y_2 + z_1*z_2)/((beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1)*sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) - pow(beta, 2)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 3) - 1.0L/2.0L*pow(beta, 2)*(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 4) + (1.0L/2.0L)*pow(beta, 2)*(x_1*x_2 + y_1*y_2 + z_1*z_2)/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 4) + 2*beta/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2) + beta*(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 3)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) - beta*(x_1*x_2 + y_1*y_2 + z_1*z_2)/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 3)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) + pow(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2), -1.0L/2.0L) - 4/sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2)) - 1/((beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) - 1.0L/2.0L*(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2)*(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) + (1.0L/2.0L)*(x_1*x_2 + y_1*y_2 + z_1*z_2)/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2)*(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))); */
+/* } */
+
 void VMCSolver::endOfCycle(int cycle){
     if (!recordR12Mean) return;
     // Calculate the radius of the particle
@@ -422,6 +432,10 @@ double VMCSolver::getEnergy(){
     return energy;
 }
 
+double VMCSolver::getEnergySquared(){
+    return energySquared;
+}
+
 double VMCSolver::getR12Mean(){
     return mean;
 }
@@ -479,6 +493,8 @@ void VMCSolver::setLocalEnergyHydrogen(){
     }
     localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
 }
+
+
 
 void VMCSolver::setImportanceSampling(bool param){
     if (param == false) {
@@ -650,7 +666,9 @@ double VMCSolver::getWaveBeryllium2Val(double** r){
 	    	rij += (r[j][k] - r[i][k])*(r[j][k] - r[i][k]);
 	    }
 	    rij = sqrt(rij);
-	    if ((i == 1 || i == 2) && (j == 1 || j == 2))
+	    if ((i == 0 || i == 0) && (j == 1 || j == 1))
+		cor += 0.25*rij/(1+beta*rij);
+	    else if ((i == 2 || i == 2) && (j == 3 || j == 3))
 		cor += 0.25*rij/(1+beta*rij);
 	    else
 		cor += 0.5*rij/(1+beta*rij);

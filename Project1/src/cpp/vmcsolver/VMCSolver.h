@@ -9,6 +9,8 @@
 
 class VMCSolver
 {
+public:
+    VMCSolver();
     static const int LOCAL_ENERGY_GENERIC = 1;
     static const int LOCAL_ENERGY_HELIUM = 2;
     static const int LOCAL_ENERGY_HYDROGEN = 3;
@@ -16,8 +18,6 @@ class VMCSolver
     static const int WAVE_FUNCTION_2 = 2;
     static const int WAVE_FUNCTION_BERYLLIUM_1 = 3;
     static const int WAVE_FUNCTION_BERYLLIUM_2 = 4;
-public:
-    VMCSolver();
 
     bool runIntegration();
     bool initFromFile(std::string fName);
@@ -41,6 +41,7 @@ public:
     double getStepLength();
     double getR12Mean();
     double getEnergy();
+    double getEnergySquared();
     void clear();
     void supressOutput();
 
