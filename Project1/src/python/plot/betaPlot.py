@@ -38,10 +38,17 @@ for i in xrange(N):
     energySq[i] = energySq[i]/(len(energyData[0]))
     std[i] = np.sqrt(energySq[i] - energy[i]*energy[i])
 
-s = interpolate.InterpolatedUnivariateSpline(betaData,energy)
+spline = interpolate.splrep(betaData,energy, s=0.00006)
+betaNew = np.linspace(betaData[0],betaData[-1],1001)
+energyNew = interpolate.splev(betaNew,spline)
+
+minIndex = np.argmin(energyNew)
+minBeta = betaNew[minIndex]
+print minBeta
 
 plt.plot(betaData, energy)
+plt.plot(betaNew,energyNew)
 plt.show()
-plt.plot(betaData, std)
-plt.show()
+# plt.plot(betaData, std)
+# plt.show()
 
