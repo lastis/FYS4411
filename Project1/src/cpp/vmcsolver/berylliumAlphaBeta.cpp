@@ -21,11 +21,12 @@ int main()
     solver.idum = 1;
     solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC;
 
-    int N = 11;
+    int N = 101;
+    int M = 101;
 
     Vector alpha = Vector(N);
-    Vector beta = Vector(N);
-    Matrix energy = Matrix(N,N);
+    Vector beta = Vector(M);
+    Matrix energy = Matrix(N,M);
 
     ofstream myFile;
     string base = "../../../res/";
@@ -33,15 +34,15 @@ int main()
     string fName;
     string adress;
 
-    alpha.linspace(2,5);
-    beta.linspace(0.1,2.1);
+    alpha.linspace(2.5,5);
+    beta.linspace(0.0001,1.0001);
     double* pAlpha = alpha.getArrayPointer();
     double* pBeta = beta.getArrayPointer();
     double** pEnergy = energy.getArrayPointer();
 
     // Run simulation
     for (int i = 0; i < N; i++) {
-    	for (int j = 0; j < N; j++) {
+    	for (int j = 0; j < M; j++) {
 	    solver.alpha = pAlpha[i];
 	    solver.beta = pBeta[j];
 	    solver.runIntegration();
@@ -67,7 +68,7 @@ int main()
     adress = base + directory + fName;
     myFile.open(adress.c_str());
     cout << "Creating plot file : " << directory + fName << endl;
-    for (int i = 0; i < N; i++) {
+    for (int i = 0; i < M; i++) {
     	myFile << pBeta[i] << " ";
     }
     myFile.close();
@@ -77,10 +78,10 @@ int main()
     adress = base + directory + fName;
     myFile.open(adress.c_str());
     for (int i = 0; i < N; i++) {
-	for (int j = 0; j < N; j++) {
-	    myFile << pEnergy[i][j] << " ";
-	}
-	myFile << endl;
+        for (int j = 0; j < M; j++) {
+            myFile << pEnergy[i][j] << " ";
+        }
+        myFile << endl;
     }
     myFile.close();
     return 0;
