@@ -1,0 +1,224 @@
+\documentclass[twocolumn]{article}[12pt]
+
+\usepackage{amsmath}
+
+\newcommand{\eq}[1]{\begin{align*}#1\end{align*}}
+\renewcommand\vec[1]{{\bf #1}}
+\newcommand{\OP}[1]{{\bf\widehat{#1}}}
+
+\begin{document}
+
+\section{Introduction}
+
+\section{Methods}
+
+%% Introduction to the problem
+The Helium atom consists of two electrons orbiting a nucleus,
+where we label the distance between electron 1 and the nucleus,
+and electron 2 and the nucleus as
+$r_1 = \sqrt{x_1^2 + y_1^2 + z_1^2}$ 
+and $r_2 = \sqrt{x_2^2 + y_2^2 + z_2^2}$, respectively.
+
+We model the total potential energy of the system as
+{\small
+\eq{
+    V(r_1,r_2)=-\frac{2}{r_1}-\frac{2}{r_2}+\frac{1}{r_{12}}
+}}%
+Where the interaction between each electron and the nucleus
+is given by the two first terms,
+and the mutual electron-electron repulsion is given by the last.
+The distance between the electrons is $r_{12}=|\vec r_1-\vec r_2|$.
+
+The Hamiltonian of the system is then
+{\small
+\eq{
+    \OP H = -\frac{\nabla_1 ^2}{2} -\frac{\nabla_2 ^2}{2}
+    -\frac{2}{r_1}-\frac{2}{r_2}+\frac{1}{r_{12}}
+}}%
+
+%% Stating units / constants
+The radii \{$r_1$, $r_2$, $r_{12}$\} 
+of this project have been scaled, and are thus dimensionless.
+
+%% The spherical nature of the wavefunction
+The Laplace operator of a function $f$ in three dimensions, $\nabla^2 f$,
+can be represented as
+{\small
+\eq{
+  \bigg( \frac{\partial^2}{\partial r^2} 
+    + \frac{2}{r} \frac{\partial}{\partial r} \bigg) f
+    +\frac{1}{r^2 \sin\theta}\frac{\partial}{\partial \theta}
+    \bigg( \sin\theta \frac{\partial}{\partial \theta}  \bigg) f
+    +\frac{1}{r^2 \sin^2\theta}\frac{\partial^2}{\partial^2 \varphi} f
+}}%
+in sperical coordinates, and as
+{\small
+\eq{
+	\bigg( 
+	\frac{\partial}{\partial x^2} +
+	\frac{\partial}{\partial y^2} +
+	\frac{\partial}{\partial z^2}
+	\bigg) f
+}}%
+in cartesian coordinates.
+i
+%% Calculating the integral using VMC and Metropolis algo.
+\subsection{The Variational Principle}
+The Variation Principle states that if we have a Hamiltonian
+$\OP H$ and a trial wavefunction $\psi_{T}$,
+an upper bound for the ground state energy is given by
+{\small
+\eq{
+	&E_0 \leq
+	\langle H \rangle \\&=
+	\frac{\int d{\bf r_1}d{\bf r_2}\psi^{\ast}_{Ti}({\bf r_1},{\bf r_2}, 
+	{\bf r_{12}})
+	\OP{H}({\bf r_1},{\bf r_2}, {\bf r_{12}})
+	\psi_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})}
+	{\int d{\bf r_1}d{\bf r_2}\psi^{\ast}_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})
+	\psi_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})}
+}}%
+
+\subsection{Variational Monte Carlo (VMC)}
+The integrals to be solved in the variational method,
+are often too large to be solved by traditional integral methods.
+
+Therefore, we introduce the brute-force Monte Carlo method
+to solve the integrals.
+
+\subsubsection{VMC Algorithm}
+
+\begin{itemize}
+    \item Initialization.
+    \begin{itemize}    
+        \item Set a fixed number of MC steps.
+        \item Choose initial position $\vec R$ and variational
+            parameters $\boldsymbol\alpha$.
+        \item Calculate $|\psi_T(\vec R)|^2$
+    \end{itemize}
+    \item Set energy and variance and start the MC calculation.
+    \begin{itemize}    
+        \item Find the trial position $\vec R' =\vec R + \delta\times r $,
+            where $r\in [0,1]$ is randomly selected.
+        \item Use the Metropolis algorithm to determine if the
+            move $w =\frac{P(\vec R')}{P(\vec R)}$ is accepted or rejected.
+        \item Given that the move is accepted, set $\vec R = \vec R'$.
+        \item Update averages.
+    \end{itemize}
+    \item Compute final averages.
+\end{itemize}
+%% End of the VMC section
+
+\subsection{The Metropolis Algorithm}
+
+\subsection{Importance Sampling}
+
+\subsection{Statistical Analysis}
+The MC calculation are a set of computational \textit{experiments}, 
+and to evaluate the results 
+we need to implement statistical analysis of these experiments
+to find \textit{statistical} errors.
+
+For this purpose, we implement the \textit{blocking technique}.
+
+
+\subsubsection{Blocking Implementation}
+
+\begin{itemize}
+    \item Compute MC calculation, store samples in array.
+    \item Loop over a set of block sizes $n_b$.
+    \item For each $n_b$, calculate the mean of the block
+        and store these values in a new array.
+    \item Take the mean and variance of this array.
+    \item Store results.
+\end{itemize}
+
+\subsection{The Trial Wavefunctions}
+
+To conclude if the computational methods are implemented correctly,
+we should check that the results are reasonable. We do this by
+finding a mathematical approximation of the closed form expression.
+
+%% The closed-form expression.
+Given the trial wavefunction $\psi_T (\vec R, \boldsymbol\alpha)$, 
+we define a new quantity
+{\small
+\eq{
+  E_L = \frac{1}{\psi_T}\OP H \psi_T
+}}%
+where $\boldsymbol\alpha$ is a set of variational parameters.
+$E_{L1}$ is called the local energy
+
+\subsubsection{The first trial wavefunction}
+We first model the variational solution with a trial function of one
+variation parameter $\alpha$. It has the form
+{\small
+\eq{
+\psi_{T1}({\bf r_1},{\bf r_2}) = 
+   \exp{\left(-\alpha(r_1+r_2)\right)}
+}}%
+
+The only part of the operator $\OP H$ that affects the wavefunction
+are the Laplace operators.
+
+Since $\psi_{T1}$ is only spatially dependent on $r_1$ and $r_2$,
+the Laplaces of $\psi_{T1}$ reduces to
+{\small
+\eq{
+  \nabla_i^2 \psi_{T1} = \bigg( \frac{\partial^2}{\partial r_i^2} 
+    + \frac{2}{r_i} \frac{\partial}{\partial r_i} \bigg) \psi_{T1}
+    = \bigg( \alpha^2 -\alpha\frac{2}{r_i}  \bigg)\psi_{T1}
+}}%
+for $i = 1,\;2$, since
+{\small
+\eq{
+  \frac{\partial}{\partial r_i} e^{-\alpha (r_1+r_2)}
+    &= -\alpha e^{-\alpha (r_1+r_2)}\\
+\frac{\partial^2}{\partial r_i^2} e^{-\alpha (r_1+r_2)}
+    &= \alpha^2 e^{-\alpha (r_1+r_2)}
+}}%
+This gives us the following trial energy
+{\small
+\eq{
+  E_{L1}&=\frac{1}{\psi_{T1}}\bigg( -\alpha^2 
+  +\alpha\bigg( \frac{1}{r_1}+\frac{1}{r_1}  \bigg)
+    -\frac{2}{r_1}-\frac{2}{r_2} + \frac{1}{r_{12}}
+    \bigg)\psi_{T1}\\
+  &=(\alpha-2)\bigg( \frac{1}{r_1}+\frac{1}{r_2} \bigg)
+    +\frac{1}{r_{12}}-\alpha^2
+}}%
+The $2$ in the $\alpha-2$ term is the number of protons, Z.
+
+\subsubsection{The second trial wavefunction}
+To approximate the closed-form solution even better,
+we assume another trial wavefunction based on $\psi_{T1}$, namely
+{\small
+\eq{
+  \psi_{T2} ({\bf r_1},{\bf r_2}, {\bf r_{12}})
+    =\exp{\left(-\alpha(r_1+r_2)\right)}
+    \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}
+}}%
+The second part is dependent on the distance between the
+electrons, and is called the correlation part,
+which accounts for the effect between the electrons.
+
+One can then in the same way as for $\psi_{T1}$ calculate
+the local energy. The correlations part will give us some trouble
+when we try to calculate the Laplacian. This is due to
+the distance between $\vec r_1$ and $\vec r_2$, since this quantity
+is dependent on the angles $\varphi$ and $\theta$.
+It has the form
+{\small
+\eq{
+	E_{L2} = E_{L1}+\frac{1}{2(1+\beta r_{12})^2}
+	\bigg(\frac{\alpha(r_1+r_2)}{r_{12}}(1-
+	\frac{\mathbf{r}_1^T\mathbf{r}_2}{r_1r_2})\\
+	-\frac{1}{2(1+\beta r_{12})^2}-\frac{2}{r_{12}}+
+	\frac{2\beta}{1+\beta r_{12}}\bigg)
+}}%
+
+\section{Results}
+
+\section{Discussion}
+
+\end{document}
