@@ -24,6 +24,7 @@ public:
     void exportParamters(std::string fName);
     void exportDensity(std::string fName);
     void exportEnergyArray(std::string fName);
+    void exportPositions(std::string fName);
     void setWaveFunction1();
     void setWaveFunction2();
     void setWaveFunctionBeryllium1();
@@ -36,6 +37,7 @@ public:
     void setRecordChargeDensity();
     void setRecordEnergyArray(bool param);
     void setRecordR12Mean(bool param);
+    void setRecordPositions(bool param);
     double getAcceptanceRatio();
     void setStepLength(double stepLength);
     double getStepLength();
@@ -108,6 +110,7 @@ private:
     bool recordChargeDensity;
     bool recordEnergyArray;
     bool recordR12Mean;
+    bool recordPositions;
 
     Matrix qForceOld;
     Matrix qForceNew;
@@ -118,10 +121,11 @@ private:
     double** prOld;
     double** prNew;
 
+    Matrix positions;
+    double** pPositions;
+
     Matrix density;
-    Matrix densityCharge;
     double** pDensity;
-    double** pDensityCharge;
 
     Vector energyArray;
     double* pEnergyArray;

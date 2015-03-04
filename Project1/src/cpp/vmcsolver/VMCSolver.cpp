@@ -197,7 +197,11 @@ bool VMCSolver::initRunVariables(){
 
     // Initialize arrays
 
-
+    if (recordPositions) {
+	positions = Matrix(nParticles, nCycles);
+	positions.reset();
+	pPositions = positions.getArrayPointer();
+    }
     if (recordEnergyArray) {
     	energyArray = Vector(nCycles);
 	pEnergyArray = energyArray.getArrayPointer();
@@ -206,10 +210,6 @@ bool VMCSolver::initRunVariables(){
 	density = Matrix(nParticles, bins);
 	density.reset();
 	pDensity = density.getArrayPointer();
-    }
-    if (recordChargeDensity) {
-	/* densityCharge = Matrix(nParticles,2*nDimensions); */
-	/* pDensityCharge = density.getArrayPointer(); */
     }
     if (useImportanceSampling) {
 	qForceOld = Matrix(nParticles, nDimensions);
@@ -319,6 +319,15 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i){
     // Store in energy array.
     if (recordEnergyArray) {
     	pEnergyArray[cycle] += deltaE;
+    }
+
+    if (recordPositions) {
+	double rAbs = 0;
+	for(int j = 0; j < nDimensions; j++) {
+	    rAbs += prNew[i][j]*prNew[i][j];
+	}
+	rAbs = sqrt(rAbs);
+	pPositions[i][cycle] = rAbs;
     }
 
     // Calculate density
@@ -495,7 +504,6 @@ void VMCSolver::setLocalEnergyHydrogen(){
 }
 
 
-
 void VMCSolver::setImportanceSampling(bool param){
     if (param == false) {
 	useImportanceSampling = false;
@@ -528,6 +536,9 @@ void VMCSolver::setRecordDensity(bool param, int bins, double maxPos){
 
 void VMCSolver::setRecordR12Mean(bool param){
     recordR12Mean = param;
+}
+void VMCSolver::setRecordPositions(bool param){
+    recordPositions = param;
 }
 
 void VMCSolver::setLocalEnergyGeneric(){
@@ -565,11 +576,12 @@ void VMCSolver::clear(){
     nCycles = 0;
 
     ready = false;
+    outputSupressed = false;
     setImportanceSampling(false);
     setRecordDensity(false);
-    /* setRecordChargeDensity(false); */
     setRecordEnergyArray(false);
     setRecordR12Mean(false);
+    setRecordPositions(false);
 }
 
 double VMCSolver::getAcceptanceRatio(){
@@ -721,6 +733,7 @@ void VMCSolver::exportDensity(std::string fName){
     myFile.close();
 
 }
+
 void VMCSolver::exportEnergyArray(std::string fName){
     string adress = "../../../res/" + fName;
     ofstream myFile;
@@ -728,6 +741,21 @@ void VMCSolver::exportEnergyArray(std::string fName){
     myFile.open(adress.c_str());
     for (int i = 0; i < nCycles; i++) {
 	myFile << pEnergyArray[i] << " ";
+    }
+    myFile.close();
+
+}
+
+void VMCSolver::exportPositions(std::string fName){
+    string adress = "../../../res/" + fName;
+    ofstream myFile;
+    cout << "Dumption energies to file : " << fName << endl;
+    myFile.open(adress.c_str());
+    for (int i = 0; i < nParticles; i++) {
+    	for (int j = 0; j < nCycles; j++) {
+	    myFile << pPositions[i][j] << " ";
+    	}
+	myFile << endl;
     }
     myFile.close();
 
