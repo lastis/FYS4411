@@ -133,7 +133,7 @@ For this purpose, we implement the \textit{blocking technique}.
     \item Store results.
 \end{itemize}
 
-\subsection{The Trial Wavefunctions}
+\subsection{The Trial Wavefunctions for Helium}
 
 To conclude if the computational methods are implemented correctly,
 we should check that the results are reasonable. We do this by
@@ -216,6 +216,37 @@ It has the form
 	-\frac{1}{2(1+\beta r_{12})^2}-\frac{2}{r_{12}}+
 	\frac{2\beta}{1+\beta r_{12}}\bigg)
 }}%
+
+\subsection{The Trial Wavefunction for Beryllium}
+We can use a trial wavefunction on the same form as for
+Hydrogen and Helium
+
+{\small
+\eq{
+	&\psi_{T}({\bf r_1},{\bf r_2}, {\bf r_3}, {\bf r_4}) =\\ 
+ 	&Det\left(\phi_{1}({\bf r_1}),\phi_{2}({\bf r_2}),
+   	\phi_{3}({\bf r_3}),\phi_{4}({\bf r_4})\right)
+   	\prod_{i<j}^{4}\exp{\left(\frac{r_{ij}}{2(1+\beta r_{ij})}\right)}
+}}%
+
+where we approximate the Slater determinant \textit{Det} as
+{\small
+\eq{
+	&\psi_{T}({\bf r_1},{\bf r_2}, {\bf r_3}, {\bf r_4})\propto \\ 
+	&\left(\phi_{1s}({\bf r_1})\phi_{2s}({\bf r_2})-\phi_{1s}({\bf r_2})
+	\phi_{2s}({\bf r_1})\right)
+	\left(\phi_{1s}({\bf r_3})\phi_{2s}({\bf r_4})
+	-\phi_{1s}({\bf r_4})\phi_{2s}({\bf r_3})\right)
+}}%
+where the Hydrogen wavefunctions for the two spin orbitals
+are given by
+{\small\eq{
+\phi_{1s}({\bf r_i}) = e^{-\alpha r_i}\\
+}}
+and
+{\small\eq{
+\phi_{2s}({\bf r_i}) = \left(1-\alpha r_i/2\right)e^{-\alpha r_i/2}.
+}}
 
 \section{Results}
 
