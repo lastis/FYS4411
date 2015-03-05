@@ -55,7 +55,7 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 
 ax.plot(betaData, energy,'b')
-ax.fill_between(betaNew, energyNew-std[0], energyNew+std[0], color='c', alpha=0.2)
+ax.fill_between(betaNew, energyNew-std[0], energyNew+std[0], color='b', alpha=0.2)
 
 ax.set_title(r'Ground State Energies as Function of $\beta$ for Helium with' '\n' 
     r'Local Energy Calculation and Trial Wavefunction $\psi_{T2}$')

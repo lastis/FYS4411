@@ -180,7 +180,19 @@ to solve the integrals.
 %% End of the VMC section
 
 \subsection{The Metropolis Algorithm}
-Calculating the 
+The Metropolis algorithm samples a normalized probability distribution
+by a stochastic process. In other words, it is a method for simultaing
+random walks, which we can use to do brute-force Monte Carlo computations.
+
+Define $P^{(n)}_i$ as the probability for finding the system in state $i$
+at some step $n$.
+
+\begin{itemize}
+	\item Sample a possible new state $j$ with a probability $T_{i\rightarrow j}$.
+	\item With probability $A_{i\rightarrow j}$, accept $j$ as a new state.
+	Set it as the new sample. The move is rejected with probability $1-A_{i\rightarrow j}$.
+	set $i$ as the sample again.
+\end{itemize}
 
 
 \subsection{Importance Sampling}
@@ -222,11 +234,28 @@ Where G is the Green function given by,
 
 \subsection{Statistical Analysis}
 The MC calculation are a set of computational \textit{experiments}, 
-and to evaluate the results 
-we need to implement statistical analysis of these experiments
-to find \textit{statistical} errors.
+with statistical errors. In the experiments we are interested in the mean
+value of the ground energies and the density distribution. The 
+individual samples are not as interesting to us and we would rather like
+to look in the variance of the mean value. 
 
-For this purpose, we implement the \textit{blocking technique}.
+	The variance of the mean value is closely connected with the correlation
+in the individual samples. This can be shown mathematically, but the result
+is this:
+\eq{
+\sigma^2(m) &= \frac{1}{n^2}\sum_{i,j=1}^{n} \mathrm{Cov}(x_i,x_j)
+}
+
+Both our random walker and walking with importance sampling gives correlated
+samples. In our case, blocking is the technique of finding out have many steps
+the walker has to go to be as uncorrelated as possible with it's first step.
+If we then plot the variance in mean as a function of block size we 
+will see that the variance reaches a plateau. 
+
+This plateau means that increasing the sample length will no longer
+change the variance in the mean significantly. This makes us able to more easily calculate 
+variance in the mean because we know how short block sizes we can use. 
+This is used to make the standard deviation interval around our densities. 
 
 
 \subsubsection{Blocking Implementation}
@@ -383,41 +412,68 @@ Plots are generated using python.
 These parameters decide the minimal ground energy for the system, and both
 should be adjusted simultaneously to reach the most optimal value of the
 energy. First we sample the parameterspace of the first trial wave function. 
-This function had a minimum of about NOTE: () + statistical inaccuracy here???
-This was the first value of $\alpha$ that was used in sampling the 
+This function had a minimum of 1.66. This was the first value of $\alpha$ that was used in sampling the 
 parameterspace with beta in the second trial wavefunction. 
+ This can  be seen fig ?? with mean error. 
 Using the computed $\beta$-value we again
-sampled the energy as a function of $\alpha$. NOTE: This can be seen in ...
+sampled the energy as a function of $\alpha$, which we concluded was 
+the same as before.
 
-FOOTNOTE\footnote{Finding the statistically most optimal values of $\beta$ 
-is challenging, because the mean variance is
-substantial compared to the energies around the flat region.}   
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=80mm]{../res/heliumWave1Alpha/heliumWave1Alpha_alpha.eps}
+	\caption{}
+\end{figure}
 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=80mm]{../res/heliumWave2Beta/heliumWave2Beta.eps}
+	\caption{}
+\end{figure}
 
-
-\subsection{Helium: Closed Form Local Energy}
-The local energy has a closed form solution for Helium, this has 
-been implemented in fig.... Here we can see something. 
-
-\subsection{Helium: Importance Sampling}
-Now we would like to see how the program does with importance sampling instead 
-of static steplength. This we can see in NOTE: fig ... 
-
-\subsection{Helium: Evaluating Ground State and Density}
-With our optimal parameters, we see that using NOTE: something something gives the
-lowest variance of the mean and the lowest mean energy. 
-Compared to experimental values, this result is statistically significant. 
-
-\subsection{Helium: Comparing $\psi_{T1}$ and $\psi_{T2}$ }
-Firstly the first and second trial wavefunctions for Helium are compared. 
+\subsection{Helium: $\psi_{T1}$ and $\psi_{T2}$ }
+Firstly we want to compare the first and second trial wavefunctions for Helium. 
 The difference between these two are that there are no correlation term
 in the first wavefunction. This makes computations much faster, but we
 would expect that our results are farther away from the experimental 
 value of the ground state. This is done using a numerical approximation 
-of the local energy of the particles. 
+of the local energy of the particles. The mean value of 
+$\psi_{T1} = -2.84264$ and $\psi_{T2} = -2.87105$. The experimental value of
+the ground state is about $2.903$, thus we conclude that the second wave 
+function is a better approximation.
+
+\subsection{Helium: Closed Form Local Energy}
+The local energy has a closed form solution for Helium, this has 
+been implemented in fig (??). The closed form solution should
+give use a lower standard deviation than the numerical approximation
+of the local energy because it is a closer approximation. 
+
+\subsection{Helium: Importance Sampling}
+Now we would like to see how the program does with importance sampling instead 
+of static steplength. Importance sampling should also lower the standard 
+deviation because it makes the walker sample the wave function in a
+better way. The downside of importance sampling is that it takes about
+twice as long time as the random walker. This is also shown in figure (??). 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=80mm]{../res/heliumWave2ClosedImportanceGeneric/heliumWave2BlockingClosedImpGen.pdf}
+\caption{}
+\end{figure}
+
+\subsection{Helium: Evaluating Ground State and Density}
+With our optimal parameters, we calculated the ground state and the density
+function of Helium, fig(???). The standard deviation has been added as
+a error bar along the curve. 
+
+Here we can see how the correlation factor effects the density. When
+the Jastrow factor is added the electrons are repelled a bit further 
+away from the nucleus and the mean radius between the electrons increases
+slightly. The mean distance increased from $1.316$ to $1.414$. 
 
 \subsection{Beryllium: Estimating $\alpha$ and $\beta$}
-
+In plot ?? a wide range of the paramter space has been sampled. As can be seen this area have an energy mean that are quite similar. Because of this
+the paramters have been chosen to be $\alpha =  3.75$ and $\beta = 0.8$. 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=80mm]{../res/berylliumAlphaBeta/berylliumAlphaBeta.eps}
@@ -426,8 +482,21 @@ of the local energy of the particles.
 
 
 \subsection{Beryllium: Comparing $\psi_{T1}$ and $\psi_{T2}$}
+In fig(???) we see the difference the Jastrow factor makes for beryllium. 
+We also notice the two clear peaks of in the distribution. Again this
+correlation makes the electrons repel each other and pushes the distributions
+further apart. The mean distance increased from $1.669$ to $1.804$. 
+Thea mean energy were $19.9325$ and $14.340$ respectively. A walue around
+$14$ is the experimental value of beryllium and the value without the 
+Jastrow factor is supposed to be $20$. 
+Figure (???) 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=80mm]{../res/berylliumWave1Wave2Density/berylliumWave1Wave2DensityPos1.pdf}
+\caption{}
+\end{figure}
 
-kj
+
 
 
 \section{Discussion}
