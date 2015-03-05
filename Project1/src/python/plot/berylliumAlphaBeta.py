@@ -12,10 +12,34 @@ alpha = np.loadtxt(alphafile)
 beta = np.loadtxt(betafile)
 energy = np.loadtxt(energyfile)
 
-plt.imshow(energy,extent=[alpha[0],alpha[-1],beta[0],beta[-1]])
+font = {'family' : 'serif',
+        'size'   : 10}
+
+plt.rc('font', **font)
+
+fig2, ax2 = plt.subplots()
+
+X,Y = np.meshgrid(alpha,beta)
+
+cax = ax2.imshow(energy,extent=[alpha[0],alpha[-1],beta[0],beta[-1]],\
+        vmin=-16,vmax=-10,interpolation='lanczos',cmap=cm.coolwarm)
+cbar = fig2.colorbar(cax, ticks=[-16, -13, -10], orientation='horizontal')
+
+# plt.imshow(energy,extent=[alpha[0],alpha[-1],beta[0],beta[-1]])
+
+ax2.set_title(r'Ground State Energies of Beryllium as Function of $\alpha$ and $\beta$' '\n' 
+    r'with Generic Energy Calculation')
+
+ax2.set_xlabel(r'$\beta$', fontsize=14)
+ax2.set_ylabel(r'$\alpha$', fontsize=14)
+
+ax2.grid('on')
+ax2.spines['right'].set_visible(False)
+ax2.spines['top'].set_visible(False)
+
+plt.savefig('../../../res/berylliumAlphaBeta/berylliumAlphaBeta.eps')
 plt.show()
-
-
+plt.figure()
 
 
 # Z = energy
