@@ -28,7 +28,7 @@ def blocking(indata, outdata, blocksizes):
             
             # for k in xrange(nb):
             #     tmpmean_dif_smpl += arr[k]-totmean    
-        
+        tmpmean = np.mean(tmplist)
         tmpvar = np.var(tmplist)
         
         print tmpvar
@@ -40,7 +40,7 @@ def blocking(indata, outdata, blocksizes):
         # totarray.append(tmpmean_dif_tot)
         # smplarray.append(tmpmean_dif_smpl)
 
-        outfile.write(str(nb)+': '+' '+str(tmpvar)+'\n')
+        outfile.write(str(nb)+': '+str(tmpmean)+' '+str(tmpvar)+'\n')
         # str(tmpmean_dif_tot)+' '+str(tmpmean_dif_smpl)+')
 
     infile.close()
@@ -73,44 +73,34 @@ x,y = blocking('../../../res/berylliumWave1Wave2/wave1Energies.txt', \
 
 y = np.sort(y)
 
-fig1 = plt.figure()
-ax1 = fig1.add_subplot(111)
+font = {'family' : 'serif',
+        'size'   : 10}
 
-ax1.plot(x, np.sqrt(y))
+plt.rc('font', **font)
 
-ax1.set_title(r'Blocking Analysis of Ground State Energies as Function of STD with' '\n' 
-    r'Generic Energy Calculation and Trial Wavefunction $\psi_{T1}$')
-ax1.set_xlabel(r'Blocksize', fontsize=14)
-ax1.set_ylabel(r'$\sigma$', fontsize=14)
+fig, ax = plt.subplots()
 
-ax1.grid('on')
-ax1.spines['right'].set_visible(False)
-ax1.spines['top'].set_visible(False)
-
-plt.savefig('../../../res/berylliumWave1Wave2/wave1EnergiesBlocking.eps')
-plt.show()
-plt.figure()
-
+ax.plot(x, np.sqrt(y), label='$E_0$ without Jastrow factor')
 
 x,y = blocking('../../../res/berylliumWave1Wave2/wave2Energies.txt', \
 '../../../res/berylliumWave1Wave2/blockBerylliumWave2Energies.txt', np.sort(blocks(6)))
 
 y = np.sort(y)
 
-fig2 = plt.figure()
-ax2 = fig2.add_subplot(111)
+ax.plot(x, np.sqrt(y), label='$E_0$ with Jastrow factor')
 
-ax2.plot(x, np.sqrt(y))
+ax.set_title(r'Blocking Analysis of Ground State Energies as Function of STD with' '\n' 
+    r'Generic Energy Calculation for Beryllium')
 
-ax2.set_title(r'Blocking Analysis of Ground State Energies as Function of STD with' '\n' 
-    r'Generic Energy Calculation and Trial Wavefunction $\psi_{T2}$')
-ax2.set_xlabel(r'Blocksize', fontsize=14)
-ax2.set_ylabel(r'$\sigma$', fontsize=14)
+ax.legend(loc='best')
+ax.set_xlabel(r'Blocksize', fontsize=14)
+ax.set_ylabel(r'$\sigma$', fontsize=14)
 
-ax2.grid('on')
-ax2.spines['right'].set_visible(False)
-ax2.spines['top'].set_visible(False)
+ax.grid('on')
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
 
-plt.savefig('../../../res/berylliumWave1Wave2/wave2EnergiesBlocking.eps')
+#plt.savefig('../../../res/berylliumWave1Wave2/wave1EnergiesBlocking.eps')
+
+plt.savefig('../../../res/berylliumWave1Wave2/wave12EnergiesBlocking.eps')
 plt.show()
-plt.figure()
