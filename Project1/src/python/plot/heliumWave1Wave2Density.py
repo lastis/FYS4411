@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ### WAVE 1 STARTS
-positions = open('../../../res/berylliumWave1Wave2Density/wave1Positions.txt', 'r')
+positions = open('../../../res/heliumWave1Wave2Density/wave1Positions.txt', 'r')
 data = np.loadtxt(positions)
 
 # Block size
@@ -90,7 +90,7 @@ y2Mean = y2Mean/nb
 std2 = std2/nb
 
 print "particle 2 finished"
-
+'''
 # Now the third particle
 # Create the N distribution plots
 particle = 2
@@ -134,7 +134,7 @@ for i in xrange(bins):
 y4Mean = y4Mean/nb
 std4 = std4/nb
 print "particle 4 finished"
-
+'''
 font = {'family' : 'serif',
         'size'   : 10}
 
@@ -147,7 +147,7 @@ ax.fill_between(r1, y1Mean-std1, y1Mean+std1, color='b', alpha=0.2)
 
 ### WAVE 1 ENDS
 
-positions = open('../../../res/berylliumWave1Wave2Density/wave2Positions.txt', 'r')
+positions = open('../../../res/heliumWave1Wave2Density/wave2Positions.txt', 'r')
 data = np.loadtxt(positions)
 
 # Block size
@@ -236,6 +236,8 @@ print "particle 2 finished"
 
 # Now the third particle
 # Create the N distribution plots
+
+'''
 particle = 2
 for i in xrange(N):
     for j in xrange(nb):
@@ -277,12 +279,12 @@ for i in xrange(bins):
 y4Mean = y4Mean/nb
 std4 = std4/nb
 print "particle 4 finished"
-
+'''
 
 ax.plot(r1, y1Mean,'r',label='Particle 1 with correlations')
 ax.fill_between(r1, y1Mean-std1, y1Mean+std1, color='r', alpha=0.2)
 
-ax.set_title(r'Density as Function of Position for Beryllium')
+ax.set_title(r'Density as Function of Position for Helium')
 ax.set_ylabel(r'$|\psi|^2$', fontsize=14)
 ax.set_xlabel(r'Pos [a.u.]', fontsize=14)
 ax.legend(loc='best')
@@ -290,5 +292,5 @@ ax.legend(loc='best')
 ax.grid('on')
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
-plt.savefig('../../../res/berylliumWave1Wave2Density/berylliumWave1Wave2DensityPos1.pdf')
+plt.savefig('../../../res/heliumWave1Wave2Density/heliumWave1Wave2DensityPos1.pdf')
 plt.show()
