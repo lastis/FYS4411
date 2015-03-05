@@ -1,4 +1,4 @@
-\documentclass[twocolumn]{article}[12pt]
+\documentclass[twocolumn]{article}[10pt]
 \usepackage[english]{babel} 
 \usepackage[latin1]{inputenc} 
 \usepackage{times} 			% Default times font style
@@ -30,24 +30,42 @@
 
 % TODO: Put comments on this section.
 \newcommand{\eq}[1]{\begin{align*}#1\end{align*}}
+\newcommand{\equ}[1]{\begin{align}#1\end{align}}
 \renewcommand\vec[1]{{\bf #1}}
 \newcommand{\OP}[1]{{\bf\widehat{#1}}}
 
 \begin{document}
+\begin{abstract}
+Write something interesting about the main findings of the project.
+\end{abstract}
+
 
 \section{Introduction}
-This is part 1 of a 3 part project to evaluate the ground state properties of some 
-single atoms and diatomic molecules using varioational Monte Carlo simulations.  A 
-compulsory part of doing this is using expandable program(s) that can handle systems
-of increasing particles and complexity. This poses many challenges, implementational, 
-statistical, numerical and mathematical. The atoms studied here are Helium and Beryllium, 
-ground state energies and onebody densities. The methods to do this is a main focus of part 1. 
- 
-WRITE WHY GROUND STATE ENERGIES and densities ARE INTERESTING. 
+This is part 1 of a 3 part project to evaluate the ground state properties of 
+some single atoms and diatomic molecules, 
+using variational Monte Carlo simulations. 
 
-As stated there are several challenges. Here basic mathematical,
-computational, statistical models are delt with and applied to the second most simple
-system, Helium. All results displayed in this article are gathered from our variational Monte Carlo program. 
+A compulsory part of doing this is using expandable programs that can handle 
+systems of increasing particles and complexity. 
+This poses many challenges; implementational, statistical, 
+numerical and mathematical. 
+The atoms studied here are Helium and Beryllium, 
+and the ground state energies and one-body densities are the properties
+we are interested in. The computational methods to do this is a main focus of 
+part 1. 
+
+We are interested in the ground state energies, because the
+results are more easily verifiable. One aim of the project is
+to see how effective our numerical methods are in computing
+these quantities, and compare the methods to each other,
+by applying statistical tools.
+
+As stated, there are several challenges. Here basic mathematical,
+computational, statistical models are dealt with, and applied to the second 
+most simple system, Helium. 
+
+All results displayed in this article are 
+gathered from our variational Monte Carlo program. 
 
 \section{Methods}
 %% Introduction to the problem
@@ -60,7 +78,7 @@ and $r_2 = \sqrt{x_2^2 + y_2^2 + z_2^2}$.
 The total potential energy of the system is modelled as
 {\small
 \eq{
-    V(r_1,r_2)=-\frac{2}{r_1}-\frac{2}{r_2}+\frac{1}{r_{12}},
+    V(r_1,r_2)=-\frac{2}{r_1}-\frac{2}{r_2}+\frac{1}{r_{12}}
 }}%
 where the interaction between each electron and the nucleus
 is given by the two first terms. 
@@ -88,7 +106,9 @@ can be represented as
     \bigg( \sin\theta \frac{\partial}{\partial \theta}  \bigg) f
     +\frac{1}{r^2 \sin^2\theta}\frac{\partial^2}{\partial^2 \varphi} f
 }}%
+
 in spherical coordinates, and as
+
 {\small
 \eq{
 	\bigg( 
@@ -97,16 +117,18 @@ in spherical coordinates, and as
 	\frac{\partial}{\partial z^2}
 	\bigg) f
 }}%
+
 in cartesian coordinates.
-i
+
 %% Calculating the integral using VMC and Metropolis algo.
 \subsection{The Variational Principle}
 The Variation Principle states that if we have a Hamiltonian
 $\OP H$ and a trial wavefunction $\psi_{T}$,
-an upper bound for the ground state energy is given by equation (NUMBER)
+an upper bound for the ground state energy is given by
+equation (\ref{eq:E0var})
 \begin{strip}
 {
-\eq{
+\equ{
 	&E_0 \leq
 	\langle H \rangle =
 	\frac{\int d{\bf r_1}d{\bf r_2}\psi^{\ast}_{Ti}({\bf r_1},{\bf r_2}, 
@@ -114,7 +136,7 @@ an upper bound for the ground state energy is given by equation (NUMBER)
 	\OP{H}({\bf r_1},{\bf r_2}, {\bf r_{12}})
 	\psi_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})}
 	{\int d{\bf r_1}d{\bf r_2}\psi^{\ast}_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})
-	\psi_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})}
+	\psi_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})}\label{eq:E0var}
 }}%
 \end{strip}
 
@@ -263,9 +285,9 @@ Hydrogen and Helium
 
 {\small
 \eq{
-	&\psi_{T}({\bf r_1},{\bf r_2}, {\bf r_3}, {\bf r_4}) =\\ 
- 	&Det\left(\phi_{1}({\bf r_1}),\phi_{2}({\bf r_2}),
-   	\phi_{3}({\bf r_3}),\phi_{4}({\bf r_4})\right)
+	\psi_{T}({\bf r_1},{\bf r_2}, {\bf r_3}, {\bf r_4}) &= 
+ 	Det\left(\phi_{1}({\bf r_1}),\phi_{2}({\bf r_2}),
+	\phi_{3}({\bf r_3}),\phi_{4}({\bf r_4})\right)\\ &\cdot
    	\prod_{i<j}^{4}\exp{\left(\frac{r_{ij}}{2(1+\beta r_{ij})}\right)}
 }}%
 
@@ -278,80 +300,86 @@ where we approximate the Slater determinant \textit{Det} as
 	&\cdot\left(\phi_{1s}({\bf r_3})\phi_{2s}({\bf r_4})
 	-\phi_{1s}({\bf r_4})\phi_{2s}({\bf r_3})\right)
 }}%
-where the Hydrogen wavefunctions for the two spin orbitals
+where the hydrogenic wavefunctions for the two spin orbitals
 are given by
 {\small\eq{
-\phi_{1s}({\bf r_i}) = e^{-\alpha r_i}\\
-}}
-and
+\phi_{1s}({\bf r_i}) = e^{-\alpha r_i}
+}} and
 {\small\eq{
-\phi_{2s}({\bf r_i}) = \left(1-\alpha r_i/2\right)e^{-\alpha r_i/2}.
+\phi_{2s}({\bf r_i}) = \left(1-\alpha r_i/2\right)e^{-\alpha r_i/2}
 }}
 
 \subsection{Onebody Density and Charge Density}
-The onebody density is computed from the form .equation.. 
-This is implemented as ... in our program. 
+The one-body density is computed from the form 
+{\small
+\eq{
+	\rho(\vec R) = |\psi(\vec R)|^2
+}}%
+
+This is implemented as NOTE: ... in our program. 
 
 \subsection{Implementation}
-The methods described above are implemented in a object oriented c++ program
-which is simple to use and does not have any dependencies. Most of the code
-are contained in the class VMCSolver.cpp and VMCSolver.h. This was created 
-to contain the full system and paramters for a single run. 
+The methods described above are implemented in an object oriented C++ program
+which is simple to use, and does not have any dependencies. 
+
+Most of the code is contained in the class VMCSolver.cpp and VMCSolver.h. 
+These were created to contain the full system and parameters for a single run. 
 
 To start a simulation one must instantiate the solver and 
 initialize the system, either by file and/or manually. After this
- the integration can be run and all data will be contained in the solver object.
+the integration can be run and all data will be contained in the solver object.
 The last step is to collect data from the solver. 
 
 All plot data are generated by individual programs using the mentioned solver. 
 Plots are generated using python. 
 
-
-
 \section{Results}
 \subsection{Helium: Estimating $\alpha$ and $\beta$}
-These paramters decide the minimal groun energy for system, and both
-should be adjusted simultaniously to reach the most optimal value of the
-energy. First we sample the paramterspace of the first trial wave function. 
-This function had a minimul of about () + statistical inaccuracy here???
-This was the first value of alpha that was used in sampling the paramterspace 
-with beta in the second trial wavefunction. Using the computed betavalue we again
-sampled the energy as a function og $\alpha$. This can be seen in ...
+These parameters decide the minimal ground energy for the system, and both
+should be adjusted simultaneously to reach the most optimal value of the
+energy. First we sample the parameterspace of the first trial wave function. 
+This function had a minimum of about NOTE: () + statistical inaccuracy here???
+This was the first value of $\alpha$ that was used in sampling the 
+parameterspace with beta in the second trial wavefunction. 
+Using the computed $\beta$-value we again
+sampled the energy as a function of $\alpha$. NOTE: This can be seen in ...
 
-FOOTNOTE: Finding the stastical most optimal values of $\beta$ 
-is challenging because the mean variance is
-substantial compared to the energies around the flat region.   
+FOOTNOTE\footnote{Finding the statistically most optimal values of $\beta$ 
+is challenging, because the mean variance is
+substantial compared to the energies around the flat region.}   
 
 
 
 \subsection{Helium: Comparing $\psi_{T1}$ and $\psi_{T2}$ }
-Firstly the first and second trial wavefunction for helium are compared. 
+Firstly the first and second trial wavefunctions for Helium are compared. 
 The difference between these two are that there are no correlation term
-in the first wavefunction. This makes computational much faster, but we
-would expect that our results are further away from the experemental 
+in the first wavefunction. This makes computations much faster, but we
+would expect that our results are farther away from the experimental 
 value of the ground state. This is done using a numerical approximation 
 of the local energy of the particles. 
 
 \subsection{Helium: Closed Form Local Energy}
-The local energy has a closed form solution for helium, this has 
+The local energy has a closed form solution for Helium, this has 
 been implemented in fig.... Here we can see something. 
 
 \subsection{Helium: Importance Sampling}
 Now we would like to see how the program does with importance sampling instead 
-of static steplength. This we can see in fig .... 
+of static steplength. This we can see in NOTE: fig ... 
 
 \subsection{Helium: Evaluating Ground State and Density}
-With our optimal paramters, we see that using something something gives the
-lowest variance of the mean and the lowest mean energy. Comporared to experemental 
-values this result is statistically significant. 
+With our optimal parameters, we see that using NOTE: something something gives the
+lowest variance of the mean and the lowest mean energy. 
+Compared to experimental values, this result is statistically significant. 
 
 
 \section{Discussion}
-\subsection{Paramter Space}
-After estemating the paramters in the start of helium, we didn't adjust them anymore.
-The standard deviation of the mean was not considered when estimating the values of 
-alpha and beta. Performing blocking with our program would require full sampling
-of every step which stores about 10 mb for every value of alpha and beta. 
+\subsection{Parameter Space}
+After estimating the parameters in the start of Helium, 
+we didn't adjust them anymore.
+The standard deviation of the mean was not considered when estimating the values 
+of alpha and beta. Performing blocking with our program would require full 
+sampling of every step which stores about 10 mb for every value of alpha and 
+beta. 
 \subsection{Testing of the Solver}
 Here we did unittests. 
 
