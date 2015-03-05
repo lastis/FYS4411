@@ -68,47 +68,40 @@ def blocks2(m):
 
 print blocks(6)
 
-x,y = blocking('../../../res/heliumWave1Wave2/wave1Energies.txt','blockVarwave1Energies.txt', np.sort(blocks(6)))
+fig1, ax1 = plt.subplots()
 
+## Closed-form
+x,y = blocking('../../../res/heliumWave2ClosedImportanceGeneric/closedEnergies.txt','blockVarwave1Energies.txt', np.sort(blocks(6)))
 y = np.sort(y)
+ax1.plot(x, np.sqrt(y),label='Closed-form energy')
 
-fig1 = plt.figure()
-ax1 = fig1.add_subplot(111)
 
-ax1.plot(x, np.sqrt(y))
+## Closed-form with Imp
+x,y = blocking('../../../res/heliumWave2ClosedImportanceGeneric/closedImportanceEnergies.txt',
+	'blockVarwave2ciEnergies.txt', np.sort(blocks(6)))
+y = np.sort(y)
+ax1.plot(x, np.sqrt(y),label='Closed-form energy w/imp. sampling')
+
+
+## Generic energy
+x,y = blocking('../../../res/heliumWave2ClosedImportanceGeneric/genericEnergies.txt',
+	'blockVarwave2genEnergies.txt', np.sort(blocks(6)))
+y = np.sort(y)
+ax1.plot(x, np.sqrt(y),label='Generic energy')
+
 
 ax1.set_title(r'Blocking Analysis of Ground State Energies as Function of STD with' '\n' 
-    r'Generic Energy Calculation and Trial Wavefunction $\psi_{T1}$')
+    r'Trial Wavefunction $\psi_{T2}$')
 ax1.set_xlabel(r'Blocksize', fontsize=14)
 ax1.set_ylabel(r'$\sigma$', fontsize=14)
+ax1.legend(loc='best')
 
 ax1.grid('on')
 ax1.spines['right'].set_visible(False)
 ax1.spines['top'].set_visible(False)
 
-plt.savefig('../../../res/heliumWave1Wave2/wave1EnergiesBlocking.eps')
+plt.savefig('../../../res/heliumWave2ClosedImportanceGeneric/heliumWave2BlockingClosedImpGen.pdf')
 plt.show()
 plt.figure()
 
 
-x,y = blocking('../../../res/heliumWave1Wave2/wave2Energies.txt','blockVarwave2Energies.txt', np.sort(blocks(6)))
-
-y = np.sort(y)
-
-fig2 = plt.figure()
-ax2 = fig2.add_subplot(111)
-
-ax2.plot(x, np.sqrt(y))
-
-ax2.set_title(r'Blocking Analysis of Ground State Energies as Function of STD with' '\n' 
-    r'Generic Energy Calculation and Trial Wavefunction $\psi_{T2}$')
-ax2.set_xlabel(r'Blocksize', fontsize=14)
-ax2.set_ylabel(r'$\sigma$', fontsize=14)
-
-ax2.grid('on')
-ax2.spines['right'].set_visible(False)
-ax2.spines['top'].set_visible(False)
-
-plt.savefig('../../../res/heliumWave1Wave2/wave2EnergiesBlocking.eps')
-plt.show()
-plt.figure()
