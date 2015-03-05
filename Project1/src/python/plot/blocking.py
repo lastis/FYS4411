@@ -66,7 +66,7 @@ def blocks2(m):
         blocksizes.append(i)
     return blocksizes
 
-print blocks(6)
+# print blocks(6)
 
 x,y = blocking('../../../res/heliumWave1Wave2/wave1Energies.txt','blockVarwave1Energies.txt', np.sort(blocks(6)))
 

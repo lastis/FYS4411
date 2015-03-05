@@ -89,7 +89,6 @@ int main()
     solver1.exportEnergyArray(directory + fName);
     fName = "noImportanceTimeAccpetanceRatio.txt";
     adress = base + directory + fName;
-    myFile.open(adress.c_str());
     cout << "Creating other data file : " << "/res/" + directory + fName << endl;
     myFile.open(adress.c_str());
     myFile << time << " ";
@@ -118,7 +117,6 @@ int main()
     solver2.exportEnergyArray(directory + fName);
     fName = "importance1TimeAccpetanceRatio.txt";
     adress = base + directory + fName;
-    myFile.open(adress.c_str());
     cout << "Creating other data file : " << "/res/" + directory + fName << endl;
     myFile.open(adress.c_str());
     myFile << time << " ";
@@ -147,7 +145,6 @@ int main()
     solver3.exportEnergyArray(directory + fName);
     fName = "importance2TimeAccpetanceRatio.txt";
     adress = base + directory + fName;
-    myFile.open(adress.c_str());
     cout << "Creating other data file : " << "/res/" + directory + fName << endl;
     myFile.open(adress.c_str());
     myFile << time << " ";

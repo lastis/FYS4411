@@ -27,7 +27,8 @@ int main()
 
     // Initialize the system 2.
     VMCSolver solver2 = VMCSolver();
-    solver2.charge = 4; solver2.alpha = 3.75;
+    solver2.charge = 4; 
+    solver2.alpha = 3.75;
     solver2.beta = 0.8;
     solver2.nDimensions = 3;
     solver2.nParticles = 4;

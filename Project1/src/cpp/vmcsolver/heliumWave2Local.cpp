@@ -65,7 +65,6 @@ int main()
     solver1.exportEnergyArray(directory + fName);
     fName = "localGenericTimeAccpetanceRatio.txt";
     adress = base + directory + fName;
-    myFile.open(adress.c_str());
     cout << "Creating other data file : " << "/res/" + directory + fName << endl;
     myFile.open(adress.c_str());
     myFile << time << " ";
@@ -94,7 +93,6 @@ int main()
     solver2.exportEnergyArray(directory + fName);
     fName = "localClosedTimeAccpetanceRatio.txt";
     adress = base + directory + fName;
-    myFile.open(adress.c_str());
     cout << "Creating other data file : " << "/res/" + directory + fName << endl;
     myFile.open(adress.c_str());
     myFile << time << " ";

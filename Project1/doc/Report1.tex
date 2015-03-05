@@ -68,7 +68,7 @@ All results displayed in this article are
 gathered from our variational Monte Carlo program. 
 
 \section{Methods}
-%% Introduction to the problem
+\subsection{Definitions}
 The Helium atom consists of two electrons orbiting a nucleus,
 where the distance between electron 1 and the nucleus,
 and electron 2 and the nucleus are labeled as
@@ -125,7 +125,13 @@ in cartesian coordinates.
 The Variation Principle states that if we have a Hamiltonian
 $\OP H$ and a trial wavefunction $\psi_{T}$,
 an upper bound for the ground state energy is given by
-equation (\ref{eq:E0var})
+equation (\ref{eq:E0var}). 
+
+The principle is that the given integral is a
+value of the energy of a given wave function and when the wave function
+is variated, the according values of the energy is the output. If we then
+record the lowest energy, the ground state, we also have the wave function
+of the ground state. 
 \begin{strip}
 {
 \equ{
@@ -143,7 +149,9 @@ equation (\ref{eq:E0var})
 
 \subsection{Variational Monte Carlo (VMC)}
 The integrals to be solved in the variational method,
-are often too large to be solved by traditional integral methods.
+does not scale well with traditional integral methods when 
+increasing the number of particles and dimensions and using 
+more complex wave functions .
 
 Therefore, we introduce the brute-force Monte Carlo method
 to solve the integrals.
@@ -172,8 +180,45 @@ to solve the integrals.
 %% End of the VMC section
 
 \subsection{The Metropolis Algorithm}
+Calculating the 
+
 
 \subsection{Importance Sampling}
+A random walker is the most efficient way to sample where the
+wave function is large. To increase this we can implement importance
+sampling wher the walk in space is effected by the trial wave function. 
+
+The results are based on the Fokker-Planck equation and the Langevin 
+equation. This makes the step look similar to a diffusion process
+where the new position is given by,
+\begin{align*}
+y = x + DF(x) \delta t + \xi \sqrt{\Delta t}.
+\end{align*}
+
+$\xi $ is a gaussian random variable and $\Delta t$ is a chosen timestep.
+For atomic units $D$ is $1/2$ and $\Delta t$ is a variable for the 
+simulation. In our plots $\Delta t = 0.01$. 
+
+An important part of this result is that the walker is effected by $F(x)$
+which contains the trial wavefunction. This has been named the quantum 
+force. 
+
+\begin{align*}
+\vec F = 2\frac{1}{\Psi_T}\nabla \Psi_T. 
+\end{align*}
+
+This also has the result of changing the random number check in the 
+Metropolis algorthm from :
+$q(y,x) = |\Psi_T(y)|^2/|\Psi_T(x)|^2$ to: 
+\[
+q(y,x) = \frac{G(x,y,\Delta t)|\Psi_T(y)|^2}{G(y,x,\Delta t)|\Psi_T(x)|^2}.
+\]
+
+Where G is the Green function given by,
+
+\eq{
+  G(y,x,\Delta t) =  \frac{1}{(4\pi D\Delta t)^{3N/2}}\\ \cdot \exp{\left(-(y-x-D\Delta t F(x))^2/4D\Delta t\right)}.
+}
 
 \subsection{Statistical Analysis}
 The MC calculation are a set of computational \textit{experiments}, 
@@ -371,17 +416,30 @@ With our optimal parameters, we see that using NOTE: something something gives t
 lowest variance of the mean and the lowest mean energy. 
 Compared to experimental values, this result is statistically significant. 
 
+\subsection{Beryllium: Estimating $\alpha$ and $\beta$}
 
 \section{Discussion}
 \subsection{Parameter Space}
-After estimating the parameters in the start of Helium, 
-we didn't adjust them anymore.
+After estimating the parameters $\alpha$ and $\beta$ for 
+Helium, we didn't adjust them in the late comparative trials. The reason
+for this was that small changes in the paramters did not effect
+our results considerably because the mean energies as well as the variance of the mean energies are similar. Our results was always close to 
+$=2.89\,a.u.$. The same conclusion was made for Beryllium, which
+showed even harder to locate exact values of the paramters.  
+
 The standard deviation of the mean was not considered when estimating the values 
 of alpha and beta. Performing blocking with our program would require full 
 sampling of every step which stores about 10 mb for every value of alpha and 
 beta. 
 \subsection{Testing of the Solver}
-Here we did unittests. 
+To varify that the solver works as intended, several unit tests
+using UnitTest++ were created. The most important tests 
+are those that estimate the one-body hamiltonian. this has
+an analytical solution for both Helium and Beryllium, which is $-4\,a.u.$
+and $-20\,a.u.$ respectivly. 
+
+The solutions for Hydrogen are also easy to calculate, and was estimated
+to $-0.5\,a.u.$ correctly.
 
 
 \end{document}

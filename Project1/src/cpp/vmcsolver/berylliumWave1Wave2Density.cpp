@@ -62,7 +62,6 @@ int main()
     solver1.exportPositions(directory + fName);
     fName = "wave1TimeAccpetanceRatio.txt";
     adress = base + directory + fName;
-    myFile.open(adress.c_str());
     cout << "Creating other data file : " << "/res/" + directory + fName << endl;
     myFile.open(adress.c_str());
     myFile << time << " ";
@@ -90,7 +89,6 @@ int main()
     solver2.exportPositions(directory + fName);
     fName = "wave2TimeAccpetanceRatio.txt";
     adress = base + directory + fName;
-    myFile.open(adress.c_str());
     cout << "Creating other data file : " << "/res/" + directory + fName << endl;
     myFile.open(adress.c_str());
     myFile << time << " ";

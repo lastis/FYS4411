@@ -21,12 +21,24 @@ VMCSolver solver;
 
 int main()
 {
+    VMCSolver solver = VMCSolver();
 
-    solver = VMCSolver();
-    solver.initFromFile("beryllium2.ini");
-    solver.setLocalEnergyGeneric();
-    solver.setWaveFunctionBeryllium2();
-    adjustAlpha(0.5);
+    solver.charge = 2;
+    solver.alpha = 2;
+    solver.beta = 0;
+    solver.nDimensions = 3;
+    solver.nParticles = 2;
+    solver.stepLength = 1.52;
+    solver.nCycles = 1000000;
+    solver.waveFunction = solver.WAVE_FUNCTION_1;
+    solver.h = 0.001;
+    solver.h2 = 1e+06;
+    solver.idum = 1;
+    solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR;
+
+    solver.runIntegration();
+
+    /* adjustAlpha(0.5); */
     /* createAlphaData(11,0.1,3.6, "alphaPlot.txt"); */
     /* createBetaData(11, 0.10, 1.10); */
     /* createAlphaBetaData(5,0.1,3.6,0.001,0.321); */
