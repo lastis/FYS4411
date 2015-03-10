@@ -235,32 +235,33 @@ void 	Matrix::eye(){
 }
 
 void 	Matrix::freeMemory(){
-	delete[] mMat[0];
-	delete[] mMat;
+	delete[] ref1;
+	delete[] ref2;
 }
 
 // 	Create matrix in row major order. 
 void 	Matrix::allocateMemory(int row, int col){
-	// Allocate memory for pointers
-	double **arr = new double* [row];
-	if(!arr) { 
-		cout << "Segmentation fault in matrix creation" << endl;
+    double* ptr1 = new (nothrow) double[row*col];
+    double** ptr2 = new (nothrow) double*[row];
+    ref1 = ptr1;
+    ref2 = ptr2;
+    mMatFlat = ref1;
+	mMat = ref2;
+	if(ptr1 == NULL) { 
+		cout << "Could not allocate memory in matrix creation" << endl;
 		mMat = NULL;
 		return;
 	}
-	// Allocate memory for the whole array
-	double *ptr  = new double  [row*col];
-	if(!ptr) {    
-		cout << "Segmentation fault in matrix creation" << endl;
+	if(ptr2 == NULL) { 
+		cout << "Could not allocate memory in matrix creation" << endl;
 		mMat = NULL;
 		return;
 	}
 	// Assign pointers to the correct rows
 	for (int i = 0; i < row; i++) {
-		arr[i] = ptr; 
-		ptr   += col;
+		ptr2[i] = ptr1; 
+		ptr1   += col;
 	}
-	mMat = arr;
 }
 
 Matrix::~Matrix(){

@@ -17,11 +17,9 @@ public:
 	void  	setCol(int j, Vector& v);
 	Vector  getRow(int i           );
 	void  	setRow(int i, Vector& v);
-
-	double	**getArrayPointer();
-
 	void	reset();
 	void	print();
+	double	**getArrayPointer();
 
 	// Operator overrides
 	//Matrix&	operator *(double num);
@@ -39,8 +37,11 @@ private:
 	void	swap	      (Matrix& m1 , Matrix& m2);
 
 	// Variables
-	double	** mMat;
-	int	mN;
+	double** mMat;
+    double*  mMatFlat;
+    double*  ref1;
+	double** ref2;
+	int	    mN;
 	int 	mM;
 
 };
