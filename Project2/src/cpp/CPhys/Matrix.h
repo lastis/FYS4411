@@ -28,17 +28,18 @@ public:
 	//Matrix&	operator-=(double num);
 	Matrix&	operator+=(double num);
 	Matrix&	operator =(double num);
-	Matrix& operator =(Matrix other);
+	Matrix& operator =(const Matrix& other);
 	// Return by refrence so the values can be changed
 	double& operator()(int i, int j);
 private:
 	void 	allocateMemory(int     row, int col);
 	void	freeMemory    ();
-	void	swap	      (Matrix& m1 , Matrix& m2);
+    void    copy(const Matrix& obj);
+    /* void    copy(Matrix& obj); */
 
 	// Variables
-	double** mMat;
     double*  mMatFlat;
+	double** mMat;
     double*  ref1;
 	double** ref2;
 	int	    mN;

@@ -5,28 +5,22 @@
 using namespace std;
 
 Matrix::Matrix(){
-	mN = 0;
-	mM = 0;
+	mN = 1;
+	mM = 1;
 	allocateMemory(mN,mM);
+    reset();
 }
 
 Matrix::Matrix(int N, int M){
-	allocateMemory(N,M);
 	mN = N;
 	mM = M;
+    if(mN < 1) mN = 1;
+    if(mM < 1) mM = 1;
+	allocateMemory(N,M);
 }
 
-Matrix::Matrix(const Matrix& mat){
-	// Note: copy constructor is needed for the assignment 
-	// operator (operator=(Matrix other)) "The rule of three"
-	mN = mat.mN;
-	mM = mat.mM;
-	allocateMemory(mN,mM);
-	for (int i = 0; i < mN; i++) {
-		for (int j = 0; j < mM; j++) {
-			mMat[i][j] = mat.mMat[i][j];
-		}
-	}
+Matrix::Matrix(const Matrix &mat){
+    copy(mat);
 }
 
 Matrix	Matrix::operator+(double num){
@@ -57,18 +51,35 @@ Matrix&	Matrix::operator =(double num){
 	return *this;
 }
 
-Matrix& Matrix::operator =(Matrix other){
+Matrix& Matrix::operator=(const Matrix& other){
 	// We need to do a deep copy so we don't lose
 	// our dynamic array (pointer) in the switch;
-	swap(*this, other);
-	
+    copy(other);
 	return *this;
 }
 
-void	Matrix::swap(Matrix& m1, Matrix& m2){
-	std::swap(m1.mN  , m2.mN);
-	std::swap(m1.mM  , m2.mM);
-	std::swap(m1.mMat, m2.mMat);
+/* void    Matrix::copy(Matrix& obj){ */
+/*     freeMemory(); */
+/*     mN = obj.mN; */
+/*     mM = obj.mM; */
+/*     allocateMemory(mN,mM); */
+/*     for (int i = 0; i < mN; i++) { */
+/*         for (int j = 0; j < mM; j++) { */
+/*             mMat[i][j] = obj.mMat[i][j]; */
+/*         } */
+/*     } */
+/* } */
+
+void    Matrix::copy(const Matrix& obj){
+    freeMemory();
+    mN = obj.mN;
+    mM = obj.mM;
+    allocateMemory(mN,mM);
+    for (int i = 0; i < mN; i++) {
+        for (int j = 0; j < mM; j++) {
+            mMat[i][j] = obj.mMat[i][j];
+        }
+    }
 }
 
 double&	Matrix::operator()(int i, int j){
@@ -203,7 +214,6 @@ void 	Matrix::print(){
 }
 
 void 	Matrix::reset(){
-	// Set every element to 0
 	for (int i = 0; i < mN; i++) {
 		for (int j = 0; j < mM; j++) {
 			mMat[i][j] = 0;
@@ -240,9 +250,11 @@ void 	Matrix::freeMemory(){
 }
 
 // 	Create matrix in row major order. 
-void 	Matrix::allocateMemory(int row, int col){
-    double* ptr1 = new (nothrow) double[row*col];
-    double** ptr2 = new (nothrow) double*[row];
+void Matrix::allocateMemory(int row, int col){
+    /* double* ptr1 = new (nothrow) double[row*col]; */
+    /* double** ptr2 = new (nothrow) double*[row]; */
+    double* ptr1 = new double[row*col];
+    double** ptr2 = new double*[row];
     ref1 = ptr1;
     ref2 = ptr2;
     mMatFlat = ref1;

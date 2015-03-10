@@ -169,17 +169,17 @@ bool VMCSolver::initRunVariables(){
 
     // Set the wave function as a function pointer
     if (waveFunction == WAVE_FUNCTION_1)
-	getWaveFuncVal = &VMCSolver::getWaveFunc1Val;
+        getWaveFuncVal = &VMCSolver::getWaveFunc1Val;
     else if (waveFunction == WAVE_FUNCTION_2)
-	getWaveFuncVal = &VMCSolver::getWaveFunc2Val;
+        getWaveFuncVal = &VMCSolver::getWaveFunc2Val;
     else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_1)
-	getWaveFuncVal = &VMCSolver::getWaveBeryllium1Val;
+        getWaveFuncVal = &VMCSolver::getWaveBeryllium1Val;
     else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2)
-	getWaveFuncVal = &VMCSolver::getWaveBeryllium2Val;
+        getWaveFuncVal = &VMCSolver::getWaveBeryllium2Val;
     else {
-	cout << "Error: Wave function not set, integration not running."
-	    << endl;
-	return false;
+        cout << "Error: Wave function not set, integration not running."
+            << endl;
+        return false;
     }
 
     // Set the local energy function as a function pointer
@@ -202,25 +202,25 @@ bool VMCSolver::initRunVariables(){
     // Initialize arrays
 
     if (recordPositions) {
-	positions = Matrix(nParticles, nCycles);
-	positions.reset();
-	pPositions = positions.getArrayPointer();
+        positions = Matrix(nParticles, nCycles);
+        positions.reset();
+        pPositions = positions.getArrayPointer();
     }
     if (recordEnergyArray) {
     	energyArray = Vector(nCycles);
-      energyArray.reset();
-	pEnergyArray = energyArray.getArrayPointer();
+        energyArray.reset();
+        pEnergyArray = energyArray.getArrayPointer();
     }
     if (recordDensity) {
-	density = Matrix(nParticles, bins);
-	density.reset();
-	pDensity = density.getArrayPointer();
+        density = Matrix(nParticles, bins);
+        density.reset();
+        pDensity = density.getArrayPointer();
     }
     if (useImportanceSampling) {
-	qForceOld = Matrix(nParticles, nDimensions);
-	qForceNew = Matrix(nParticles, nDimensions);
-	pqForceOld = qForceOld.getArrayPointer();
-	pqForceNew = qForceNew.getArrayPointer();
+        qForceOld = Matrix(nParticles, nDimensions);
+        qForceNew = Matrix(nParticles, nDimensions);
+        pqForceOld = qForceOld.getArrayPointer();
+        pqForceNew = qForceNew.getArrayPointer();
     }
     rOld = Matrix(nParticles, nDimensions);
     rNew = Matrix(nParticles, nDimensions);
@@ -567,11 +567,11 @@ void VMCSolver::setLocalEnergyHelium1(){
 
 void VMCSolver::setLocalEnergyHelium2(){
     if(nParticles != 2) {
-	cout << "Cannot use this analytic local energy function "
-	    << "for other than 2 particles." << endl;
-	cout << "Using generic one." << endl;
-	localEnergyFunction = LOCAL_ENERGY_GENERIC;
-	return;
+        cout << "Cannot use this analytic local energy function "
+            << "for other than 2 particles." << endl;
+        cout << "Using generic one." << endl;
+        localEnergyFunction = LOCAL_ENERGY_GENERIC;
+        return;
     }
     localEnergyFunction = LOCAL_ENERGY_HELIUM_2;
 
