@@ -20,19 +20,17 @@ bool VMCSolver::runIntegration(){
     // Main part of the code. 
     // Loop over Monte Carlo cycles.
     for(int cycle = 0; cycle < nCycles; cycle++) {
-	if (useImportanceSampling) 
-	    runQuantumStep(cycle);
-	else 
-	    runRandomStep(cycle);
-	endOfCycle(cycle);
+	if (useImportanceSampling) runQuantumStep(cycle);
+	else runRandomStep(cycle);
+    endOfCycle(cycle);
     }
 
     // Calculate the density
     if (recordDensity) {
-	for (int i = 0; i < nParticles; i++) {
-	    for (int j = 0; j < bins; j++) {
-		pDensity[i][j] /= nCycles;
-	    }
+        for (int i = 0; i < nParticles; i++) {
+            for (int j = 0; j < bins; j++) {
+            pDensity[i][j] /= nCycles;
+            }
 	}
     }
 
@@ -547,6 +545,13 @@ bool VMCSolver::initFromFile(std::string fName){
     myFile >> paramName >> discard >> h2;
     myFile >> paramName >> discard >> idum;
     myFile >> paramName >> discard >> localEnergyFunction;
+    myFile >> paramName >> discard >> timeStep;
+    myFile >> paramName >> discard >> D;
+    myFile >> paramName >> discard >> useImportanceSampling;
+    myFile >> paramName >> discard >> recordDensity;
+    myFile >> paramName >> discard >> recordEnergyArray;
+    myFile >> paramName >> discard >> recordR12Mean;
+    myFile >> paramName >> discard >> recordPositions;
 
     myFile.close();
 
