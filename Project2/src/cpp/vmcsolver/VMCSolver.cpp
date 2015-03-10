@@ -8,11 +8,12 @@ VMCSolver::VMCSolver(){
 }
 
 bool VMCSolver::runIntegration(){
-    ready = initRunVariables();
+    ready = false;
+    if (validateParamters() && initRunVariables()) ready = true;
     if (!ready) {
-	cout << "Error: Solver not initialized properly, integration not running."
-	    << endl;
-	return false;
+        cout << "Error: Solver not initialized properly, integration not running."
+            << endl;
+        return false;
     }
 
 
@@ -566,15 +567,7 @@ void VMCSolver::setLocalEnergyHelium1(){
 }
 
 void VMCSolver::setLocalEnergyHelium2(){
-    if(nParticles != 2) {
-        cout << "Cannot use this analytic local energy function "
-            << "for other than 2 particles." << endl;
-        cout << "Using generic one." << endl;
-        localEnergyFunction = LOCAL_ENERGY_GENERIC;
-        return;
-    }
     localEnergyFunction = LOCAL_ENERGY_HELIUM_2;
-
 }
 
 void VMCSolver::setLocalEnergyHydrogen(){
@@ -591,18 +584,8 @@ void VMCSolver::setLocalEnergyHydrogen(){
 
 void VMCSolver::setImportanceSampling(bool param){
     if (param == false) {
-	useImportanceSampling = false;
-	return;
-    }
-    if (timeStep == 0) {
-	cout << "Error : Cannot use importance sampling with timeStep = 0" 
-	    << endl;
-	return;
-    }
-    if (D == 0) {
-	cout << "Error : Cannot use importance sampling with D = 0" 
-	    << endl;
-	return;
+        useImportanceSampling = false;
+        return;
     }
     useImportanceSampling = true;
 }
@@ -785,6 +768,40 @@ double VMCSolver::phi1s(double r){
 
 double VMCSolver::phi2s(double r){
     return (1-alpha*r/2)*exp(-alpha*r/2);
+}
+
+bool VMCSolver::validateParamters(){
+    bool valid = true;
+    if(useImportanceSampling){
+        if (timeStep == 0) {
+            cout << "Error : Cannot use importance sampling with timeStep = 0." 
+                << endl;
+            valid = false;
+            setImportanceSampling(false);
+        }
+        if (D == 0) {
+            cout << "Error : Cannot use importance sampling with D = 0." 
+                << endl;
+            valid = false;
+            setImportanceSampling(false);
+        }
+    }
+    if(localEnergyFunction == LOCAL_ENERGY_HELIUM_2 && nParticles != 2) {
+        cout << "Cannot use this analytic local energy function "
+            << "for other than 2 particles." << endl;
+        cout << "Using generic one." << endl;
+        valid = false;
+        setLocalEnergyGeneric();
+    }
+    if(localEnergyFunction == LOCAL_ENERGY_HYDROGEN && nParticles != 1) {
+        cout << "Cannot use this analytic local energy function " 
+            << "for other than 1 particle." << endl;
+        cout << "Using generic one." << endl;
+        valid = false;
+        setLocalEnergyGeneric();
+    }
+
+    return valid;
 }
 
 void VMCSolver::exportParamters(std::string fName){

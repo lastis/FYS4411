@@ -50,6 +50,7 @@ public:
     double getEnergySquared();
     void clear();
     void supressOutput();
+    bool validateParamters();
 
 
     // Parameters to be set manually or from file.
