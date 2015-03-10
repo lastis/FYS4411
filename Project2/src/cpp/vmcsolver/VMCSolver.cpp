@@ -556,13 +556,6 @@ bool VMCSolver::initFromFile(std::string fName){
 }
 
 void VMCSolver::setLocalEnergyHelium1(){
-    if(nParticles != 2) {
-	cout << "Cannot use this analytic local energy function "
-	    << "for other than 2 particles." << endl;
-	cout << "Using generic one." << endl;
-	localEnergyFunction = LOCAL_ENERGY_GENERIC;
-	return;
-    }
     localEnergyFunction = LOCAL_ENERGY_HELIUM_1;
 }
 
@@ -571,13 +564,6 @@ void VMCSolver::setLocalEnergyHelium2(){
 }
 
 void VMCSolver::setLocalEnergyHydrogen(){
-    if(nParticles != 1) {
-	cout << "Cannot use this analytic local energy function " 
-	    << "for other than 1 particle." << endl;
-	cout << "Using generic one." << endl;
-	localEnergyFunction = LOCAL_ENERGY_GENERIC;
-	return;
-    }
     localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
 }
 
@@ -660,8 +646,7 @@ double VMCSolver::getAcceptanceRatio(){
     return double(accepts)*100/(rejects+accepts);
 }
 
-double VMCSolver::getWaveFunc1Val(double** r)
-{
+double VMCSolver::getWaveFunc1Val(double** r){
     double argument = 0;
     for(int i = 0; i < nParticles; i++) {
         double rSingleParticle = 0;
@@ -786,19 +771,41 @@ bool VMCSolver::validateParamters(){
             setImportanceSampling(false);
         }
     }
-    if(localEnergyFunction == LOCAL_ENERGY_HELIUM_2 && nParticles != 2) {
-        cout << "Cannot use this analytic local energy function "
-            << "for other than 2 particles." << endl;
-        cout << "Using generic one." << endl;
-        valid = false;
-        setLocalEnergyGeneric();
-    }
     if(localEnergyFunction == LOCAL_ENERGY_HYDROGEN && nParticles != 1) {
         cout << "Cannot use this analytic local energy function " 
             << "for other than 1 particle." << endl;
-        cout << "Using generic one." << endl;
         valid = false;
-        setLocalEnergyGeneric();
+    }
+    if(localEnergyFunction == LOCAL_ENERGY_HELIUM_1 && nParticles != 2) {
+        cout << "Cannot use this analytic local energy function "
+            << "for other than 2 particles." << endl;
+        valid = false;
+    }
+    if(localEnergyFunction == LOCAL_ENERGY_HELIUM_2 && nParticles != 2) {
+        cout << "Cannot use this analytic local energy function "
+            << "for other than 2 particles." << endl;
+        valid = false;
+    }
+
+    if (waveFunction == WAVE_FUNCTION_2 && nParticles != 2){
+        cout << "Cannot use this wave function  "
+            << "for other than 2 particles." << endl;
+        valid = false;
+    }
+    if (waveFunction == WAVE_FUNCTION_BERYLLIUM_1 && nParticles != 4){
+        cout << "Cannot use this wave function  "
+            << "for other than 4 particles." << endl;
+        valid = false;
+    }
+    if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2 && nParticles != 4){
+        cout << "Cannot use this wave function  "
+            << "for other than 4 particles." << endl;
+        valid = false;
+    }
+    if (recordR12Mean && nParticles != 2) {
+        cout << "Cannot use record r12 mean   "
+            << "for other than 2 particles." << endl;
+        valid = false;
     }
 
     return valid;
