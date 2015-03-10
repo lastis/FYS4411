@@ -38,5 +38,6 @@ int main()
 
     /* solver.exportEnergyArray("energies.txt"); */
     /* solver.exportDensity("density.txt"); */
+    solver.exportParamters("test.ini");
     return 0;
 }

@@ -550,8 +550,6 @@ bool VMCSolver::initFromFile(std::string fName){
 
     myFile.close();
 
-    ready = true;
-    outputSupressed = false;
     return true;
 }
 
@@ -632,8 +630,9 @@ void VMCSolver::clear(){
     alpha = 0;
     beta = 0;
     nCycles = 0;
+    timeStep = 0;
+    D = 0;
 
-    ready = false;
     outputSupressed = false;
     setImportanceSampling(false);
     setRecordDensity(false);
@@ -828,6 +827,13 @@ void VMCSolver::exportParamters(std::string fName){
     myFile << "h2 = " << h2 << endl;
     myFile << "idum = " << idum << endl;
     myFile << "localEnergyFunction = " << localEnergyFunction << endl;
+    myFile << "timeStep = " << timeStep << endl;
+    myFile << "D = " << D << endl;
+    myFile << "useImportanceSampling = " << useImportanceSampling << endl;
+    myFile << "recordDensity = " << recordDensity <<  endl;
+    myFile << "recordEnergyArray = " << recordEnergyArray <<  endl;
+    myFile << "recordR12Mean = " << recordR12Mean <<  endl;
+    myFile << "recordPositions = " << recordPositions <<  endl;
     myFile.close();
 }
 
