@@ -77,6 +77,11 @@ double&	Matrix::operator()(int i, int j){
 		cout << " N = " << mN << "." << endl;
 		return mMat[0][0];
 	}
+	if(j > mM || j < 0){
+		cout << "Index out of bounds j = " << j;
+		cout << " M = " << mM << "." << endl;
+		return mMat[0][0];
+	}
 	return mMat[i][j];
 }
 
