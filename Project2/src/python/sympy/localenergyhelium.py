@@ -1,83 +1,93 @@
 from sympy import symbols, diff, exp, sqrt, factor, Symbol, printing
 import os
+import numpy as np
 
 infile = open('tmp.tex', 'w')
-cfile = open('cppcode.txt', 'w')
 
-x1, y1, z1, x2, y2, z2, a, b  = symbols('x_1 y_1 z_1 x_2 y_2 z_2 alpha beta')
+N = 2
 
-r1 = sqrt(x1*x1 + y1*y1 + z1*z1)
-r2 = sqrt(x2*x2 + y2*y2 + z2*z2)
+a, b = symbols('alpha beta')
+r1, r2, r3, r4, r12, r13, r14, r23, r24, r34 \
+        = symbols('r_1 r_2 r_3 r_4 r_12 r_13 r_14 r_23 r_24 r_34')
 
-r12 = sqrt((x1-x2)*(x1-x2)+ (y1-y2)*(y1-y2)+ (z1-z2)*(z1-z2))
+R1, R2, R3, R4 = symbols('R_1, R_2, R_3, R_4')
 
-rdot = x1*x2 + y1*y2 + z1*z2
+R = [0, R1, R2, R3, R4]
 
-psiT1 = exp(-a*(r1+r2))
-f = b*r12+1
-psiT2 = exp(-a*(r1+r2) + r12/(2*f))
+r = [[0,r1,r2,r3,r4],[0,0,r12,r13,r14],\
+        [0,0,0,r23,r24],[0,0,0,0,r34],[0,0,0,0,0]]
 
-x,y,z = x1-x2, y1-y2, z1-z2
-X,Y,Z = symbols('x y z')
+A = 1./2
 
-r12 = sqrt(x**2 + y**2 + z**2)
+for i in range(1,N+1):
+    for j in range(1,N+1):
+        if i < j:
+            if i == 1 and j == 2:
+                A = 1./4
+            elif i == 1 and j == 3:
+                A = 1./2
+            elif i == 1 and j == 4:
+                A = 1./2
+            elif i == 2 and j == 3:
+                A = 1./2
+            elif i == 2 and j == 4:
+                A = 1./2
+            elif i == 3 and j == 4:
+                A = 1./4
 
-R1 = Symbol('r_1')
-R2 = Symbol('r_2')
-R12 = Symbol('r_{12}')
-Rdot = Symbol('\mathbf{r}')
-F = Symbol('f')
+psiCnabla = [0,0,0,0,0]
 
-def laplace(f,x,y,z):
-    return (diff(diff(f, x),x)+diff(diff(f, y),y)+diff(diff(f, z),z))
+vecpart = 0
 
-def dd(f,x):
-    return diff(diff(f,x),x)
+for k in range(1,N+1):
+    jpart = 0
+    ijpart = 0
+    for j in range(1,N+1):
+        if k < j:
+            if k == 1 and j == 2:
+                A = 1./4
+            elif k == 1 and j == 3:
+                A = 1./2
+            elif k == 1 and j == 4:
+                A = 1./2
+            elif k == 2 and j == 3:
+                A = 1./2
+            elif k == 2 and j == 4:
+                A = 1./2
+            elif k == 3 and j == 4:
+                A = 1./4
+            jpart += 2*A/(r[k][j]*(1+b*r[k][j])**2) -\
+                2*A*b/((1+b*r[k][j])**3)
+    
+    for i in range(1,N+1):
+        for j in range(1, N+1):
+            if k < j and k < i:
+                if k == 1 and j == 2:
+                    A = 1./4
+                elif k == 1 and j == 3:
+                    A = 1./2
+                elif k == 1 and j == 4:
+                    A = 1./2
+                elif k == 2 and j == 3:
+                    A = 1./2
+                elif k == 2 and j == 4:
+                    A = 1./2
+                elif k == 3 and j == 4:
+                    A = 1./4
+                A = 1./2
+                vecpart = (R[k] - R[i])*(R[k] - R[j])
+                ijpart += vecpart/(r[k][i]*r[k][j])*\
+                    (A/((1+b*r[k][i])**2))*(A/((1+b*r[k][j])**2))
+    
+    psiCnabla[k] = jpart + ijpart
 
-## Double derivative for x_1 - WORKS! 
-'''
-B = dd(psiT2,x1).collect(psiT2)
-B = (B/psiT2)
-B = B.subs(r1,R1).subs(r2,R2).subs(r1**2,R1**2).subs(r2**2,R2**2).subs(r12,R12)
-B = B.simplify()
-print printing.latex(B)
-'''
+psiSUM = sum(psiCnabla).nsimplify()
 
-## Laplace for x_1 and x_2, summed and *(-1/2) - WORKS!
-'''
-L1 = dd(psiT2,x1).collect(psiT2)
-L1 = (L1/psiT2)
-L1 = L1.subs(r1,R1).subs(r2,R2).subs(r1**2,R1**2)\
-        .subs(r2**2,R2**2).subs(r12,R12)
+R1R2 = Symbol('\mathbf{R_12}')
 
-L2 = dd(psiT2,x2).collect(psiT2)
-L2 = (L2/psiT2)
-L2 = L2.subs(r1,R1).subs(r2,R2).subs(r1**2,R1**2)\
-        .subs(r2**2,R2**2).subs(r12,R12)
+psiSUM = psiSUM.subs((R1-R2)**2, r1**2 + r2**2 -2*R1R2)
 
-L = (-L1/2-L2/2).simplify()
-
-print printing.latex(L)
-'''
-
-## Full equation
-L1 = laplace(psiT2,x1,y1,z1).collect(psiT2)
-L1 = (L1/psiT2)
-
-L2 = laplace(psiT2,x2,y2,z2).collect(psiT2)
-L2 = (L2/psiT2)
-
-EL2 = -L1/2 - L2/2 - 2/r1 - 2/r2 + 1/r12
-
-## Kinda works:
-
-
-EL2 = EL2.subs(r1,R1).subs(r2,R2).subs(r12,R12).simplify()\
-        .subs(r1**2,R1**2).subs(r2**2,R2**2).subs(r12**2,R12**2)\
-        .subs(f.subs(r12,R12),F)
-
-EL2 = EL2.expand().simplify()
-
+y = printing.latex(psiSUM)
 
 x = '\documentclass[12pt,a3paper]{article}\n\
     \usepackage{amsmath}\n\
@@ -86,35 +96,10 @@ x = '\documentclass[12pt,a3paper]{article}\n\
     \\tiny{$'
 
 
-
-el1 = a/r1 + a/r2 - 2/r1 - 2/r2 + 1/r12 - a**2
-
-el1 = el1.subs(r1,R1).subs(r2,R2).subs(r12,R12)
-
-EL1 = Symbol('E_{L1}')
-
-EL2 = EL2.subs(r1**2,R1**2).subs(r2**2,R2**2)\
-        .subs(r12**2,R12**2).subs(rdot, Rdot).subs(2*rdot, 2*Rdot).expand()
-
-EL2 = EL2.simplify().subs(el1, EL1)
-
-EL2 = EL2.subs(F,f.subs(r12,R12))
-
-EL2 = EL2.subs(EL1,el1).subs(R12,r12).subs(R12**2,r12**2).subs(R1,r1).subs(R2,r1)\
-        .subs(R1**2,r1**2).subs(R2**2,r2**2).subs(Rdot,rdot)
-
-y = printing.latex(EL2)
-
-c = printing.ccode(EL2)
-
 z = '$}\n\
     \end{document}'
 
 infile.write(x+'\n'+y+z)
 infile.close()
 
-cfile.write(c)
-cfile.close()
-
 os.system('pdflatex tmp.tex')
-#print '\n', 1/((2*f**2).subs(r12,R12))
