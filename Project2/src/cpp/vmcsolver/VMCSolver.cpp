@@ -759,6 +759,10 @@ double VMCSolver::phi2s(double r){
     return (1-alpha*r/2)*exp(-alpha*r/2);
 }
 
+double VMCSolver::phi2p(double r){
+    return alpha*r*exp(-alpha*r/2);
+}
+
 bool VMCSolver::validateParamters(){
     bool valid = true;
     if(useImportanceSampling){

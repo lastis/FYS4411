@@ -81,6 +81,7 @@ private:
     double getWaveBeryllium2Val(double** r);
     double phi1s(double r);
     double phi2s(double r);
+    double phi2p(double r);
     double (VMCSolver::*getLocalEnergy)(double** r);
     double getLocalEnergyGeneric(double** r);
     double getLocalEnergyGenericNoCor(double** r);

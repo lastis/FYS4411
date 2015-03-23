@@ -58,18 +58,6 @@ Matrix& Matrix::operator=(const Matrix& other){
 	return *this;
 }
 
-/* void    Matrix::copy(Matrix& obj){ */
-/*     freeMemory(); */
-/*     mN = obj.mN; */
-/*     mM = obj.mM; */
-/*     allocateMemory(mN,mM); */
-/*     for (int i = 0; i < mN; i++) { */
-/*         for (int j = 0; j < mM; j++) { */
-/*             mMat[i][j] = obj.mMat[i][j]; */
-/*         } */
-/*     } */
-/* } */
-
 void    Matrix::copy(const Matrix& obj){
     freeMemory();
     mN = obj.mN;
