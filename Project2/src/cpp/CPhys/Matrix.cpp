@@ -2,7 +2,7 @@
 #include <cstdio>
 #include "Matrix.h"
 
-using namespace std;
+/* using namespace std; */
 
 Matrix::Matrix(){
 	mN = 1;
@@ -51,15 +51,21 @@ Matrix&	Matrix::operator =(double num){
 	return *this;
 }
 
-Matrix& Matrix::operator=(const Matrix& other){
-	// We need to do a deep copy so we don't lose
-	// our dynamic array (pointer) in the switch;
-    copy(other);
+Matrix& Matrix::operator=(Matrix other){
+    swap(*this,other);
 	return *this;
 }
 
+void Matrix::swap(Matrix& mat1, Matrix& mat2){
+    std::swap(mat1.mMatFlat, mat2.mMatFlat);
+    std::swap(mat1.mMat, mat2.mMat);
+    std::swap(mat1.ref1, mat2.ref1);
+    std::swap(mat1.ref2, mat2.ref2);
+    std::swap(mat1.mN, mat2.mN);
+    std::swap(mat1.mM, mat2.mM);
+}
+
 void    Matrix::copy(const Matrix& obj){
-    freeMemory();
     mN = obj.mN;
     mM = obj.mM;
     allocateMemory(mN,mM);
@@ -71,6 +77,7 @@ void    Matrix::copy(const Matrix& obj){
 }
 
 double&	Matrix::operator()(int i, int j){
+    using namespace std;
 	if(i > mN || i < 0){
 		cout << "Index out of bounds i = " << i;
 		cout << " N = " << mN << "." << endl;
@@ -239,8 +246,7 @@ void 	Matrix::freeMemory(){
 
 // 	Create matrix in row major order. 
 void Matrix::allocateMemory(int row, int col){
-    /* double* ptr1 = new (nothrow) double[row*col]; */
-    /* double** ptr2 = new (nothrow) double*[row]; */
+    using namespace std;
     double* ptr1 = new double[row*col];
     double** ptr2 = new double*[row];
     ref1 = ptr1;

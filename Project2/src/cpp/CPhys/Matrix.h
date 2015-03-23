@@ -20,6 +20,7 @@ public:
 	void	reset();
 	void	print();
 	double	**getArrayPointer();
+    void    swap(Matrix& mat1, Matrix& mat2);
 
 	// Operator overrides
 	//Matrix&	operator *(double num);
@@ -28,8 +29,7 @@ public:
 	//Matrix&	operator-=(double num);
 	Matrix&	operator+=(double num);
 	Matrix&	operator =(double num);
-	Matrix& operator =(const Matrix& other);
-	// Return by refrence so the values can be changed
+    Matrix& operator =(Matrix other);
 	double& operator()(int i, int j);
 private:
 	void 	allocateMemory(int     row, int col);
