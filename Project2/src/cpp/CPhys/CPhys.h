@@ -18,9 +18,9 @@ namespace CPhys{
 		double	normalize(Vector& v, double dx);
 	}
 	namespace Random{
-		double  ran0(long seed);
-		double	ran2(long seed);
-		double	gauss(long seed);
+		double  ran0(long& seed);
+		double	ran2(long& seed);
+		double	gauss(long& seed);
 	}
 
 
