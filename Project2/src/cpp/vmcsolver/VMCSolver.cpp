@@ -694,10 +694,10 @@ double VMCSolver::getWaveBeryllium1Val(double** r){
     double r3Abs = 0;
     double r4Abs = 0;
     for(int j = 0; j < nDimensions; j++) {
-	r1Abs += r1[j] * r1[j];
-	r2Abs += r2[j] * r2[j];
-	r3Abs += r3[j] * r3[j];
-	r4Abs += r4[j] * r4[j];
+        r1Abs += r1[j] * r1[j];
+        r2Abs += r2[j] * r2[j];
+        r3Abs += r3[j] * r3[j];
+        r4Abs += r4[j] * r4[j];
     }
     r1Abs = sqrt(r1Abs);
     r2Abs = sqrt(r2Abs);
@@ -726,6 +726,7 @@ double VMCSolver::getWaveBeryllium2Val(double** r){
     r2Abs = sqrt(r2Abs);
     r3Abs = sqrt(r3Abs);
     r4Abs = sqrt(r4Abs);
+    // The value of the slater determinant.
     double phi = (phi1s(r1Abs)*phi2s(r2Abs) -phi1s(r2Abs)*phi2s(r1Abs))
 	*(phi1s(r3Abs)*phi2s(r4Abs) -phi1s(r4Abs)*phi2s(r3Abs));
     double cor = 0;
