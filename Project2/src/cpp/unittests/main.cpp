@@ -22,7 +22,7 @@ SUITE(CPhys){
         mat(1,1) = 3;
         CPhys::MatOp::decomposeLU(mat,L,U);
         Matrix res = L*U;
-        CHECK_CLOSE(3,res(0,0),0.01);
+        CHECK_CLOSE(4,res(0,0),0.01);
         CHECK_CLOSE(3,res(0,1),0.01);
         CHECK_CLOSE(6,res(1,0),0.01);
         CHECK_CLOSE(3,res(1,1),0.01);
@@ -52,8 +52,8 @@ SUITE(Hydrogen){
         solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC;
         solver.supressOutput();
         solver.runIntegration();
-        /* double energy = solver.getEnergy(); */
-        /* CHECK_CLOSE(-0.5,energy,0.01); */
+        double energy = solver.getEnergy();
+        CHECK_CLOSE(-0.5,energy,0.01);
     }
 
     TEST(GroundStateAnalytic){
