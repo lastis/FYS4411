@@ -14,6 +14,7 @@ namespace CPhys{
 	namespace MatOp{
 		void	sortCol(Matrix& A, Vector& v);
         void    decomposeLU(Matrix& mat, Matrix& L, Matrix& U);
+        /* void    substituteForward(Matrix& L, Matrix& y, Matrix& b); */
 	}
 	namespace VecOp{
 		double	normalize(Vector& v, double dx);
@@ -28,6 +29,7 @@ namespace CPhys{
 	// prefix p (abbr. for 'pointer') is used to avoid name collision
 	namespace pMatOp{
         void    decomposeLU(double** mat, double** L, double** U, int n);
+        /* void    substituteForward(double** L, double** y, double** b, int N); */
 		int 	compareTwoRows(const void* rowA, const void* rowB);
 	}
 	namespace pLinAlg{

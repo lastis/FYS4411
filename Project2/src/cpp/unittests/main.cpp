@@ -26,6 +26,28 @@ SUITE(CPhys){
         CHECK_CLOSE(3,U(0,1),0.0001);
         CHECK_CLOSE(-1.5,U(1,1),0.0001);
     }
+
+    /* TEST(SolvingLU){ */
+    /*     Matrix L = Matrix(2,2); */
+    /*     L(0,0) = 1; */
+    /*     L(0,1) = 0; */
+    /*     L(1,0) = 1.5; */
+    /*     L(1,1) = 1; */
+    /*     Matrix b = Matrix(2,2); */
+    /*     b(0,0) = 4; */
+    /*     b(0,1) = 3; */
+    /*     b(1,0) = 6; */
+    /*     b(1,1) = 3; */
+    /*     Matrix y = Matrix(2,2); */
+    /*     CPhys::MatOp::substituteForward(L,y,b); */
+    /*     Matrix res = L*y; */
+    /*     b.print(); */
+    /*     res.print(); */
+    /*     CHECK_CLOSE(4,res(0,0),0.0001); */
+    /*     CHECK_CLOSE(3,res(0,1),0.0001); */
+    /*     CHECK_CLOSE(6,res(1,0),0.0001); */
+    /*     CHECK_CLOSE(3,res(1,1),0.0001); */
+    /* } */
 }
 
 SUITE(Hydrogen){

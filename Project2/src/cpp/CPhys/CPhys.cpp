@@ -293,6 +293,30 @@ void pMatOp::decomposeLU(double** a, double** l, double** u, int n){
     }
 }
 
+/* void MatOp::substituteForward(Matrix& L, Matrix& y, Matrix& b){ */
+/*     pMatOp::substituteForward(L.getArrayPointer(),y.getArrayPointer(), */ 
+/*             b.getArrayPointer(),L.getN()); */
+/* } */
+
+/* void pMatOp::substituteForward(double** L, double** y, double** b, int N){ */
+/*     int tmp; */
+/*     // Solve the equation L y = b for every column in y and b */
+/*     for (int col = 0; col < N; col++) { */
+/*         for (int i = 0; i < N; i++) { */
+/*             tmp = b[i][col]; */
+/*             for (int j = 0; j < i; j++) { */
+/*                 double LdotY = 0; */
+/*                 for (int k = 0; k < N; k++) { */
+/*                     LdotY += L[k][j] * y[k][col]; */
+/*                 } */
+/*                 /1* tmp = tmp - L[i][j] * y[j][col]; *1/ */
+/*                 tmp = tmp - LdotY; */
+/*             } */
+/*             y[i][col] = tmp; */
+/*         } */
+/*     } */
+/* } */
+
 void	pLinAlg::tridiagSolve(double  a, double  b, double c, 
 			      double* x, double* y, int    N){
 	double* temp  = new double[N];
