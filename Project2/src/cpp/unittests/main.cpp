@@ -21,11 +21,10 @@ SUITE(CPhys){
         mat(1,0) = 6;
         mat(1,1) = 3;
         CPhys::MatOp::decomposeLU(mat,L,U);
-        Matrix res = L*U;
-        CHECK_CLOSE(4,res(0,0),0.01);
-        CHECK_CLOSE(3,res(0,1),0.01);
-        CHECK_CLOSE(6,res(1,0),0.01);
-        CHECK_CLOSE(3,res(1,1),0.01);
+        CHECK_CLOSE(1.5,L(1,0),0.0001);
+        CHECK_CLOSE(4,U(0,0),0.0001);
+        CHECK_CLOSE(3,U(0,1),0.0001);
+        CHECK_CLOSE(-1.5,U(1,1),0.0001);
     }
 }
 
