@@ -11,7 +11,17 @@ SUITE(CPhys){
         Matrix mat3 = Matrix(3,3);
         mat1 = mat3;
     }
-	//TODO Check all variable names.
+
+    TEST(LUdecomposition){
+        Matrix mat = Matrix(2,2);
+        mat(0,0) = 1;
+        mat(0,1) = 1;
+        mat(1,0) = 1;
+        mat(1,1) = 1;
+        Matrix mat1 = CPhys::MatOp::decomposeLU(mat);
+        mat.print();
+        mat1.print();
+    }
 }
 
 SUITE(Hydrogen){

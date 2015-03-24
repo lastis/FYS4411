@@ -267,12 +267,12 @@ Matrix MatOp::decomposeLU(Matrix& mat){
     int     n = mat.getN();
     int      i, imax, j, k;
     double   big, dum, sum, temp, *vv;
-    Matrix aMat = Matrix(mat.getN(),mat.getM());
+    Matrix aMat = Matrix(mat);
     double** a = aMat.getArrayPointer();
 
     vv = new(nothrow) double [n];
     if(!vv) {
-        printf("\n\nError in function ludcm():");
+        printf("\nError in function ludcm():");
         printf("\nNot enough memory for vv[%d]\n",n);
         exit(1);
     }
@@ -283,7 +283,7 @@ Matrix MatOp::decomposeLU(Matrix& mat){
             if((temp = fabs(a[i][j])) > big) big = temp;
         }
         if(big == ZERO) {
-            printf("\n\nSingular matrix in routine ludcmp()\n");
+            printf("Singular matrix in routine ludcmp()\n");
             exit(1);
         }               
         vv[i] = 1.0/big;                 // save scaling */
@@ -330,6 +330,7 @@ Matrix MatOp::decomposeLU(Matrix& mat){
 
     delete [] vv;   // release local memory
 
+    return aMat;
 }  // End: function ludcmp()
 
 void	pLinAlg::tridiagSolve(double  a, double  b, double c, 
