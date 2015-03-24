@@ -27,6 +27,7 @@ namespace CPhys{
 
 	// prefix p (abbr. for 'pointer') is used to avoid name collision
 	namespace pMatOp{
+        void    decomposeLU(double** mat, double** L, double** U, int n);
 		int 	compareTwoRows(const void* rowA, const void* rowB);
 	}
 	namespace pLinAlg{

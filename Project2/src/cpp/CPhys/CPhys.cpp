@@ -267,12 +267,13 @@ void MatOp::decomposeLU(Matrix& mat, Matrix& L, Matrix& U){
     double** u = U.getArrayPointer();
     double** a = mat.getArrayPointer();
     int n = mat.getN();
-    for(int i=0; i<n; i++)
-    {
-        for(int j=0; j<n; j++)
-        {
-            if(i<=j)
-            {
+    pMatOp::decomposeLU(a,l,u,n);
+}
+
+void pMatOp::decomposeLU(double** a, double** l, double** u, int n){
+    for(int i=0; i<n; i++){
+        for(int j=0; j<n; j++){
+            if(i<=j){
                 u[i][j]=a[i][j];
                 for(int k=0; k<i; k++)
                     u[i][j]-=l[i][k]*u[k][j];
@@ -281,8 +282,7 @@ void MatOp::decomposeLU(Matrix& mat, Matrix& L, Matrix& U){
                 else
                     l[i][j]=0;
             }
-            else
-            {
+            else{
                 l[i][j]=a[i][j];
                 for(int k=0; k<=j-1; k++)
                     l[i][j]-=l[i][k]*u[k][j];
