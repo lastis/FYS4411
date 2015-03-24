@@ -13,7 +13,7 @@ namespace CPhys{
 	}
 	namespace MatOp{
 		void	sortCol(Matrix& A, Vector& v);
-        /* Matrix  decomposeLU(Matrix& mat); */
+        Matrix  decomposeLU(Matrix& mat);
 	}
 	namespace VecOp{
 		double	normalize(Vector& v, double dx);
