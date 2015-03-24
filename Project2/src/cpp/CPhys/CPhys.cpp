@@ -262,76 +262,36 @@ void	MatOp::sortCol(Matrix& A, Vector& v){
 	v.sort();
 }
 
-#define   ZERO 1.0E-10
-Matrix MatOp::decomposeLU(Matrix& mat){
-    int     n = mat.getN();
-    int      i, imax, j, k;
-    double   big, dum, sum, temp, *vv;
-    Matrix aMat = Matrix(mat);
-    double** a = aMat.getArrayPointer();
-
-    vv = new(nothrow) double [n];
-    if(!vv) {
-        printf("\nError in function ludcm():");
-        printf("\nNot enough memory for vv[%d]\n",n);
-        exit(1);
+void MatOp::decomposeLU(Matrix& mat, Matrix& L, Matrix& U){
+    double** l = L.getArrayPointer();
+    double** u = U.getArrayPointer();
+    double** a = mat.getArrayPointer();
+    int n = mat.getN();
+    for(int i=0; i<n; i++)
+    {
+        for(int j=0; j<n; j++)
+        {
+            if(i<=j)
+            {
+                u[i][j]=a[i][j];
+                for(int k=0; k<i; k++)
+                    u[i][j]-=l[i][k]*u[k][j];
+                if(i==j)
+                    l[i][j]=1;
+                else
+                    l[i][j]=0;
+            }
+            else
+            {
+                l[i][j]=a[i][j];
+                for(int k=0; k<=j-1; k++)
+                    l[i][j]-=l[i][k]*u[k][j];
+                l[i][j]/=u[j][j];
+                u[i][j]=0;
+            }
+        }
     }
-
-    for(i = 0; i < n; i++) {     // loop over rows to get scaling information
-        big = ZERO;
-        for(j = 0; j < n; j++) {
-            if((temp = fabs(a[i][j])) > big) big = temp;
-        }
-        if(big == ZERO) {
-            printf("Singular matrix in routine ludcmp()\n");
-            exit(1);
-        }               
-        vv[i] = 1.0/big;                 // save scaling */
-    } // end i-loop */
-
-    for(j = 0; j < n; j++) {     // loop over columns of Crout's method
-        for(i = 0; i< j; i++) {   // not i = j
-            sum = a[i][j];    
-            for(k = 0; k < i; k++) sum -= a[i][k]*a[k][j];
-            a[i][j] = sum;
-        }
-        big = ZERO;   // initialization for search for largest pivot element
-        for(i = j; i< n; i++) {
-            sum = a[i][j];
-            for(k = 0; k < j; k++) sum -= a[i][k]*a[k][j];
-            a[i][j] = sum;
-            if((dum = vv[i]*fabs(sum)) >= big) {
-                big = dum;
-                imax = i;
-            }
-        } // end i-loop
-        if(j != imax) {    // do we need to interchange rows ?
-            for(k = 0;k< n; k++) {       // yes
-                dum        = a[imax][k];
-                a[imax][k] = a[j][k];
-                a[j][k]    = dum;
-            }
-            vv[imax] = vv[j];         // also interchange scaling factor 
-        }
-        if(fabs(a[j][j]) < ZERO)  a[j][j] = ZERO;
-
-        /*
-         *         ** if the pivot element is zero the matrix is singular
-         *                 ** (at least to the precision of the algorithm). For 
-         *                         ** some application of singular matrices, it is desirable
-         *                                 ** to substitute ZERO for zero,
-         *                                         */
-
-        if(j < (n - 1)) {                   // divide by pivot element 
-            dum = 1.0/a[j][j];
-            for(i=j+1;i < n; i++) a[i][j] *= dum;
-        }
-    } // end j-loop over columns
-
-    delete [] vv;   // release local memory
-
-    return aMat;
-}  // End: function ludcmp()
+}
 
 void	pLinAlg::tridiagSolve(double  a, double  b, double c, 
 			      double* x, double* y, int    N){

@@ -23,7 +23,7 @@ public:
     void    swap(Matrix& mat1, Matrix& mat2);
 
 	// Operator overrides
-	//Matrix&	operator *(double num);
+	Matrix	operator *(Matrix& B);
 	//Matrix& operator -(Matrix other);
 	Matrix  operator +(double num);
 	//Matrix&	operator-=(double num);

@@ -14,13 +14,18 @@ SUITE(CPhys){
 
     TEST(LUdecomposition){
         Matrix mat = Matrix(2,2);
-        mat(0,0) = 1;
-        mat(0,1) = 1;
-        mat(1,0) = 1;
-        mat(1,1) = 1;
-        Matrix mat1 = CPhys::MatOp::decomposeLU(mat);
-        mat.print();
-        mat1.print();
+        Matrix L = Matrix(mat);
+        Matrix U = Matrix(mat);
+        mat(0,0) = 4;
+        mat(0,1) = 3;
+        mat(1,0) = 6;
+        mat(1,1) = 3;
+        CPhys::MatOp::decomposeLU(mat,L,U);
+        Matrix res = L*U;
+        CHECK_CLOSE(4,res(0,0),0.01);
+        CHECK_CLOSE(3,res(0,1),0.01);
+        CHECK_CLOSE(6,res(1,0),0.01);
+        CHECK_CLOSE(3,res(1,1),0.01);
     }
 }
 

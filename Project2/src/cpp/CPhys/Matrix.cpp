@@ -23,6 +23,22 @@ Matrix::Matrix(const Matrix &mat){
     copy(mat);
 }
 
+Matrix	Matrix::operator*(Matrix& other){
+	Matrix retMat = Matrix(mN,mM);
+    double** ret = retMat.getArrayPointer();
+    double** mat = other.getArrayPointer();
+    // TODO check that mN == other.mM
+    int C = mN;
+	for (int i = 0; i < mN; i++) {
+		for (int j = 0; j < mM; j++) {
+            for (int k = 0; k < C; k++) {
+                ret[i][j] += mMat[i][k]*mat[k][j];
+            }
+		}
+	}
+	return retMat;
+}
+
 Matrix	Matrix::operator+(double num){
 	Matrix A = Matrix(*this);
 	for (int i = 0; i < mN; i++) {
