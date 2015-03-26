@@ -322,7 +322,7 @@ void pMatOp::substituteForward(double** L, double** y, double** b, int N){
       double a = b[i][k];
       int j = 0;
       while (j < i) {
-        a = a - L[i][j];
+        a = a - y[j][k]*L[i][j];
         j++;
       }
       y[i][k] = a/L[i][i];

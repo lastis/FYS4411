@@ -16,7 +16,8 @@ Matrix::Matrix(int N, int M){
 	mM = M;
     if(mN < 1) mN = 1;
     if(mM < 1) mM = 1;
-	allocateMemory(N,M);
+	allocateMemory(mN,mM);
+    reset();
 }
 
 Matrix::Matrix(const Matrix &mat){
@@ -27,10 +28,10 @@ Matrix	Matrix::operator*(Matrix& other){
 	Matrix retMat = Matrix(mN,mM);
     double** ret = retMat.getArrayPointer();
     double** mat = other.getArrayPointer();
-    // TODO check that mN == other.mM
-    int C = mN;
+    // TODO check that mM == other.mN
+    int C = mM;
 	for (int i = 0; i < mN; i++) {
-		for (int j = 0; j < mM; j++) {
+		for (int j = 0; j < other.mM; j++) {
             for (int k = 0; k < C; k++) {
                 ret[i][j] += mMat[i][k]*mat[k][j];
             }

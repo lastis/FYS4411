@@ -2,14 +2,15 @@
 #include "../vmcsolver/VMCSolver.h"
 /* #include "../CPhys/CPhys.h" */
 
+using namespace std;
 
 SUITE(CPhys){
     TEST(Matrix){
         Matrix mat1;
         mat1 = Matrix(10,10);
         Matrix mat2 = Matrix(0,0);
-        Matrix mat3 = Matrix(3,3);
-        mat1 = mat3;
+        /* Matrix mat3 = Matrix(3,3); */
+        /* mat1 = mat3; */
     }
 
     TEST(LUdecomposition){
@@ -21,15 +22,16 @@ SUITE(CPhys){
         mat(1,0) = 6;
         mat(1,1) = 3;
         CPhys::MatOp::decomposeLU(mat,L,U);
-        Matrix res = L*U;
         CHECK_CLOSE(1.5,L(1,0),0.0001);
+
         CHECK_CLOSE(4,U(0,0),0.0001);
         CHECK_CLOSE(3,U(0,1),0.0001);
         CHECK_CLOSE(-1.5,U(1,1),0.0001);
+        Matrix res = L*U;
 
-        CHECK_CLOSE(4,res(1,0),0.0001);
-        CHECK_CLOSE(3,res(0,0),0.0001);
-        CHECK_CLOSE(6,res(0,1),0.0001);
+        CHECK_CLOSE(4,res(0,0),0.0001);
+        CHECK_CLOSE(3,res(0,1),0.0001);
+        CHECK_CLOSE(6,res(1,0),0.0001);
         CHECK_CLOSE(3,res(1,1),0.0001);
     }
 
@@ -46,9 +48,30 @@ SUITE(CPhys){
         b(1,1) = 3;
         Matrix y = Matrix(2,2);
         CPhys::MatOp::substituteForward(L,y,b);
+        CHECK_CLOSE(4,y(0,0),0.0001);
+        CHECK_CLOSE(3,y(0,1),0.0001);
+        CHECK_CLOSE(0,y(1,0),0.0001);
+        CHECK_CLOSE(-1.5,y(1,1),0.0001);
+    }
+
+    TEST(Multiplication){
+        Matrix L = Matrix(2,2);
+        L(0,0) = 1;
+        L(0,1) = 0;
+        L(1,0) = 1.5;
+        L(1,1) = 1;
+        Matrix y = Matrix(2,2);
+        y(0,0) = 4;
+        y(0,1) = 3;
+        y(1,0) = 0;
+        y(1,1) = -1.5;
         Matrix res = L*y;
-        b.print();
-        res.print();
+        /* cout << "L: " << endl; */
+        /* L.print(); */
+        /* cout << "y: " << endl; */
+        /* y.print(); */
+        /* cout << "result: " << endl; */
+        /* res.print(); */
         CHECK_CLOSE(4,res(0,0),0.0001);
         CHECK_CLOSE(3,res(0,1),0.0001);
         CHECK_CLOSE(6,res(1,0),0.0001);
