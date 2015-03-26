@@ -1,66 +1,28 @@
-import numpy as np
 from sympy import symbols, diff, exp, sqrt, factor, Symbol, printing
 import os
+import numpy as np
 
 infile = open('tmp.tex', 'w')
-cfile = open('cppcodeberyllium.txt', 'w')
 
-x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, a, b  \
-    = symbols('x_1 y_1 z_1 x_2 y_2 z_2 x_3 y_3 z_3 x_4 y_4 z_4 alpha beta')
+N, Z = 4, 4
 
+a, b = symbols('alpha beta')
 
-r1 = sqrt(x1*x1 + y1*y1 + z1*z1)
-r2 = sqrt(x2*x2 + y2*y2 + z2*z2)
-r3 = sqrt(x3*x3 + y3*y3 + z3*z3)
-r4 = sqrt(x4*x4 + y4*y4 + z4*z4)
+x1,y1,z1,x2,y2,z2,x3,y3,z3,x4,y4,z4 \
+    = symbols('x_1 y_1 z_1 x_2 y_2 z_2 x_3 y_3 z_3 x_4 y_4 z_4')
 
-r12 = sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2))
-r13 = sqrt((x1-x3)*(x1-x3) + (y1-y3)*(y1-y3) + (z1-z3)*(z1-z3))
-r14 = sqrt((x1-x4)*(x1-x4) + (y1-y4)*(y1-y4) + (z1-z4)*(z1-z4))
-r23 = sqrt((x2-x3)*(x2-x3) + (y2-y3)*(y2-y3) + (z2-z3)*(z2-z3))
-r24 = sqrt((x2-x4)*(x2-x4) + (y2-y4)*(y2-y4) + (z2-z4)*(z2-z4))
-r34 = sqrt((x3-x4)*(x3-x4) + (y3-y4)*(y3-y4) + (z3-z4)*(z3-z4))
+r1, r2, r3, r4, r12, r13, r14, r23, r24, r34 \
+    = symbols('r_1 r_2 r_3 r_4 r_12 r_13 r_14 r_23 r_24 r_34')
 
-R1 = Symbol('r_1')
-R2 = Symbol('r_2')
-R3 = Symbol('r_3')
-R4 = Symbol('r_4')
+R1, R2, R3, R4 = symbols('R_1, R_2, R_3, R_4')
 
-R12 = Symbol('r_{12}')
-R13 = Symbol('r_{13}')
-R14 = Symbol('r_{14}')
-R23 = Symbol('r_{23}')
-R24 = Symbol('r_{24}')
-R34 = Symbol('r_{34}')
+R = [0, [R1,x1,y1,z1], [R2,x2,y2,z2], [R3,x3,y3,z3], [R4,x4,y4,z4]]
+
+r = [[0,r1,r2,r3,r4],[0,0,r12,r13,r14],\
+        [0,r12,0,r23,r24],[0,r13,r23,0,r34],[0,r14,r24,r34,0]]
 
 
-r = [[0,r1,r2,r3,r4],[0,0,r12,r13,r14],[0,0,0,r23,r24],[0,0,0,0,r34],[]]
-
-tmp = 0
-for i in range(1,5):
-    for j in range(1,5):
-        if i < j:
-            if i == 1 and j == 2:
-                A = 1./4
-            elif i == 1 and j == 3:
-                A = 1./2
-            elif i == 1 and j == 4:
-                A = 1./2
-            elif i == 2 and j == 3:
-                A = 1./2
-            elif i == 2 and j == 4:
-                A = 1./2
-            elif i == 3 and j == 4:
-                A = 1./4
-            
-            tmp += A*r[i][j]/(1+b*r[i][j])
-
-psiC = exp(tmp).nsimplify()
-
-# .subs(r12,R12).subs(r13,R13).subs(r14,R14).subs(r23,R23)\
-#         .subs(r24,R24).subs(r34,R34)\
-#         .subs(r1,R1).subs(r2,R2).subs(r3,R3).subs(r4,R4)
-
+### Slater determinant part and its derivatives:
 
 psi1s = [0,0,0,0,0]
 psi2s = [0,0,0,0,0]
@@ -70,31 +32,159 @@ for i in range(1,5):
     psi2s[i] = (1 - a*r[0][i]/2)*exp(-a*r[0][i]/2)
 
 
-psiT = (psi1s[1]*psi2s[2] - psi1s[2]*psi2s[1])*\
+psiDberyllium = (psi1s[1]*psi2s[2] - psi1s[2]*psi2s[1])*\
         (psi1s[3]*psi2s[4] - psi1s[4]*psi2s[3])
 
 
-psi = (psiT*psiC)
+def nabla(f,x,y,z):
+    return [0,\
+            (diff(f,x)),\
+            (diff(f,y)),\
+            (diff(f,z))]
 
-def laplace(f,x,y,z):
-    return (diff(diff(f, x),x)+diff(diff(f, y),y)+diff(diff(f, z),z))
+def laplace(f,r):
+    return (diff(diff(f, r),r) + (2/r)*diff(f,r)).collect(f)/f
 
-## Full equation
-L1 = laplace(psi,x1,y1,z1).simplify().collect(psi)
-L1 = (L1/psi)
+psiDberylliumX =\
+    [0,\
+    psiDberyllium.subs(r1, sqrt(x1*x1 + y1*y1 + z1*z1)),\
+    psiDberyllium.subs(r2, sqrt(x2*x2 + y2*y2 + z2*z2)),\
+    psiDberyllium.subs(r3, sqrt(x3*x3 + y3*y3 + z3*z3)),\
+    psiDberyllium.subs(r4, sqrt(x4*x4 + y4*y4 + z4*z4))]
 
-L2 = laplace(psi,x2,y2,z2).simplify().collect(psi)
-L2 = (L2/psi)
+TEST = nabla(psiDberylliumX[1], x1, y1, z1)[1]\
+        .subs(sqrt(x1*x1 + y1*y1 + z1*z1),r1).collect(psiDberyllium)
 
-L3 = laplace(psi,x3,y3,z3).simplify().collect(psi)
-L3 = (L3/psi)
+TEST = TEST.collect(a*x1/r1)/psiDberyllium
 
-L4 = laplace(psi,x4,y4,z4).simplify().collect(psi)
-L4 = (L4/psi)
+psiDnabla1 = [0,\
+        nabla(psiDberylliumX[1], x1, y1, z1),\
+        nabla(psiDberylliumX[2], x2, y2, z2),\
+        nabla(psiDberylliumX[3], x3, y3, z3),\
+        nabla(psiDberylliumX[4], x4, y4, z4)]
 
-EL = -L1/2 - L2/2 -L3/2 -L4/2 - 4/r1 - 4/r2 - 4/r3 - 4/r4 \
-        + 1/r12 + 1/r13 + 1/r14 + 1/r23 + 1/r24 + 1/r34
 
+psiDnabla2 = [0,\
+        laplace(psiDberyllium, r1),\
+        laplace(psiDberyllium, r2),\
+        laplace(psiDberyllium, r3),\
+        laplace(psiDberyllium, r4)]
+
+### First derivative part of jastrow factor:
+
+psiCnabla1 = [0,[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+A = 0
+
+for dim in range(1,4):
+    for k in range(1,N+1):
+        for j in range(1,N+1):
+            if j != k:
+                if k == 1 and j == 2:
+                    A = 1./4
+                elif k == 1 and j == 3:
+                    A = 1./2
+                elif k == 1 and j == 4:
+                    A = 1./2
+                elif k == 2 and j == 3:
+                    A = 1./2
+                elif k == 2 and j == 4:
+                    A = 1./2
+                elif k == 3 and j == 4:
+                    A = 1./4
+                psiCnabla1[k][dim] += (R[k][dim]-R[j][dim])\
+                        *A/(r[k][j]*(1 + b*r[k][j])**2)
+
+### Double derivative part of Jastrow factor:
+
+psiCnabla2 = [0,0,0,0,0]
+
+vecpart = 0
+
+for k in range(1,N+1):
+    jpart = 0
+    ijpart = 0
+    for j in range(1,N+1):
+        if k != j:
+            if k == 1 and j == 2:
+                A = 1./4
+            elif k == 1 and j == 3:
+                A = 1./2
+            elif k == 1 and j == 4:
+                A = 1./2
+            elif k == 2 and j == 3:
+                A = 1./2
+            elif k == 2 and j == 4:
+                A = 1./2
+            elif k == 3 and j == 4:
+                A = 1./4
+            
+            jpart += 2*A/(r[k][j]*(1+b*r[k][j])**2) -\
+                2*A*b/((1+b*r[k][j])**3)
+    
+    for i in range(1,N+1):
+        for j in range(1, N+1):
+            if k != j and k != i:
+                if k == 1 and j == 2:
+                    A = 1./4
+                elif k == 1 and j == 3:
+                    A = 1./2
+                elif k == 1 and j == 4:
+                    A = 1./2
+                elif k == 2 and j == 3:
+                    A = 1./2
+                elif k == 2 and j == 4:
+                    A = 1./2
+                elif k == 3 and j == 4:
+                    A = 1./4
+
+                vecpart = (R[k][0] - R[i][0])*(R[k][0] - R[j][0])
+                ijpart += vecpart/(r[k][i]*r[k][j])*\
+                    (A/((1+b*r[k][i])**2))*(A/((1+b*r[k][j])**2))
+    
+    psiCnabla2[k] = jpart + ijpart
+
+R1R2 = Symbol('\mathbf{R_12}')
+
+K = [0,0,0,0,0]
+
+for i in range(1,N+1):
+    tmp = 0
+    for dim in range(1,4):
+        tmp += psiDnabla1[i][dim]*psiCnabla1[i][dim]
+    K[i] = -0.5*(psiDnabla2[i] + psiCnabla2[i] + 2*tmp)
+   
+
+def V(N, Z, r):
+    V = 0
+    for i in range(1,N+1):
+        V -= Z/r[0][i]
+        for j in range(1,N+1):
+            if i<j:
+                V += 1./r[i][j]
+    return V
+
+Vberyllium = V(N, Z, r)
+
+psiSUM = sum(K) + Vberyllium
+
+psiSUM = psiSUM.nsimplify()
+
+# psiSUM = psiSUM.subs(sqrt(x1**2 + y1**2 + z1**2),r1)\
+#         .subs(sqrt(x2**2 + y2**2 + z2**2),r2)
+
+# psiSUM = psiSUM.simplify()
+
+# psiSUM = psiSUM.subs(x2*(x1-x2) + y2*(y1-y2) + z2*(z1-z2),R1R2 - r2**2)
+# psiSUM = psiSUM.subs(-x1*(x1-x2) - y1*(y1-y2) - z1*(z1-z2),R1R2 - r1**2)
+
+# psiSUM = psiSUM.subs((R1-R2)**2, r12**2).subs((-R1+R2)**2, r12**2)
+
+# psiSUM = psiSUM.collect()
+
+
+# y = printing.latex(psiSUM)
+y1 = printing.latex(psiSUM)
+y2 = printing.latex(psiDberyllium)
 
 x = '\documentclass[12pt,a3paper]{article}\n\
     \usepackage{amsmath}\n\
@@ -103,28 +193,10 @@ x = '\documentclass[12pt,a3paper]{article}\n\
     \\tiny{$'
 
 
-EL = EL.subs(r12,R12).subs(r13,R13).subs(r14,R14).subs(r23,R23)\
-        .subs(r24,R24).subs(r34,R34)\
-        .subs(r1,R1).subs(r2,R2).subs(r3,R3).subs(r4,R4).simplify()\
-        .subs(r12**2,R12**2).subs(r13**2,R13**2)\
-        .subs(r14**2,R14**2).subs(r23**2,R23**2)\
-        .subs(r24**2,R24**2).subs(r34**2,R34**2)\
-        .subs(r1**2,R1**2).subs(r2**2,R2**2)\
-        .subs(r3**2,R3**2).subs(r4**2,R4**2)
-
-
-y = printing.latex(EL)
-
-c = printing.ccode(EL)
-
 z = '$}\n\
     \end{document}'
 
-infile.write(x+'\n'+y+z)
+infile.write(x+'\n'+y1+'\\text{   and   }'+y2+z)
 infile.close()
 
-cfile.write(c)
-cfile.close()
-
 os.system('pdflatex tmp.tex')
-
