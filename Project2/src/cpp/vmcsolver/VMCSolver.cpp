@@ -195,7 +195,7 @@ bool VMCSolver::initRunVariables(){
     else {
 	cout << "Error: Local energy function not set, integration not running."
 	    << endl;
-	return false;
+        return false;
     }
 
     // Initialize arrays
@@ -758,7 +758,6 @@ double VMCSolver::getPhiVal(int j, double* r){
     for (int i = 0; i < nDimensions; i++) {
         rAbs += r[i];
     }
-    
     switch (j) {
         case 1 ... 2:
             return phi1s(rAbs);

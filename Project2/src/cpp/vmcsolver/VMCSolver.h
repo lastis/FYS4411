@@ -121,8 +121,10 @@ private:
     bool recordR12Mean;
     bool recordPositions;
 
-    Matrix invSlaterDet;
-    double** pinvSlaterDet;
+    Matrix slaterMatrix;
+    double** pslaterMatrix;
+    Matrix slaterMatrixInv;
+    double** pslaterMatrixInv;
 
     Matrix qForceOld;
     Matrix qForceNew;
