@@ -1,4 +1,5 @@
 from sympy import symbols, diff, exp, sqrt, factor, Symbol, printing
+
 import os
 import numpy as np
 
@@ -21,7 +22,6 @@ R = [0, [R1,x1,y1,z1], [R2,x2,y2,z2], [R3,x3,y3,z3], [R4,x4,y4,z4]]
 r = [[0,r1,r2,r3,r4],[0,0,r12,r13,r14],\
         [0,r12,0,r23,r24],[0,r13,r23,0,r34],[0,r14,r24,r34,0]]
 
-
 ### Slater determinant part and its derivatives:
 
 psi1s = [0,0,0,0,0]
@@ -36,11 +36,19 @@ psiDberyllium = (psi1s[1]*psi2s[2] - psi1s[2]*psi2s[1])*\
         (psi1s[3]*psi2s[4] - psi1s[4]*psi2s[3])
 
 
-def nabla(f,x,y,z):
+def nabla(f,r,x,y,z):
+    # return [0,\
+    #         (diff(f,x)),\
+    #         (diff(f,y)),\
+    #         (diff(f,z))]
+
+    d = diff(f,r)
+
     return [0,\
-            (diff(f,x)),\
-            (diff(f,y)),\
-            (diff(f,z))]
+            (x/r)*d,\
+            (y/r)*d,\
+            (z/r)*d,\
+            ]
 
 def laplace(f,r):
     return (diff(diff(f, r),r) + (2/r)*diff(f,r)).collect(f)/f
@@ -52,16 +60,17 @@ psiDberylliumX =\
     psiDberyllium.subs(r3, sqrt(x3*x3 + y3*y3 + z3*z3)),\
     psiDberyllium.subs(r4, sqrt(x4*x4 + y4*y4 + z4*z4))]
 
-TEST = nabla(psiDberylliumX[1], x1, y1, z1)[1]\
-        .subs(sqrt(x1*x1 + y1*y1 + z1*z1),r1).collect(psiDberyllium)
+TEST1 = nabla(psiDberyllium, r1, x1, y1, z1)[1].collect(psiDberyllium)
+TEST2 = nabla(psiDberyllium, r2, x2, y2, z2)[1].collect(psiDberyllium)
 
-TEST = TEST.collect(a*x1/r1)/psiDberyllium
+TESTWAVE1 = TEST1/(x1/r1)
+TESTWAVE2 = TEST2/(x2/r2)
 
 psiDnabla1 = [0,\
-        nabla(psiDberylliumX[1], x1, y1, z1),\
-        nabla(psiDberylliumX[2], x2, y2, z2),\
-        nabla(psiDberylliumX[3], x3, y3, z3),\
-        nabla(psiDberylliumX[4], x4, y4, z4)]
+        nabla(psiDberyllium, r1, x1, y1, z1),\
+        nabla(psiDberyllium, r2, x2, y2, z2),\
+        nabla(psiDberyllium, r3, x3, y3, z3),\
+        nabla(psiDberyllium, r4, x4, y4, z4)]
 
 
 psiDnabla2 = [0,\
@@ -180,23 +189,32 @@ psiSUM = psiSUM.nsimplify()
 # psiSUM = psiSUM.subs((R1-R2)**2, r12**2).subs((-R1+R2)**2, r12**2)
 
 # psiSUM = psiSUM.collect()
-
-
+        
 # y = printing.latex(psiSUM)
-y1 = printing.latex(psiSUM)
-y2 = printing.latex(psiDberyllium)
+
+TEST1 = psiDnabla1[1][1] + psiDnabla1[1][2] + psiDnabla1[1][3]
+TEST2 = psiDnabla1[2][1] + psiDnabla1[2][2] + psiDnabla1[2][3]
+
+
+
+TEST1 = TEST1.collect(TESTWAVE1)
+TEST2 = TEST2.collect(TESTWAVE2)
+
+y1 = printing.latex(TEST1)
+y2 = printing.latex(TEST2)
+y3 = printing.latex(psiDberyllium)
 
 x = '\documentclass[12pt,a3paper]{article}\n\
     \usepackage{amsmath}\n\
     \usepackage[landscape]{geometry}\n\
     \\begin{document}\n\
-    \\tiny{$'
+    \\tiny{\\begin{align}'
 
 
-z = '$}\n\
+z = '\\end{align}}\n\
     \end{document}'
 
-infile.write(x+'\n'+y1+'\\text{   and   }'+y2+z)
+infile.write(x+'\n'+y1+'\\\\'+y2+'\\\\'+y3+z)
 infile.close()
 
 os.system('pdflatex tmp.tex')
