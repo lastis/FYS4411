@@ -79,6 +79,7 @@ private:
     double getWaveFunc2Val(double** r);
     double getWaveBeryllium1Val(double** r);
     double getWaveBeryllium2Val(double** r);
+    double getPhiVal(int j, double* r);
     double phi1s(double r);
     double phi2s(double r);
     double phi2p(double r);
@@ -119,6 +120,9 @@ private:
     bool recordEnergyArray;
     bool recordR12Mean;
     bool recordPositions;
+
+    Matrix invSlaterDet;
+    double** pinvSlaterDet;
 
     Matrix qForceOld;
     Matrix qForceNew;

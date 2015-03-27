@@ -299,24 +299,6 @@ void MatOp::substituteForward(Matrix& L, Matrix& y, Matrix& b){
 }
 
 void pMatOp::substituteForward(double** L, double** y, double** b, int N){
-    /* int tmp; */
-    /* // Solve the equation L y = b for every column in y and b */
-    /* for (int col = 0; col < N; col++) { */
-    /*     for (int i = 0; i < N; i++) { */
-    /*         tmp = b[i][col]; */
-    /*         for (int j = 0; j < i; j++) { */
-    /*             double LdotY = 0; */
-    /*             for (int k = 0; k < N; k++) { */
-    /*                 LdotY += L[k][j] * y[k][col]; */
-    /*             } */
-    /*             /1* tmp = tmp - L[i][j] * y[j][col]; *1/ */
-    /*             tmp = tmp - LdotY; */
-    /*         } */
-    /*         y[i][col] = tmp; */
-    /*     } */
-    /* } */
-/* } */
-
   for (int k = 0; k < N; k++) {
     for (int i = 0; i < N; i++) {
       double a = b[i][k];

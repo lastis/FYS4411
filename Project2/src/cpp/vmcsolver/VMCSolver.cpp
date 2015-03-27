@@ -20,9 +20,9 @@ bool VMCSolver::runIntegration(){
     // Main part of the code. 
     // Loop over Monte Carlo cycles.
     for(int cycle = 0; cycle < nCycles; cycle++) {
-	if (useImportanceSampling) runQuantumStep(cycle);
-	else runRandomStep(cycle);
-    endOfCycle(cycle);
+        if (useImportanceSampling) runQuantumStep(cycle);
+        else runRandomStep(cycle);
+        endOfCycle(cycle);
     }
 
     // Calculate the density
@@ -137,7 +137,7 @@ void VMCSolver::runRandomStep(int cycle){
         } else {
             for(int j = 0; j < nDimensions; j++) {
                 prNew[i][j] = prOld[i][j];
-		waveFuncValNew = waveFuncValOld;
+            waveFuncValNew = waveFuncValOld;
             }
             rejects++;
         }
@@ -752,6 +752,23 @@ double VMCSolver::getWaveBeryllium2Val(double** r){
     return phi*cor;
     
 }
+
+double VMCSolver::getPhiVal(int j, double* r){
+    double rAbs = 0;
+    for (int i = 0; i < nDimensions; i++) {
+        rAbs += r[i];
+    }
+    
+    switch (j) {
+        case 1 ... 2:
+            return phi1s(rAbs);
+        case 3 ... 4:
+            return phi2s(rAbs);
+        case 5 ... 10:
+            return phi2p(rAbs);
+    }
+}
+
 double VMCSolver::phi1s(double r){
     return exp(-alpha*r);
 }
