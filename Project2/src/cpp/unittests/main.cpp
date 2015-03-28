@@ -66,12 +66,6 @@ SUITE(CPhys){
         y(1,0) = 0;
         y(1,1) = -1.5;
         Matrix res = L*y;
-        /* cout << "L: " << endl; */
-        /* L.print(); */
-        /* cout << "y: " << endl; */
-        /* y.print(); */
-        /* cout << "result: " << endl; */
-        /* res.print(); */
         CHECK_CLOSE(4,res(0,0),0.0001);
         CHECK_CLOSE(3,res(0,1),0.0001);
         CHECK_CLOSE(6,res(1,0),0.0001);
