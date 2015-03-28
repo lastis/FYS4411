@@ -298,10 +298,10 @@ void MatOp::substituteBackward(Matrix& U, Matrix& x, Matrix& y){
 }
 
 void pMatOp::substituteBackward(double** U, double** x, double** y, int N){
-  for (int k = 0; k < N; k++) {
+  for (int k = N-1; k >= 0; k--) {
     for (int i = 0; i < N; i++) {
       double a = y[i][k];
-      for (int j = i; j < N; j++) {
+      for (int j = i+1; j < N; j++) {
         a = a - x[j][k]*U[i][j];
         j++;
       }

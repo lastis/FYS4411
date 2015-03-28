@@ -60,28 +60,29 @@ SUITE(CPhys){
         CHECK_CLOSE(-1.5,y(1,1),0.0001);
     }
 
-    /* TEST(BackwardSubstitution){ */
-    /*     // Solving the equation: */
-    /*     // LUx = b */
-    /*     // Ly  = b */
-    /*     // With the given paramters, this means x is unity. */ 
-    /*     Matrix U = Matrix(2,2); */
-    /*     U(0,0) = 4; */
-    /*     U(0,1) = 3; */
-    /*     U(1,0) = 0; */
-    /*     U(1,1) = -1.5; */
-    /*     Matrix y = Matrix(2,2); */
-    /*     y(0,0) = 4; */
-    /*     y(0,1) = 3; */
-    /*     y(1,0) = 0; */
-    /*     y(1,1) = -1.5; */
-    /*     Matrix x = Matrix(2,2); */
-    /*     CPhys::MatOp::substituteBackward(U,x,y); */
-    /*     CHECK_CLOSE(1,x(0,0),0.0001); */
-    /*     CHECK_CLOSE(0,x(0,1),0.0001); */
-    /*     CHECK_CLOSE(1,x(1,0),0.0001); */
-    /*     CHECK_CLOSE(0,x(1,1),0.0001); */
-    /* } */
+    TEST(BackwardSubstitution){
+        // Solving the equation:
+        // LUx = b
+        // Ly  = b
+        // With the given paramters, this means x is unity. 
+        Matrix U = Matrix(2,2);
+        U(0,0) = 4;
+        U(0,1) = 3;
+        U(1,0) = 0;
+        U(1,1) = -1.5;
+        Matrix y = Matrix(2,2);
+        y(0,0) = 4;
+        y(0,1) = 3;
+        y(1,0) = 0;
+        y(1,1) = -1.5;
+        Matrix x = Matrix(2,2);
+        CPhys::MatOp::substituteBackward(U,x,y);
+        x.print();
+        CHECK_CLOSE(1,x(0,0),0.0001);
+        CHECK_CLOSE(0,x(0,1),0.0001);
+        CHECK_CLOSE(0,x(1,0),0.0001);
+        CHECK_CLOSE(1,x(1,1),0.0001);
+    }
 
     TEST(Multiplication){
         Matrix L = Matrix(2,2);
