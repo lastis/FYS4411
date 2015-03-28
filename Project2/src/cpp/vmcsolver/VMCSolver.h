@@ -38,7 +38,6 @@ public:
     void setLocalEnergyGenericNoCor();
     void setImportanceSampling(bool param);
     void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
-    void setRecordChargeDensity();
     void setRecordEnergyArray(bool param);
     void setRecordR12Mean(bool param);
     void setRecordPositions(bool param);
