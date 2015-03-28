@@ -77,7 +77,6 @@ SUITE(CPhys){
         y(1,1) = -1.5;
         Matrix x = Matrix(2,2);
         CPhys::MatOp::substituteBackward(U,x,y);
-        x.print();
         CHECK_CLOSE(1,x(0,0),0.0001);
         CHECK_CLOSE(0,x(0,1),0.0001);
         CHECK_CLOSE(0,x(1,0),0.0001);
