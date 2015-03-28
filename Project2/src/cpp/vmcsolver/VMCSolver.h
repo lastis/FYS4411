@@ -36,13 +36,14 @@ public:
     void setLocalEnergyHydrogen();
     void setLocalEnergyGeneric();
     void setLocalEnergyGenericNoCor();
-    void setImportanceSampling(bool param);
     void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
     void setRecordEnergyArray(bool param);
     void setRecordR12Mean(bool param);
     void setRecordPositions(bool param);
-    double getAcceptanceRatio();
     void setStepLength(double stepLength);
+    void useImportanceSampling(bool param);
+    void useEfficientSlater(bool param);
+    double getAcceptanceRatio();
     double getStepLength();
     double getR12Mean();
     double getEnergy();
@@ -113,12 +114,13 @@ private:
 
     bool ready;
     bool outputSupressed;
-    bool useImportanceSampling;
     bool recordDensity;
     bool recordChargeDensity;
     bool recordEnergyArray;
     bool recordR12Mean;
     bool recordPositions;
+    bool importanceSampling;
+    bool efficientSlater;
 
     Matrix slaterMatrix;
     double** pslaterMatrix;

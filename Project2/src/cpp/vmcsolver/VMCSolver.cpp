@@ -20,7 +20,7 @@ bool VMCSolver::runIntegration(){
     // Main part of the code. 
     // Loop over Monte Carlo cycles.
     for(int cycle = 0; cycle < nCycles; cycle++) {
-        if (useImportanceSampling) runQuantumStep(cycle);
+        if (importanceSampling) runQuantumStep(cycle);
         else runRandomStep(cycle);
         endOfCycle(cycle);
     }
@@ -31,7 +31,7 @@ bool VMCSolver::runIntegration(){
             for (int j = 0; j < bins; j++) {
             pDensity[i][j] /= nCycles;
             }
-	}
+        }
     }
 
     // Calculate the mean distance r12 and energy
@@ -215,7 +215,7 @@ bool VMCSolver::initRunVariables(){
         density.reset();
         pDensity = density.getArrayPointer();
     }
-    if (useImportanceSampling) {
+    if (importanceSampling) {
         qForceOld = Matrix(nParticles, nDimensions);
         qForceNew = Matrix(nParticles, nDimensions);
         pqForceOld = qForceOld.getArrayPointer();
@@ -227,7 +227,7 @@ bool VMCSolver::initRunVariables(){
     prOld = rOld.getArrayPointer();
 
     // initial trial positions
-    if (useImportanceSampling == true) {
+    if (importanceSampling == true) {
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = Random::gauss(idum)*sqrt(timeStep);
@@ -315,16 +315,6 @@ double VMCSolver::getLocalEnergyHelium2(double** r){
 	    - betaR12*betaR12/2 - 2/r12Abs + 2*beta*betaR12
 	    );
 }
-
-/* double VMCSolver::getLocalEnergyHelium(double** r){ */
-/*     double x_1 = r[0][0]; */
-/*     double y_1 = r[0][1]; */
-/*     double z_1 = r[0][2]; */
-/*     double x_2 = r[1][0]; */
-/*     double y_2 = r[1][1]; */
-/*     double z_2 = r[1][2]; */
-/*     return -pow(alpha, 2) - alpha*beta*sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2) + alpha*beta*(x_1*x_2 + y_1*y_2 + z_1*z_2)/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2)*sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))) + 2*alpha/sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2)) + alpha*sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/((beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) - alpha*(x_1*x_2 + y_1*y_2 + z_1*z_2)/((beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1)*sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) - pow(beta, 2)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 3) - 1.0L/2.0L*pow(beta, 2)*(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 4) + (1.0L/2.0L)*pow(beta, 2)*(x_1*x_2 + y_1*y_2 + z_1*z_2)/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 4) + 2*beta/pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2) + beta*(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 3)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) - beta*(x_1*x_2 + y_1*y_2 + z_1*z_2)/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 3)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) + pow(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2), -1.0L/2.0L) - 4/sqrt(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2)) - 1/((beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1)*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) - 1.0L/2.0L*(pow(x_1, 2) + pow(y_1, 2) + pow(z_1, 2))/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2)*(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))) + (1.0L/2.0L)*(x_1*x_2 + y_1*y_2 + z_1*z_2)/(pow(beta*sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2)) + 1, 2)*(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2) + pow(z_1 - z_2, 2))); */
-/* } */
 
 void VMCSolver::endOfCycle(int cycle){
     if (!recordR12Mean) return;
@@ -529,8 +519,8 @@ bool VMCSolver::initFromFile(std::string fName){
     string adress = "../../../res/" + fName;
     myFile.open(adress.c_str());
     if (!myFile) {
-	cout << fName << " does not exist. Solver could not initialize." << endl;
-	return false;
+        cout << fName << " does not exist. Solver could not initialize." << endl;
+        return false;
     }
     cout << "Initializing from file : " << fName << endl;
     myFile >> paramName >> discard >> charge;
@@ -547,7 +537,7 @@ bool VMCSolver::initFromFile(std::string fName){
     myFile >> paramName >> discard >> localEnergyFunction;
     myFile >> paramName >> discard >> timeStep;
     myFile >> paramName >> discard >> D;
-    myFile >> paramName >> discard >> useImportanceSampling;
+    myFile >> paramName >> discard >> importanceSampling;
     myFile >> paramName >> discard >> recordDensity;
     myFile >> paramName >> discard >> recordEnergyArray;
     myFile >> paramName >> discard >> recordR12Mean;
@@ -571,12 +561,8 @@ void VMCSolver::setLocalEnergyHydrogen(){
 }
 
 
-void VMCSolver::setImportanceSampling(bool param){
-    if (param == false) {
-        useImportanceSampling = false;
-        return;
-    }
-    useImportanceSampling = true;
+void VMCSolver::useImportanceSampling(bool param){
+    importanceSampling = param;
 }
 
 void VMCSolver::setRecordEnergyArray(bool param){
@@ -639,7 +625,7 @@ void VMCSolver::clear(){
     D = 0;
 
     outputSupressed = false;
-    setImportanceSampling(false);
+    useImportanceSampling(false);
     setRecordDensity(false);
     setRecordEnergyArray(false);
     setRecordR12Mean(false);
@@ -765,6 +751,9 @@ double VMCSolver::getPhiVal(int j, double* r){
             return phi2s(rAbs);
         case 5 ... 10:
             return phi2p(rAbs);
+        default:
+            cout << "Index out of bounds in getPhiVal!!!" << endl;
+            return 0;
     }
 }
 
@@ -782,18 +771,18 @@ double VMCSolver::phi2p(double r){
 
 bool VMCSolver::validateParamters(){
     bool valid = true;
-    if(useImportanceSampling){
+    if(importanceSampling){
         if (timeStep == 0) {
             cout << "Error : Cannot use importance sampling with timeStep = 0." 
                 << endl;
             valid = false;
-            setImportanceSampling(false);
+            useImportanceSampling(false);
         }
         if (D == 0) {
             cout << "Error : Cannot use importance sampling with D = 0." 
                 << endl;
             valid = false;
-            setImportanceSampling(false);
+            useImportanceSampling(false);
         }
     }
     if(localEnergyFunction == LOCAL_ENERGY_HYDROGEN && nParticles != 1) {
@@ -855,7 +844,7 @@ void VMCSolver::exportParamters(std::string fName){
     myFile << "localEnergyFunction = " << localEnergyFunction << endl;
     myFile << "timeStep = " << timeStep << endl;
     myFile << "D = " << D << endl;
-    myFile << "useImportanceSampling = " << useImportanceSampling << endl;
+    myFile << "useImportanceSampling = " << importanceSampling << endl;
     myFile << "recordDensity = " << recordDensity <<  endl;
     myFile << "recordEnergyArray = " << recordEnergyArray <<  endl;
     myFile << "recordR12Mean = " << recordR12Mean <<  endl;
