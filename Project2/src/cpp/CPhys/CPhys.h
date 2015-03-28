@@ -16,6 +16,7 @@ namespace CPhys{
         void    decomposeLU(Matrix& mat, Matrix& L, Matrix& U);
         void    substituteForward(Matrix& L, Matrix& y, Matrix& b);
         void    substituteBackward(Matrix& U, Matrix& x, Matrix& y);
+        Matrix  getInverse(Matrix A);
 	}
 	namespace VecOp{
 		double	normalize(Vector& v, double dx);
@@ -32,6 +33,7 @@ namespace CPhys{
         void    decomposeLU(double** mat, double** L, double** U, int n);
         void    substituteForward(double** L, double** y, double** b, int N);
         void    substituteBackward(double** U, double** x, double** y, int N);
+        void    getInverse(double** A, double** B);
 		int 	compareTwoRows(const void* rowA, const void* rowB);
 	}
 	namespace pLinAlg{

@@ -292,6 +292,27 @@ void pMatOp::decomposeLU(double** a, double** l, double** u, int n){
         }
     }
 }
+
+Matrix  MatOp::getInverse(Matrix mA){
+    int N = mA.getN();
+    Matrix mAInv = Matrix(N,N);
+    Matrix mU = Matrix(N,N);
+    Matrix mL = Matrix(N,N);
+    Matrix mLInv = Matrix(N,N);
+    Matrix mI = Matrix(N,N);
+    mI.eye();
+    double** AInv = mAInv.getArrayPointer();
+    double** A = mA.getArrayPointer();
+    double** U = mU.getArrayPointer();
+    double** L = mL.getArrayPointer();
+    double** LInv = mLInv.getArrayPointer();
+    double** I = mI.getArrayPointer();
+    pMatOp::decomposeLU(A,L,U,N);
+    pMatOp::substituteForward(L,LInv,I,N);
+    pMatOp::substituteBackward(U,AInv,LInv,N);
+    return mAInv;
+}
+
 void MatOp::substituteBackward(Matrix& U, Matrix& x, Matrix& y){
     pMatOp::substituteBackward(U.getArrayPointer(),x.getArrayPointer(), 
             y.getArrayPointer(),U.getN());

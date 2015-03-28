@@ -100,6 +100,22 @@ SUITE(CPhys){
         CHECK_CLOSE(6,res(1,0),0.0001);
         CHECK_CLOSE(3,res(1,1),0.0001);
     }
+
+    /* Test(Inverse){ */
+    /*     Matrix AInv = Matrix(2,2); */
+    /*     Matrix A = Matrix(2,2); */
+    /*     A(0,0) = 4; */
+    /*     A(0,1) = 3; */
+    /*     A(1,0) = 6; */
+    /*     A(1,1) = 3; */
+
+    /*     Matrix res = A*AInv; */
+
+    /*     CHECK_CLOSE(4,res(0,0),0.0001); */
+    /*     CHECK_CLOSE(3,res(0,1),0.0001); */
+    /*     CHECK_CLOSE(6,res(1,0),0.0001); */
+    /*     CHECK_CLOSE(3,res(1,1),0.0001); */
+    /* } */
 }
 
 SUITE(Hydrogen){
