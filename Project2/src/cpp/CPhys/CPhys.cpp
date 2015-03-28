@@ -292,6 +292,23 @@ void pMatOp::decomposeLU(double** a, double** l, double** u, int n){
         }
     }
 }
+void MatOp::substituteBackward(Matrix& U, Matrix& x, Matrix& y){
+    pMatOp::substituteBackward(U.getArrayPointer(),x.getArrayPointer(), 
+            y.getArrayPointer(),U.getN());
+}
+
+void pMatOp::substituteBackward(double** U, double** x, double** y, int N){
+  for (int k = 0; k < N; k++) {
+    for (int i = 0; i < N; i++) {
+      double a = y[i][k];
+      for (int j = i; j < N; j++) {
+        a = a - x[j][k]*U[i][j];
+        j++;
+      }
+      x[i][k] = a/U[i][i];
+    }
+  }
+}
 
 void MatOp::substituteForward(Matrix& L, Matrix& y, Matrix& b){
     pMatOp::substituteForward(L.getArrayPointer(),y.getArrayPointer(), 
