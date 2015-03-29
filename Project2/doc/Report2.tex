@@ -98,7 +98,7 @@ where the Slater determinant is
 }
 and the correlations part is
 \equ{
-  \psi_C = \prod_{i<j}^{4}\exp{\left(\frac{r_{ij}}{2(1+\beta r_{ij})}\right)} \label{psiC}
+  \psi_C = \prod_{i<j}^{4}\exp{\left(\frac{ar_{ij}}{2(1+\beta r_{ij})}\right)} \label{psiC}
 }
 Here $\phi_i(\vec r_i)$ are the hydrogen-like wavefunctions. They are given by
 the $1s$ and $2s$ orbital parts
@@ -231,7 +231,7 @@ with the same conditions as above.
 
 Now we move on to the calculation of the correlation parts (\ref{psiC}). First off, we define
 \eq{
-  f_{ij} \equiv \frac{r_{ij}}{2(1+\beta r_{ij})}
+  f_{ij} \equiv \frac{ar_{ij}}{2(1+\beta r_{ij})}
 }
 The gradient of the wavefunction, 
 divided by the wavefunction for particle, $k$ in the $x$-direction is then
@@ -241,12 +241,11 @@ divided by the wavefunction for particle, $k$ in the $x$-direction is then
 }
 If we look at the gradient, 
 we see that the parts of the wavefunction that is not dependent on $k$, 
-will not be affected
-by the differentiation, so
-\eq{
+will not be affected by the differentiation, so
+\equ{
   \frac{\partial\psi_C}{\partial x_k}=\prod_{i,j\neq k} g_{ij}
     \frac{\partial}{\partial x_k}
-    \left[ \prod_{i<k} g_{ik} + \prod_{i>k} g_{ki} \right]
+    \left[ \prod_{i<k} g_{ik} + \prod_{i>k} g_{ki} \right]\label{DpsiC}
 }
 Here we have split the espression for $i<k$ and $k>i$.
 
@@ -255,10 +254,47 @@ When we do the differentiation and divide by the wavefunction, we see that
   \left[\frac{\nabla_k\psi_C}{\psi_C}\right]_x
   &=\sum_{i=1}^{k-1}\frac{1}{g_{ik}}\frac{\partial g_{ik}}{\partial x_k}  
   + \sum_{i=k+1}^{N}\frac{1}{g_{ki}}\frac{\partial g_{ki}}{\partial x_k} \\
-  &=\sum_{i=1}^{k-1}\frac{1}{g_{ik}}\frac{\partial g_{ik}}{\partial x_k}  
-  - \sum_{i=k+1}^{N}\frac{1}{g_{ki}}\frac{\partial g_{ki}}{\partial x_i}
+  &=\sum_{i=1}^{k-1}\frac{\partial f_{ik}}{\partial x_k}  
+  - \sum_{i=k+1}^{N}\frac{\partial f_{ki}}{\partial x_i}\\
+  &=\sum_{i=1}^{k-1}\frac{x_k-x_i}{r_{ik}}\frac{\partial f_{ik}}{\partial r_{ik}}  
+  - \sum_{i=k+1}^{N}\frac{x_i-x_k}{r_{ki}}\frac{\partial f_{ki}}{\partial r_{ki}}
+}
+since $g_{ij}$ is an exponential function, 
+and $\frac{\partial}{\partial x_i}g_{ij} = -\frac{\partial}{\partial x_j}g_{ij}$.
+
+Finally, we have used the chain rule to attain an expression that is dependent
+on the distance between the two particles
+\eq{
+  \frac{\partial f_{ij}}{\partial x_j} 
+  = \frac{\partial f_{ij}}{\partial r_{ij}} \frac{\partial r_{ij}}{\partial x_j} 
+  = \frac{x_j - x_i}{r_{ij}} \frac{\partial f_{ij}}{\partial r_{ij}}
+}
+Thus
+\eq{
+  \frac{\nabla_k\psi_C}{\psi_C} &=
+    \sum_{i=1}^{k-1}\frac{\vec r_{ik}}{r_{ik}}\frac{\partial f_{ik}}{\partial r_{ik}}  
+    - \sum_{i=k+1}^{N}\frac{\vec r_{ki}}{r_{ki}}\frac{\partial f_{ki}}{\partial r_{ki}}\\
+    &=\sum_{i=1}^{k-1}\frac{\vec r_{ik}}{r_{ik}}\frac{a}{2(1+\beta r_{ik})^2}  
+    - \sum_{i=k+1}^{N}\frac{\vec r_{ki}}{r_{ki}}\frac{a}{2(1+\beta r_{ki})^2}\\
+    &=\sum_{i\neq k}\frac{\vec r_{ki}}{r_{ki}}\frac{a}{2(1+\beta r_{ki})^2} 
 }
 
+From (\ref{DpsiC}), we can gather that the double derivative part is described by
+\eq{
+  \left[\frac{\mathbf{\nabla}^2 \Psi_C}{\Psi_C}\right]_x &=
+  2\sum_{k=1}^{N}
+    \sum_{i=1}^{k-1}\frac{\partial^2 f_{ik}}{\partial x_k^2}\ +\ 
+    \sum_{k=1}^N
+    \left(\sum_{i=1}^{k-1}\frac{\partial f_{ik}}{\partial x_k} -
+    \sum_{i=k+1}^{N}\frac{\partial f_{ki}}{\partial x_i}
+    \right)^2\\
+  &=2
+    \sum_{k=1}^{N}
+    \sum_{i=1}^{k-1}\frac{\partial^2 g_{ik}}{\partial x_k^2}\ +\ 
+    \sum_{k=1}^N
+    \left(\sum_{i\neq k}\frac{\vec r_{ki}}{r_{ki}}\frac{a}{2(1+\beta r_{ki})^2} 
+    \right)^2
+}
 \section{Results}
 
 \end{document}
