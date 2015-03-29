@@ -50,8 +50,26 @@ def nabla(f,r,x,y,z):
             (z/r)*d,\
             ]
 
+
+g1 = nabla(psiDberyllium, r1, x1, y1, z1)[1]*(r1/x1)
+g2 = nabla(psiDberyllium, r2, x2, y2, z2)[1]*(r2/x2)
+g3 = nabla(psiDberyllium, r3, x3, y3, z3)[1]*(r3/x3)
+g4 = nabla(psiDberyllium, r4, x4, y4, z4)[1]*(r4/x4)
+
+G1, G2, G3, G4 = symbols('G_1 G_2 G_3 G_4')
+
+f12 = r12*(1+b*r12)**2
+f13 = r13*(1+b*r13)**2
+f14 = r14*(1+b*r14)**2
+f23 = r23*(1+b*r23)**2
+f24 = r24*(1+b*r24)**2
+f34 = r34*(1+b*r34)**2
+
+F12, F13, F14, F23, F24, F34 =\
+        symbols('F_12 F_13 F_14 F_23 F_24 F_34')
+
 def laplace(f,r):
-    return (diff(diff(f, r),r) + (2/r)*diff(f,r)).collect(f)/f
+    return (diff(diff(f, r),r) + (2/r)*diff(f,r))
 
 psiDberylliumX =\
     [0,\
@@ -59,12 +77,6 @@ psiDberylliumX =\
     psiDberyllium.subs(r2, sqrt(x2*x2 + y2*y2 + z2*z2)),\
     psiDberyllium.subs(r3, sqrt(x3*x3 + y3*y3 + z3*z3)),\
     psiDberyllium.subs(r4, sqrt(x4*x4 + y4*y4 + z4*z4))]
-
-TEST1 = nabla(psiDberyllium, r1, x1, y1, z1)[1].collect(psiDberyllium)
-TEST2 = nabla(psiDberyllium, r2, x2, y2, z2)[1].collect(psiDberyllium)
-
-TESTWAVE1 = TEST1/(x1/r1)
-TESTWAVE2 = TEST2/(x2/r2)
 
 psiDnabla1 = [0,\
         nabla(psiDberyllium, r1, x1, y1, z1),\
@@ -103,7 +115,7 @@ for dim in range(1,4):
                 psiCnabla1[k][dim] += (R[k][dim]-R[j][dim])\
                         *A/(r[k][j]*(1 + b*r[k][j])**2)
 
-### Double derivative part of Jastrow factor:
+### Second derivative of the Jastrow factor:
 
 psiCnabla2 = [0,0,0,0,0]
 
@@ -152,7 +164,7 @@ for k in range(1,N+1):
     
     psiCnabla2[k] = jpart + ijpart
 
-R1R2 = Symbol('\mathbf{R_12}')
+R1R2 = Symbol('\mathbf{R12}')
 
 K = [0,0,0,0,0]
 
@@ -178,43 +190,25 @@ psiSUM = sum(K) + Vberyllium
 
 psiSUM = psiSUM.nsimplify()
 
-# psiSUM = psiSUM.subs(sqrt(x1**2 + y1**2 + z1**2),r1)\
-#         .subs(sqrt(x2**2 + y2**2 + z2**2),r2)
+psiSUM = psiSUM.subs(g1,G1).subs(g2,G2).subs(g3,G3).subs(g4,G4)
 
-# psiSUM = psiSUM.simplify()
+psiSUM = psiSUM\
+        .subs(f12,F12).subs(f13,F13).subs(f14,F14)\
+        .subs(f23,F23).subs(f24,F24).subs(f34,F34)
 
-# psiSUM = psiSUM.subs(x2*(x1-x2) + y2*(y1-y2) + z2*(z1-z2),R1R2 - r2**2)
-# psiSUM = psiSUM.subs(-x1*(x1-x2) - y1*(y1-y2) - z1*(z1-z2),R1R2 - r1**2)
-
-# psiSUM = psiSUM.subs((R1-R2)**2, r12**2).subs((-R1+R2)**2, r12**2)
-
-# psiSUM = psiSUM.collect()
-        
-# y = printing.latex(psiSUM)
-
-TEST1 = psiDnabla1[1][1] + psiDnabla1[1][2] + psiDnabla1[1][3]
-TEST2 = psiDnabla1[2][1] + psiDnabla1[2][2] + psiDnabla1[2][3]
-
-
-
-TEST1 = TEST1.collect(TESTWAVE1)
-TEST2 = TEST2.collect(TESTWAVE2)
-
-y1 = printing.latex(TEST1)
-y2 = printing.latex(TEST2)
-y3 = printing.latex(psiDberyllium)
+y1 = printing.latex(psiSUM)
 
 x = '\documentclass[12pt,a3paper]{article}\n\
     \usepackage{amsmath}\n\
     \usepackage[landscape]{geometry}\n\
     \\begin{document}\n\
-    \\tiny{\\begin{align}'
+    \\tiny{$'
 
 
-z = '\\end{align}}\n\
+z = '$}\n\
     \end{document}'
 
-infile.write(x+'\n'+y1+'\\\\'+y2+'\\\\'+y3+z)
+infile.write(x+'\n'+y1+z)
 infile.close()
 
 os.system('pdflatex tmp.tex')
