@@ -33,9 +33,10 @@
 \newcommand{\eq}[1]{{\small\begin{align*}#1\end{align*}}}
 \newcommand{\equ}[1]{{\small\begin{align}#1\end{align}}}
 \newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}}
-\renewcommand\vec[1]{{\bf #1}}
+\renewcommand\vec[1]{\mathbf{#1}}
 \newcommand{\OP}[1]{\mathbf{\widehat{#1}}}
 \newcommand{\op}[1]{\hat{#1}}
+\newcommand{\unit}[1]{\mathbf{\hat{#1}}}
 
 \title{}
 
@@ -145,7 +146,16 @@ The product rule of differentiation gives us
 }
 
 We start by finding the first and second derivative of the determinant part,
-which are only dependent on the radii of the particles. First we define
+which are only dependent on the radii of the particles. This means that the gradient can be written 
+\eq{
+  \nabla f = \unit r \frac{\partial f}{\partial r}
+  \;\text{ and }\;
+  \nabla^2 f = \frac{\partial^2 f}{\partial r^2} 
+    + \frac{2}{r}\frac{\partial f}{\partial r}
+}
+where $\vec r = r\unit r$.
+  
+First we define
 the following
 \eq{
   f_i &\equiv -\frac{\alpha \vec r_i}{2}\\
@@ -179,7 +189,7 @@ The determinant part is
   \psi_D = F_{12}F_{34}
 }
 where the first is only affected by differentiation with respect to particle 1 or 2,
-and opposite for the second part.
+and opposite for the second part
 \eq{
   \mat{
     \frac{\op\nabla_1 \psi_D}{\psi_D} = \frac{\op\nabla_1 F_{12}}{F_{12}} &
@@ -188,6 +198,40 @@ and opposite for the second part.
     \frac{\op\nabla_4 \psi_D}{\psi_D} = \frac{\op\nabla_4 F_{34}}{F_{34}}
   }
 }
+The result is two different quantities
+\eq{
+  \frac{\op\nabla_k \psi_D}{\psi_D} =
+  \begin{cases}
+    \frac{\op\nabla_i F_{ij}}{F_{ij}}
+    &= -\alpha \frac{\vec r_i}{r_i} \frac{(g_i(1+f_j) 
+      - g_j (1+f_i/2))}{g_i (1+f_j) - g_j (1+f_i)}
+    ,\text{ if } k=i=j-1 \\\\
+    \frac{\op\nabla_j F_{ij}}{F_{ij}}
+    &= -\alpha \frac{\vec r_j}{r_j}\frac{(g_i (1+f_j/2) 
+      - g_j(1+f_i))}{g_i (1+f_j) - g_j (1+f_i)}
+    ,\text{ if } k=j=i+1
+  \end{cases}
+}
+one for particles 1 and 3, and one for 2 and 4, where $i\in {1,3}$ and $j\in {2,4}$.
+
+For the second derivative part, we have 
+\eq{
+  \frac{\op\nabla_k^2 \psi_D}{\psi_D} =
+  \begin{cases}
+    \frac{\op\nabla_i^2 F_{ij}}{F_{ij}}
+    &= \frac{\alpha^2 (g_i(1+f_j) 
+      - \frac{3}{4} g_j (1+f_i/3)) - \frac{2\alpha}{r}(g_i(1+f_j) - g_j (1+f_i/2))}
+      {g_i (1+f_j) - g_j (1+f_i)}\\\\
+    \frac{\op\nabla_j^2 F_{ij}}{F_{ij}}
+    &= \frac{\alpha^2 (\frac{3}{4}g_i(1+f_j/3) 
+      - g_j (1+f_i)) - \frac{2\alpha}{r}(g_i (1+f_j/2) 
+      - g_j(1+f_i))}
+      {g_i (1+f_j) - g_j (1+f_i)}
+  \end{cases}
+}
+with the same conditions as above.
+
+Now we move on to the calculation of the correlation parts
 
 \section{Results}
 
