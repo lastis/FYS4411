@@ -85,23 +85,21 @@ Github: \\ \url{https://github.com/lastis/FYS4411}
 
 The trial wavefunction of Beryllium ca be written on the form
 \equ{
-  \psi_{T}(\vec r_1, \vec r_2, \vec r_3, \vec r_4) = \psi_{D}\psi_{C}
+  \psi_{T}(\vec r_1, \vec r_2, \vec r_3, \vec r_4) = \psi_{D}\psi_{C} \label{psiT}
 }
 where the Slater determinant is
-\eq{
+\equ{
   \psi_D &= Det\left(\phi_{1}(\vec r_1),\phi_{2}(\vec r_2),
-    \phi_{3}(\vec r_3),\phi_{4}(\vec r_4)\right)\\
+    \phi_{3}(\vec r_3),\phi_{4}(\vec r_4)\right) \label{psiD}\\
   &= \left(\phi_{1s}^1\phi_{2s}^2
     -\phi_{1s}^2\phi_{2s}^1\right)
     \left(\phi_{1s}^3\phi_{2s}^4
-    -\phi_{1s}^4\phi_{2s}^3\right)
+    -\phi_{1s}^4\phi_{2s}^3\right)\nonumber
 }
 and the correlations part is
-\eq{
-  \psi_C
-    = \prod_{i<j}^{4}\exp{\left(\frac{r_{ij}}{2(1+\beta r_{ij})}\right)}
+\equ{
+  \psi_C = \prod_{i<j}^{4}\exp{\left(\frac{r_{ij}}{2(1+\beta r_{ij})}\right)} \label{psiC}
 }
-
 Here $\phi_i(\vec r_i)$ are the hydrogen-like wavefunctions. They are given by
 the $1s$ and $2s$ orbital parts
 \eq{                                                               
@@ -231,7 +229,35 @@ For the second derivative part, we have
 }
 with the same conditions as above.
 
-Now we move on to the calculation of the correlation parts
+Now we move on to the calculation of the correlation parts (\ref{psiC}). First off, we define
+\eq{
+  f_{ij} \equiv \frac{r_{ij}}{2(1+\beta r_{ij})}
+}
+The gradient of the wavefunction, 
+divided by the wavefunction for particle, $k$ in the $x$-direction is then
+\eq{
+  \left[\frac{\nabla_k\psi_C}{\psi_C}\right]_x 
+  =\frac{1}{\psi_C}\frac{\partial\psi_C}{\partial x_k}
+}
+If we look at the gradient, 
+we see that the parts of the wavefunction that is not dependent on $k$, 
+will not be affected
+by the differentiation, so
+\eq{
+  \frac{\partial\psi_C}{\partial x_k}=\prod_{i,j\neq k} g_{ij}
+    \frac{\partial}{\partial x_k}
+    \left[ \prod_{i<k} g_{ik} + \prod_{i>k} g_{ki} \right]
+}
+Here we have split the espression for $i<k$ and $k>i$.
+
+When we do the differentiation and divide by the wavefunction, we see that
+\eq{
+  \left[\frac{\nabla_k\psi_C}{\psi_C}\right]_x
+  &=\sum_{i=1}^{k-1}\frac{1}{g_{ik}}\frac{\partial g_{ik}}{\partial x_k}  
+  + \sum_{i=k+1}^{N}\frac{1}{g_{ki}}\frac{\partial g_{ki}}{\partial x_k} \\
+  &=\sum_{i=1}^{k-1}\frac{1}{g_{ik}}\frac{\partial g_{ik}}{\partial x_k}  
+  - \sum_{i=k+1}^{N}\frac{1}{g_{ki}}\frac{\partial g_{ki}}{\partial x_i}
+}
 
 \section{Results}
 
