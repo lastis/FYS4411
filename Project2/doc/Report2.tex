@@ -1,7 +1,7 @@
-\documentclass[twocolumn]{article}[10pt]
+\documentclass[twocolumn,8pt]{extarticle}
 \usepackage[english]{babel} 
 \usepackage[latin1]{inputenc} 
-\usepackage{times} 			% Default times font style
+\usepackage{times}			% Default times font style
 \usepackage[T1]{fontenc} 	% Font encoding
 \usepackage{amsmath} 		% Math package
 \usepackage{mathtools} 		% Adds the declare paired 
@@ -30,10 +30,12 @@
 % End costum \abs \norm 
 
 % TODO: Put comments on this section.
-\newcommand{\eq}[1]{\begin{align*}#1\end{align*}}
-\newcommand{\equ}[1]{\begin{align}#1\end{align}}
+\newcommand{\eq}[1]{{\small\begin{align*}#1\end{align*}}}
+\newcommand{\equ}[1]{{\small\begin{align}#1\end{align}}}
+\newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}}
 \renewcommand\vec[1]{{\bf #1}}
-\newcommand{\OP}[1]{{\bf\widehat{#1}}}
+\newcommand{\OP}[1]{\mathbf{\widehat{#1}}}
+\newcommand{\op}[1]{\hat{#1}}
 
 \title{}
 
@@ -80,167 +82,113 @@ Github: \\ \url{https://github.com/lastis/FYS4411}
 \section{Methods}
 \subsection{Trial Wavefunction of Beryllium}
 
+The trial wavefunction of Beryllium ca be written on the form
+\equ{
+  \psi_{T}(\vec r_1, \vec r_2, \vec r_3, \vec r_4) = \psi_{D}\psi_{C}
+}
+where the Slater determinant is
 \eq{
-   \psi_{T}({\bf r_1},{\bf r_2}, {\bf r_3}, {\bf r_4}) = 
-   Det\left(\phi_{1}({\bf r_1}),\phi_{2}({\bf r_2}),
-   \phi_{3}({\bf r_3}),\phi_{4}({\bf r_4})\right)
-   \prod_{i<j}^{4}\exp{\left(\frac{r_{ij}}{2(1+\beta r_{ij})}\right)}, 
- }
+  \psi_D &= Det\left(\phi_{1}(\vec r_1),\phi_{2}(\vec r_2),
+    \phi_{3}(\vec r_3),\phi_{4}(\vec r_4)\right)\\
+  &= \left(\phi_{1s}^1\phi_{2s}^2
+    -\phi_{1s}^2\phi_{2s}^1\right)
+    \left(\phi_{1s}^3\phi_{2s}^4
+    -\phi_{1s}^4\phi_{2s}^3\right)
+}
+and the correlations part is
+\eq{
+  \psi_C
+    = \prod_{i<j}^{4}\exp{\left(\frac{r_{ij}}{2(1+\beta r_{ij})}\right)}
+}
+
+Here $\phi_i(\vec r_i)$ are the hydrogen-like wavefunctions. They are given by
+the $1s$ and $2s$ orbital parts
+\eq{                                                               
+\phi_{1s}^i &= e^{-\alpha r_i}                                   
+}
+and
+\eq{
+  \phi_{2s}^i &= \left(1-\alpha r_i/2\right)e^{-\alpha r_i/2}
+}
+which are dependent on the vectors $\vec r_i$.
+
+We want to determine the local energy $E_L$ to approximate
+the ground state energy of the atom.
+The general expression for the local energy is
+\eq{
+  E_L = \frac{1}{\psi_T (\vec R)}\OP H \psi_T (\vec R) 
+}
+and the Hamiltonian can generally be described as a sum of the contributions
+to the potential energy by the electron-electron repulsion and the nucleus-electron interaction, aswell as the kinetic energy. This gives us a Hamiltonian on the form
+\eq{
+  \OP H &= \OP K + \OP V \\
+  &=\sum_i (\op k_i + \op v_i)  + \sum_{i<j} \op v_{ij}\\
+  &= -\sum_{i=1}^N\bigg[
+    \frac{\op\nabla_i^2}{2} + \frac{2}{r_i}\bigg] 
+  + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}}
+}
+From this expression, it's clear that $\OP K$ is the only operator that changes the
+trial wavefunction when we calculate the local energy. Therefore, we must calculate the
+following quantities
+\eq{
+  \frac{1}{\psi_T}\op k_i \psi_T = -\frac{1}{2}\frac{\op\nabla_i^2 \psi_T}{\psi_T}
+}
+For Beryllium, the trial wavefunction is a product of the Slater determinant part 
+and the correlations part, namely $\psi_T = \psi_D\psi_C$.
+
+The product rule of differentiation gives us
+\eq{
+  \frac{\op\nabla^2 \psi_T}{\psi_T} = 
+  \frac{\op\nabla^2 \psi_D}{\psi_D}
+    +2 \frac{\op\nabla \psi_D}{\psi_D}\cdot\frac{\op\nabla \psi_C}{\psi_C}
+    +\frac{\op\nabla^2 \psi_C}{\psi_C}
+}
+
+We start by finding the first and second derivative of the determinant part,
+which are only dependent on the radii of the particles. First we define
+the following
+\eq{
+  f_i &\equiv -\frac{\alpha \vec r_i}{2}\\
+  g_i &\equiv \exp(f_i)\\
+  F_{ij} &\equiv \phi_{1s}(\vec r_i)\phi_{2s}(\vec r_j)
+  -\phi_{1s}(\vec r_j)\phi_{2s}(\vec r_i)
+}
+We then have
+\eq{
+  \phi_{1s}^i &= g_i^2\\
+  \frac{\partial \phi_{1s}^i}{\partial r_i} &= -\alpha g_i^2\\
+  \frac{\partial^2 \phi_{1s}^i}{\partial r_i^2} &= \alpha^2 g_i^2\\
+  \phi_{2s}^i &= g_i(1+f_i)\\
+  \frac{\partial \phi_{2s}^i}{\partial r_i} &= -\alpha g_i(1+f_i/2)\\
+  \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)
+}
+so we get
+\eq{
+  F_{ij} &= g_i^2 (1+f_j)g_j - g_j^2 (1+f_i)g_i\\
+  \frac{\partial F_{ij}}{\partial r_i} 
+    &= -\alpha g_i g_j (g_i(1+f_j) - g_j (1+f_i/2))\\
+  \frac{\partial^2 F_{ij}}{\partial r_i^2} 
+    &= \alpha^2 g_i g_j (g_i(1+f_j) - \frac{3}{4} g_j (1+f_i/3))\\
+  \frac{\partial F_{ij}}{\partial r_j} 
+    &= \alpha g_i g_j (g_j(1+f_i) - g_i (1+f_j/2))\\
+  \frac{\partial^2 F_{ij}}{\partial r_j^2} 
+    &= -\alpha^2 g_i g_j (g_j(1+f_i) - \frac{3}{4} g_i (1+f_j/3))\\
+}
+The determinant part is
+\eq{
+  \psi_D = F_{12}F_{34}
+}
+where the first is only affected by differentiation with respect to particle 1 or 2,
+and opposite for the second part.
+\eq{
+  \mat{
+    \frac{\op\nabla_1 \psi_D}{\psi_D} = \frac{\op\nabla_1 F_{12}}{F_{12}} &
+    \frac{\op\nabla_2 \psi_D}{\psi_D} = \frac{\op\nabla_2 F_{12}}{F_{12}} \\\\
+    \frac{\op\nabla_3 \psi_D}{\psi_D} = \frac{\op\nabla_3 F_{34}}{F_{34}} &
+    \frac{\op\nabla_4 \psi_D}{\psi_D} = \frac{\op\nabla_4 F_{34}}{F_{34}}
+  }
+}
 
 \section{Results}
-\subsection{Helium: Estimating $\alpha$ and $\beta$}
-These parameters decide the minimal ground energy for the system, and both
-should be adjusted simultaneously to reach the most optimal value of the
-energy. First we sample the parameterspace of the first trial wave function. 
-This function had a minimum of 1.66. This was the first value of $\alpha$ that was used in sampling the 
-parameterspace with beta in the second trial wavefunction. 
-This can  be seen in Figure \ref{fig:1} with mean error. 
-Using the computed $\beta$-value we again
-sampled the energy as a function of $\alpha$, which we concluded was 
-the same as before. $\alpha$ is plotted in Figure \ref{fig:2}
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=80mm]{../res/heliumWave1Alpha/heliumWave1Alpha_alpha.eps}
-	\caption{}\label{fig:2}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=80mm]{../res/heliumWave2Beta/heliumWave2Beta.eps}
-	\caption{}\label{fig:1}
-\end{figure}
-
-\subsection{Helium: $\psi_{T1}$ and $\psi_{T2}$ }
-Firstly we want to compare the first and second trial wavefunctions for Helium. 
-The difference between these two are that there are no correlation term
-in the first wavefunction. This makes computations much faster, but we
-would expect that our results are farther away from the experimental 
-value of the ground state. This is done using a numerical approximation 
-of the local energy of the particles. The mean value of 
-$\psi_{T1} = -2.84264$ and $\psi_{T2} = -2.87105$. The experimental value of
-the ground state is about $-2.903$, thus we conclude that the second wavefunction is a better approximation.
-
-\subsection{Helium: Closed Form Local Energy}
-The local energy has a closed form solution for Helium, this has 
-been implemented in Figure \ref{fig:3}. The closed-form solution should
-give use a lower standard deviation than the numerical approximation
-of the local energy because it is a closer approximation. 
-
-\subsection{Helium: Importance Sampling}
-Now we would like to see how the program does with importance sampling instead 
-of static steplength. Importance sampling should also lower the standard 
-deviation because it makes the walker sample the wavefunction in a
-better way. The downside of importance sampling is that it takes about
-twice as long time as the random walker. This is also shown in Figure \ref{fig:3}. 
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=80mm]{../res/heliumWave2ClosedImportanceGeneric/heliumWave2BlockingClosedImpGen.pdf}
-	\caption{}\label{fig:3}
-\end{figure}
-
-\subsection{Helium: Evaluating Ground State and Density}
-With our optimal parameters, we calculated the ground state and the density
-function of Helium, Figure \ref{fig:4}. The standard deviation has been added as
-a error bar along the curve.
-
-Here we can see how the correlation factor effects the density. When
-the Jastrow factor is added the electrons are repelled a bit farther 
-away from the nucleus and the mean radius between the electrons increases
-slightly. The mean distance increased from $1.316$ to $1.414$. 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=80mm]{../res/heliumWave1Wave2Density/heliumWave1Wave2DensityPos1.pdf}
-	\caption{}\label{fig:4}
-\end{figure}
-
-\subsection{Beryllium: Estimating $\alpha$ and $\beta$}
-In Figure \ref{fig:5} a wide range of the parameter space has been sampled. As can be seen this area have an energy mean that are quite similar. Because of this
-the parameters have been chosen to be $\alpha =  3.75$ and $\beta = 0.8$. 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=80mm]{../res/berylliumAlphaBeta/berylliumAlphaBeta.eps}
-	\caption{}\label{fig:5}
-\end{figure}
-
-\subsection{Beryllium: Comparing $\psi_{T1}$ and $\psi_{T2}$}
-In Figure \ref{fig:6} we see the difference the Jastrow factor makes for Beryllium. 
-We also notice the two clear peaks in the distribution. These are
-the electron orbitals for 1s and 2s. Again this
-correlation makes the electrons repel each other and pushes the distributions
-farther apart. The mean distance increased from $1.669$ to $1.804$. 
-The mean energy were $-19.9325$ and $-14.340$ respectively. A walue around
-$-14$ is the experimental value of Beryllium and the value without the 
-Jastrow factor is supposed to be $-20$. 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=80mm]{../res/berylliumWave1Wave2Density/berylliumWave1Wave2DensityPos1.pdf}
-	\caption{}\label{fig:6}
-\end{figure}
-
-
-
-
-\section{Discussion}
-\subsection{Parameter Space}
-After estimating the parameters $\alpha$ and $\beta$ for 
-Helium, we didn't adjust them in the late comparative trials. The reason
-for this was that small changes in the parameters did not effect
-our results considerably because the mean energies as well as the variance of the mean energies are similar. Our results was always close to 
-$=-2.89$. The same conclusion was made for Beryllium, which
-showed even harder to locate exact values of the paramters.  
-
-The standard deviation of the mean was not considered when estimating the values 
-of $\alpha$ and $\beta$. Performing blocking with our program would require full 
-sampling of every step which stores about 10 mb for every value of $\alpha$ and $\beta$. 
-\subsection{Testing of the Solver}
-To varify that the solver works as intended, several unit tests
-using UnitTest++ were created. The most important tests 
-are those that estimate the one-body hamiltonian. this has
-an analytical solution for both Helium and Beryllium, which is $-4$
-and $-20$ respectively. 
-
-The solutions for Hydrogen are also easy to calculate, and was estimated
-to be $-0.5$ correctly.
-
-\section{References}
-
-\noindent Monte Carlo: Morten Hjorth-Jensen, Computational Physics, Lecture Notes Fall 2014, p. 345 (2014)\\
-
-\noindent Importance Sampling: Morten Hjorth-Jensen, Computational Physics, Lecture Notes Fall 2014, p. 370 (2014)\\
-
-\noindent Metropolis Algorithm: Morten Hjorth-Jensen, Computational Physics, Lecture Notes Fall 2014, p. 401 (2014)\\
-
-\noindent Metropolis Algorithm: NICHOLAS
-METROPOLIS,
-ARIANNA
-W.
-ROSENBLUTH,
-MARSHALL
-N.
-ROSENBLUTH,
-AND
-AUGUSTA
-H.
-TELLER,
-Los
-Alamos
-Scientific
-Laboratory,
-Los
-Alamos,
-New
-Mexico and EDWARD
-TELLER,
-*
-Department
-of
-Physics,
-University
-of
-Chicago, Chicago,
-Illinois, The Journal of Chemical Physics \textbf{21}, p. 1087 (1953)\\
-
-\noindent Blocking: H. Flyvbjerg and H. G. Petersen: Averages of correlated data, The Journal of Chemical Physics \textbf{91}, p. 461 (1989)
 \end{document}
