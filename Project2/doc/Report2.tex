@@ -243,11 +243,11 @@ If we look at the gradient,
 we see that the parts of the wavefunction that is not dependent on $k$, 
 will remain unaffected by the 
 differentiation. When we split the expression for $i<k$ and $k>i$,
-and 
+and
 \equ{
   \frac{\partial\psi_C}{\partial x_k}&=\prod_{i,j\neq k} g_{ij}
     \frac{\partial}{\partial x_k}
-    \left[ \prod_{i<k} g_{ik} \cdot \prod_{i>k} g_{ki} \right]\label{DpsiC}\\
+    \left[ \prod_{i<k} g_{ik} \cdot \prod_{i>k} g_{ki} \right]\nonumber\\
     &=\prod_{i,j\neq k} g_{ij}
       \left[\prod_{i>k} g_{ki}\frac{\partial}{\partial x_k}\prod_{i<k} g_{ik} 
       + \prod_{i<k} g_{ik} \frac{\partial}{\partial x_k}\prod_{i>k} g_{ki} \right]
@@ -263,7 +263,7 @@ and
     &=\psi_C
       \left[\sum_{i<k} \frac{g_{ik}'}{g_{ik}}
       +\sum_{i>k} \frac{g_{ki}'}{g_{ki}} \right]
-      \nonumber
+      \label{DpsiC}
 }
 Here we factorize the wavefunction outside the expression, 
 and notice that the only part that doesn't cancel is the $ik$-th and $ki$-th
@@ -294,26 +294,30 @@ Thus
   \frac{\nabla_k\psi_C}{\psi_C} &=
     \sum_{i=1}^{k-1}\frac{\vec r_{ik}}{r_{ik}}\frac{\partial f_{ik}}{\partial r_{ik}}  
     - \sum_{i=k+1}^{N}\frac{\vec r_{ki}}{r_{ki}}\frac{\partial f_{ki}}{\partial r_{ki}}\\
-    &=\sum_{i=1}^{k-1}\frac{\vec r_{ik}}{r_{ik}}\frac{a}{2(1+\beta r_{ik})^2}  
-    - \sum_{i=k+1}^{N}\frac{\vec r_{ki}}{r_{ki}}\frac{a}{2(1+\beta r_{ki})^2}\\
-    &=\sum_{i\neq k}\frac{\vec r_{ki}}{r_{ki}}\frac{a}{2(1+\beta r_{ki})^2} 
+    &=\sum_{i=1}^{k-1}\frac{\vec r_{ik}}{r_{ik}}\frac{a}{(1+\beta r_{ik})^2}  
+    - \sum_{i=k+1}^{N}\frac{\vec r_{ki}}{r_{ki}}\frac{a}{(1+\beta r_{ki})^2}\\
+    &=\sum_{i\neq k}\frac{\vec r_{ik}}{r_{ik}}\frac{a}{(1+\beta r_{ik})^2} 
 }
 
 From (\ref{DpsiC}), we can gather that the double derivative part is described by
 \eq{
-  \left[\frac{\mathbf{\nabla}^2 \Psi_C}{\Psi_C}\right]_x &=
-  2\sum_{k=1}^{N}
-    \sum_{i=1}^{k-1}\frac{\partial^2 f_{ik}}{\partial x_k^2}\ +\ 
-    \sum_{k=1}^N
-    \left(\sum_{i=1}^{k-1}\frac{\partial f_{ik}}{\partial x_k} -
+  \left[\frac{\mathbf{\nabla}^2 \Psi_C}{\Psi_C}\right]_x
+  &=\frac{1}{\psi_C}\frac{\partial}{\partial x_k}\left(\psi_C
+      \left[\sum_{i<k} \frac{\partial f_{ik}}{\partial x_k}
+      +\sum_{i>k} \frac{\partial f_{ki}}{\partial x_k} \right]\right)\\
+  &=\left[\sum_{i<k} \frac{\partial^2 f_{ik}}{\partial x_k^2}
+      +\sum_{i>k} \frac{\partial^2 f_{ki}}{\partial x_k^2} \right]
+      +\frac{1}{\psi_C}\frac{\partial \psi_C}{\partial x_k}
+      \left[\sum_{i<k} \frac{\partial f_{ik}}{\partial x_k}
+      +\sum_{i>k} \frac{\partial f_{ki}}{\partial x_k} \right]\\
+  &=2\sum_{i=1}^{k-1}\frac{\partial^2 f_{ik}}{\partial x_k^2}\ +
+    \left[\sum_{i=1}^{k-1}\frac{\partial f_{ik}}{\partial x_k} -
     \sum_{i=k+1}^{N}\frac{\partial f_{ki}}{\partial x_i}
-    \right)^2\\
-  &=2
-    \sum_{k=1}^{N}
-    \sum_{i=1}^{k-1}\frac{\partial^2 g_{ik}}{\partial x_k^2}\ +\ 
-    \sum_{k=1}^N
-    \left(\sum_{i\neq k}\frac{\vec r_{ki}}{r_{ki}}\frac{a}{2(1+\beta r_{ki})^2} 
-    \right)^2
+    \right]^2\\
+  &=2\sum_{i=1}^{k-1}\frac{\partial}{\partial x_k}\left(
+    \frac{\partial f_{ik}}{\partial r_{ik}} \frac{\partial r_{ik}}{\partial x_k}\right) +
+    \left[\sum_{i\neq k}\frac{\partial f_{ik}}{\partial r_{ik}}
+    \right]^2\\
 }
 \section{Results}
 
