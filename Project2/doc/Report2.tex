@@ -30,8 +30,8 @@
 % End costum \abs \norm 
 
 % TODO: Put comments on this section.
-\newcommand{\eq}[1]{{\small\begin{align*}#1\end{align*}}}
-\newcommand{\equ}[1]{{\small\begin{align}#1\end{align}}}
+\newcommand{\eq}[1]{{\tiny\begin{align*}#1\end{align*}}}
+\newcommand{\equ}[1]{{\tiny\begin{align}#1\end{align}}}
 \newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}}
 \renewcommand\vec[1]{\mathbf{#1}}
 \newcommand{\OP}[1]{\mathbf{\widehat{#1}}}
@@ -253,16 +253,18 @@ and
       + \prod_{i<k} g_{ik} \frac{\partial}{\partial x_k}\prod_{i>k} g_{ki} \right]
       \nonumber\\
     &=\prod_{i,j\neq k} g_{ij}
-      \left[\prod_{i>k} g_{ki} \sum_{i<k} g_{ik}' \prod_{p\neq i} g_{pi}
-      + \prod_{i<k} g_{ik} \sum_{i>k} g_{ki}' \prod_{q\neq i} g_{iq} \right]
+      \left[\prod_{i>k} g_{ki} \sum_{i<k} \frac{\partial g_{ik}}{\partial x_k} \prod_{p\neq i} g_{pi}
+      + \prod_{i<k} g_{ik} \sum_{i>k} \frac{\partial g_{ki}}{\partial x_k} \prod_{q\neq i} g_{iq} \right]
       \nonumber\\
     &=\prod_{i<j} g_{ij}
-      \left[\frac{1}{\prod_{i<k} g_{ik}} \sum_{i<k} g_{ik}' \prod_{p\neq i} g_{pi}
-      + \frac{1}{\prod_{i>k} g_{ki}} \sum_{i>k} g_{ki}' \prod_{p\neq i} g_{pi} \right]
+      \left[\frac{1}{\prod_{i<k} g_{ik}} \sum_{i<k} 
+      \frac{\partial g_{ik}}{\partial x_k} \prod_{p\neq i} g_{pi}
+      + \frac{1}{\prod_{i>k} g_{ki}} \sum_{i>k} 
+      \frac{\partial g_{ki}}{\partial x_k} \prod_{p\neq i} g_{pi} \right]
       \nonumber\\
     &=\psi_C
-      \left[\sum_{i<k} \frac{g_{ik}'}{g_{ik}}
-      +\sum_{i>k} \frac{g_{ki}'}{g_{ki}} \right]
+      \left[\sum_{i<k} \frac{1}{g_{ik}} \frac{\partial g_{ik}}{\partial x_k}
+      +\sum_{i>k} \frac{1}{g_{ki}} \frac{\partial g_{ki}}{\partial x_k} \right]
       \label{DpsiC}
 }
 Here we factorize the wavefunction outside the expression, 
@@ -301,7 +303,7 @@ Thus
 
 From (\ref{DpsiC}), we can gather that the double derivative part is described by
 \eq{
-  \left[\frac{\mathbf{\nabla}^2 \Psi_C}{\Psi_C}\right]_x
+  \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
   &=\frac{1}{\psi_C}\frac{\partial}{\partial x_k}\left(\psi_C
       \left[\sum_{i<k} \frac{\partial f_{ik}}{\partial x_k}
       +\sum_{i>k} \frac{\partial f_{ki}}{\partial x_k} \right]\right)\\
@@ -310,15 +312,110 @@ From (\ref{DpsiC}), we can gather that the double derivative part is described b
       +\frac{1}{\psi_C}\frac{\partial \psi_C}{\partial x_k}
       \left[\sum_{i<k} \frac{\partial f_{ik}}{\partial x_k}
       +\sum_{i>k} \frac{\partial f_{ki}}{\partial x_k} \right]\\
-  &=2\sum_{i=1}^{k-1}\frac{\partial^2 f_{ik}}{\partial x_k^2}\ +
+  &=\sum_{i\neq k}\frac{\partial^2 f_{ik}}{\partial x_k^2} +
     \left[\sum_{i=1}^{k-1}\frac{\partial f_{ik}}{\partial x_k} -
     \sum_{i=k+1}^{N}\frac{\partial f_{ki}}{\partial x_i}
     \right]^2\\
-  &=2\sum_{i=1}^{k-1}\frac{\partial}{\partial x_k}\left(
-    \frac{\partial f_{ik}}{\partial r_{ik}} \frac{\partial r_{ik}}{\partial x_k}\right) +
-    \left[\sum_{i\neq k}\frac{\partial f_{ik}}{\partial r_{ik}}
+  &=\sum_{i\neq k}
+    \frac{\partial}{\partial x_k}
+    \left(
+    \frac{\partial f_{ik}}{\partial r_{ik}}
+    \frac{\partial r_{ik}}{\partial x_k}
+    \right)+
+    \left[\sum_{i\neq k}\frac{\partial r_{ik}}{\partial x_k}
+    \frac{\partial f_{ik}}{\partial r_{ik}}
     \right]^2\\
+  &=\sum_{i\neq k}
+    \left[
+    \frac{\partial r_{ik}}{\partial x_k}
+    \frac{\partial}{\partial x_k}
+    \frac{\partial f_{ik}}{\partial r_{ik}}
+    +
+    \frac{\partial f_{ik}}{\partial r_{ik}}
+    \frac{\partial^2 r_{ik}}{\partial x_k^2}\right]
+    +
+    \left[\sum_{i\neq k}\frac{\partial r_{ik}}{\partial x_k} f_{ik}'
+    \right]
+    \left[\sum_{j\neq k}\frac{\partial r_{jk}}{\partial x_k} f_{jk}'
+    \right]\\
+  \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
+  &=\sum_{i\neq k}
+    \left[
+    \left(
+    \frac{\partial r_{ik}}{\partial x_k}
+    \right)^2
+    f_{ik}''
+    +
+    f_{ik}'
+    \frac{r_{ik}^2 - (x_k-x_i)^2}{r_{ik}^3}\right]
+    \\&+
+    \sum_{j\neq k}\left[\frac{\partial r_{ik}}{\partial x_k} f_{ik}'\left(
+    \frac{\partial r_{ik}}{\partial x_k} f_{ik}'+
+    \sum_{j\neq k,i} \frac{\partial r_{jk}}{\partial x_k} f_{jk}'\right)
+    \right]\\
+  \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
+  &=\sum_{i\neq k}
+    \left[
+    \left(
+    \frac{\partial r_{ik}}{\partial x_k}
+    \right)^2
+    f_{ik}''
+    +
+    f_{ik}'
+    \frac{r_{ik}^2 - (x_k-x_i)^2}{r_{ik}^3}\right]
+    \\&+
+    \sum_{j\neq k}\left[\left(\frac{\partial r_{ik}}{\partial x_k} f_{ik}'\right)^2
+    +
+    \sum_{j\neq k,i} \frac{\partial r_{ik}}{\partial x_k} f_{ik}'
+    \frac{\partial r_{jk}}{\partial x_k} f_{jk}'
+    \right]\\
+  \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
+  &=\sum_{i\neq k}
+    \left[
+    \left(
+    \frac{x_k-x_i}{r_{ik}}
+    \right)^2
+    f_{ik}''
+    +
+    f_{ik}'
+    \frac{r_{ik}^2 - (x_k-x_i)^2}{r_{ik}^3}\right]
+    \\&+
+    \sum_{j\neq k}\left[\left(\frac{x_k-x_i}{r_{ik}} f_{ik}'\right)^2
+    +
+    \sum_{j\neq k,i} \frac{(x_k-x_i)(x_k-x_j)}{r_{ik} r_{jk}} 
+    f_{ik}' f_{jk}'
+    \right]\\
+    \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
+  &=\sum_{i\neq k}
+    \left[
+    \left(
+    \frac{x_k-x_i}{r_{ik}}
+    \right)^2
+    f_{ik}''
+    +
+    f_{ik}'
+    \frac{r_{ik}^2 - (x_k-x_i)^2}{r_{ik}^3}\right]
+    \\&+
+    \sum_{i,j\neq k}\frac{(x_k-x_i)(x_k-x_j)}{r_{ik} r_{jk}} 
+    f_{ik}' f_{jk}'\\
+}
+If we now sum up for all dimensions, we get 
+\eq{
+  \frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}
+  &=\sum_{i\neq k}
+    \left[\frac{r_{ik}^2}{r_{ik}^2}
+    f_{ik}''
+    +
+    f_{ik}'
+    \frac{3r_{ik}^2 - r_{ik}^2}{r_{ik}^3}\right]
+    +
+    \sum_{i,j\neq k}\frac{(x_k-x_i)(x_k-x_j)}{r_{ik} r_{jk}} 
+    f_{ik}' f_{jk}'\\
+  &=\sum_{i\neq k}
+    \left[f_{ik}''+ \frac{2}{r_{ik}}f_{ik}'\right]
+    +
+    \sum_{i,j\neq k}\frac{(x_k-x_i)(x_k-x_j)}{r_{ik} r_{jk}} 
+    f_{ik}' f_{jk}'
 }
 \section{Results}
-
 \end{document}
