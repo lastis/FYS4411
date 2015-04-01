@@ -98,7 +98,8 @@ where the Slater determinant is
 }
 and the correlations part is
 \equ{
-  \psi_C = \prod_{i<j}^{4}\exp{\left(\frac{ar_{ij}}{2(1+\beta r_{ij})}\right)} \label{psiC}
+  \psi_C = \prod_{i<j}^{4} g_{ij}
+   =\prod_{i<j}^{4}\exp{\left(\frac{ar_{ij}}{2(1+\beta r_{ij})}\right)} \label{psiC}
 }
 Here $\phi_i(\vec r_i)$ are the hydrogen-like wavefunctions. They are given by
 the $1s$ and $2s$ orbital parts
@@ -109,7 +110,12 @@ and
 \eq{
   \phi_{2s}^i &= \left(1-\alpha r_i/2\right)e^{-\alpha r_i/2}
 }
-which are dependent on the vectors $\vec r_i$.
+which are dependent on the cartesian positions $\vec r_i = (x_i,y_i,z_i)$. 
+The relative distance between two particles is
+\eq{
+  r_{ij} = \abs{\vec r_j - \vec r_i} = \sqrt{(x_j-x_i)^2+(y_j-y_i)^2+(z_j-z_i)^2}
+}
+and obviously $r_{ij}=r_{ji}$.
 
 We want to determine the local energy $E_L$ to approximate
 the ground state energy of the atom.
@@ -118,7 +124,8 @@ The general expression for the local energy is
   E_L = \frac{1}{\psi_T (\vec R)}\OP H \psi_T (\vec R) 
 }
 and the Hamiltonian can generally be described as a sum of the contributions
-to the potential energy by the electron-electron repulsion and the nucleus-electron interaction, aswell as the kinetic energy. This gives us a Hamiltonian on the form
+to the potential energy by the electron-electron repulsion and the nucleus-electron interaction, as well as the kinetic energy. This gives us a Hamiltonian
+for $N$ particles on the form
 \eq{
   \OP H &= \OP K + \OP V \\
   &=\sum_i (\op k_i + \op v_i)  + \sum_{i<j} \op v_{ij}\\
@@ -133,7 +140,7 @@ following quantities
   \frac{1}{\psi_T}\op k_i \psi_T = -\frac{1}{2}\frac{\op\nabla_i^2 \psi_T}{\psi_T}
 }
 For Beryllium, the trial wavefunction is a product of the Slater determinant part 
-and the correlations part, namely $\psi_T = \psi_D\psi_C$.
+and the correlation part, namely $\psi_T = \psi_D\psi_C$.
 
 The product rule of differentiation gives us
 \eq{
@@ -153,15 +160,15 @@ which are only dependent on the radii of the particles. This means that the grad
 }
 where $\vec r = r\unit r$.
   
-First we define
-the following
+We define the functions
 \eq{
   f_i &\equiv -\frac{\alpha \vec r_i}{2}\\
   g_i &\equiv \exp(f_i)\\
   F_{ij} &\equiv \phi_{1s}(\vec r_i)\phi_{2s}(\vec r_j)
   -\phi_{1s}(\vec r_j)\phi_{2s}(\vec r_i)
 }
-We then have
+and use them to simplify derivatives 
+of the Hydrogen-like wavefunctions in the following way
 \eq{
   \phi_{1s}^i &= g_i^2\\
   \frac{\partial \phi_{1s}^i}{\partial r_i} &= -\alpha g_i^2\\
@@ -170,7 +177,7 @@ We then have
   \frac{\partial \phi_{2s}^i}{\partial r_i} &= -\alpha g_i(1+f_i/2)\\
   \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)
 }
-so we get
+and then the terms required to calculate the Slater determinant
 \eq{
   F_{ij} &= g_i^2 (1+f_j)g_j - g_j^2 (1+f_i)g_i\\
   \frac{\partial F_{ij}}{\partial r_i} 
@@ -228,22 +235,30 @@ For the second derivative part, we have
   \end{cases}
 }
 with the same conditions as above.
+Now we move on to the calculation of the correlation parts,
+given by the function in (\ref{psiC}). 
 
-Now we move on to the calculation of the correlation parts (\ref{psiC}). First off, we define
+First off, we define
 \eq{
-  f_{ij} \equiv \frac{ar_{ij}}{2(1+\beta r_{ij})}
+  f_{ij} \equiv \frac{ar_{ij}}{1+\beta r_{ij}}
 }
+with the corresponding derivatives (with respect to $r_{ij}$)
+\eq{
+  f_{ij}' &= \frac{a}{(1+\beta r_{ij})^2}\\
+  f_{ij}'' &= \frac{-2a\beta}{(1+\beta r_{ij})^3}
+}
+
 The gradient of the wavefunction, 
-divided by the wavefunction for particle, $k$ in the $x$-direction is then
+divided by the wavefunction, for particle $k$ in the $x$-direction is then
 \eq{
   \left[\frac{\nabla_k\psi_C}{\psi_C}\right]_x 
   =\frac{1}{\psi_C}\frac{\partial\psi_C}{\partial x_k}
 }
-If we look at the gradient, 
+If we look at the first derivative in the $x$-direction, 
 we see that the parts of the wavefunction that is not dependent on $k$, 
 will remain unaffected by the 
-differentiation. When we split the expression for $i<k$ and $k>i$,
-and
+differentiation.
+When we split the expression for $i<k$ and $k>i$, we get that
 \equ{
   \frac{\partial\psi_C}{\partial x_k}&=\prod_{i,j\neq k} g_{ij}
     \frac{\partial}{\partial x_k}
@@ -267,8 +282,8 @@ and
       +\sum_{i>k} \frac{1}{g_{ki}} \frac{\partial g_{ki}}{\partial x_k} \right]
       \label{DpsiC}
 }
-Here we factorize the wavefunction outside the expression, 
-and notice that the only part that doesn't cancel is the $ik$-th and $ki$-th
+Here we factorized the wavefunction outside the expression, 
+and noticed that the only part that doesn't cancel is the $ik$-th and $ki$-th
 in the sums.
 
 Dividing by the wavefunction, we get
@@ -281,9 +296,9 @@ Dividing by the wavefunction, we get
   &=\sum_{i=1}^{k-1}\frac{x_k-x_i}{r_{ik}}\frac{\partial f_{ik}}{\partial r_{ik}}  
   - \sum_{i=k+1}^{N}\frac{x_i-x_k}{r_{ki}}\frac{\partial f_{ki}}{\partial r_{ki}}
 }
-since $g_{ij}$ is an exponential function, 
-and $\frac{\partial}{\partial x_i}g_{ij} = -\frac{\partial}{\partial x_j}g_{ij}$.
-
+since $g_{ij}$ is an exponential function, so
+$\frac{\partial g_{ij}}{\partial x_i} = g_{ij} \frac{\partial f_{ij}}{\partial x_j}$.
+We also used the fact that $\frac{\partial g_{ij}}{\partial x_i} = -\frac{\partial g_{ij}}{\partial x_j}$ to differentiate with respect to the second index in both of the sums.
 Finally, we have used the chain rule to attain an expression that is dependent
 on the distance between the two particles
 \eq{
