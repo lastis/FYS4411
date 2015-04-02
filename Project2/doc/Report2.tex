@@ -1,4 +1,4 @@
-\documentclass[twocolumn,8pt]{extarticle}
+\documentclass[twocolumn,12pt]{extarticle}
 \usepackage[english]{babel} 
 \usepackage[latin1]{inputenc} 
 \usepackage{times}			% Default times font style
@@ -13,6 +13,8 @@
 \usepackage{cuted}			% Adds the strip command, pagewidth text in a twocolumn
 							% environment. 
 \usepackage{hyperref}
+\usepackage[a4paper, margin=1in]{geometry}
+
 
 % Start custom \abs \norm 
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
@@ -29,14 +31,21 @@
 \makeatother
 % End costum \abs \norm 
 
+\usepackage{titlesec}
+\titleformat{\section}[block]{\bfseries\filcenter}{\thesection}{1em}{\uppercase}
+\titleformat{\subsection}[hang]{\bfseries\filcenter}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}[hang]{\bfseries\filcenter}{\thesubsubsection}{1em}{}
+
 % TODO: Put comments on this section.
-\newcommand{\eq}[1]{{\tiny\begin{align*}#1\end{align*}}}
-\newcommand{\equ}[1]{{\tiny\begin{align}#1\end{align}}}
+\newcommand{\eq}[1]{{\small\begin{align*}#1\end{align*}}}
+\newcommand{\equ}[1]{{\small\begin{align}#1\end{align}}}
 \newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}}
 \renewcommand\vec[1]{\mathbf{#1}}
 \newcommand{\OP}[1]{\mathbf{\widehat{#1}}}
 \newcommand{\op}[1]{\hat{#1}}
 \newcommand{\unit}[1]{\mathbf{\hat{#1}}}
+\renewcommand{\thesection}{\Roman{section}.}
+\renewcommand{\thesubsection}{\Alph{subsection}.}
 
 \title{}
 
@@ -45,8 +54,7 @@
 \begin{titlepage}
 \begin{center}
 
-\textsc{\Large Variational Monte Carlo Simulations of
-Atomic Systems}\\[0.5cm]
+\textsc{\Large Variational Monte Carlo Simulations of Atomic Systems}\\[0.5cm]
 \rule{\linewidth}{0.5mm} \\[0.4cm]
 { \huge \bfseries  Part II}\\[0.10cm]
 \rule{\linewidth}{0.5mm} \\[1.5cm]
@@ -73,7 +81,7 @@ Atomic Systems}\\[0.5cm]
 
 \end{center}
 \end{titlepage}
-
+\date{}
 \maketitle
 %\newpage
 
@@ -81,9 +89,10 @@ Atomic Systems}\\[0.5cm]
 Github: \\ \url{https://github.com/lastis/FYS4411}
 
 \section{Methods}
-\subsection{Trial Wavefunction of Beryllium}
+\subsection{Trial Wavefunctions}
 
-The trial wavefunction of Beryllium ca be written on the form
+The trial wavefunction of Beryllium can be written as a product of a Slater determinant
+part and a correlation part on the form
 \equ{
   \psi_{T}(\vec r_1, \vec r_2, \vec r_3, \vec r_4) = \psi_{D}\psi_{C} \label{psiT}
 }
@@ -96,18 +105,15 @@ where the Slater determinant is
     \left(\phi_{1s}^3\phi_{2s}^4
     -\phi_{1s}^4\phi_{2s}^3\right)\nonumber
 }
-and the correlations part is
+and the correlation part is
 \equ{
   \psi_C = \prod_{i<j}^{4} g_{ij}
-   =\prod_{i<j}^{4}\exp{\left(\frac{ar_{ij}}{2(1+\beta r_{ij})}\right)} \label{psiC}
+   =\prod_{i<j}^{4}\exp{\left(\frac{ar_{ij}}{1+\beta r_{ij}}\right)} \label{psiC}
 }
 Here $\phi_i(\vec r_i)$ are the hydrogen-like wavefunctions. They are given by
 the $1s$ and $2s$ orbital parts
 \eq{                                                               
-\phi_{1s}^i &= e^{-\alpha r_i}                                   
-}
-and
-\eq{
+  \phi_{1s}^i &= e^{-\alpha r_i}\\
   \phi_{2s}^i &= \left(1-\alpha r_i/2\right)e^{-\alpha r_i/2}
 }
 which are dependent on the cartesian positions $\vec r_i = (x_i,y_i,z_i)$. 
@@ -130,9 +136,11 @@ for $N$ particles on the form
   \OP H &= \OP K + \OP V \\
   &=\sum_i (\op k_i + \op v_i)  + \sum_{i<j} \op v_{ij}\\
   &= -\sum_{i=1}^N\bigg[
-    \frac{\op\nabla_i^2}{2} + \frac{2}{r_i}\bigg] 
+    \frac{\op\nabla_i^2}{2} + \frac{Z}{r_i}\bigg] 
   + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}}
 }
+Where $Z$ is the atomic number.
+
 From this expression, it's clear that $\OP K$ is the only operator that changes the
 trial wavefunction when we calculate the local energy. Therefore, we must calculate the
 following quantities
@@ -150,12 +158,20 @@ The product rule of differentiation gives us
     +\frac{\op\nabla^2 \psi_C}{\psi_C}
 }
 
+
+\section{Results}
+
+\appendix
+\renewcommand{\thesubsection}{Appendix \Alph{subsection}:}
+\renewcommand{\thesubsubsection}{\arabic{subsubsection}.}
+\subsection{Mathematical Derivations}
+\subsubsection{The wavefunction of Beryllium}
 We start by finding the first and second derivative of the determinant part,
 which are only dependent on the radii of the particles. This means that the gradient can be written 
 \eq{
-  \nabla f = \unit r \frac{\partial f}{\partial r}
+  \op\nabla f = \unit r \frac{\partial f}{\partial r}
   \;\text{ and }\;
-  \nabla^2 f = \frac{\partial^2 f}{\partial r^2} 
+  \op\nabla^2 f = \frac{\partial^2 f}{\partial r^2} 
     + \frac{2}{r}\frac{\partial f}{\partial r}
 }
 where $\vec r = r\unit r$.
@@ -251,7 +267,7 @@ with the corresponding derivatives (with respect to $r_{ij}$)
 The gradient of the wavefunction, 
 divided by the wavefunction, for particle $k$ in the $x$-direction is then
 \eq{
-  \left[\frac{\nabla_k\psi_C}{\psi_C}\right]_x 
+  \left[\frac{\op\nabla_k\psi_C}{\psi_C}\right]_x 
   =\frac{1}{\psi_C}\frac{\partial\psi_C}{\partial x_k}
 }
 If we look at the first derivative in the $x$-direction, 
@@ -288,7 +304,7 @@ in the sums.
 
 Dividing by the wavefunction, we get
 \eq{
-  \left[\frac{\nabla_k\psi_C}{\psi_C}\right]_x
+  \left[\frac{\op\nabla_k\psi_C}{\psi_C}\right]_x
   &=\sum_{i=1}^{k-1}\frac{1}{g_{ik}}\frac{\partial g_{ik}}{\partial x_k}  
   + \sum_{i=k+1}^{N}\frac{1}{g_{ki}}\frac{\partial g_{ki}}{\partial x_k} \\
   &=\sum_{i=1}^{k-1}\frac{\partial f_{ik}}{\partial x_k}  
@@ -297,8 +313,8 @@ Dividing by the wavefunction, we get
   - \sum_{i=k+1}^{N}\frac{x_i-x_k}{r_{ki}}\frac{\partial f_{ki}}{\partial r_{ki}}
 }
 since $g_{ij}$ is an exponential function, so
-$\frac{\partial g_{ij}}{\partial x_i} = g_{ij} \frac{\partial f_{ij}}{\partial x_j}$.
-We also used the fact that $\frac{\partial g_{ij}}{\partial x_i} = -\frac{\partial g_{ij}}{\partial x_j}$ to differentiate with respect to the second index in both of the sums.
+$\sfrac{\partial g_{ij}}{\partial x_i} = g_{ij} \sfrac{\partial f_{ij}}{\partial x_j}$.
+We also used the fact that $\sfrac{\partial g_{ij}}{\partial x_i} = \sfrac{-\partial g_{ij}}{\partial x_j}$ to differentiate with respect to the second index in both of the sums.
 Finally, we have used the chain rule to attain an expression that is dependent
 on the distance between the two particles
 \eq{
@@ -308,7 +324,7 @@ on the distance between the two particles
 }
 Thus
 \eq{
-  \frac{\nabla_k\psi_C}{\psi_C} &=
+  \frac{\op\nabla_k\psi_C}{\psi_C} &=
     \sum_{i=1}^{k-1}\frac{\vec r_{ik}}{r_{ik}}\frac{\partial f_{ik}}{\partial r_{ik}}  
     - \sum_{i=k+1}^{N}\frac{\vec r_{ki}}{r_{ki}}\frac{\partial f_{ki}}{\partial r_{ki}}\\
     &=\sum_{i=1}^{k-1}\frac{\vec r_{ik}}{r_{ik}}\frac{a}{(1+\beta r_{ik})^2}  
@@ -318,7 +334,7 @@ Thus
 
 From (\ref{DpsiC}), we can gather that the double derivative part is described by
 \eq{
-  \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
+  \left[\frac{\mathbf{\op\nabla}^2 \psi_C}{\psi_C}\right]_x
   &=\frac{1}{\psi_C}\frac{\partial}{\partial x_k}\left(\psi_C
       \left[\sum_{i<k} \frac{\partial f_{ik}}{\partial x_k}
       +\sum_{i>k} \frac{\partial f_{ki}}{\partial x_k} \right]\right)\\
@@ -353,7 +369,7 @@ From (\ref{DpsiC}), we can gather that the double derivative part is described b
     \right]
     \left[\sum_{j\neq k}\frac{\partial r_{jk}}{\partial x_k} f_{jk}'
     \right]\\
-  \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
+  \left[\frac{\mathbf{\op\nabla}^2 \psi_C}{\psi_C}\right]_x
   &=\sum_{i\neq k}
     \left[
     \left(
@@ -368,7 +384,7 @@ From (\ref{DpsiC}), we can gather that the double derivative part is described b
     \frac{\partial r_{ik}}{\partial x_k} f_{ik}'+
     \sum_{j\neq k,i} \frac{\partial r_{jk}}{\partial x_k} f_{jk}'\right)
     \right]\\
-  \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
+  \left[\frac{\mathbf{\op\nabla}^2 \psi_C}{\psi_C}\right]_x
   &=\sum_{i\neq k}
     \left[
     \left(
@@ -384,7 +400,7 @@ From (\ref{DpsiC}), we can gather that the double derivative part is described b
     \sum_{j\neq k,i} \frac{\partial r_{ik}}{\partial x_k} f_{ik}'
     \frac{\partial r_{jk}}{\partial x_k} f_{jk}'
     \right]\\
-  \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
+  \left[\frac{\mathbf{\op\nabla}^2 \psi_C}{\psi_C}\right]_x
   &=\sum_{i\neq k}
     \left[
     \left(
@@ -400,7 +416,7 @@ From (\ref{DpsiC}), we can gather that the double derivative part is described b
     \sum_{j\neq k,i} \frac{(x_k-x_i)(x_k-x_j)}{r_{ik} r_{jk}} 
     f_{ik}' f_{jk}'
     \right]\\
-    \left[\frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}\right]_x
+    \left[\frac{\mathbf{\op\nabla}^2 \psi_C}{\psi_C}\right]_x
   &=\sum_{i\neq k}
     \left[
     \left(
@@ -416,7 +432,7 @@ From (\ref{DpsiC}), we can gather that the double derivative part is described b
 }
 If we now sum up for all dimensions, we get 
 \eq{
-  \frac{\mathbf{\nabla}^2 \psi_C}{\psi_C}
+  \frac{\mathbf{\op\nabla}^2 \psi_C}{\psi_C}
   &=\sum_{i\neq k}
     \left[\frac{r_{ik}^2}{r_{ik}^2}
     f_{ik}''
@@ -432,5 +448,4 @@ If we now sum up for all dimensions, we get
     \sum_{i,j\neq k}\frac{(x_k-x_i)(x_k-x_j)}{r_{ik} r_{jk}} 
     f_{ik}' f_{jk}'
 }
-\section{Results}
 \end{document}
