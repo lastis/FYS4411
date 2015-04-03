@@ -46,47 +46,32 @@
 \newcommand{\unit}[1]{\mathbf{\hat{#1}}}
 \renewcommand{\thesection}{\Roman{section}.}
 \renewcommand{\thesubsection}{\Alph{subsection}.}
+\newcommand{\Mark}[1]{\textsuperscript{#1}}
 
 \title{}
 
 \begin{document}
 
-\begin{titlepage}
-\begin{center}
+\twocolumn[{%
+ \centering
+ {\bfseries\large Variational Monte-Carlo Simulations of Atomic Systems}
+ \\[1em]
+ \normalsize Daniel Marelius Bj\o rnstad and Alexander Fleischer
+ \\
+ \small\url{https://github.com/lastis/FYS4411}
+  \begin{abstract}
+    This is where the abstract goes. Write something smart here.
+  \end{abstract}
+ \\[3em] % some more space after the title part
+}]
 
-\textsc{\Large Variational Monte Carlo Simulations of Atomic Systems}\\[0.5cm]
-\rule{\linewidth}{0.5mm} \\[0.4cm]
-{ \huge \bfseries  Part II}\\[0.10cm]
-\rule{\linewidth}{0.5mm} \\[1.5cm]
-\textsc{\Large FYS4411}\\
-\textsc{\Large Computational Physics II}\\[1.5cm]
-\textsc{}\\[1.5cm]
 
-% Av hvem?
-\begin{minipage}{0.49\textwidth}
-    \begin{center} \large
-		Daniel Marelius Bj\o rnstad
-    \end{center}
-\end{minipage}
-\begin{minipage}{0.49\textwidth}
-    \begin{center} \large
-        Alexander Fleischer
-    \end{center}
-\end{minipage}
-
-\vfill
-
-% Dato nederst
-\large{Dato: \today}
-
-\end{center}
-\end{titlepage}
-\date{}
-\maketitle
-%\newpage
 
 \section{Introduction}
-Github: \\ \url{https://github.com/lastis/FYS4411}
+
+To evaluate the results of the numerical methods, we investigated the possibility
+of finding a closed-form solution of the ground-state energy 
+using the Variational Principle.
 
 \section{Methods}
 \subsection{Trial Wavefunctions}
