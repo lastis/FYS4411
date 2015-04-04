@@ -98,14 +98,15 @@ void VMCSolver::runQuantumStep(int cycle){
                 / (waveFuncValOld*waveFuncValOld)) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
-		pqForceOld[i][j] = pqForceNew[i][j];
+                pqForceOld[i][j] = pqForceNew[i][j];
                 waveFuncValOld = waveFuncValNew;
             }
             accepts++;
-        } else {
+        } 
+        else {
             for(int j = 0; j < nDimensions; j++) {
                 prNew[i][j] = prOld[i][j];
-		pqForceNew[i][j] = pqForceOld[i][j];
+                pqForceNew[i][j] = pqForceOld[i][j];
             }
             rejects++;
         }
@@ -125,13 +126,23 @@ void VMCSolver::runRandomStep(int cycle){
 
         // Recalculate the value of the wave function
         waveFuncValNew = (this->*getWaveFuncVal)(prNew);
+        double ratio = 0;
+        if (efficientSlater) {
+             for (int j = 0; j < nParticles; j++) {
+                ratio += phi(prNew[i],j) * pslaterMatrixInv[i][j];
+             }
+        }
+        else {
+            ratio = 
+                waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
+        }
         // Check for step acceptance (if yes, 
         // update position, if no, reset position)
-        if(Random::ran2(idum) <= (waveFuncValNew*waveFuncValNew)
-                / (waveFuncValOld*waveFuncValOld)) {
+        if(Random::ran2(idum) <= ratio) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
                 waveFuncValOld = waveFuncValNew;
+                if (efficientSlater) updateSlaterInverse(i);
             }
             accepts++;
         } else {
