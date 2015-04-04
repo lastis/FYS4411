@@ -11,18 +11,19 @@ int main()
     /* solver.D = 0.5; */
     /* solver.timeStep = 0.01; */
     /* solver.setImportanceSampling(true); */
-    solver.charge = 2;
-    solver.alpha = 1.66;
+    solver.alpha = 3.75;
     solver.beta = 0.8;
     solver.nDimensions = 3;
-    solver.nParticles = 2;
+    solver.nParticles = 4;
+    solver.charge = 4;
     solver.stepLength = 1.52;
-    solver.nCycles = 1000000;
-    solver.waveFunction = solver.WAVE_FUNCTION_1;
+    solver.nCycles = 2e4;
     solver.h = 0.001;
     solver.h2 = 1e+06;
-    solver.idum = 1;
-    solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR;
+    solver.idum = 2;
+    solver.setWaveFunctionBeryllium2();
+    solver.setLocalEnergyGeneric();
+    solver.useEfficientSlater(true);
 
 
     clock_t start = clock();
@@ -38,6 +39,6 @@ int main()
 
     /* solver.exportEnergyArray("energies.txt"); */
     /* solver.exportDensity("density.txt"); */
-    solver.exportParamters("test.ini");
+    /* solver.exportParamters("test.ini"); */
     return 0;
 }

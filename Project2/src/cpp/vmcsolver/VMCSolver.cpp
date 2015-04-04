@@ -143,7 +143,7 @@ void VMCSolver::runRandomStep(int cycle){
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
                 waveFuncValOld = waveFuncValNew;
-                if (efficientSlater) updateSlaterInverse(i, ratio);
+                if (efficientSlater) updateSlater(i, ratio);
             }
             accepts++;
         } else {
@@ -421,7 +421,7 @@ void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
     }
 }
 
-void VMCSolver::updateSlaterInverse(int i, double ratio){
+void VMCSolver::updateSlater(int i, double ratio){
     // In the slater matrix, each column is the single particle
     // wave functions for particle j. 
     for (int j = 0; j < nParticles; j++) {

@@ -91,7 +91,7 @@ private:
     double getLocalEnergyHydrogen(double** r);
     bool initRunVariables();
     void updateQuantumForce(double** r, double ** qForce,double factor);
-    void updateSlaterInverse(int i, double ratio);
+    void updateSlater(int i, double ratio);
     void endOfSingleParticleStep(int cycle, int i);
     void endOfCycle(int cycle);
     void runRandomStep(int cycle);
