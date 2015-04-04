@@ -79,7 +79,7 @@ private:
     double getWaveFunc2Val(double** r);
     double getWaveBeryllium1Val(double** r);
     double getWaveBeryllium2Val(double** r);
-    double getPhiVal(int j, double* r);
+    double phi(int j, double* r);
     double phi1s(double r);
     double phi2s(double r);
     double phi2p(double r);
@@ -89,8 +89,9 @@ private:
     double getLocalEnergyHelium1(double** r);
     double getLocalEnergyHelium2(double** r);
     double getLocalEnergyHydrogen(double** r);
-    bool   initRunVariables();
-    void   updateQuantumForce(double** r, double ** qForce,double factor);
+    bool initRunVariables();
+    void updateQuantumForce(double** r, double ** qForce,double factor);
+    void updateSlaterInverse(int i, double ratio);
     void endOfSingleParticleStep(int cycle, int i);
     void endOfCycle(int cycle);
     void runRandomStep(int cycle);

@@ -98,7 +98,7 @@ void VMCSolver::runQuantumStep(int cycle){
                 / (waveFuncValOld*waveFuncValOld)) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
-                pqForceOld[i][j] = pqForceNew[i][j];
+		pqForceOld[i][j] = pqForceNew[i][j];
                 waveFuncValOld = waveFuncValNew;
             }
             accepts++;
@@ -127,9 +127,10 @@ void VMCSolver::runRandomStep(int cycle){
         // Recalculate the value of the wave function
         waveFuncValNew = (this->*getWaveFuncVal)(prNew);
         double ratio = 0;
+        // Different ratios if we use efficient slater calculation.
         if (efficientSlater) {
              for (int j = 0; j < nParticles; j++) {
-                ratio += phi(prNew[i],j) * pslaterMatrixInv[i][j];
+                ratio += phi(j,prNew[i]) * pslaterMatrixInv[j][i];
              }
         }
         else {
@@ -142,7 +143,7 @@ void VMCSolver::runRandomStep(int cycle){
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
                 waveFuncValOld = waveFuncValNew;
-                if (efficientSlater) updateSlaterInverse(i);
+                if (efficientSlater) updateSlaterInverse(i, ratio);
             }
             accepts++;
         } else {
@@ -255,8 +256,23 @@ bool VMCSolver::initRunVariables(){
     }
 
     rNew = rOld;
+    // This is important to get the correct pointer to the new matrix. 
     prNew = rNew.getArrayPointer();
     prOld = rOld.getArrayPointer();
+
+    // Initialize the slater determinant of the initial positions. 
+    if (efficientSlater) {
+        slaterMatrix = Matrix(nParticles,nParticles);
+        pslaterMatrix = slaterMatrix.getArrayPointer();
+        for (int i = 0; i < nParticles; i++) {
+            for (int j = 0; j < nParticles; j++) {
+                pslaterMatrix[i][j] = phi(i,prNew[j]);
+            }
+        }
+        slaterMatrixInv = CPhys::MatOp::getInverse(slaterMatrix);
+        pslaterMatrixInv = slaterMatrixInv.getArrayPointer();
+    }
+
     // Finished without error (hopefully).
     return true;
 }
@@ -402,6 +418,30 @@ void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
 	    qForce[i][j] = 
 		(waveFunctionPlus - waveFunctionMinus)*h/factor;
         }
+    }
+}
+
+void VMCSolver::updateSlaterInverse(int i, double ratio){
+    // In the slater matrix, each column is the single particle
+    // wave functions for particle j. 
+    for (int j = 0; j < nParticles; j++) {
+        pslaterMatrix[j][i] = phi(j,prNew[i]);
+    }
+    // Update the inverse matrix for all columns except the i'th.
+    for (int j = 0; j < nParticles; j++) {
+        if (j == i) continue;
+        double Sj = 0;
+        for (int l = 0; l < nParticles; l++) {
+            Sj += pslaterMatrix[i][l]*pslaterMatrixInv[l][j];
+        }
+        for (int k = 0; k < nParticles; k++) {
+            pslaterMatrixInv[k][j] = pslaterMatrixInv[k][j] 
+                - Sj/ratio*pslaterMatrixInv[k][i];
+        }
+    }
+    // Update the i'th column.
+    for (int k = 0; k < nParticles; k++) {
+        pslaterMatrixInv[k][i] = pslaterMatrixInv[k][i]/ratio;
     }
 }
 
@@ -553,6 +593,7 @@ bool VMCSolver::initFromFile(std::string fName){
     myFile >> paramName >> discard >> recordEnergyArray;
     myFile >> paramName >> discard >> recordR12Mean;
     myFile >> paramName >> discard >> recordPositions;
+    myFile >> paramName >> discard >> efficientSlater;
 
     myFile.close();
 
@@ -571,6 +612,9 @@ void VMCSolver::setLocalEnergyHydrogen(){
     localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
 }
 
+void VMCSolver::useEfficientSlater(bool param){
+    efficientSlater = param;
+}
 
 void VMCSolver::useImportanceSampling(bool param){
     importanceSampling = param;
@@ -637,6 +681,7 @@ void VMCSolver::clear(){
 
     outputSupressed = false;
     useImportanceSampling(false);
+    useEfficientSlater(false);
     setRecordDensity(false);
     setRecordEnergyArray(false);
     setRecordR12Mean(false);
@@ -750,20 +795,20 @@ double VMCSolver::getWaveBeryllium2Val(double** r){
     
 }
 
-double VMCSolver::getPhiVal(int j, double* r){
+double VMCSolver::phi(int j, double* r){
     double rAbs = 0;
     for (int i = 0; i < nDimensions; i++) {
         rAbs += r[i];
     }
     switch (j) {
-        case 1 ... 2:
+        case 0 ... 1:
             return phi1s(rAbs);
-        case 3 ... 4:
+        case 2 ... 3:
             return phi2s(rAbs);
-        case 5 ... 10:
+        case 4 ... 9:
             return phi2p(rAbs);
         default:
-            cout << "Index out of bounds in getPhiVal!!!" << endl;
+            cout << "Index out of bounds in phi()!!!" << endl;
             return 0;
     }
 }
@@ -782,6 +827,13 @@ double VMCSolver::phi2p(double r){
 
 bool VMCSolver::validateParamters(){
     bool valid = true;
+    if (efficientSlater) {
+        if (nParticles > 10) {
+            cout << "Error : Slater determinant has not been implemented "
+                << "for more than 10 particles!" << endl;
+            valid = false;
+        }
+    }
     if(importanceSampling){
         if (timeStep == 0) {
             cout << "Error : Cannot use importance sampling with timeStep = 0." 
@@ -860,6 +912,7 @@ void VMCSolver::exportParamters(std::string fName){
     myFile << "recordEnergyArray = " << recordEnergyArray <<  endl;
     myFile << "recordR12Mean = " << recordR12Mean <<  endl;
     myFile << "recordPositions = " << recordPositions <<  endl;
+    myFile << "useEfficientSlater = " << efficientSlater <<  endl;
     myFile.close();
 }
 
