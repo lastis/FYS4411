@@ -259,6 +259,25 @@ SUITE(BERYLLIUM){
         double energy = solver.getEnergy();
         CHECK_CLOSE(-20,energy,0.5);
     }
+
+    TEST(WaveFunction2LocalEnergyGeneric){
+        solver.setWaveFunctionBeryllium2();
+        solver.setLocalEnergyGeneric();
+        solver.supressOutput();
+        solver.runIntegration();
+        double energy = solver.getEnergy();
+        CHECK_CLOSE(-14.3,energy,0.5);
+    }
+
+    TEST(EfficientSlater){
+        solver.setWaveFunctionBeryllium2();
+        solver.setLocalEnergyGeneric();
+        solver.useEfficientSlater(true);
+        solver.supressOutput();
+        solver.runIntegration();
+        double energy = solver.getEnergy();
+        CHECK_CLOSE(-14.3,energy,0.5);
+    }
 }
 
 int main()
