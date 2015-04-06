@@ -17,7 +17,7 @@ int main()
     solver.nParticles = 4;
     solver.charge = 4;
     solver.stepLength = 1.52;
-    solver.nCycles = 2e4;
+    solver.nCycles = 5e4;
     solver.h = 0.001;
     solver.h2 = 1e+06;
     solver.idum = 2;

@@ -34,6 +34,29 @@ SUITE(CPhys){
         CHECK_CLOSE(3,res(0,1),0.0001);
         CHECK_CLOSE(6,res(1,0),0.0001);
         CHECK_CLOSE(3,res(1,1),0.0001);
+
+        Matrix B = Matrix(3,3);
+        B(0,0) = 7;
+        B(0,1) = 2;
+        B(0,2) = 1;
+        B(1,0) = 0;
+        B(1,1) = 3;
+        B(1,2) = -1;
+        B(2,0) = -3;
+        B(2,1) = 4;
+        B(2,2) = -2;
+
+        CPhys::MatOp::decomposeLU(B,L,U);
+        Matrix res1 = L*U;
+        CHECK_CLOSE(B(0,0),res1(0,0), 0.0001);
+        CHECK_CLOSE(B(0,1),res1(0,1), 0.0001);
+        CHECK_CLOSE(B(0,2),res1(0,2), 0.0001);
+        CHECK_CLOSE(B(1,0),res1(1,0), 0.0001);
+        CHECK_CLOSE(B(1,1),res1(1,1), 0.0001);
+        CHECK_CLOSE(B(1,2),res1(1,2), 0.0001);
+        CHECK_CLOSE(B(2,0),res1(2,0), 0.0001);
+        CHECK_CLOSE(B(2,1),res1(2,1), 0.0001);
+        CHECK_CLOSE(B(2,2),res1(2,2), 0.0001);
     }
 
     TEST(ForwardSubstitution){
@@ -58,6 +81,39 @@ SUITE(CPhys){
         CHECK_CLOSE(3,y(0,1),0.0001);
         CHECK_CLOSE(0,y(1,0),0.0001);
         CHECK_CLOSE(-1.5,y(1,1),0.0001);
+
+
+        // Assuming LU decomposition works, do a decomposition
+        // and solve the equation L*Linv = I. And test this.
+        Matrix B = Matrix(3,3);
+        B(0,0) = 7;
+        B(0,1) = 2;
+        B(0,2) = 1;
+        B(1,0) = 0;
+        B(1,1) = 3;
+        B(1,2) = -1;
+        B(2,0) = -3;
+        B(2,1) = 4;
+        B(2,2) = -2;
+        Matrix U;
+        CPhys::MatOp::decomposeLU(B,L,U);
+        Matrix LInv;
+        Matrix I = Matrix(L.getN(),L.getN());
+        I.eye();
+        CPhys::MatOp::substituteForward(L,LInv,I);
+        Matrix res = L*LInv;
+
+        CHECK_CLOSE(1,res(0,0),0.0001);
+        CHECK_CLOSE(0,res(0,1),0.0001);
+        CHECK_CLOSE(0,res(0,2),0.0001);
+
+        CHECK_CLOSE(0,res(1,0),0.0001);
+        CHECK_CLOSE(1,res(1,1),0.0001);
+        CHECK_CLOSE(0,res(1,2),0.0001);
+
+        CHECK_CLOSE(0,res(2,0),0.0001);
+        CHECK_CLOSE(0,res(2,1),0.0001);
+        CHECK_CLOSE(1,res(2,2),0.0001);
     }
 
     TEST(BackwardSubstitution){
@@ -81,6 +137,38 @@ SUITE(CPhys){
         CHECK_CLOSE(0,x(0,1),0.0001);
         CHECK_CLOSE(0,x(1,0),0.0001);
         CHECK_CLOSE(1,x(1,1),0.0001);
+
+        // Assuming LU decomposition works, do a decomposition
+        // and solve the equation U*Uinv = I. And test this.
+        Matrix B = Matrix(3,3);
+        B(0,0) = 7;
+        B(0,1) = 2;
+        B(0,2) = 1;
+        B(1,0) = 0;
+        B(1,1) = 3;
+        B(1,2) = -1;
+        B(2,0) = -3;
+        B(2,1) = 4;
+        B(2,2) = -2;
+        Matrix L;
+        Matrix UInv;
+        Matrix I = Matrix(B.getN(),B.getN());
+        I.eye();
+        CPhys::MatOp::decomposeLU(B,L,U);
+        CPhys::MatOp::substituteBackward(U,UInv,I);
+        Matrix res = U*UInv;
+
+        CHECK_CLOSE(1,res(0,0),0.0001);
+        CHECK_CLOSE(0,res(0,1),0.0001);
+        CHECK_CLOSE(0,res(0,2),0.0001);
+
+        CHECK_CLOSE(0,res(1,0),0.0001);
+        CHECK_CLOSE(1,res(1,1),0.0001);
+        CHECK_CLOSE(0,res(1,2),0.0001);
+
+        CHECK_CLOSE(0,res(2,0),0.0001);
+        CHECK_CLOSE(0,res(2,1),0.0001);
+        CHECK_CLOSE(1,res(2,2),0.0001);
     }
 
     TEST(Multiplication){
@@ -102,6 +190,7 @@ SUITE(CPhys){
     }
 
     TEST(Inverse){
+        // Check if we get the identity matrix if we multiply back.
         Matrix A = Matrix(2,2);
         A(0,0) = 4;
         A(0,1) = 3;
@@ -109,12 +198,38 @@ SUITE(CPhys){
         A(1,1) = 3;
         Matrix AInv = CPhys::MatOp::getInverse(A);
 
-        Matrix res = A*AInv;
+        Matrix res1 = A*AInv;
+        CHECK_CLOSE(1,res1(0,0),0.0001);
+        CHECK_CLOSE(0,res1(0,1),0.0001);
+        CHECK_CLOSE(0,res1(1,0),0.0001);
+        CHECK_CLOSE(1,res1(1,1),0.0001);
 
-        CHECK_CLOSE(1,res(0,0),0.0001);
-        CHECK_CLOSE(0,res(0,1),0.0001);
-        CHECK_CLOSE(0,res(1,0),0.0001);
-        CHECK_CLOSE(1,res(1,1),0.0001);
+
+        // Check if we get the identity matrix if we multiply back.
+        Matrix B = Matrix(3,3);
+        B(0,0) = 7;
+        B(0,1) = 2;
+        B(0,2) = 1;
+        B(1,0) = 0;
+        B(1,1) = 3;
+        B(1,2) = -1;
+        B(2,0) = -3;
+        B(2,1) = 4;
+        B(2,2) = -2;
+        Matrix BInv = CPhys::MatOp::getInverse(B);
+
+        Matrix res2 = B*BInv;
+        CHECK_CLOSE(1,res2(0,0),0.0001);
+        CHECK_CLOSE(0,res2(0,1),0.0001);
+        CHECK_CLOSE(0,res2(0,2),0.0001);
+
+        CHECK_CLOSE(0,res2(1,0),0.0001);
+        CHECK_CLOSE(1,res2(1,1),0.0001);
+        CHECK_CLOSE(0,res2(1,2),0.0001);
+
+        CHECK_CLOSE(0,res2(2,0),0.0001);
+        CHECK_CLOSE(0,res2(2,1),0.0001);
+        CHECK_CLOSE(1,res2(2,2),0.0001);
     }
 }
 
@@ -236,7 +351,7 @@ SUITE(Helium){
     }
 }
 
-SUITE(BERYLLIUM){
+SUITE(Beryllium){
     VMCSolver solver = VMCSolver();
     TEST(Initialize){
         solver.charge = 4; 

@@ -266,11 +266,13 @@ bool VMCSolver::initRunVariables(){
         pslaterMatrix = slaterMatrix.getArrayPointer();
         for (int i = 0; i < nParticles; i++) {
             for (int j = 0; j < nParticles; j++) {
-                pslaterMatrix[i][j] = phi(i,prNew[j]);
+                pslaterMatrix[j][i] = phi(j,prNew[i]);
             }
         }
         slaterMatrixInv = CPhys::MatOp::getInverse(slaterMatrix);
         pslaterMatrixInv = slaterMatrixInv.getArrayPointer();
+        slaterMatrix.print();
+        slaterMatrixInv.print();
     }
 
     // Finished without error (hopefully).
@@ -422,17 +424,19 @@ void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
 }
 
 void VMCSolver::updateSlater(int i, double ratio){
-    // In the slater matrix, each column is the single particle
-    // wave functions for particle j. 
-    for (int j = 0; j < nParticles; j++) {
-        pslaterMatrix[j][i] = phi(j,prNew[i]);
-    }
+    /* // In the slater matrix, each column is the single particle */
+    /* // wave functions for particle j. */ 
+    /* for (int j = 0; j < nParticles; j++) { */
+    /*     pslaterMatrix[j][i] = phi(j,prNew[i]); */
+    /* } */
     // Update the inverse matrix for all columns except the i'th.
     for (int j = 0; j < nParticles; j++) {
         if (j == i) continue;
         double Sj = 0;
         for (int l = 0; l < nParticles; l++) {
-            Sj += pslaterMatrix[i][l]*pslaterMatrixInv[l][j];
+            // d_il(new) * dInv_lj(old)
+            /* Sj += pslaterMatrix[i][l]*pslaterMatrixInv[l][j]; */
+            Sj += phi(l,prNew[i])*pslaterMatrixInv[l][j];
         }
         for (int k = 0; k < nParticles; k++) {
             pslaterMatrixInv[k][j] = pslaterMatrixInv[k][j] 
