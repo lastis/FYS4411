@@ -576,7 +576,7 @@ double VMCSolver::getLocalEnergyGeneric(double** r){
         }
     }
     
-    /* cout << potentialEnergy << endl; */
+    /* cout << r[0][0] << endl; */
 
     return kineticEnergy + potentialEnergy;
 }
@@ -837,8 +837,9 @@ double VMCSolver::getWaveBeryllium2Val(double** r){
 double VMCSolver::phi(int j, double* r){
     double rAbs = 0;
     for (int i = 0; i < nDimensions; i++) {
-        rAbs += r[i];
+        rAbs += r[i]*r[i];
     }
+    rAbs = sqrt(rAbs);
     switch (j) {
         case 0 :
             return phi1s(rAbs);
