@@ -116,7 +116,7 @@ void VMCSolver::runQuantumStep(int cycle){
 
 void VMCSolver::runRandomStep(int cycle){
     // Store the current value of the wave function
-    waveFuncValOld = (this->*getWaveFuncVal)(prOld);
+    if (!efficientSlater) waveFuncValOld = (this->*getWaveFuncVal)(prOld);
 
     // New position to test
     for(int i = 0; i < nParticles; i++) {
@@ -125,7 +125,7 @@ void VMCSolver::runRandomStep(int cycle){
         }
 
         // Recalculate the value of the wave function
-        waveFuncValNew = (this->*getWaveFuncVal)(prNew);
+        if (!efficientSlater) waveFuncValNew = (this->*getWaveFuncVal)(prNew);
         double ratio = 0;
         // Different ratios if we use efficient slater calculation.
         if (efficientSlater) {
@@ -147,14 +147,14 @@ void VMCSolver::runRandomStep(int cycle){
         if(Random::ran2(idum) <= ratio) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
-                waveFuncValOld = waveFuncValNew;
                 if (efficientSlater) updateSlater(i, ratio);
+                else waveFuncValOld = waveFuncValNew;
             }
             accepts++;
         } else {
             for(int j = 0; j < nDimensions; j++) {
                 prNew[i][j] = prOld[i][j];
-            waveFuncValNew = waveFuncValOld;
+                if (!efficientSlater) waveFuncValNew = waveFuncValOld;
             }
             rejects++;
         }
@@ -274,16 +274,18 @@ bool VMCSolver::initRunVariables(){
             pslater2 = slater2.getArrayPointer();
             for (int i = 0; i < nParticles/2; i++) {
                 for (int j = 0; j < nParticles/2; j++) {
-                    pslater1[i][j] = phi(i,prNew[j]);
-                    pslater2[i][j] = phi(i,prNew[j+2]);
+                    pslater1[i][j] = phi(j,prNew[i]);
+                    pslater2[i][j] = phi(j,prNew[i+2]);
                 }
             }
             slater1Inv = CPhys::MatOp::getInverse(slater1);
             slater2Inv = CPhys::MatOp::getInverse(slater2);
-            slater1.print();
-            slater1Inv.print();
             pslater1Inv = slater1Inv.getArrayPointer();
             pslater2Inv = slater1Inv.getArrayPointer();
+            /* slater1.print(); */
+            /* slater1Inv.print(); */
+            /* slater2.print(); */
+            /* slater2Inv.print(); */
         }
         else {
             slater1 = Matrix(nParticles,nParticles);
@@ -465,7 +467,7 @@ void VMCSolver::updateSlater(int i, double ratio){
     }
     // Update the i'th column.
     for (int k = 0; k < nParticles/2; k++) {
-        inv[k][i] = inv[k][i]/ratio;
+        inv[k][i/2] = inv[k][i/2]/ratio;
     }
 }
 
