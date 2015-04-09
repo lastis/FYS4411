@@ -129,9 +129,14 @@ void VMCSolver::runRandomStep(int cycle){
         double ratio = 0;
         // Different ratios if we use efficient slater calculation.
         if (efficientSlater) {
-             for (int j = 0; j < nParticles; j++) {
-                ratio += phi(j,prNew[i]) * pslaterMatrixInv[j][i];
-             }
+            for (int j = 0; j < nParticles/2; j++) {
+                if (j < nParticles/2) {
+                    ratio += phi(j,prNew[i/2]) * pslater1[j][i/2];
+                }
+                else {
+                    ratio += phi(j,prNew[i/2+2]) * pslater2[j][i/2];
+                }
+            }
         }
         else {
             ratio = 
@@ -262,17 +267,36 @@ bool VMCSolver::initRunVariables(){
 
     // Initialize the slater determinant of the initial positions. 
     if (efficientSlater) {
-        slaterMatrix = Matrix(nParticles,nParticles);
-        pslaterMatrix = slaterMatrix.getArrayPointer();
-        for (int i = 0; i < nParticles; i++) {
-            for (int j = 0; j < nParticles; j++) {
-                pslaterMatrix[j][i] = phi(j,prNew[i]);
+        if (nParticles == 2 || nParticles == 4 || nParticles == 10){
+            slater1 = Matrix(nParticles/2,nParticles/2);
+            slater2 = Matrix(nParticles/2,nParticles/2);
+            pslater1 = slater1.getArrayPointer();
+            pslater2 = slater2.getArrayPointer();
+            for (int i = 0; i < nParticles/2; i++) {
+                for (int j = 0; j < nParticles/2; j++) {
+                    pslater1[i][j] = phi(i,prNew[j]);
+                    pslater2[i][j] = phi(i,prNew[j+2]);
+                }
             }
+            slater1Inv = CPhys::MatOp::getInverse(slater1);
+            slater2Inv = CPhys::MatOp::getInverse(slater2);
+            slater1.print();
+            slater1Inv.print();
+            pslater1Inv = slater1Inv.getArrayPointer();
+            pslater2Inv = slater1Inv.getArrayPointer();
         }
-        slaterMatrixInv = CPhys::MatOp::getInverse(slaterMatrix);
-        pslaterMatrixInv = slaterMatrixInv.getArrayPointer();
-        slaterMatrix.print();
-        slaterMatrixInv.print();
+        else {
+            slater1 = Matrix(nParticles,nParticles);
+            pslater1 = slater1.getArrayPointer();
+            for (int i = 0; i < nParticles; i++) {
+                for (int j = 0; j < nParticles; j++) {
+                    pslater1[i][j] = phi(i,prNew[j]);
+                }
+            }
+            slater1Inv = CPhys::MatOp::getInverse(slater1);
+            pslater1Inv = slater1Inv.getArrayPointer();
+
+        }
     }
 
     // Finished without error (hopefully).
@@ -381,16 +405,16 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i){
 
     // Calculate density
     if (recordDensity) {
-	int bin;
-	double rsq = 0;
-	for(int j = 0; j < nDimensions; j++) {
-	    rsq += prNew[i][j]*prNew[i][j];
-	}
-	double rAbs = sqrt(rsq);
-	if (rAbs < rMax ) {
-	    bin = rAbs/rMax*bins;
-	    pDensity[i][bin] += 1;
-	}
+        int bin;
+        double rsq = 0;
+        for(int j = 0; j < nDimensions; j++) {
+            rsq += prNew[i][j]*prNew[i][j];
+        }
+        double rAbs = sqrt(rsq);
+        if (rAbs < rMax ) {
+            bin = rAbs/rMax*bins;
+            pDensity[i][bin] += 1;
+        }
     }
 }
 
@@ -424,28 +448,24 @@ void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
 }
 
 void VMCSolver::updateSlater(int i, double ratio){
-    /* // In the slater matrix, each column is the single particle */
-    /* // wave functions for particle j. */ 
-    /* for (int j = 0; j < nParticles; j++) { */
-    /*     pslaterMatrix[j][i] = phi(j,prNew[i]); */
-    /* } */
+    double** inv;
+    if (i < nParticles/2)   inv = pslater1Inv;
+    else                    inv = pslater2Inv;
     // Update the inverse matrix for all columns except the i'th.
-    for (int j = 0; j < nParticles; j++) {
+    for (int j = 0; j < nParticles/2; j++) {
         if (j == i) continue;
         double Sj = 0;
-        for (int l = 0; l < nParticles; l++) {
+        for (int l = 0; l < nParticles/2; l++) {
             // d_il(new) * dInv_lj(old)
-            /* Sj += pslaterMatrix[i][l]*pslaterMatrixInv[l][j]; */
-            Sj += phi(l,prNew[i])*pslaterMatrixInv[l][j];
+            Sj += phi(l,prNew[i])*inv[l][j];
         }
-        for (int k = 0; k < nParticles; k++) {
-            pslaterMatrixInv[k][j] = pslaterMatrixInv[k][j] 
-                - Sj/ratio*pslaterMatrixInv[k][i];
+        for (int k = 0; k < nParticles/2; k++) {
+            inv[k][j] = inv[k][j] - Sj/ratio*inv[k][i];
         }
     }
     // Update the i'th column.
-    for (int k = 0; k < nParticles; k++) {
-        pslaterMatrixInv[k][i] = pslaterMatrixInv[k][i]/ratio;
+    for (int k = 0; k < nParticles/2; k++) {
+        inv[k][i] = inv[k][i]/ratio;
     }
 }
 
@@ -805,11 +825,11 @@ double VMCSolver::phi(int j, double* r){
         rAbs += r[i];
     }
     switch (j) {
-        case 0 ... 1:
+        case 0 :
             return phi1s(rAbs);
-        case 2 ... 3:
+        case 1 :
             return phi2s(rAbs);
-        case 4 ... 9:
+        case 2 ... 4:
             return phi2p(rAbs);
         default:
             cout << "Index out of bounds in phi()!!!" << endl;

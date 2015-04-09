@@ -123,10 +123,14 @@ private:
     bool importanceSampling;
     bool efficientSlater;
 
-    Matrix slaterMatrix;
-    double** pslaterMatrix;
-    Matrix slaterMatrixInv;
-    double** pslaterMatrixInv;
+    Matrix slater1;
+    Matrix slater1Inv;
+    Matrix slater2;
+    Matrix slater2Inv;
+    double** pslater1;
+    double** pslater1Inv;
+    double** pslater2;
+    double** pslater2Inv;
 
     Matrix qForceOld;
     Matrix qForceNew;
