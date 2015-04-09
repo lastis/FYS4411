@@ -131,6 +131,8 @@ private:
     double** pslater1Inv;
     double** pslater2;
     double** pslater2Inv;
+    Vector vS;
+    double* S;
 
     Matrix qForceOld;
     Matrix qForceNew;

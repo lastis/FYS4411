@@ -130,11 +130,11 @@ void VMCSolver::runRandomStep(int cycle){
         // Different ratios if we use efficient slater calculation.
         if (efficientSlater) {
             for (int j = 0; j < nParticles/2; j++) {
-                if (j < nParticles/2) {
-                    ratio += phi(j,prNew[i/2]) * pslater1[j][i/2];
+                if (i < nParticles/2) {
+                    ratio += phi(j,prNew[i]) * pslater1Inv[j][i];
                 }
                 else {
-                    ratio += phi(j,prNew[i/2+2]) * pslater2[j][i/2];
+                    ratio += phi(j,prNew[i]) * pslater2Inv[j][i - nParticles/2];
                 }
             }
         }
@@ -144,6 +144,7 @@ void VMCSolver::runRandomStep(int cycle){
         }
         // Check for step acceptance (if yes, 
         // update position, if no, reset position)
+        if (cycle == 0) cout << ratio << endl;
         if(Random::ran2(idum) <= ratio) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
@@ -267,6 +268,8 @@ bool VMCSolver::initRunVariables(){
 
     // Initialize the slater determinant of the initial positions. 
     if (efficientSlater) {
+        vS = Vector(nParticles/2);
+        S = vS.getArrayPointer();
         if (nParticles == 2 || nParticles == 4 || nParticles == 10){
             slater1 = Matrix(nParticles/2,nParticles/2);
             slater2 = Matrix(nParticles/2,nParticles/2);
@@ -282,10 +285,10 @@ bool VMCSolver::initRunVariables(){
             slater2Inv = CPhys::MatOp::getInverse(slater2);
             pslater1Inv = slater1Inv.getArrayPointer();
             pslater2Inv = slater1Inv.getArrayPointer();
-            /* slater1.print(); */
-            /* slater1Inv.print(); */
-            /* slater2.print(); */
-            /* slater2Inv.print(); */
+            slater1.print();
+            slater1Inv.print();
+            slater2.print();
+            slater2Inv.print();
         }
         else {
             slater1 = Matrix(nParticles,nParticles);
@@ -451,23 +454,32 @@ void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
 
 void VMCSolver::updateSlater(int i, double ratio){
     double** inv;
-    if (i < nParticles/2)   inv = pslater1Inv;
-    else                    inv = pslater2Inv;
+    bool up = (i < nParticles/2);
+    if (up) inv = pslater1Inv;
+    else    inv = pslater2Inv;
     // Update the inverse matrix for all columns except the i'th.
     for (int j = 0; j < nParticles/2; j++) {
         if (j == i) continue;
-        double Sj = 0;
+        if (j == i - nParticles/2) continue;
+        S[j] = 0;
         for (int l = 0; l < nParticles/2; l++) {
             // d_il(new) * dInv_lj(old)
-            Sj += phi(l,prNew[i])*inv[l][j];
+            S[j] += phi(l,prNew[i])*inv[l][j];
         }
+    }
+
+    for (int j = 0; j < nParticles/2; j++) {
+        if (j == i) continue;
+        if (j == i - nParticles/2) continue;
         for (int k = 0; k < nParticles/2; k++) {
-            inv[k][j] = inv[k][j] - Sj/ratio*inv[k][i];
+            if (up) inv[k][j] = inv[k][j] - S[j]/ratio*inv[k][i];
+            else    inv[k][j] = inv[k][j] - S[j]/ratio*inv[k][i-nParticles/2];
         }
     }
     // Update the i'th column.
     for (int k = 0; k < nParticles/2; k++) {
-        inv[k][i/2] = inv[k][i/2]/ratio;
+        if (up) inv[k][i] = inv[k][i]/ratio;
+        else    inv[k][i-nParticles/2] = inv[k][i-nParticles/2]/ratio;
     }
 }
 
@@ -563,9 +575,10 @@ double VMCSolver::getLocalEnergyGeneric(double** r){
             potentialEnergy += 1 / sqrt(r12);
         }
     }
+    
+    /* cout << potentialEnergy << endl; */
 
     return kineticEnergy + potentialEnergy;
-    /* return kineticEnergy; */
 }
 
 void VMCSolver::setStepLength(double stepLength){
