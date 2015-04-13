@@ -59,7 +59,7 @@
  \\
  \small\url{https://github.com/lastis/FYS4411}
   \begin{abstract}
-    This is where the abstract goes. Write something smart here.
+    This is where the abstract goes. Write something smrt here.
   \end{abstract}
  \\[3em] % some more space after the title part
 }]
@@ -142,6 +142,15 @@ The product rule of differentiation gives us
     +\frac{\op\nabla^2 \psi_C}{\psi_C}
 }
 
+\subsection{Efficient Computation of the Slater Determinant}
+
+For larger atoms, the evaluation of the gradient and the Laplacian of the Slater
+determinant becomes increasingly numerically demanding
+to compute. Computing these quantities with brute force, 
+leads to $N\cdot d$ operations to find the determinant and thus
+multiplying this with our $O(N^3)$ operations.
+
+ADD THE SLATER-DETERMINANT MATH HERE.
 
 \section{Results}
 
