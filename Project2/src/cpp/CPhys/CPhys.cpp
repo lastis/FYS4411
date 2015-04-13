@@ -263,10 +263,12 @@ void	MatOp::sortCol(Matrix& A, Vector& v){
 }
 
 void MatOp::decomposeLU(Matrix& mat, Matrix& L, Matrix& U){
+    int n = mat.getN();
+    L = Matrix(n,n);
+    U = Matrix(n,n);
     double** l = L.getArrayPointer();
     double** u = U.getArrayPointer();
     double** a = mat.getArrayPointer();
-    int n = mat.getN();
     pMatOp::decomposeLU(a,l,u,n);
 }
 
@@ -314,40 +316,43 @@ Matrix  MatOp::getInverse(Matrix mA){
 }
 
 void MatOp::substituteBackward(Matrix& U, Matrix& x, Matrix& y){
+    int n = U.getN();
+    x = Matrix(n,n);
     pMatOp::substituteBackward(U.getArrayPointer(),x.getArrayPointer(), 
-            y.getArrayPointer(),U.getN());
+            y.getArrayPointer(),n);
 }
 
 void pMatOp::substituteBackward(double** U, double** x, double** y, int N){
-  for (int k = N-1; k >= 0; k--) {
-    for (int i = N-1; i >= 0; i--) {
-      double a = y[i][k];
-      for (int j = i+1; j < N; j++) {
-        a = a - x[j][k]*U[i][j];
-        j++;
-      }
-      x[i][k] = a/U[i][i];
+    for (int k = N-1; k >= 0; k--) {
+        for (int i = N-1; i >= 0; i--) {
+            double a = y[i][k];
+            for (int j = i+1; j < N; j++) {
+                a = a - x[j][k]*U[i][j];
+            }
+            x[i][k] = a/U[i][i];
+        }
     }
-  }
 }
 
 void MatOp::substituteForward(Matrix& L, Matrix& y, Matrix& b){
+    int n = L.getN();
+    y = Matrix(n,n);
     pMatOp::substituteForward(L.getArrayPointer(),y.getArrayPointer(), 
-            b.getArrayPointer(),L.getN());
+            b.getArrayPointer(),n);
 }
 
 void pMatOp::substituteForward(double** L, double** y, double** b, int N){
-  for (int k = 0; k < N; k++) {
-    for (int i = 0; i < N; i++) {
-      double a = b[i][k];
-      int j = 0;
-      while (j < i) {
-        a = a - y[j][k]*L[i][j];
-        j++;
-      }
-      y[i][k] = a/L[i][i];
+    for (int k = 0; k < N; k++) {
+        for (int i = 0; i < N; i++) {
+            double a = b[i][k];
+            int j = 0;
+            while (j < i) {
+                a = a - y[j][k]*L[i][j];
+                j++;
+            }
+            y[i][k] = a/L[i][i];
+        }
     }
-  }
 }
 
 void	pLinAlg::tridiagSolve(double  a, double  b, double c, 

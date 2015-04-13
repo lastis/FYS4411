@@ -6,13 +6,15 @@
 using namespace std;
 
 Vector::Vector(){
-	mN = 0;
+	mN = 1;
 	allocateMemory(mN);
+    reset();
 }
 
 Vector::Vector(int N){
 	mN = N;
 	allocateMemory(N);
+    reset();
 }
 
 Vector::Vector(const Vector& vec){
