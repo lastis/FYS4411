@@ -144,7 +144,10 @@ void VMCSolver::runRandomStep(int cycle){
         }
         // Check for step acceptance (if yes, 
         // update position, if no, reset position)
-        if (cycle == 0) cout << ratio << endl;
+        /* if (cycle == 0) { */
+        /*     cout << "Cycle: 0" << endl; */
+        /*     cout << ratio << endl; */
+        /* } */
         if(Random::ran2(idum) <= ratio) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
@@ -285,10 +288,10 @@ bool VMCSolver::initRunVariables(){
             slater2Inv = CPhys::MatOp::getInverse(slater2);
             pslater1Inv = slater1Inv.getArrayPointer();
             pslater2Inv = slater1Inv.getArrayPointer();
-            slater1.print();
-            slater1Inv.print();
-            slater2.print();
-            slater2Inv.print();
+            /* slater1.print(); */
+            /* slater1Inv.print(); */
+            /* slater2.print(); */
+            /* slater2Inv.print(); */
         }
         else {
             slater1 = Matrix(nParticles,nParticles);
@@ -576,7 +579,6 @@ double VMCSolver::getLocalEnergyGeneric(double** r){
         }
     }
     
-    /* cout << r[0][0] << endl; */
 
     return kineticEnergy + potentialEnergy;
 }
@@ -798,10 +800,10 @@ double VMCSolver::getWaveBeryllium2Val(double** r){
     double r3Abs = 0;
     double r4Abs = 0;
     for(int j = 0; j < nDimensions; j++) {
-	r1Abs += r1[j] * r1[j];
-	r2Abs += r2[j] * r2[j];
-	r3Abs += r3[j] * r3[j];
-	r4Abs += r4[j] * r4[j];
+        r1Abs += r1[j] * r1[j];
+        r2Abs += r2[j] * r2[j];
+        r3Abs += r3[j] * r3[j];
+        r4Abs += r4[j] * r4[j];
     }
     r1Abs = sqrt(r1Abs);
     r2Abs = sqrt(r2Abs);

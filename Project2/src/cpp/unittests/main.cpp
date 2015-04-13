@@ -270,6 +270,115 @@ SUITE(Hydrogen){
     }
 }
 
+SUITE(VMCSolver){
+    TEST(phi){
+        VMCSolver solver = VMCSolver();
+        solver.nDimensions = 3;
+        solver.alpha = 3.75;
+        double* r = new double[3];
+        r[0] = 0.5;
+        r[1] = 0.5;
+        r[2] = 0.5;
+        double rAbs = 0.8660254;
+        // Check that the function phi(j,r_i) works.
+        CHECK_CLOSE(solver.phi1s(rAbs),solver.phi(0,r),0.00001);
+        CHECK_CLOSE(solver.phi2s(rAbs),solver.phi(1,r),0.00001);
+
+        // Check values of phi.
+        CHECK_CLOSE(0.0388675, solver.phi1s(rAbs), 0.00001);
+        CHECK_CLOSE(-0.122980,solver.phi2s(rAbs),0.00001);
+    }
+
+    TEST(SlaterDet){
+        VMCSolver solver = VMCSolver();
+        solver.charge = 4; 
+        solver.alpha = 3.75;
+        solver.beta = 0.8;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.setWaveFunctionBeryllium2();
+        solver.setLocalEnergyGeneric();
+        solver.useEfficientSlater(true);
+
+        solver.initRunVariables();
+        double r1Abs = 0;
+        double r2Abs = 0;
+        double r3Abs = 0;
+        double r4Abs = 0;
+        for (int i = 0; i < solver.nDimensions; i++) {
+            r1Abs += solver.prNew[0][i]*solver.prNew[0][i];
+            r2Abs += solver.prNew[1][i]*solver.prNew[1][i];
+            r3Abs += solver.prNew[2][i]*solver.prNew[2][i];
+            r4Abs += solver.prNew[3][i]*solver.prNew[3][i];
+        }
+        r1Abs = sqrt(r1Abs);
+        r2Abs = sqrt(r2Abs);
+        r3Abs = sqrt(r3Abs);
+        r4Abs = sqrt(r4Abs);
+        // Check the first "Up" slater det.
+        CHECK_CLOSE( 0.33039, solver.phi(0,solver.prNew[0]), 0.0001);
+        CHECK_CLOSE( 0.256508, solver.phi(1,solver.prNew[0]), 0.0001);
+        CHECK_CLOSE( 0.367256, solver.phi(0,solver.prNew[1]), 0.0001);
+        CHECK_CLOSE( 0.302494, solver.phi(1,solver.prNew[1]), 0.0001);
+
+        CHECK_CLOSE( 52.7273, solver.pslater1Inv[0][0], 0.01);
+        CHECK_CLOSE(-44.7116, solver.pslater1Inv[0][1], 0.01);
+        CHECK_CLOSE(-64.0158, solver.pslater1Inv[1][0], 0.01);
+        CHECK_CLOSE( 57.5898, solver.pslater1Inv[1][1], 0.01);
+
+        /* r1Abs = 0; */
+        /* for (int i = 0; i < solver.nDimensions; i++) { */
+        /*     solver.prNew[0][i] += solver.stepLength; */
+        /*     r1Abs += solver.prNew[0][i]*solver.prNew[0][i]; */
+        /* } */
+        /* r1Abs = sqrt(r1Abs); */
+        /* cout << r1Abs << endl; */
+        /* solver.updateSlater(0,1); */
+        /* CHECK_CLOSE( 52.7273, solver.pslater1Inv[0][0], 0.01); */
+        /* CHECK_CLOSE(-44.7116, solver.pslater1Inv[0][1], 0.01); */
+        /* CHECK_CLOSE(-64.0158, solver.pslater1Inv[1][0], 0.01); */
+        /* CHECK_CLOSE( 57.5898, solver.pslater1Inv[1][1], 0.01); */
+    }
+
+    TEST(SlaterUpdate){
+        VMCSolver solver = VMCSolver();
+        solver.charge = 4; 
+        solver.alpha = 3.75;
+        solver.beta = 0.8;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.setWaveFunctionBeryllium2();
+        solver.setLocalEnergyGeneric();
+        solver.useEfficientSlater(true);
+
+        solver.initRunVariables();
+        double r1Abs = 0;
+        double r2Abs = 0;
+        double r3Abs = 0;
+        double r4Abs = 0;
+        for (int i = 0; i < solver.nDimensions; i++) {
+            r1Abs += solver.prNew[0][i]*solver.prNew[0][i];
+            r2Abs += solver.prNew[1][i]*solver.prNew[1][i];
+            r3Abs += solver.prNew[2][i]*solver.prNew[2][i];
+            r4Abs += solver.prNew[3][i]*solver.prNew[3][i];
+        }
+        r1Abs = sqrt(r1Abs);
+        r2Abs = sqrt(r2Abs);
+        r3Abs = sqrt(r3Abs);
+        r4Abs = sqrt(r4Abs);
+    }
+}
+
 SUITE(Helium){
     VMCSolver solver = VMCSolver();
     double energy;
