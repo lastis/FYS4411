@@ -153,7 +153,24 @@ multiplying this with our $O(N^3)$ operations.
 ADD THE SLATER-DETERMINANT MATH HERE:
 
 We can approximate the Slater determinant as
+\eq{
+	\Phi(\vec r_1, ..., \vec r_N) \propto \det\uparrow\cdot\det\downarrow
+}
+where the spin determinants are the determinants which only depend on spin up and spin down
+respectively. The determinants are $2\times 2$ for Berylllium and $5\times 5$ for Neon.
+This is true only if $\OP H$ is spin independent.
 
+Then, $\det \op D = |\op D| = |\op D|_{\uparrow}\cdot |\op D|_{\downarrow}$, 
+where the Slater matrices are dependent on the positions of the electrons. 
+Each time we update the positions and differentiate the Slater determinant,
+the Slater matrix is changed, but by calculating the  from scratch each time,
+we will certainly do unnecessary computations. This motivates the ratio
+\eq{
+  R = \frac{|\op D|_{\uparrow}^{new}}{|\op D|_{\uparrow}^{old}} 
+  \cdot \frac{|\op D|_{\downarrow}^{new}}{|\op D|_{\downarrow}^{old}}
+}
+Every time we accept a new trial position, the i-th row of $\op D$ changes,
+and we have to update the inverse.
 \section{Results}
 
 \appendix

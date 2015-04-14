@@ -4,6 +4,7 @@ import os
 import numpy as np
 
 infile = open('tmp.tex', 'w')
+cfile = open('Berylliumcppcode.txt', 'w')
 
 N, Z = 4, 4
 
@@ -196,6 +197,13 @@ psiSUM = psiSUM\
         .subs(f12,F12).subs(f13,F13).subs(f14,F14)\
         .subs(f23,F23).subs(f24,F24).subs(f34,F34)
 
+
+### C++ code printing:
+C = printing.ccode(psiSUM)
+cfile.write(C)
+cfile.close()
+
+### Latex printing
 y1 = printing.latex(psiSUM)
 
 x = '\documentclass[12pt,a3paper]{article}\n\
