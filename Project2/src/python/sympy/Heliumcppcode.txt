@@ -1,0 +1,1 @@
+alpha*(-\mathbf{R_12} + pow(r_2, 2))/(r_12*r_2*pow(beta*r_12 + 1, 2)) + alpha*(-\mathbf{R_12} + pow(r_1, 2))/(r_1*r_12*pow(beta*r_12 + 1, 2)) + beta/pow(beta*r_12 + 1, 3) - 1.0L/4.0L/pow(beta*r_12 + 1, 4) - 1/(r_12*pow(beta*r_12 + 1, 2))

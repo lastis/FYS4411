@@ -3,6 +3,7 @@ import os
 import numpy as np
 
 infile = open('tmp.tex', 'w')
+cfile = open('Heliumcppcode.txt', 'w')
 
 N = 2
 
@@ -169,6 +170,15 @@ psiSUM = psiSUM\
 psiSUM = psiSUM\
         .subs(x1*(x1/2-x2/2) + y1*(y1/2-y2/2) + z1*(z1/2-z2/2), -R1R2 + r1**2)
 
+
+
+### PRinting to C:
+
+C = printing.ccode(psiSUM)
+cfile.write(C)
+cfile.close()
+
+### PRINTING TO LATEX:
 y = printing.latex(psiSUM)
 
 x = '\documentclass[12pt,a3paper]{article}\n\
