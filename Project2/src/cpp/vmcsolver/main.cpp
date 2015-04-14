@@ -11,7 +11,8 @@ int main()
     /* solver.D = 0.5; */
     /* solver.timeStep = 0.01; */
     /* solver.setImportanceSampling(true); */
-    solver.alpha = 3.75;
+    /* solver.alpha = 3.75; */
+    solver.alpha = 4;
     solver.beta = 0.8;
     solver.nDimensions = 3;
     solver.nParticles = 4;
@@ -22,7 +23,7 @@ int main()
     solver.h2 = 1e+06;
     solver.idum = 2;
     solver.setWaveFunctionBeryllium1();
-    solver.setLocalEnergyGeneric();
+    solver.setLocalEnergyGenericNoCor();
     solver.useEfficientSlater(true);
 
     clock_t start = clock();

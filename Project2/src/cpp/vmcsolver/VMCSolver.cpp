@@ -2,6 +2,7 @@
 
 using namespace CPhys;
 using namespace std;
+using namespace wave_functions;
 
 VMCSolver::VMCSolver(){
     clear();
@@ -206,6 +207,8 @@ bool VMCSolver::initRunVariables(){
     deltaE = 0;
     waveFuncValOld = 0;
     waveFuncValNew = 0;
+
+    wave_functions::alpha = alpha;
 
     // Set the wave function as a function pointer
     if (waveFunction == WAVE_FUNCTION_1)
@@ -875,17 +878,17 @@ double VMCSolver::phi(int j, double* r){
     }
 }
 
-double VMCSolver::phi1s(double r){
-    return exp(-alpha*r);
-}
+/* double VMCSolver::phi1s(double r){ */
+/*     return exp(-alpha*r); */
+/* } */
 
-double VMCSolver::phi2s(double r){
-    return (1-alpha*r/2)*exp(-alpha*r/2);
-}
+/* double VMCSolver::phi2s(double r){ */
+/*     return (1-alpha*r/2)*exp(-alpha*r/2); */
+/* } */
 
-double VMCSolver::phi2p(double r){
-    return alpha*r*exp(-alpha*r/2);
-}
+/* double VMCSolver::phi2p(double r){ */
+/*     return alpha*r*exp(-alpha*r/2); */
+/* } */
 
 bool VMCSolver::validateParamters(){
     bool valid = true;
