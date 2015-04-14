@@ -134,7 +134,9 @@ void VMCSolver::runRandomStep(int cycle){
                 for(int j = 0; j < nDimensions; j++) {
                     prOld[i][j] = prNew[i][j];
                 }
+                // Update the i'th particle (row) in the slater matrix.
                 updateSlater(i);
+                // Update the inverse of the slater matrix.
                 if (i < nParticles/2) 
                     updateInverse(i, ratio, pslater1, pslater1Inv);
                 else 
