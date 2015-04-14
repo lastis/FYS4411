@@ -17,6 +17,8 @@ public:
     static const int LOCAL_ENERGY_HELIUM_2 = 4;
     static const int LOCAL_ENERGY_HYDROGEN = 3;
     static const int LOCAL_ENERGY_GENERIC_NOCOR = 5;
+    static const int LOCAL_ENERGY_SLATER = 6;
+    static const int LOCAL_ENERGY_SLATER_NOCOR = 7;
     static const int WAVE_FUNCTION_1 = 1;
     static const int WAVE_FUNCTION_2 = 2;
     static const int WAVE_FUNCTION_BERYLLIUM_1 = 3;
@@ -37,6 +39,8 @@ public:
     void setLocalEnergyHydrogen();
     void setLocalEnergyGeneric();
     void setLocalEnergyGenericNoCor();
+    void setLocalEnergySlater();
+    void setLocalEnergySlaterNoCor();
     void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
     void setRecordEnergyArray(bool param);
     void setRecordR12Mean(bool param);
@@ -58,6 +62,8 @@ public:
     double getLocalEnergyHelium1(double** r);
     double getLocalEnergyHelium2(double** r);
     double getLocalEnergyHydrogen(double** r);
+    double getLocalEnergySlater(double** r);
+    double getLocalEnergySlaterNoCor(double** r);
     bool initRunVariables();
     void updateQuantumForce(double** r, double ** qForce,double factor);
     void updateSlater(int i);

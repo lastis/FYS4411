@@ -209,6 +209,8 @@ bool VMCSolver::initRunVariables(){
     waveFuncValNew = 0;
 
     wave_functions::alpha = alpha;
+    wave_functions::beta = beta;
+    wave_functions::nDimensions = nDimensions;
 
     // Set the wave function as a function pointer
     if (waveFunction == WAVE_FUNCTION_1)
@@ -344,6 +346,27 @@ double VMCSolver::getLocalEnergyHydrogen(double** r){
     return  -1/rAbs - 0.5*alpha*(alpha - 2/rAbs);
 }
 
+double VMCSolver::getLocalEnergySlater(double** r){
+    double D = 0;
+    for (int i = 0; i < nParticles; i++) {
+        for (int j = 0; j < nParticles/2; j++) {
+            D += phiDD(j,r[i]);
+        }
+    }
+    
+    
+}
+
+double VMCSolver::getLocalEnergySlaterNoCor(double** r){
+    double sum = 0;
+    for (int i = 0; i < nParticles; i++) {
+        for (int j = 0; j < nParticles/2; j++) {
+            sum += phiDD(j,r[i]);
+        }
+    }
+    return -0.5*sum;
+}
+
 double VMCSolver::getLocalEnergyHelium1(double** r){
     double* r1 = r[0];
     double* r2 = r[1];
@@ -399,6 +422,7 @@ double VMCSolver::getLocalEnergyHelium2(double** r){
 	    - betaR12*betaR12/2 - 2/r12Abs + 2*beta*betaR12
 	    );
 }
+
 
 void VMCSolver::endOfCycle(int cycle){
     if (!recordR12Mean) return;
@@ -676,6 +700,14 @@ void VMCSolver::setLocalEnergyHydrogen(){
     localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
 }
 
+void VMCSolver::setLocalEnergySlater(){
+    localEnergyFunction = LOCAL_ENERGY_SLATER;
+}
+
+void VMCSolver::setLocalEnergySlaterNoCor(){
+    localEnergyFunction = LOCAL_ENERGY_SLATER_NOCOR;
+}
+
 void VMCSolver::useEfficientSlater(bool param){
     efficientSlater = param;
 }
@@ -859,24 +891,24 @@ double VMCSolver::getWaveBeryllium2Val(double** r){
     
 }
 
-double VMCSolver::phi(int j, double* r){
-    double rAbs = 0;
-    for (int i = 0; i < nDimensions; i++) {
-        rAbs += r[i]*r[i];
-    }
-    rAbs = sqrt(rAbs);
-    switch (j) {
-        case 0 :
-            return phi1s(rAbs);
-        case 1 :
-            return phi2s(rAbs);
-        case 2 ... 4:
-            return phi2p(rAbs);
-        default:
-            cout << "Index out of bounds in phi()!!!" << endl;
-            return 0;
-    }
-}
+/* double VMCSolver::phi(int j, double* r){ */
+/*     double rAbs = 0; */
+/*     for (int i = 0; i < nDimensions; i++) { */
+/*         rAbs += r[i]*r[i]; */
+/*     } */
+/*     rAbs = sqrt(rAbs); */
+/*     switch (j) { */
+/*         case 0 : */
+/*             return phi1s(rAbs); */
+/*         case 1 : */
+/*             return phi2s(rAbs); */
+/*         case 2 ... 4: */
+/*             return phi2p(rAbs); */
+/*         default: */
+/*             cout << "Index out of bounds in phi()!!!" << endl; */
+/*             return 0; */
+/*     } */
+/* } */
 
 /* double VMCSolver::phi1s(double r){ */
 /*     return exp(-alpha*r); */
