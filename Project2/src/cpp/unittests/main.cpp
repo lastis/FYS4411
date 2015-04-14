@@ -331,18 +331,41 @@ SUITE(VMCSolver){
         CHECK_CLOSE(-64.0158, solver.pslater1Inv[1][0], 0.01);
         CHECK_CLOSE( 57.5898, solver.pslater1Inv[1][1], 0.01);
 
-        /* r1Abs = 0; */
-        /* for (int i = 0; i < solver.nDimensions; i++) { */
-        /*     solver.prNew[0][i] += solver.stepLength; */
-        /*     r1Abs += solver.prNew[0][i]*solver.prNew[0][i]; */
-        /* } */
-        /* r1Abs = sqrt(r1Abs); */
-        /* cout << r1Abs << endl; */
-        /* solver.updateSlater(0,1); */
-        /* CHECK_CLOSE( 52.7273, solver.pslater1Inv[0][0], 0.01); */
-        /* CHECK_CLOSE(-44.7116, solver.pslater1Inv[0][1], 0.01); */
-        /* CHECK_CLOSE(-64.0158, solver.pslater1Inv[1][0], 0.01); */
-        /* CHECK_CLOSE( 57.5898, solver.pslater1Inv[1][1], 0.01); */
+        Matrix AOld = Matrix(2,2);
+        AOld(0,0) = 4;
+        AOld(0,1) = 3;
+        AOld(1,0) = 3;
+        AOld(1,1) = 2;
+        Matrix AOldInv = CPhys::MatOp::getInverse(AOld);
+        double detAOld = -1;
+
+        Matrix ANew = Matrix(AOld);
+        ANew(0,0) = ANew(0,0) + 1;
+        ANew(0,1) = ANew(0,1) + 1;
+        Matrix ANewInv = CPhys::MatOp::getInverse(ANew);
+        double detANew = ANew(0,0)*ANew(1,1)-ANew(1,0)*ANew(0,1);
+        double ratio = detANew/detAOld;
+
+        Matrix testMat = Matrix(AOldInv);
+        solver.updateInverse(0,ratio,ANew.getArrayPointer(),testMat.getArrayPointer());
+        cout << "Ratio : " << ratio << endl;
+
+        /* cout << "A Old : " << endl; */
+        /* AOld.print(); */
+        /* cout << "A Old Inv : " << endl; */
+        /* AOldInv.print(); */
+        /* cout << "Det Old : " << detAOld << endl; */
+        /* cout << "A New : " << endl; */
+        /* ANew.print(); */
+        /* cout << "A New Inv : " << endl; */
+        /* ANewInv.print(); */
+        /* cout << "Det New : " << detANew << endl; */
+        /* cout << "A New Inv Calculated : " << endl; */
+        /* testMat.print(); */
+        CHECK_CLOSE(ANewInv(0,0),testMat(0,0), 0.0001);
+        CHECK_CLOSE(ANewInv(0,1),testMat(0,1), 0.0001);
+        CHECK_CLOSE(ANewInv(1,0),testMat(1,0), 0.0001);
+        CHECK_CLOSE(ANewInv(1,1),testMat(1,1), 0.0001);
     }
 
     TEST(SlaterUpdate){

@@ -151,15 +151,23 @@ void VMCSolver::runRandomStep(int cycle){
         if(Random::ran2(idum) <= ratio) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
-                if (efficientSlater) updateSlater(i, ratio);
-                else waveFuncValOld = waveFuncValNew;
             }
+            if (efficientSlater) {
+                updateSlater(i);
+                if (i < nParticles/2) {
+                    updateInverse(i, ratio, pslater1, pslater1Inv);
+                }
+                else {
+                    updateInverse(i-nParticles/2, ratio,pslater2,pslater2Inv);
+                }
+            }
+            else waveFuncValOld = waveFuncValNew;
             accepts++;
         } else {
             for(int j = 0; j < nDimensions; j++) {
                 prNew[i][j] = prOld[i][j];
-                if (!efficientSlater) waveFuncValNew = waveFuncValOld;
             }
+            if (!efficientSlater) waveFuncValNew = waveFuncValOld;
             rejects++;
         }
 	endOfSingleParticleStep(cycle, i);
@@ -455,34 +463,34 @@ void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
     }
 }
 
-void VMCSolver::updateSlater(int i, double ratio){
-    double** inv;
-    bool up = (i < nParticles/2);
-    if (up) inv = pslater1Inv;
-    else    inv = pslater2Inv;
+void VMCSolver::updateSlater(int i){
+    for (int j = 0; j < nParticles/2; j++) {
+        if (i < nParticles/2) pslater1[i][j] = phi(j,prNew[i]);
+        else pslater2[i - nParticles/2][j] = phi(j,prNew[i]);
+    }
+}
+
+void VMCSolver::updateInverse(int i, double ratio, double** mat, double** inv){
     // Update the inverse matrix for all columns except the i'th.
     for (int j = 0; j < nParticles/2; j++) {
         if (j == i) continue;
-        if (j == i - nParticles/2) continue;
         S[j] = 0;
         for (int l = 0; l < nParticles/2; l++) {
             // d_il(new) * dInv_lj(old)
-            S[j] += phi(l,prNew[i])*inv[l][j];
+            /* S[j] += phi(l,prNew[i])*inv[l][j]; */
+            S[j] += mat[i][l]*inv[l][j];
         }
     }
 
     for (int j = 0; j < nParticles/2; j++) {
         if (j == i) continue;
-        if (j == i - nParticles/2) continue;
         for (int k = 0; k < nParticles/2; k++) {
-            if (up) inv[k][j] = inv[k][j] - S[j]/ratio*inv[k][i];
-            else    inv[k][j] = inv[k][j] - S[j]/ratio*inv[k][i-nParticles/2];
+            inv[k][j] = inv[k][j] - S[j]/ratio*inv[k][i];
         }
     }
     // Update the i'th column.
     for (int k = 0; k < nParticles/2; k++) {
-        if (up) inv[k][i] = inv[k][i]/ratio;
-        else    inv[k][i-nParticles/2] = inv[k][i-nParticles/2]/ratio;
+        inv[k][i] = inv[k][i]/ratio;
     }
 }
 
