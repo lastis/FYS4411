@@ -21,10 +21,9 @@ int main()
     solver.h = 0.001;
     solver.h2 = 1e+06;
     solver.idum = 2;
-    solver.setWaveFunctionBeryllium2();
+    solver.setWaveFunctionBeryllium1();
     solver.setLocalEnergyGeneric();
     solver.useEfficientSlater(true);
-
 
     clock_t start = clock();
     solver.runIntegration();

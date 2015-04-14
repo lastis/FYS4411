@@ -59,7 +59,8 @@ public:
     double getLocalEnergyHydrogen(double** r);
     bool initRunVariables();
     void updateQuantumForce(double** r, double ** qForce,double factor);
-    void updateSlater(int i, double ratio);
+    void updateSlater(int i);
+    void updateInverse(int i, double ratio, double** mat, double** inv);
     double getWaveFunc1Val(double** r);
     double getWaveFunc2Val(double** r);
     double getWaveBeryllium1Val(double** r);
