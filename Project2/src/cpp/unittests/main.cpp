@@ -331,6 +331,7 @@ SUITE(VMCSolver){
         CHECK_CLOSE(-64.0158, solver.pslater1Inv[1][0], 0.01);
         CHECK_CLOSE( 57.5898, solver.pslater1Inv[1][1], 0.01);
 
+        // Check if the function updateInverse works. 
         Matrix AOld = Matrix(2,2);
         AOld(0,0) = 4;
         AOld(0,1) = 3;
@@ -366,39 +367,6 @@ SUITE(VMCSolver){
         CHECK_CLOSE(ANewInv(0,1),testMat(0,1), 0.0001);
         CHECK_CLOSE(ANewInv(1,0),testMat(1,0), 0.0001);
         CHECK_CLOSE(ANewInv(1,1),testMat(1,1), 0.0001);
-    }
-
-    TEST(SlaterUpdate){
-        VMCSolver solver = VMCSolver();
-        solver.charge = 4; 
-        solver.alpha = 3.75;
-        solver.beta = 0.8;
-        solver.nDimensions = 3;
-        solver.nParticles = 4;
-        solver.stepLength = 1.52;
-        solver.nCycles = 1000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.setWaveFunctionBeryllium2();
-        solver.setLocalEnergyGeneric();
-        solver.useEfficientSlater(true);
-
-        solver.initRunVariables();
-        double r1Abs = 0;
-        double r2Abs = 0;
-        double r3Abs = 0;
-        double r4Abs = 0;
-        for (int i = 0; i < solver.nDimensions; i++) {
-            r1Abs += solver.prNew[0][i]*solver.prNew[0][i];
-            r2Abs += solver.prNew[1][i]*solver.prNew[1][i];
-            r3Abs += solver.prNew[2][i]*solver.prNew[2][i];
-            r4Abs += solver.prNew[3][i]*solver.prNew[3][i];
-        }
-        r1Abs = sqrt(r1Abs);
-        r2Abs = sqrt(r2Abs);
-        r3Abs = sqrt(r3Abs);
-        r4Abs = sqrt(r4Abs);
     }
 }
 

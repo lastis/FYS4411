@@ -115,64 +115,74 @@ void VMCSolver::runQuantumStep(int cycle){
 }
 
 void VMCSolver::runRandomStep(int cycle){
-    // Store the current value of the wave function
-    if (!efficientSlater) waveFuncValOld = (this->*getWaveFuncVal)(prOld);
-
-    // New position to test
-    for(int i = 0; i < nParticles; i++) {
-        for(int j = 0; j < nDimensions; j++) {
-            prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
-        }
-
-        // Recalculate the value of the wave function
-        if (!efficientSlater) waveFuncValNew = (this->*getWaveFuncVal)(prNew);
-        double ratio = 0;
-        // Different ratios if we use efficient slater calculation.
-        if (efficientSlater) {
+    if (efficientSlater){
+        // New position to test
+        for(int i = 0; i < nParticles; i++) {
+            for(int j = 0; j < nDimensions; j++) {
+                prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
+            }
+            double ratio = 0;
             for (int j = 0; j < nParticles/2; j++) {
-                if (i < nParticles/2) {
+                if (i < nParticles/2) 
                     ratio += phi(j,prNew[i]) * pslater1Inv[j][i];
-                }
-                else {
+                else 
                     ratio += phi(j,prNew[i]) * pslater2Inv[j][i - nParticles/2];
+            }
+            // Check for step acceptance (if yes, 
+            // update position, if no, reset position)
+            if(Random::ran2(idum) <= ratio) {
+                for(int j = 0; j < nDimensions; j++) {
+                    prOld[i][j] = prNew[i][j];
                 }
-            }
-        }
-        else {
-            ratio = 
-                waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
-        }
-        // Check for step acceptance (if yes, 
-        // update position, if no, reset position)
-        /* if (cycle == 0) { */
-        /*     cout << "Cycle: 0" << endl; */
-        /*     cout << ratio << endl; */
-        /* } */
-        if(Random::ran2(idum) <= ratio) {
-            for(int j = 0; j < nDimensions; j++) {
-                prOld[i][j] = prNew[i][j];
-            }
-            if (efficientSlater) {
                 updateSlater(i);
-                if (i < nParticles/2) {
+                if (i < nParticles/2) 
                     updateInverse(i, ratio, pslater1, pslater1Inv);
-                }
-                else {
+                else 
                     updateInverse(i-nParticles/2, ratio,pslater2,pslater2Inv);
+                accepts++;
+            } 
+            else {
+                for(int j = 0; j < nDimensions; j++) {
+                    prNew[i][j] = prOld[i][j];
                 }
+                rejects++;
             }
-            else waveFuncValOld = waveFuncValNew;
-            accepts++;
-        } else {
-            for(int j = 0; j < nDimensions; j++) {
-                prNew[i][j] = prOld[i][j];
-            }
-            if (!efficientSlater) waveFuncValNew = waveFuncValOld;
-            rejects++;
+            endOfSingleParticleStep(cycle, i);
         }
-	endOfSingleParticleStep(cycle, i);
+        // All particles moved one step at this point.
+    } 
+    // Not using efficient slater
+    else {
+        // Store the current value of the wave function
+        waveFuncValOld = (this->*getWaveFuncVal)(prOld);
+        // New position to test
+        for(int i = 0; i < nParticles; i++) {
+            for(int j = 0; j < nDimensions; j++) {
+                prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
+            }
+            // Recalculate the value of the wave function
+            waveFuncValNew = (this->*getWaveFuncVal)(prNew);
+            double ratio = 
+                    waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
+            // Check for step acceptance (if yes, 
+            // update position, if no, reset position)
+            if(Random::ran2(idum) <= ratio) {
+                for(int j = 0; j < nDimensions; j++) {
+                    prOld[i][j] = prNew[i][j];
+                }
+                waveFuncValOld = waveFuncValNew;
+                accepts++;
+            } else {
+                for(int j = 0; j < nDimensions; j++) {
+                    prNew[i][j] = prOld[i][j];
+                }
+                waveFuncValNew = waveFuncValOld;
+                rejects++;
+            }
+            endOfSingleParticleStep(cycle, i);
+        }
+        // All particles moved one step at this point.
     }
-    // All particles moved one step at this point.
 }
 
 void VMCSolver::supressOutput(){

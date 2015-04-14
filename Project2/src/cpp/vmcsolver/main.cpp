@@ -25,7 +25,6 @@ int main()
     solver.setLocalEnergyGeneric();
     solver.useEfficientSlater(true);
 
-
     clock_t start = clock();
     solver.runIntegration();
     clock_t end = clock();
