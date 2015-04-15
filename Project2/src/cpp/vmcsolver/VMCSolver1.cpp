@@ -47,9 +47,9 @@ bool VMCSolver1::runIntegration(){
         outputSupressed = false;
         return true;
     }
-    cout << "Energy: " << energy << " Energy (squared sum): " 
-	<< energySquared << endl;
-    cout << "Variance : " << energySquared - energy*energy << endl;
+    /* cout << "Energy: " << energy << " Energy (squared sum): " */ 
+	/* << energySquared << endl; */
+    /* cout << "Variance : " << energySquared - energy*energy << endl; */
     return true;
 }
 
@@ -157,29 +157,29 @@ void VMCSolver1::runRandomStep(int cycle){
         waveFuncValOld = (this->*getWaveFuncVal)(prOld);
         // New position to test
         for(int i = 0; i < nParticles; i++) {
-            for(int j = 0; j < nDimensions; j++) {
-                prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
-            }
+            /* for(int j = 0; j < nDimensions; j++) { */
+            /*     prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
+            /* } */
             // Recalculate the value of the wave function
-            waveFuncValNew = (this->*getWaveFuncVal)(prNew);
-            double ratio = 
-                    waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
-            // Check for step acceptance (if yes, 
-            // update position, if no, reset position)
-            if(Random::ran2(idum) <= ratio) {
-                for(int j = 0; j < nDimensions; j++) {
-                    prOld[i][j] = prNew[i][j];
-                }
-                waveFuncValOld = waveFuncValNew;
-                accepts++;
-            } else {
-                for(int j = 0; j < nDimensions; j++) {
-                    prNew[i][j] = prOld[i][j];
-                }
-                waveFuncValNew = waveFuncValOld;
-                rejects++;
-            }
-            endOfSingleParticleStep(cycle, i);
+            /* waveFuncValNew = (this->*getWaveFuncVal)(prNew); */
+            /* double ratio = */ 
+            /*         waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld); */
+            /* // Check for step acceptance (if yes, */ 
+            /* // update position, if no, reset position) */
+            /* if(Random::ran2(idum) <= ratio) { */
+            /*     for(int j = 0; j < nDimensions; j++) { */
+            /*         prOld[i][j] = prNew[i][j]; */
+            /*     } */
+            /*     waveFuncValOld = waveFuncValNew; */
+            /*     accepts++; */
+            /* } else { */
+            /*     for(int j = 0; j < nDimensions; j++) { */
+            /*         prNew[i][j] = prOld[i][j]; */
+            /*     } */
+            /*     waveFuncValNew = waveFuncValOld; */
+            /*     rejects++; */
+            /* } */
+            /* endOfSingleParticleStep(cycle, i); */
         }
         // All particles moved one step at this point.
     }
@@ -224,7 +224,6 @@ bool VMCSolver1::initRunVariables(){
         return false;
     }
 
-    cout << "Local : " << localEnergyFunction << endl;
     // Set the local energy function as a function pointer
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
         getLocalEnergy = &VMCSolver1::getLocalEnergyGeneric;
@@ -660,6 +659,20 @@ void VMCSolver1::clear(){
     nCycles = 0;
     timeStep = 0;
     D = 0;
+
+    rMax = 0;
+    bins = 1;
+
+    mean = 0;
+    energy = 0;
+    energySquared = 0;
+    energySum = 0;
+    energySquaredSum = 0;
+    rAbsSum = 0;
+    deltaE = 0;
+    waveFuncValOld = 0;
+    waveFuncValNew = 0;
+
 
     outputSupressed = false;
     importanceSampling = false;

@@ -8,13 +8,27 @@ VMCWrapper::VMCWrapper(){
 }
 
 bool VMCWrapper::runIntegration(){
-    VMCSolver1 solver = VMCSolver1();
-    initSolver(solver);
-    bool val = solver.runIntegration();
-    mean = solver.getR12Mean();
-    energy = solver.getEnergy();
-    energySquared = solver.getEnergySquared();
-    acceptanceRatio = solver.getAcceptanceRatio();
+    bool val;
+    if (parallel) {
+        VMCSolver1 solver = VMCSolver1();
+        #pragma omp parallel private(solver)
+        {
+            initSolver(solver);
+            solver.nCycles = nCycles/omp_get_num_threads();
+            val = solver.runIntegration();
+            printf("Energy : %f\n", solver.getEnergy());
+            solver.nCycles = nCycles;
+        }
+    }
+    else {
+        VMCSolver1 solver = VMCSolver1();
+        initSolver(solver);
+        val = solver.runIntegration();
+        mean = solver.getR12Mean();
+        energy = solver.getEnergy();
+        energySquared = solver.getEnergySquared();
+        acceptanceRatio = solver.getAcceptanceRatio();
+    }
     return val;
 }
 
