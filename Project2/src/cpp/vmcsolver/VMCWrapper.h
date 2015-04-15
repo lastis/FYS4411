@@ -5,13 +5,13 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <omp.h>
 #include "../CPhys/CPhys.h"
-#include "SingleParticleWaveFunctions.h"
 
-class VMCSolver
+class VMCWrapper
 {
 public:
-    VMCSolver();
+    VMCWrapper();
     static const int LOCAL_ENERGY_GENERIC = 1;
     static const int LOCAL_ENERGY_HELIUM_1 = 2;
     static const int LOCAL_ENERGY_HELIUM_2 = 4;
@@ -26,23 +26,21 @@ public:
 
     bool runIntegration();
     bool initFromFile(std::string fName);
-    bool initRunVariables();
-    bool initPositions();
     void exportParamters(std::string fName);
     void exportDensity(std::string fName);
     void exportEnergyArray(std::string fName);
     void exportPositions(std::string fName);
-    void setWaveFunction1();
-    void setWaveFunction2();
-    void setWaveFunctionBeryllium1();
-    void setWaveFunctionBeryllium2();
-    void setLocalEnergyHelium1();
-    void setLocalEnergyHelium2();
-    void setLocalEnergyHydrogen();
-    void setLocalEnergyGeneric();
-    void setLocalEnergyGenericNoCor();
-    void setLocalEnergySlater();
-    void setLocalEnergySlaterNoCor();
+    void useWaveFunction1();
+    void useWaveFunction2();
+    void useWaveFunctionBeryllium1();
+    void useWaveFunctionBeryllium2();
+    void useLocalEnergyHelium1();
+    void useLocalEnergyHelium2();
+    void useLocalEnergyHydrogen();
+    void useLocalEnergyGeneric();
+    void useLocalEnergyGenericNoCor();
+    void useLocalEnergySlater();
+    void useLocalEnergySlaterNoCor();
     void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
     void setRecordEnergyArray(bool param);
     void setRecordR12Mean(bool param);
@@ -59,21 +57,6 @@ public:
     void clear();
     void supressOutput();
     bool validateParamters();
-
-    double getLocalEnergyGeneric(double** r);
-    double getLocalEnergyGenericNoCor(double** r);
-    double getLocalEnergyHelium1(double** r);
-    double getLocalEnergyHelium2(double** r);
-    double getLocalEnergyHydrogen(double** r);
-    double getLocalEnergySlater(double** r);
-    double getLocalEnergySlaterNoCor(double** r);
-    void updateQuantumForce(double** r, double ** qForce,double factor);
-    void updateSlater(int i);
-    void updateInverse(int i, double ratio, double** mat, double** inv);
-    double getWaveFunc1Val(double** r);
-    double getWaveFunc2Val(double** r);
-    double getWaveBeryllium1Val(double** r);
-    double getWaveBeryllium2Val(double** r);
 
 
     // Parameters to be set manually or from file.
@@ -93,19 +76,6 @@ public:
     long idum;
     double timeStep;
     double D;
-
-private:
-
-    // Private functions
-    double (VMCSolver::*getWaveFuncVal)(double** r);
-    double (VMCSolver::*getLocalEnergy)(double** r);
-    void endOfSingleParticleStep(int cycle, int i);
-    void endOfCycle(int cycle);
-    void runRandomStep(int cycle);
-    void runQuantumStep(int cycle);
-
-
-public:
 
     // Shared variables
     double mean;
@@ -130,33 +100,6 @@ public:
     bool importanceSampling;
     bool efficientSlater;
     bool parallel;
-
-    // Private variables
-    Matrix slater1;
-    Matrix slater1Inv;
-    Matrix slater2;
-    Matrix slater2Inv;
-    double** pslater1;
-    double** pslater1Inv;
-    double** pslater2;
-    double** pslater2Inv;
-    Vector vS;
-    double* S;
-    Matrix qForceOld;
-    Matrix qForceNew;
-    double** pqForceOld;
-    double** pqForceNew;
-    Matrix rOld;
-    Matrix rNew;
-    double** prOld;
-    double** prNew;
-    Matrix positions;
-    double** pPositions;
-    Matrix density;
-    double** pDensity;
-    Vector energyArray;
-    double* pEnergyArray;
-
 };
 
 #endif // VMCSOLVER_H
