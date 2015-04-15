@@ -1,3 +1,5 @@
+#ifndef _CPHYS_H_INCLUDED
+#define _CPHYS_H_INCLUDED
 #include "Matrix.h"
 #include "Cube.h"
 namespace CPhys{
@@ -55,3 +57,4 @@ namespace CPhys{
 				     int      N, int      M, double T);
 	}
 }
+#endif
