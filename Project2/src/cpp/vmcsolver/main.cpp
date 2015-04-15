@@ -25,6 +25,7 @@ int main()
     solver.setWaveFunctionBeryllium1();
     solver.setLocalEnergyGenericNoCor();
     solver.useEfficientSlater(true);
+    /* solver.useParallel(true); */
 
     clock_t start = clock();
     solver.runIntegration();

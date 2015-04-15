@@ -1,4 +1,5 @@
 #include "VMCSolver.h"
+#include <omp.h>
 
 using namespace CPhys;
 using namespace std;
@@ -9,21 +10,35 @@ VMCSolver::VMCSolver(){
 }
 
 bool VMCSolver::runIntegration(){
-    ready = false;
     if (validateParamters() && initRunVariables()) ready = true;
     if (!ready) {
         cout << "Error: Solver not initialized properly, integration not running."
             << endl;
         return false;
     }
+    if (parallel) {
+        initPositions();
+        // Initialize different positions.
+        ready = false;
+        #pragma omp parallel for private(cycle)
+        // Main part of the code. 
+        // Loop over Monte Carlo cycles.
+        for(int cycle = 0; cycle < nCycles; cycle++) {
+            if (importanceSampling) runQuantumStep(cycle);
+            else runRandomStep(cycle);
+            endOfCycle(cycle);
+        }
+    }
+    else {
+        initPositions();
+        // Main part of the code. 
+        // Loop over Monte Carlo cycles.
+        for(int cycle = 0; cycle < nCycles; cycle++) {
+            if (importanceSampling) runQuantumStep(cycle);
+            else runRandomStep(cycle);
+            endOfCycle(cycle);
+        }
 
-
-    // Main part of the code. 
-    // Loop over Monte Carlo cycles.
-    for(int cycle = 0; cycle < nCycles; cycle++) {
-        if (importanceSampling) runQuantumStep(cycle);
-        else runRandomStep(cycle);
-        endOfCycle(cycle);
     }
 
     // Calculate the density
@@ -244,8 +259,12 @@ bool VMCSolver::initRunVariables(){
         return false;
     }
 
-    // Initialize arrays
+    // Finished without error (hopefully).
+    return true;
+}
 
+bool VMCSolver::initPositions(){
+    // Initialize arrays
     if (recordPositions) {
         positions = Matrix(nParticles, nCycles);
         positions.reset();
@@ -328,11 +347,8 @@ bool VMCSolver::initRunVariables(){
             }
             slater1Inv = CPhys::MatOp::getInverse(slater1);
             pslater1Inv = slater1Inv.getArrayPointer();
-
         }
     }
-
-    // Finished without error (hopefully).
     return true;
 }
 
@@ -714,6 +730,10 @@ void VMCSolver::useEfficientSlater(bool param){
 
 void VMCSolver::useImportanceSampling(bool param){
     importanceSampling = param;
+}
+
+void VMCSolver::useParallel(bool param){
+    parallel = param;
 }
 
 void VMCSolver::setRecordEnergyArray(bool param){

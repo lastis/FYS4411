@@ -26,6 +26,8 @@ public:
 
     bool runIntegration();
     bool initFromFile(std::string fName);
+    bool initRunVariables();
+    bool initPositions();
     void exportParamters(std::string fName);
     void exportDensity(std::string fName);
     void exportEnergyArray(std::string fName);
@@ -46,6 +48,7 @@ public:
     void setRecordR12Mean(bool param);
     void setRecordPositions(bool param);
     void setStepLength(double stepLength);
+    void useParallel(bool param);
     void useImportanceSampling(bool param);
     void useEfficientSlater(bool param);
     double getAcceptanceRatio();
@@ -64,7 +67,6 @@ public:
     double getLocalEnergyHydrogen(double** r);
     double getLocalEnergySlater(double** r);
     double getLocalEnergySlaterNoCor(double** r);
-    bool initRunVariables();
     void updateQuantumForce(double** r, double ** qForce,double factor);
     void updateSlater(int i);
     void updateInverse(int i, double ratio, double** mat, double** inv);
@@ -128,6 +130,7 @@ public:
     bool recordPositions;
     bool importanceSampling;
     bool efficientSlater;
+    bool parallel;
 
     Matrix slater1;
     Matrix slater1Inv;
