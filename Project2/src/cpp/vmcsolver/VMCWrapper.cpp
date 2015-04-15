@@ -8,7 +8,57 @@ VMCWrapper::VMCWrapper(){
 }
 
 bool VMCWrapper::runIntegration(){
-    return true;
+    VMCSolver1 solver = VMCSolver1();
+    initSolver(solver);
+    bool val = solver.runIntegration();
+    return val;
+}
+
+bool VMCWrapper::initSolver(VMCSolver1& solver){
+    solver.alpha = alpha;
+    solver.beta = beta;
+    solver.waveFunction = waveFunction;
+    /* double alpha; */
+    /* double beta; */
+    /* int waveFunction; */
+    /* int localEnergyFunction; */
+    /* int accepts; */
+    /* int rejects; */
+    /* int charge; */
+    /* int nDimensions; */
+    /* int nCycles; */
+    /* int nParticles; */
+    /* double stepLength; */
+    /* double h; */
+    /* double h2; */
+    /* long idum; */
+    /* double timeStep; */
+    /* double D; */
+
+    /* // Shared variables */
+    /* double mean; */
+    /* double energy; */
+    /* double energySquared; */
+    /* double energySum; */
+    /* double energySquaredSum; */
+    /* double rAbsSum; */
+    /* double deltaE; */
+    /* double waveFuncValOld; */
+    /* double waveFuncValNew; */
+    /* double rMax; */
+    /* int bins; */
+
+    /* bool ready; */
+    /* bool outputSupressed; */
+    /* bool recordDensity; */
+    /* bool recordChargeDensity; */
+    /* bool recordEnergyArray; */
+    /* bool recordR12Mean; */
+    /* bool recordPositions; */
+    /* bool importanceSampling; */
+    /* bool efficientSlater; */
+    /* bool parallel; */
+
 }
 
 void VMCWrapper::supressOutput(){

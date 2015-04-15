@@ -1,11 +1,12 @@
-#ifndef VMCSOLVER_H
-#define VMCSOLVER_H
+#ifndef _VMCWRAPPER_H_INCLUDED_
+#define _VMCWRAPPER_H_INCLUDED_
 
 #include <math.h>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <omp.h>
+#include "VMCSolver1.h"
 #include "../CPhys/CPhys.h"
 
 class VMCWrapper
@@ -25,6 +26,7 @@ public:
     static const int WAVE_FUNCTION_BERYLLIUM_2 = 4;
 
     bool runIntegration();
+    bool initSolver(VMCSolver1& solver);
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
     void exportDensity(std::string fName);

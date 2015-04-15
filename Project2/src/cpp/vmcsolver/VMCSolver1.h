@@ -1,5 +1,5 @@
-#ifndef VMCSOLVER_H
-#define VMCSOLVER_H
+#ifndef _VMCSOLVER_H_INCLUDED
+#define _VMCSOLVER_H_INCLUDED
 
 #include <math.h>
 #include <iostream>
@@ -27,24 +27,6 @@ public:
 
     bool runIntegration();
     bool initRunVariables();
-    void useWaveFunction1();
-    void useWaveFunction2();
-    void useWaveFunctionBeryllium1();
-    void useWaveFunctionBeryllium2();
-    void useLocalEnergyHelium1();
-    void useLocalEnergyHelium2();
-    void useLocalEnergyHydrogen();
-    void useLocalEnergyGeneric();
-    void useLocalEnergyGenericNoCor();
-    void useLocalEnergySlater();
-    void useLocalEnergySlaterNoCor();
-    void useParallel(bool param);
-    void useImportanceSampling(bool param);
-    void useEfficientSlater(bool param);
-    void recordDensity(bool param, int bins = 9, double maxPos = 2);
-    void recordEnergyArray(bool param);
-    void recordR12Mean(bool param);
-    void recordPositions(bool param);
     double getAcceptanceRatio();
     double getStepLength();
     double getR12Mean();

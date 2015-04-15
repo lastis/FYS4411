@@ -640,81 +640,6 @@ double VMCSolver1::getR12Mean(){
     return mean;
 }
 
-void VMCSolver1::useLocalEnergyHelium1(){
-    localEnergyFunction = LOCAL_ENERGY_HELIUM_1;
-}
-
-void VMCSolver1::useLocalEnergyHelium2(){
-    localEnergyFunction = LOCAL_ENERGY_HELIUM_2;
-}
-
-void VMCSolver1::useLocalEnergyHydrogen(){
-    localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
-}
-
-void VMCSolver1::useLocalEnergySlater(){
-    localEnergyFunction = LOCAL_ENERGY_SLATER;
-}
-
-void VMCSolver1::useLocalEnergySlaterNoCor(){
-    localEnergyFunction = LOCAL_ENERGY_SLATER_NOCOR;
-}
-
-void VMCSolver1::useEfficientSlater(bool param){
-    efficientSlater = param;
-}
-
-void VMCSolver1::useImportanceSampling(bool param){
-    importanceSampling = param;
-}
-
-void VMCSolver1::useParallel(bool param){
-    parallel = param;
-}
-
-void VMCSolver1::recordEnergyArray(bool param){
-    recordingEnergyArray = param;
-}
-
-void VMCSolver1::recordDensity(bool param, int bins, double maxPos){
-    // This is the only place where bins and rMax are set. But 
-    // this function is called on clear().
-    recordingDensity = param;
-    this->bins = bins;
-    rMax = maxPos;
-}
-
-void VMCSolver1::recordR12Mean(bool param){
-    recordingR12Mean = param;
-}
-void VMCSolver1::recordPositions(bool param){
-    recordingPositions = param;
-}
-
-void VMCSolver1::useLocalEnergyGeneric(){
-    localEnergyFunction = LOCAL_ENERGY_GENERIC;
-}
-
-void VMCSolver1::useLocalEnergyGenericNoCor(){
-    localEnergyFunction = LOCAL_ENERGY_GENERIC_NOCOR;
-}
-
-void VMCSolver1::useWaveFunction1(){
-    waveFunction = WAVE_FUNCTION_1;
-}
-
-void VMCSolver1::useWaveFunction2(){
-    waveFunction = WAVE_FUNCTION_2;
-}
-
-void VMCSolver1::useWaveFunctionBeryllium1(){
-    waveFunction = WAVE_FUNCTION_BERYLLIUM_1;
-}
-
-void VMCSolver1::useWaveFunctionBeryllium2(){
-    waveFunction = WAVE_FUNCTION_BERYLLIUM_2;
-}
-
 void VMCSolver1::clear(){
     waveFunction = WAVE_FUNCTION_1;
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
@@ -732,13 +657,13 @@ void VMCSolver1::clear(){
     D = 0;
 
     outputSupressed = false;
-    useImportanceSampling(false);
-    useEfficientSlater(false);
-    useParallel(false);
-    recordDensity(false);
-    recordEnergyArray(false);
-    recordR12Mean(false);
-    recordPositions(false);
+    importanceSampling = false;
+    efficientSlater = false;
+    parallel = false;
+    recordingDensity = false;
+    recordingEnergyArray = false;
+    recordingR12Mean = false;
+    recordingPositions = false;
 }
 
 double VMCSolver1::getAcceptanceRatio(){
