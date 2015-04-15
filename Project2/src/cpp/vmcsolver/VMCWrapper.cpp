@@ -10,12 +10,13 @@ VMCWrapper::VMCWrapper(){
 bool VMCWrapper::runIntegration(){
     bool val;
     if (parallel) {
-        VMCSolver1 solver = VMCSolver1();
+        VMCSolver1 solver; 
         #pragma omp parallel private(solver)
         {
+            solver = VMCSolver1();
             initSolver(solver);
             solver.nCycles = nCycles/omp_get_num_threads();
-            val = solver.runIntegration();
+            solver.runIntegration();
             printf("Energy : %f\n", solver.getEnergy());
             solver.nCycles = nCycles;
         }
@@ -24,10 +25,16 @@ bool VMCWrapper::runIntegration(){
         VMCSolver1 solver = VMCSolver1();
         initSolver(solver);
         val = solver.runIntegration();
+
         mean = solver.getR12Mean();
         energy = solver.getEnergy();
         energySquared = solver.getEnergySquared();
         acceptanceRatio = solver.getAcceptanceRatio();
+
+        cout << "Energy : " << energy << endl;
+        cout << "Energy squared : " << energySquared << endl;
+        cout << "Variance : " << energySquared - energy*energy << endl;
+        cout << "Acceptance Ratio : " << acceptanceRatio << endl;
     }
     return val;
 }

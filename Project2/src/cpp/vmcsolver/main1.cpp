@@ -11,7 +11,6 @@ int main()
     /* solver.D = 0.5; */
     /* solver.timeStep = 0.01; */
     /* solver.setImportanceSampling(true); */
-    /* solver.alpha = 3.75; */
     solver.alpha = 4;
     solver.beta = 0.8;
     solver.nDimensions = 3;
@@ -24,7 +23,7 @@ int main()
     solver.idum = 2;
     solver.useWaveFunctionBeryllium1();
     solver.useLocalEnergyGenericNoCor();
-    /* solver.useEfficientSlater(true); */
+    solver.useEfficientSlater(true);
     solver.useParallel(true);
 
     clock_t start = clock();
@@ -34,8 +33,6 @@ int main()
     double time = double(end - start)/CLOCKS_PER_SEC;
     cout << "Time = " << time << endl;  
 
-    cout << "Accepted moves: " << int(solver.getAcceptanceRatio())
-	    << " %" << endl;
     /* cout << "Mean distance: " << solver.getR12Mean() << endl; */
 
     /* solver.exportEnergyArray("energies.txt"); */

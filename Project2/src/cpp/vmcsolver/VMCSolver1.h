@@ -128,6 +128,8 @@ public:
     Vector energyArray;
     double* pEnergyArray;
 
+    CPhys::Random::RNG rng;
+
 };
 
 #endif // VMCSOLVER_H

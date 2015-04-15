@@ -49,7 +49,6 @@ bool VMCSolver1::runIntegration(){
     }
     /* cout << "Energy: " << energy << " Energy (squared sum): " */ 
 	/* << energySquared << endl; */
-    /* cout << "Variance : " << energySquared - energy*energy << endl; */
     return true;
 }
 
@@ -62,37 +61,39 @@ void VMCSolver1::runQuantumStep(int cycle){
     // New position to test
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-            prNew[i][j] = prOld[i][j] + Random::gauss(idum)*sqrt(timeStep) 
+            /* prNew[i][j] = prOld[i][j] + Random::gauss(idum)*sqrt(timeStep) */ 
+            prNew[i][j] = prOld[i][j] + rng.gauss(idum)*sqrt(timeStep) 
 		+ pqForceOld[i][j]*timeStep*D;
         }
-	//For the other particles we need to set the position to the old
-	//position since we move only one particle at the time. 
-	for (int k = 0; k < nParticles; k++) {
-		if (k != i) {
-			for (int j = 0; j < nDimensions; j++) {
-				prNew[k][j] = prOld[k][j];
-			}
-		}
-	}
+        //For the other particles we need to set the position to the old
+        //position since we move only one particle at the time. 
+        for (int k = 0; k < nParticles; k++) {
+            if (k != i) {
+                for (int j = 0; j < nDimensions; j++) {
+                    prNew[k][j] = prOld[k][j];
+                }
+            }
+        }
 
         // Recalculate the value of the wave function
         waveFuncValNew = (this->*getWaveFuncVal)(prNew);
-	updateQuantumForce(prNew, pqForceNew, waveFuncValNew);
+        updateQuantumForce(prNew, pqForceNew, waveFuncValNew);
 
-	// Compute the log ratio of the greens functions to be used in the 
-	// Metropolis-Hastings algorithm.
-	greensFunction = 0;
-	for (int j = 0; j < nDimensions; j++) {
-		greensFunction += 0.5*(pqForceOld[i][j]+pqForceNew[i][j])*
-		    (D*timeStep*0.5*(pqForceOld[i][j]-pqForceNew[i][j])
-		    - prNew[i][j] + prOld[i][j]);
-	}
-	greensFunction = exp(greensFunction);
+        // Compute the log ratio of the greens functions to be used in the 
+        // Metropolis-Hastings algorithm.
+        greensFunction = 0;
+        for (int j = 0; j < nDimensions; j++) {
+            greensFunction += 0.5*(pqForceOld[i][j]+pqForceNew[i][j])*
+                (D*timeStep*0.5*(pqForceOld[i][j]-pqForceNew[i][j])
+                - prNew[i][j] + prOld[i][j]);
+        }
+        greensFunction = exp(greensFunction);
 
         // Check for step acceptance (if yes, 
         // update position, if no, reset position)
-	// The metropolis test is performed by moving one particle at the time.
-        if(Random::ran2(idum) <= greensFunction*(waveFuncValNew*waveFuncValNew)
+        // The metropolis test is performed by moving one particle at the time.
+        /* if(Random::ran2(idum) <= greensFunction*(waveFuncValNew*waveFuncValNew) */
+        if(rng.ran2(idum) <= greensFunction*(waveFuncValNew*waveFuncValNew)
                 / (waveFuncValOld*waveFuncValOld)) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
@@ -117,7 +118,8 @@ void VMCSolver1::runRandomStep(int cycle){
         // New position to test
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
+                /* prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
+                prNew[i][j] = prOld[i][j] + stepLength*(rng.ran2(idum) - 0.5);
             }
             double ratio = 0;
             for (int j = 0; j < nParticles/2; j++) {
@@ -128,7 +130,8 @@ void VMCSolver1::runRandomStep(int cycle){
             }
             // Check for step acceptance (if yes, 
             // update position, if no, reset position)
-            if(Random::ran2(idum) <= ratio) {
+            /* if(Random::ran2(idum) <= ratio) { */
+            if(rng.ran2(idum) <= ratio) {
                 for(int j = 0; j < nDimensions; j++) {
                     prOld[i][j] = prNew[i][j];
                 }
@@ -157,29 +160,30 @@ void VMCSolver1::runRandomStep(int cycle){
         waveFuncValOld = (this->*getWaveFuncVal)(prOld);
         // New position to test
         for(int i = 0; i < nParticles; i++) {
-            /* for(int j = 0; j < nDimensions; j++) { */
-            /*     prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
-            /* } */
+            for(int j = 0; j < nDimensions; j++) {
+                /* prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
+                prNew[i][j] = prOld[i][j] + stepLength*(rng.ran2(idum) - 0.5);
+            }
             // Recalculate the value of the wave function
-            /* waveFuncValNew = (this->*getWaveFuncVal)(prNew); */
-            /* double ratio = */ 
-            /*         waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld); */
-            /* // Check for step acceptance (if yes, */ 
-            /* // update position, if no, reset position) */
-            /* if(Random::ran2(idum) <= ratio) { */
-            /*     for(int j = 0; j < nDimensions; j++) { */
-            /*         prOld[i][j] = prNew[i][j]; */
-            /*     } */
-            /*     waveFuncValOld = waveFuncValNew; */
-            /*     accepts++; */
-            /* } else { */
-            /*     for(int j = 0; j < nDimensions; j++) { */
-            /*         prNew[i][j] = prOld[i][j]; */
-            /*     } */
-            /*     waveFuncValNew = waveFuncValOld; */
-            /*     rejects++; */
-            /* } */
-            /* endOfSingleParticleStep(cycle, i); */
+            waveFuncValNew = (this->*getWaveFuncVal)(prNew);
+            double ratio = 
+                    waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
+            // Check for step acceptance (if yes, 
+            // update position, if no, reset position)
+            if(rng.ran2(idum) <= ratio) {
+                for(int j = 0; j < nDimensions; j++) {
+                    prOld[i][j] = prNew[i][j];
+                }
+                waveFuncValOld = waveFuncValNew;
+                accepts++;
+            } else {
+                for(int j = 0; j < nDimensions; j++) {
+                    prNew[i][j] = prOld[i][j];
+                }
+                waveFuncValNew = waveFuncValOld;
+                rejects++;
+            }
+            endOfSingleParticleStep(cycle, i);
         }
         // All particles moved one step at this point.
     }
@@ -272,11 +276,15 @@ bool VMCSolver1::initRunVariables(){
     prNew = rNew.getArrayPointer();
     prOld = rOld.getArrayPointer();
 
+    // Initialize a random number generator.
+    rng = CPhys::Random::RNG();
+
     // initial trial positions
     if (importanceSampling == true) {
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                prOld[i][j] = Random::gauss(idum)*sqrt(timeStep);
+                /* prOld[i][j] = Random::gauss(idum)*sqrt(timeStep); */
+                prOld[i][j] = rng.gauss(idum)*sqrt(timeStep);
             }
         }
     }
@@ -284,7 +292,8 @@ bool VMCSolver1::initRunVariables(){
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
                 /* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
-                prOld[i][j] = (Random::ran2(idum) - 0.5);
+                /* prOld[i][j] = (Random::ran2(idum) - 0.5); */
+                prOld[i][j] = stepLength * (rng.ran2(idum) - 0.5);
             }
         }
     }
@@ -351,8 +360,6 @@ double VMCSolver1::getLocalEnergySlater(double** r){
             D += phiDD(j,r[i]);
         }
     }
-    
-    
 }
 
 double VMCSolver1::getLocalEnergySlaterNoCor(double** r){
@@ -433,7 +440,6 @@ void VMCSolver1::endOfCycle(int cycle){
     rAbs = sqrt(rsq);
     // Add it to a sum so we can calculate the mean.
     rAbsSum += rAbs;
-
 }
 
 void VMCSolver1::endOfSingleParticleStep(int cycle, int i){
