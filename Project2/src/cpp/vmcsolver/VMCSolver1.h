@@ -20,10 +20,10 @@ public:
     static const int LOCAL_ENERGY_GENERIC_NOCOR = 5;
     static const int LOCAL_ENERGY_SLATER = 6;
     static const int LOCAL_ENERGY_SLATER_NOCOR = 7;
-    static const int WAVE_FUNCTION_1 = 1;
-    static const int WAVE_FUNCTION_2 = 2;
-    static const int WAVE_FUNCTION_BERYLLIUM_1 = 3;
-    static const int WAVE_FUNCTION_BERYLLIUM_2 = 4;
+    static const int WAVE_FUNCTION_1 = 8;
+    static const int WAVE_FUNCTION_2 = 9;
+    static const int WAVE_FUNCTION_BERYLLIUM_1 = 10;
+    static const int WAVE_FUNCTION_BERYLLIUM_2 = 11;
 
     bool runIntegration();
     bool initRunVariables();
@@ -67,6 +67,8 @@ public:
     long idum;
     double timeStep;
     double D;
+    double rMax;
+    int bins;
 
 private:
 
@@ -90,13 +92,9 @@ public:
     double deltaE;
     double waveFuncValOld;
     double waveFuncValNew;
-    double rMax;
-    int bins;
 
-    bool ready;
     bool outputSupressed;
     bool recordingDensity;
-    bool recordingChargeDensity;
     bool recordingEnergyArray;
     bool recordingR12Mean;
     bool recordingPositions;
@@ -133,3 +131,4 @@ public:
 };
 
 #endif // VMCSOLVER_H
+

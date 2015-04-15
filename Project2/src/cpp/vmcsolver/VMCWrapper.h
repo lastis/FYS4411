@@ -13,17 +13,17 @@ class VMCWrapper
 {
 public:
     VMCWrapper();
-    static const int LOCAL_ENERGY_GENERIC = 1;
-    static const int LOCAL_ENERGY_HELIUM_1 = 2;
-    static const int LOCAL_ENERGY_HELIUM_2 = 4;
-    static const int LOCAL_ENERGY_HYDROGEN = 3;
-    static const int LOCAL_ENERGY_GENERIC_NOCOR = 5;
-    static const int LOCAL_ENERGY_SLATER = 6;
-    static const int LOCAL_ENERGY_SLATER_NOCOR = 7;
-    static const int WAVE_FUNCTION_1 = 1;
-    static const int WAVE_FUNCTION_2 = 2;
-    static const int WAVE_FUNCTION_BERYLLIUM_1 = 3;
-    static const int WAVE_FUNCTION_BERYLLIUM_2 = 4;
+    static const int LOCAL_ENERGY_GENERIC       = VMCSolver1::LOCAL_ENERGY_GENERIC;
+    static const int LOCAL_ENERGY_HELIUM_1      = VMCSolver1::LOCAL_ENERGY_HELIUM_1;
+    static const int LOCAL_ENERGY_HELIUM_2      = VMCSolver1::LOCAL_ENERGY_HELIUM_2;
+    static const int LOCAL_ENERGY_HYDROGEN      = VMCSolver1::LOCAL_ENERGY_HYDROGEN;
+    static const int LOCAL_ENERGY_GENERIC_NOCOR = VMCSolver1::LOCAL_ENERGY_GENERIC_NOCOR;
+    static const int LOCAL_ENERGY_SLATER        = VMCSolver1::LOCAL_ENERGY_SLATER;
+    static const int LOCAL_ENERGY_SLATER_NOCOR  = VMCSolver1::LOCAL_ENERGY_SLATER_NOCOR;
+    static const int WAVE_FUNCTION_1            = VMCSolver1::WAVE_FUNCTION_1;
+    static const int WAVE_FUNCTION_2            = VMCSolver1::WAVE_FUNCTION_2;
+    static const int WAVE_FUNCTION_BERYLLIUM_1  = VMCSolver1::WAVE_FUNCTION_BERYLLIUM_1;
+    static const int WAVE_FUNCTION_BERYLLIUM_2  = VMCSolver1::WAVE_FUNCTION_BERYLLIUM_2;
 
     bool runIntegration();
     bool initSolver(VMCSolver1& solver);
@@ -61,7 +61,7 @@ public:
     bool validateParamters();
 
 
-    // Parameters to be set manually or from file.
+    // Paramters to the solver.
     double alpha;
     double beta;
     int waveFunction;
@@ -78,30 +78,23 @@ public:
     long idum;
     double timeStep;
     double D;
-
-    // Shared variables
-    double mean;
-    double energy;
-    double energySquared;
-    double energySum;
-    double energySquaredSum;
-    double rAbsSum;
-    double deltaE;
-    double waveFuncValOld;
-    double waveFuncValNew;
-    double rMax;
     int bins;
-
-    bool ready;
+    double rMax;
     bool outputSupressed;
-    bool recordDensity;
-    bool recordChargeDensity;
-    bool recordEnergyArray;
-    bool recordR12Mean;
-    bool recordPositions;
+    bool recordingDensity;
+    bool recordingEnergyArray;
+    bool recordingR12Mean;
+    bool recordingPositions;
     bool importanceSampling;
     bool efficientSlater;
     bool parallel;
+
+    // Results from the solver
+    double mean;
+    double energy;
+    double energySquared;
+    double acceptanceRatio;
+
 };
 
 #endif // VMCSOLVER_H

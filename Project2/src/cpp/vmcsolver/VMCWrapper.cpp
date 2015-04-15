@@ -11,6 +11,10 @@ bool VMCWrapper::runIntegration(){
     VMCSolver1 solver = VMCSolver1();
     initSolver(solver);
     bool val = solver.runIntegration();
+    mean = solver.getR12Mean();
+    energy = solver.getEnergy();
+    energySquared = solver.getEnergySquared();
+    acceptanceRatio = solver.getAcceptanceRatio();
     return val;
 }
 
@@ -18,47 +22,27 @@ bool VMCWrapper::initSolver(VMCSolver1& solver){
     solver.alpha = alpha;
     solver.beta = beta;
     solver.waveFunction = waveFunction;
-    /* double alpha; */
-    /* double beta; */
-    /* int waveFunction; */
-    /* int localEnergyFunction; */
-    /* int accepts; */
-    /* int rejects; */
-    /* int charge; */
-    /* int nDimensions; */
-    /* int nCycles; */
-    /* int nParticles; */
-    /* double stepLength; */
-    /* double h; */
-    /* double h2; */
-    /* long idum; */
-    /* double timeStep; */
-    /* double D; */
-
-    /* // Shared variables */
-    /* double mean; */
-    /* double energy; */
-    /* double energySquared; */
-    /* double energySum; */
-    /* double energySquaredSum; */
-    /* double rAbsSum; */
-    /* double deltaE; */
-    /* double waveFuncValOld; */
-    /* double waveFuncValNew; */
-    /* double rMax; */
-    /* int bins; */
-
-    /* bool ready; */
-    /* bool outputSupressed; */
-    /* bool recordDensity; */
-    /* bool recordChargeDensity; */
-    /* bool recordEnergyArray; */
-    /* bool recordR12Mean; */
-    /* bool recordPositions; */
-    /* bool importanceSampling; */
-    /* bool efficientSlater; */
-    /* bool parallel; */
-
+    solver.localEnergyFunction = localEnergyFunction;
+    solver.charge = charge;
+    solver.nDimensions = nDimensions;
+    solver.nCycles = nCycles;
+    solver.nParticles = nParticles;
+    solver.stepLength = stepLength;
+    solver.h = h;
+    solver.h2 = h2;
+    solver.idum = idum;
+    solver.timeStep = timeStep;
+    solver.D = D;
+    solver.outputSupressed = outputSupressed;
+    solver.recordingDensity = recordingDensity;
+    solver.recordingEnergyArray = recordingEnergyArray;
+    solver.recordingR12Mean = recordingR12Mean;
+    solver.recordingPositions = recordingPositions;
+    solver.importanceSampling = importanceSampling;
+    solver.efficientSlater = efficientSlater;
+    solver.parallel = parallel;
+    solver.bins = bins;
+    solver.rMax = rMax;
 }
 
 void VMCWrapper::supressOutput(){
@@ -112,10 +96,10 @@ bool VMCWrapper::initFromFile(std::string fName){
     myFile >> paramName >> discard >> timeStep;
     myFile >> paramName >> discard >> D;
     myFile >> paramName >> discard >> importanceSampling;
-    myFile >> paramName >> discard >> recordDensity;
-    myFile >> paramName >> discard >> recordEnergyArray;
-    myFile >> paramName >> discard >> recordR12Mean;
-    myFile >> paramName >> discard >> recordPositions;
+    myFile >> paramName >> discard >> recordingDensity;
+    myFile >> paramName >> discard >> recordingEnergyArray;
+    myFile >> paramName >> discard >> recordingR12Mean;
+    myFile >> paramName >> discard >> recordingPositions;
     myFile >> paramName >> discard >> efficientSlater;
 
     myFile.close();
@@ -156,22 +140,22 @@ void VMCWrapper::useParallel(bool param){
 }
 
 void VMCWrapper::setRecordEnergyArray(bool param){
-    recordEnergyArray = param;
+    recordingEnergyArray = param;
 }
 
 void VMCWrapper::setRecordDensity(bool param, int bins, double maxPos){
     // This is the only place where bins and rMax are set. But 
     // this function is called on clear().
-    recordDensity = param;
+    recordingDensity = param;
     this->bins = bins;
     rMax = maxPos;
 }
 
 void VMCWrapper::setRecordR12Mean(bool param){
-    recordR12Mean = param;
+    recordingR12Mean = param;
 }
 void VMCWrapper::setRecordPositions(bool param){
-    recordPositions = param;
+    recordingPositions = param;
 }
 
 void VMCWrapper::useLocalEnergyGeneric(){
@@ -224,7 +208,7 @@ void VMCWrapper::clear(){
 }
 
 double VMCWrapper::getAcceptanceRatio(){
-    return double(accepts)*100/(rejects+accepts);
+    return acceptanceRatio;
 }
 
 bool VMCWrapper::validateParamters(){
@@ -281,7 +265,7 @@ bool VMCWrapper::validateParamters(){
             << "for other than 4 particles." << endl;
         valid = false;
     }
-    if (recordR12Mean && nParticles != 2) {
+    if (recordingR12Mean && nParticles != 2) {
         cout << "Cannot use record r12 mean   "
             << "for other than 2 particles." << endl;
         valid = false;
@@ -310,10 +294,10 @@ void VMCWrapper::exportParamters(std::string fName){
     myFile << "timeStep = " << timeStep << endl;
     myFile << "D = " << D << endl;
     myFile << "useImportanceSampling = " << importanceSampling << endl;
-    myFile << "recordDensity = " << recordDensity <<  endl;
-    myFile << "recordEnergyArray = " << recordEnergyArray <<  endl;
-    myFile << "recordR12Mean = " << recordR12Mean <<  endl;
-    myFile << "recordPositions = " << recordPositions <<  endl;
+    myFile << "recordDensity = " << recordingDensity <<  endl;
+    myFile << "recordEnergyArray = " << recordingEnergyArray <<  endl;
+    myFile << "recordR12Mean = " << recordingR12Mean <<  endl;
+    myFile << "recordPositions = " << recordingPositions <<  endl;
     myFile << "useEfficientSlater = " << efficientSlater <<  endl;
     myFile.close();
 }

@@ -224,6 +224,7 @@ bool VMCSolver1::initRunVariables(){
         return false;
     }
 
+    cout << "Local : " << localEnergyFunction << endl;
     // Set the local energy function as a function pointer
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
         getLocalEnergy = &VMCSolver1::getLocalEnergyGeneric;
@@ -235,6 +236,10 @@ bool VMCSolver1::initRunVariables(){
         getLocalEnergy = &VMCSolver1::getLocalEnergyHydrogen;
     else if (localEnergyFunction == LOCAL_ENERGY_GENERIC_NOCOR)
         getLocalEnergy = &VMCSolver1::getLocalEnergyGenericNoCor;
+    else if (localEnergyFunction == LOCAL_ENERGY_SLATER)
+        getLocalEnergy = &VMCSolver1::getLocalEnergySlater;
+    else if (localEnergyFunction == LOCAL_ENERGY_SLATER_NOCOR)
+        getLocalEnergy = &VMCSolver1::getLocalEnergySlaterNoCor;
     else {
 	cout << "Error: Local energy function not set, integration not running."
 	    << endl;
