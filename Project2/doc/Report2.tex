@@ -15,7 +15,6 @@
 \usepackage{hyperref}
 \usepackage[a4paper, margin=1in]{geometry}
 
-
 % Start custom \abs \norm 
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
 \DeclarePairedDelimiter\norm{\lVert}{\rVert}%
@@ -163,14 +162,31 @@ This is true only if $\OP H$ is spin independent.
 Then, $\det \op D = |\op D| = |\op D|_{\uparrow}\cdot |\op D|_{\downarrow}$, 
 where the Slater matrices are dependent on the positions of the electrons. 
 Each time we update the positions and differentiate the Slater determinant,
-the Slater matrix is changed, but by calculating the  from scratch each time,
-we will certainly do unnecessary computations. This motivates the ratio
+the Slater matrix is changed, but by calculating the determinant 
+from scratch each time, we will certainly do unnecessary computations. 
+
+This is solved by the following algorithm, that instead of calculating 
+the determinant, updates the \textit{inverse} of the Slater matrix suitably.
+
+We first express $i,j$-element of the inverse of $\op D$ as
 \eq{
-  R = \frac{|\op D|_{\uparrow}^{new}}{|\op D|_{\uparrow}^{old}} 
-  \cdot \frac{|\op D|_{\downarrow}^{new}}{|\op D|_{\downarrow}^{old}}
+  d_{ij}^{-1} = \frac{C_{ji}}{|\op D|}
 }
-Every time we accept a new trial position, the i-th row of $\op D$ changes,
-and we have to update the inverse.
+where $C_{ji}$ is the transposed cofactor-matrix element of $\op D$.
+
+This motivates the ratio
+\eq{
+  R \equiv \frac{|\op D|_{\uparrow}^{new}}{|\op D|_{\uparrow}^{old}} 
+  \cdot \frac{|\op D|_{\downarrow}^{new}}{|\op D|_{\downarrow}^{old}}
+  = \frac{\sum_{j=1}^N d_{ij}^{new} C_{ij}^{new}}
+    {\sum_{j=1}^N d_{ij}^{old} C_{ij}^{old}}
+}
+Every time we move particle $i$, the $i$-th row of $\op D$ changes,
+and we have to update the inverse. However, the $i$-th row of $\op C$
+is independent 
+
+
+SAY SOMETHING ABOUT SCALING
 \section{Results}
 
 \appendix
@@ -203,7 +219,13 @@ of the Hydrogen-like wavefunctions in the following way
   \frac{\partial^2 \phi_{1s}^i}{\partial r_i^2} &= \alpha^2 g_i^2\\
   \phi_{2s}^i &= g_i(1+f_i)\\
   \frac{\partial \phi_{2s}^i}{\partial r_i} &= -\alpha g_i(1+f_i/2)\\
-  \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)
+  \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)\\
+  \phi_{2p_k}^i &= \alpha k_i g_i \text{ for } k_i = x_i,y_i,z_i\\
+  \frac{\partial\phi_{2p_k}^i}{\partial r_i} 
+    &= \left( \frac{1}{r_i} - \frac{\alpha}{2} \right) \alpha k_i g_i \\
+  \frac{\partial^2\phi_{2p_k}^i}{\partial r_i^2} 
+    &=\left(\left[ \frac{1}{r_i} - \frac{\alpha}{2} \right]^2 
+    -\frac{1}{r_i}\right) \alpha k_i g_i
 }
 and then the terms required to calculate the Slater determinant
 \eq{
