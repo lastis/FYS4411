@@ -72,10 +72,6 @@ public:
     double getWaveFunc2Val(double** r);
     double getWaveBeryllium1Val(double** r);
     double getWaveBeryllium2Val(double** r);
-    double phi(int j, double* r);
-    /* double phi1s(double r); */
-    /* double phi2s(double r); */
-    /* double phi2p(double r); */
 
 
     // Parameters to be set manually or from file.
