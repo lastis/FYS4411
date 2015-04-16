@@ -36,13 +36,13 @@ public:
     void clear();
     void supressOutput();
 
-    double getLocalEnergyGeneric(double** r);
-    double getLocalEnergyGenericNoCor(double** r);
-    double getLocalEnergyHelium1(double** r);
-    double getLocalEnergyHelium2(double** r);
-    double getLocalEnergyHydrogen(double** r);
-    double getLocalEnergySlater(double** r);
-    double getLocalEnergySlaterNoCor(double** r);
+    double getLocalEnergyGeneric(double** r, int i);
+    double getLocalEnergyGenericNoCor(double** r, int i);
+    double getLocalEnergyHelium1(double** r, int i);
+    double getLocalEnergyHelium2(double** r, int i);
+    double getLocalEnergyHydrogen(double** r, int i);
+    double getLocalEnergySlater(double** r, int i);
+    double getLocalEnergySlaterNoCor(double** r, int i);
     void updateQuantumForce(double** r, double ** qForce,double factor);
     void updateSlater(int i);
     double getWaveFunc1Val(double** r);
@@ -74,7 +74,7 @@ private:
 
     // Private functions
     double (VMCSolver::*getWaveFuncVal)(double** r);
-    double (VMCSolver::*getLocalEnergy)(double** r);
+    double (VMCSolver::*getLocalEnergy)(double** r, int i);
     void endOfSingleParticleStep(int cycle, int i);
     void endOfCycle(int cycle);
     void runRandomStep(int cycle);

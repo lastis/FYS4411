@@ -235,6 +235,7 @@ double VMCWrapper::getAcceptanceRatio(){
 bool VMCWrapper::validateParamters(){
     bool valid = true;
     if (efficientSlater) {
+        if (nParticles != 4 && nParticles)
         if (nParticles > 10) {
             cout << "Error : Slater determinant has not been implemented "
                 << "for more than 10 particles!" << endl;
