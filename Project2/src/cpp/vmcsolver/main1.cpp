@@ -1,5 +1,5 @@
 #include "VMCWrapper.h"
-#include <time.h>
+#include <chrono>
 #include <iostream>
 
 using namespace std;
@@ -24,14 +24,15 @@ int main()
     solver.useWaveFunctionBeryllium1();
     solver.useLocalEnergyGenericNoCor();
     /* solver.useEfficientSlater(true); */
-    solver.useParallel(true);
+    /* solver.useParallel(true); */
 
-    clock_t start = clock();
+    auto start = chrono::high_resolution_clock::now();
     solver.runIntegration();
-    clock_t end = clock();
-
-    double time = double(end - start)/CLOCKS_PER_SEC;
-    cout << "Time = " << time << endl;  
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> diff = end-start;
+    cout << "Time = " << diff.count() << " seconds." << endl;
+    using microfortnights = std::chrono::duration<float, std::ratio<12096,10000>>;
+    cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
 
     /* cout << "Mean distance: " << solver.getR12Mean() << endl; */
 
