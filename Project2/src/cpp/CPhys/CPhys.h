@@ -1,3 +1,5 @@
+#ifndef _CPHYS_H_INCLUDED
+#define _CPHYS_H_INCLUDED
 #include "Matrix.h"
 #include "Cube.h"
 namespace CPhys{
@@ -22,9 +24,13 @@ namespace CPhys{
 		double	normalize(Vector& v, double dx);
 	}
 	namespace Random{
-		double  ran0(long& seed);
-		double	ran2(long& seed);
-		double	gauss(long& seed);
+        class RNG{
+            public:
+            double  ran0(long& seed);
+            double	ran2(long& seed);
+            double	gauss(long& seed);
+        };
+        RNG getRandomNumberGen();
 	}
 
 
@@ -34,6 +40,7 @@ namespace CPhys{
         void    substituteForward(double** L, double** y, double** b, int N);
         void    substituteBackward(double** U, double** x, double** y, int N);
         void    getInverse(double** A, double** B);
+        void    updateInverse(int i, double ratio, double** mat, double** inv, int N);
 		int 	compareTwoRows(const void* rowA, const void* rowB);
 	}
 	namespace pLinAlg{
@@ -55,3 +62,4 @@ namespace CPhys{
 				     int      N, int      M, double T);
 	}
 }
+#endif
