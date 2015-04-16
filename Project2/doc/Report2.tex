@@ -1,4 +1,4 @@
-\documentclass[twocolumn,12pt]{extarticle}
+\documentclass[twocolumn,12pt,fleqn]{extarticle}
 \usepackage[english]{babel} 
 \usepackage[latin1]{inputenc} 
 \usepackage{times}			% Default times font style
@@ -14,6 +14,10 @@
 							% environment. 
 \usepackage{hyperref}
 \usepackage[a4paper, margin=1in]{geometry}
+
+% Alghorithm packages:
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 
 % Start custom \abs \norm 
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
@@ -148,8 +152,8 @@ determinant becomes increasingly numerically demanding
 to compute. Computing these quantities with brute force, 
 leads to $N\cdot d$ operations to find the determinant and thus
 multiplying this with our $O(N^3)$ operations.
-
-ADD THE SLATER-DETERMINANT MATH HERE:
+In the following, we derive a method that deals with this issue, 
+and achieves a lower number of operations.
 
 We can approximate the Slater determinant as
 \eq{
@@ -168,7 +172,7 @@ from scratch each time, we will certainly do unnecessary computations.
 This is solved by the following algorithm, that instead of calculating 
 the determinant, updates the \textit{inverse} of the Slater matrix suitably.
 
-We first express $i,j$-element of the inverse of $\op D$ as
+We first express $(i,j)$ elements of the inverse of $\op D$ as
 \eq{
   d_{ij}^{-1} = \frac{C_{ji}}{|\op D|}
 }
@@ -176,17 +180,46 @@ where $C_{ji}$ is the transposed cofactor-matrix element of $\op D$.
 
 This motivates the ratio
 \eq{
-  R \equiv \frac{|\op D|_{\uparrow}^{new}}{|\op D|_{\uparrow}^{old}} 
-  \cdot \frac{|\op D|_{\downarrow}^{new}}{|\op D|_{\downarrow}^{old}}
+  R \equiv \frac{|\op D(\vec r^{new})|_{\uparrow}}{|\op D(\vec r^{old})|_{\uparrow}} 
   = \frac{\sum_{j=1}^N d_{ij}^{new} C_{ij}^{new}}
     {\sum_{j=1}^N d_{ij}^{old} C_{ij}^{old}}
 }
 Every time we move particle $i$, the $i$-th row of $\op D$ changes,
 and we have to update the inverse. However, the $i$-th row of $\op C$
-is independent 
+is independent\footnote{Since the cofactor-matrix elements $c_{ij}$ is defined by 
+removing $i$-th row and $j$-th column from a matrix $\op A$,
+and then taking the determinant of the remaining matrix.} 
+of the $i$-th row of $\op D$, which means that
+we must have
+\eq{
+  \op C_{ij}^{new} = \op C_{ij}^{old} = (d_{ji}^{old})^{-1}|\op D| 
+    \text{ for } j=1,...,N
+}
+and using
+\eq{
+  \sum_{k=1}^N d_{ik}\ d_{kj}^{-1} =\delta_{ij}
+}
+The result is
+\eq{
+  R=\sum_{j=1}^N d_{ij}^{new} (d_{ji}^{old})^{-1}
+    =\sum_{j=1}^N \phi_j(\vec r_i^{new})\ d_{ji}^{-1} (\vec r_i^{old})
+}
 
+The algorithm for updating the inverse of the matrix 
+when a new position is accepted is then
+\begin{algorithm}
+	\caption{Inverse of Slater Matrix}\label{algo1}
+  \begin{algorithmic}[1]
+    \Procedure{Update columns $j\neq i$}{}
+    \For{each column $i\neq j$}
+    \Return dfsd
+    \EndFor
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+\ref{algo1}
 
-SAY SOMETHING ABOUT SCALING
+REMEMBER TO SAY SOMETHING ABOUT NUMBER OF OPERATIONS.
 \section{Results}
 
 \appendix
