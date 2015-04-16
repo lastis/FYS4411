@@ -1,6 +1,5 @@
 #include <unittest++/UnitTest++.h>
-#include "../vmcsolver/VMCSolver.h"
-/* #include "../CPhys/CPhys.h" */
+#include "../vmcsolver/VMCWrapper.h"
 
 using namespace std;
 
@@ -234,7 +233,7 @@ SUITE(CPhys){
 }
 
 SUITE(Hydrogen){
-    VMCSolver solver = VMCSolver();
+    VMCWrapper solver = VMCWrapper();
 
     TEST(Instantiate){
         solver.charge = 1;
@@ -270,9 +269,9 @@ SUITE(Hydrogen){
     }
 }
 
-SUITE(VMCSolver){
+SUITE(VMCWrapper){
     TEST(phi){
-        VMCSolver solver = VMCSolver();
+        VMCWrapper solver = VMCWrapper();
         solver.nDimensions = 3;
         solver.alpha = 3.75;
         double* r = new double[3];
@@ -281,16 +280,17 @@ SUITE(VMCSolver){
         r[2] = 0.5;
         double rAbs = 0.8660254;
         // Check that the function phi(j,r_i) works.
-        CHECK_CLOSE(solver.phi1s(rAbs),solver.phi(0,r),0.00001);
-        CHECK_CLOSE(solver.phi2s(rAbs),solver.phi(1,r),0.00001);
+        using namespace wave_functions;
+        CHECK_CLOSE(phi1s(rAbs),phi(0,r),0.00001);
+        CHECK_CLOSE(phi2s(rAbs),phi(1,r),0.00001);
 
         // Check values of phi.
-        CHECK_CLOSE(0.0388675, solver.phi1s(rAbs), 0.00001);
-        CHECK_CLOSE(-0.122980,solver.phi2s(rAbs),0.00001);
+        CHECK_CLOSE(0.0388675, phi1s(rAbs), 0.00001);
+        CHECK_CLOSE(-0.122980, phi2s(rAbs),0.00001);
     }
 
     TEST(SlaterDet){
-        VMCSolver solver = VMCSolver();
+        VMCWrapper solver = VMCWrapper();
         solver.charge = 4; 
         solver.alpha = 3.75;
         solver.beta = 0.8;
@@ -301,65 +301,44 @@ SUITE(VMCSolver){
         solver.h = 0.001;
         solver.h2 = 1e+06;
         solver.idum = 1;
-        solver.setWaveFunctionBeryllium2();
-        solver.setLocalEnergyGeneric();
+        solver.useWaveFunctionBeryllium2();
+        solver.useLocalEnergyGeneric();
         solver.useEfficientSlater(true);
 
-        /* solver.initRunVariables(); */
-        /* double r1Abs = 0; */
-        /* double r2Abs = 0; */
-        /* double r3Abs = 0; */
-        /* double r4Abs = 0; */
-        /* for (int i = 0; i < solver.nDimensions; i++) { */
-        /*     r1Abs += solver.prNew[0][i]*solver.prNew[0][i]; */
-        /*     r2Abs += solver.prNew[1][i]*solver.prNew[1][i]; */
-        /*     r3Abs += solver.prNew[2][i]*solver.prNew[2][i]; */
-        /*     r4Abs += solver.prNew[3][i]*solver.prNew[3][i]; */
-        /* } */
-        /* r1Abs = sqrt(r1Abs); */
-        /* r2Abs = sqrt(r2Abs); */
-        /* r3Abs = sqrt(r3Abs); */
-        /* r4Abs = sqrt(r4Abs); */
-        /* // Check the first "Up" slater det. */
-        /* CHECK_CLOSE( 0.33039, solver.phi(0,solver.prNew[0]), 0.0001); */
-        /* CHECK_CLOSE( 0.256508, solver.phi(1,solver.prNew[0]), 0.0001); */
-        /* CHECK_CLOSE( 0.367256, solver.phi(0,solver.prNew[1]), 0.0001); */
-        /* CHECK_CLOSE( 0.302494, solver.phi(1,solver.prNew[1]), 0.0001); */
+        // Check if the function updateInverse works (and in parallel)
+        #pragma omp parallel 
+        {
+            Matrix AOld;
+            AOld = Matrix(2,2);
+            AOld(0,0) = 4;
+            AOld(0,1) = 3;
+            AOld(1,0) = 3;
+            AOld(1,1) = 2;
+            Matrix AOldInv = CPhys::MatOp::getInverse(AOld);
+            double detAOld = -1;
 
-        /* CHECK_CLOSE( 52.7273, solver.pslater1Inv[0][0], 0.01); */
-        /* CHECK_CLOSE(-44.7116, solver.pslater1Inv[0][1], 0.01); */
-        /* CHECK_CLOSE(-64.0158, solver.pslater1Inv[1][0], 0.01); */
-        /* CHECK_CLOSE( 57.5898, solver.pslater1Inv[1][1], 0.01); */
+            Matrix ANew = Matrix(AOld);
+            ANew(0,0) = ANew(0,0) + 1;
+            ANew(0,1) = ANew(0,1) + 1;
+            Matrix ANewInv = CPhys::MatOp::getInverse(ANew);
+            double detANew = ANew(0,0)*ANew(1,1)-ANew(1,0)*ANew(0,1);
+            double ratio = detANew/detAOld;
 
-        // Check if the function updateInverse works. 
-        Matrix AOld = Matrix(2,2);
-        AOld(0,0) = 4;
-        AOld(0,1) = 3;
-        AOld(1,0) = 3;
-        AOld(1,1) = 2;
-        Matrix AOldInv = CPhys::MatOp::getInverse(AOld);
-        double detAOld = -1;
+            Matrix testMat = Matrix(AOldInv);
+            double** pANew = ANew.getArrayPointer();
+            double** pTestMat = testMat.getArrayPointer();
+            CPhys::pMatOp::updateInverse(0,ratio,pANew,pTestMat,ANew.getN());
 
-        Matrix ANew = Matrix(AOld);
-        ANew(0,0) = ANew(0,0) + 1;
-        ANew(0,1) = ANew(0,1) + 1;
-        Matrix ANewInv = CPhys::MatOp::getInverse(ANew);
-        double detANew = ANew(0,0)*ANew(1,1)-ANew(1,0)*ANew(0,1);
-        double ratio = detANew/detAOld;
-
-        Matrix testMat = Matrix(AOldInv);
-        solver.updateInverse(0,ratio,ANew.getArrayPointer(),testMat.getArrayPointer());
-        cout << "Ratio : " << ratio << endl;
-
-        CHECK_CLOSE(ANewInv(0,0),testMat(0,0), 0.0001);
-        CHECK_CLOSE(ANewInv(0,1),testMat(0,1), 0.0001);
-        CHECK_CLOSE(ANewInv(1,0),testMat(1,0), 0.0001);
-        CHECK_CLOSE(ANewInv(1,1),testMat(1,1), 0.0001);
+            CHECK_CLOSE(ANewInv(0,0),testMat(0,0), 0.0001);
+            CHECK_CLOSE(ANewInv(0,1),testMat(0,1), 0.0001);
+            CHECK_CLOSE(ANewInv(1,0),testMat(1,0), 0.0001);
+            CHECK_CLOSE(ANewInv(1,1),testMat(1,1), 0.0001);
+        }
     }
 }
 
 SUITE(Helium){
-    VMCSolver solver = VMCSolver();
+    VMCWrapper solver = VMCWrapper();
     double energy;
 
     TEST(Instantiate){
@@ -400,8 +379,8 @@ SUITE(Helium){
 
     TEST(WaveFunc1LocalEnergyGeneric){
         solver.alpha = 1.66;
-        solver.setWaveFunction1();
-        solver.setLocalEnergyGeneric();
+        solver.useWaveFunction1();
+        solver.useLocalEnergyGeneric();
         solver.supressOutput();
         solver.runIntegration();
         energy = solver.getEnergy();
@@ -410,8 +389,8 @@ SUITE(Helium){
 
     TEST(WaveFunc1LocalEnergyAnalytic){
         solver.alpha = 1.66;
-        solver.setLocalEnergyHelium1();
-        solver.setWaveFunction1();
+        solver.useLocalEnergyHelium1();
+        solver.useWaveFunction1();
         solver.supressOutput();
         solver.runIntegration();
         energy = solver.getEnergy();
@@ -420,8 +399,8 @@ SUITE(Helium){
 
     TEST(WaveFunction2LocalEnergyGenergic){
         solver.alpha = 1.66;
-        solver.setWaveFunction2();
-        solver.setLocalEnergyGeneric();
+        solver.useWaveFunction2();
+        solver.useLocalEnergyGeneric();
         solver.supressOutput();
         solver.runIntegration();
         energy = solver.getEnergy();
@@ -430,8 +409,8 @@ SUITE(Helium){
 
     TEST(WaveFunction2LocalEnergyAnalytic){
         solver.alpha = 1.66;
-        solver.setWaveFunction2();
-        solver.setLocalEnergyHelium2();
+        solver.useWaveFunction2();
+        solver.useLocalEnergyHelium2();
         solver.supressOutput();
         solver.runIntegration();
         energy = solver.getEnergy();
@@ -440,7 +419,7 @@ SUITE(Helium){
 }
 
 SUITE(Beryllium){
-    VMCSolver solver = VMCSolver();
+    VMCWrapper solver = VMCWrapper();
     TEST(Initialize){
         solver.charge = 4; 
         solver.alpha = 3.75;
@@ -464,8 +443,8 @@ SUITE(Beryllium){
     }
 
     TEST(WaveFunction2LocalEnergyGeneric){
-        solver.setWaveFunctionBeryllium2();
-        solver.setLocalEnergyGeneric();
+        solver.useWaveFunctionBeryllium2();
+        solver.useLocalEnergyGeneric();
         solver.supressOutput();
         solver.runIntegration();
         double energy = solver.getEnergy();
@@ -473,8 +452,8 @@ SUITE(Beryllium){
     }
 
     TEST(EfficientSlater){
-        solver.setWaveFunctionBeryllium2();
-        solver.setLocalEnergyGeneric();
+        solver.useWaveFunctionBeryllium2();
+        solver.useLocalEnergyGeneric();
         solver.useEfficientSlater(true);
         solver.supressOutput();
         solver.runIntegration();

@@ -40,6 +40,7 @@ namespace CPhys{
         void    substituteForward(double** L, double** y, double** b, int N);
         void    substituteBackward(double** U, double** x, double** y, int N);
         void    getInverse(double** A, double** B);
+        void    updateInverse(int i, double ratio, double** mat, double** inv, int N);
 		int 	compareTwoRows(const void* rowA, const void* rowB);
 	}
 	namespace pLinAlg{

@@ -271,6 +271,46 @@ void MatOp::decomposeLU(Matrix& mat, Matrix& L, Matrix& U){
     pMatOp::decomposeLU(a,l,u,n);
 }
 
+void pMatOp::updateInverse(int i, double ratio, double** mat, double** inv, int N){
+    // Update the inverse matrix for all columns except the i'th.
+    for (int j = 0; j < N; j++) {
+        if (j == i) continue;
+        double Sj = 0;
+        for (int l = 0; l < N; l++) {
+            // d_il(new) * dInv_lj(old)
+            Sj += mat[i][l]*inv[l][j];
+        }
+        for (int k = 0; k < N; k++) {
+            inv[k][j] = inv[k][j] - Sj/ratio*inv[k][i];
+        }
+    }
+    // Update the i'th column.
+    for (int k = 0; k < N; k++) {
+        inv[k][i] = inv[k][i]/ratio;
+    }
+    /* // Update the inverse matrix for all columns except the i'th. */
+    /* for (int j = 0; j < nParticles/2; j++) { */
+    /*     if (j == i) continue; */
+    /*     S[j] = 0; */
+    /*     for (int l = 0; l < nParticles/2; l++) { */
+    /*         // d_il(new) * dInv_lj(old) */
+    /*         /1* S[j] += phi(l,prNew[i])*inv[l][j]; *1/ */
+    /*         S[j] += mat[i][l]*inv[l][j]; */
+    /*     } */
+    /* } */
+
+    /* for (int j = 0; j < nParticles/2; j++) { */
+    /*     if (j == i) continue; */
+    /*     for (int k = 0; k < nParticles/2; k++) { */
+    /*         inv[k][j] = inv[k][j] - S[j]/ratio*inv[k][i]; */
+    /*     } */
+    /* } */
+    /* // Update the i'th column. */
+    /* for (int k = 0; k < nParticles/2; k++) { */
+    /*     inv[k][i] = inv[k][i]/ratio; */
+    /* } */
+}
+
 void pMatOp::decomposeLU(double** a, double** l, double** u, int n){
     for(int i=0; i<n; i++){
         for(int j=0; j<n; j++){

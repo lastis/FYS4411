@@ -1,49 +1,33 @@
 #include "VMCSolver.h"
-#include <omp.h>
 
 using namespace CPhys;
 using namespace std;
 using namespace wave_functions;
 
 VMCSolver::VMCSolver(){
+    // Initialize the random generators.
+    dist_uniform = std::uniform_real_distribution<double>(0.0,1.0);
+    dist_uniform = std::uniform_real_distribution<double>(0.0,sqrt(2));
     clear();
 }
 
 bool VMCSolver::runIntegration(){
-    if (validateParamters() && initRunVariables()) ready = true;
+    bool ready = false;
+    if (initRunVariables()) ready = true;
     if (!ready) {
         cout << "Error: Solver not initialized properly, integration not running."
             << endl;
         return false;
     }
-    /* if (parallel) { */
-    /*     #pragma omp parallel private (slater1,slater2,slater1Inv,slater2Inv,\ */
-    /*         pslater1,pslater2,pslater1Inv,pslater2Inv,vS,S,qForceOld,qForceNew,\ */
-    /*         pqForceOld,pqForceNew,rOld,rNew,prOld,prNew,positions,pPositions,\ */
-    /*         density,pDensity,energyArray,pEnergyArray) */
-    /*     // Initialize different positions. */
-    /*     initPositions(); */
-    /*     // Main part of the code. Loop over Monte Carlo cycles. */
-    /*     for(int cycle = 0; cycle < nCycles; cycle++) { */
-    /*         if (importanceSampling) runQuantumStep(cycle); */
-    /*         else runRandomStep(cycle); */
-    /*         endOfCycle(cycle); */
-    /*     } */
-    /* } */
-    /* else { */
-        initPositions();
-        // Main part of the code. 
-        // Loop over Monte Carlo cycles.
-        for(int cycle = 0; cycle < nCycles; cycle++) {
-            if (importanceSampling) runQuantumStep(cycle);
-            else runRandomStep(cycle);
-            endOfCycle(cycle);
-        }
-
-    /* } */
-
+    // Main part of the code. 
+    // Loop over Monte Carlo cycles.
+    for(int cycle = 0; cycle < nCycles; cycle++) {
+        if (importanceSampling) runQuantumStep(cycle);
+        else runRandomStep(cycle);
+        endOfCycle(cycle);
+    }
     // Calculate the density
-    if (recordDensity) {
+    if (recordingDensity) {
         for (int i = 0; i < nParticles; i++) {
             for (int j = 0; j < bins; j++) {
             pDensity[i][j] /= nCycles;
@@ -55,7 +39,7 @@ bool VMCSolver::runIntegration(){
     mean = rAbsSum/(nCycles);
     energy = energySum/(nCycles * nParticles);
     energySquared = energySquaredSum/(nCycles * nParticles);
-    if (recordEnergyArray) {
+    if (recordingEnergyArray) {
     	for (int i = 0; i < nCycles; i++) {
     		pEnergyArray[i] /= nParticles;
     	}
@@ -66,9 +50,8 @@ bool VMCSolver::runIntegration(){
         outputSupressed = false;
         return true;
     }
-    cout << "Energy: " << energy << " Energy (squared sum): " 
-	<< energySquared << endl;
-    cout << "Variance : " << energySquared - energy*energy << endl;
+    /* cout << "Energy: " << energy << " Energy (squared sum): " */ 
+	/* << energySquared << endl; */
     return true;
 }
 
@@ -81,37 +64,39 @@ void VMCSolver::runQuantumStep(int cycle){
     // New position to test
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-            prNew[i][j] = prOld[i][j] + Random::gauss(idum)*sqrt(timeStep) 
+            /* prNew[i][j] = prOld[i][j] + Random::gauss(idum)*sqrt(timeStep) */ 
+            prNew[i][j] = prOld[i][j] + dist_gauss(gen)*sqrt(timeStep) 
 		+ pqForceOld[i][j]*timeStep*D;
         }
-	//For the other particles we need to set the position to the old
-	//position since we move only one particle at the time. 
-	for (int k = 0; k < nParticles; k++) {
-		if (k != i) {
-			for (int j = 0; j < nDimensions; j++) {
-				prNew[k][j] = prOld[k][j];
-			}
-		}
-	}
+        //For the other particles we need to set the position to the old
+        //position since we move only one particle at the time. 
+        for (int k = 0; k < nParticles; k++) {
+            if (k != i) {
+                for (int j = 0; j < nDimensions; j++) {
+                    prNew[k][j] = prOld[k][j];
+                }
+            }
+        }
 
         // Recalculate the value of the wave function
         waveFuncValNew = (this->*getWaveFuncVal)(prNew);
-	updateQuantumForce(prNew, pqForceNew, waveFuncValNew);
+        updateQuantumForce(prNew, pqForceNew, waveFuncValNew);
 
-	// Compute the log ratio of the greens functions to be used in the 
-	// Metropolis-Hastings algorithm.
-	greensFunction = 0;
-	for (int j = 0; j < nDimensions; j++) {
-		greensFunction += 0.5*(pqForceOld[i][j]+pqForceNew[i][j])*
-		    (D*timeStep*0.5*(pqForceOld[i][j]-pqForceNew[i][j])
-		    - prNew[i][j] + prOld[i][j]);
-	}
-	greensFunction = exp(greensFunction);
+        // Compute the log ratio of the greens functions to be used in the 
+        // Metropolis-Hastings algorithm.
+        greensFunction = 0;
+        for (int j = 0; j < nDimensions; j++) {
+            greensFunction += 0.5*(pqForceOld[i][j]+pqForceNew[i][j])*
+                (D*timeStep*0.5*(pqForceOld[i][j]-pqForceNew[i][j])
+                - prNew[i][j] + prOld[i][j]);
+        }
+        greensFunction = exp(greensFunction);
 
         // Check for step acceptance (if yes, 
         // update position, if no, reset position)
-	// The metropolis test is performed by moving one particle at the time.
-        if(Random::ran2(idum) <= greensFunction*(waveFuncValNew*waveFuncValNew)
+        // The metropolis test is performed by moving one particle at the time.
+        /* if(Random::ran2(idum) <= greensFunction*(waveFuncValNew*waveFuncValNew) */
+        if(dist_uniform(gen) <= greensFunction*(waveFuncValNew*waveFuncValNew)
                 / (waveFuncValOld*waveFuncValOld)) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
@@ -136,7 +121,8 @@ void VMCSolver::runRandomStep(int cycle){
         // New position to test
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
+                /* prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
+                prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
             }
             double ratio = 0;
             for (int j = 0; j < nParticles/2; j++) {
@@ -147,17 +133,18 @@ void VMCSolver::runRandomStep(int cycle){
             }
             // Check for step acceptance (if yes, 
             // update position, if no, reset position)
-            if(Random::ran2(idum) <= ratio) {
+            if(dist_uniform(gen) <= ratio) {
                 for(int j = 0; j < nDimensions; j++) {
                     prOld[i][j] = prNew[i][j];
                 }
                 // Update the i'th particle (row) in the slater matrix.
                 updateSlater(i);
                 // Update the inverse of the slater matrix.
-                if (i < nParticles/2) 
-                    updateInverse(i, ratio, pslater1, pslater1Inv);
+                /* if (ratio > 100) cout << ratio << endl; */
+                if (i < nHalf) 
+                    pMatOp::updateInverse(i, ratio, pslater1, pslater1Inv,nHalf);
                 else 
-                    updateInverse(i-nParticles/2, ratio,pslater2,pslater2Inv);
+                    pMatOp::updateInverse(i-nHalf, ratio,pslater2,pslater2Inv,nHalf);
                 accepts++;
             } 
             else {
@@ -168,7 +155,7 @@ void VMCSolver::runRandomStep(int cycle){
             }
             endOfSingleParticleStep(cycle, i);
         }
-        // All particles moved one step at this point.
+        // ALL PARTICLES MOVED ONE STEP AT THIS POINT.
     } 
     // Not using efficient slater
     else {
@@ -177,7 +164,8 @@ void VMCSolver::runRandomStep(int cycle){
         // New position to test
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5);
+                /* prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
+                prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
             }
             // Recalculate the value of the wave function
             waveFuncValNew = (this->*getWaveFuncVal)(prNew);
@@ -185,7 +173,7 @@ void VMCSolver::runRandomStep(int cycle){
                     waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
             // Check for step acceptance (if yes, 
             // update position, if no, reset position)
-            if(Random::ran2(idum) <= ratio) {
+            if(dist_uniform(gen) <= ratio) {
                 for(int j = 0; j < nDimensions; j++) {
                     prOld[i][j] = prNew[i][j];
                 }
@@ -228,6 +216,8 @@ bool VMCSolver::initRunVariables(){
     wave_functions::beta = beta;
     wave_functions::nDimensions = nDimensions;
 
+    nHalf = nParticles/2;
+
     // Set the wave function as a function pointer
     if (waveFunction == WAVE_FUNCTION_1)
         getWaveFuncVal = &VMCSolver::getWaveFunc1Val;
@@ -254,29 +244,28 @@ bool VMCSolver::initRunVariables(){
         getLocalEnergy = &VMCSolver::getLocalEnergyHydrogen;
     else if (localEnergyFunction == LOCAL_ENERGY_GENERIC_NOCOR)
         getLocalEnergy = &VMCSolver::getLocalEnergyGenericNoCor;
+    else if (localEnergyFunction == LOCAL_ENERGY_SLATER)
+        getLocalEnergy = &VMCSolver::getLocalEnergySlater;
+    else if (localEnergyFunction == LOCAL_ENERGY_SLATER_NOCOR)
+        getLocalEnergy = &VMCSolver::getLocalEnergySlaterNoCor;
     else {
 	cout << "Error: Local energy function not set, integration not running."
 	    << endl;
         return false;
     }
 
-    // Finished without error (hopefully).
-    return true;
-}
-
-bool VMCSolver::initPositions(){
     // Initialize arrays
-    if (recordPositions) {
+    if (recordingPositions) {
         positions = Matrix(nParticles, nCycles);
         positions.reset();
         pPositions = positions.getArrayPointer();
     }
-    if (recordEnergyArray) {
+    if (recordingEnergyArray) {
     	energyArray = Vector(nCycles);
         energyArray.reset();
         pEnergyArray = energyArray.getArrayPointer();
     }
-    if (recordDensity) {
+    if (recordingDensity) {
         density = Matrix(nParticles, bins);
         density.reset();
         pDensity = density.getArrayPointer();
@@ -296,15 +285,16 @@ bool VMCSolver::initPositions(){
     if (importanceSampling == true) {
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                prOld[i][j] = Random::gauss(idum)*sqrt(timeStep);
+                /* prOld[i][j] = Random::gauss(idum)*sqrt(timeStep); */
+                /* prOld[i][j] = rng.gauss(idum)*sqrt(timeStep); */
+                prOld[i][j] = dist_gauss(gen)*sqrt(timeStep);
             }
         }
     }
     else {
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                /* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
-                prOld[i][j] = (Random::ran2(idum) - 0.5);
+                prOld[i][j] = stepLength * (dist_uniform(gen) - 0.5);
             }
         }
     }
@@ -350,6 +340,7 @@ bool VMCSolver::initPositions(){
             pslater1Inv = slater1Inv.getArrayPointer();
         }
     }
+    // Finished without error (hopefully).
     return true;
 }
 
@@ -370,8 +361,6 @@ double VMCSolver::getLocalEnergySlater(double** r){
             D += phiDD(j,r[i]);
         }
     }
-    
-    
 }
 
 double VMCSolver::getLocalEnergySlaterNoCor(double** r){
@@ -442,7 +431,7 @@ double VMCSolver::getLocalEnergyHelium2(double** r){
 
 
 void VMCSolver::endOfCycle(int cycle){
-    if (!recordR12Mean) return;
+    if (!recordingR12Mean) return;
     // Calculate the radius of the particle
     double rAbs = 0;
     double rsq = 0;
@@ -452,7 +441,6 @@ void VMCSolver::endOfCycle(int cycle){
     rAbs = sqrt(rsq);
     // Add it to a sum so we can calculate the mean.
     rAbsSum += rAbs;
-
 }
 
 void VMCSolver::endOfSingleParticleStep(int cycle, int i){
@@ -462,11 +450,11 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i){
     energySquaredSum += deltaE*deltaE;
 
     // Store in energy array.
-    if (recordEnergyArray) {
+    if (recordingEnergyArray) {
     	pEnergyArray[cycle] += deltaE;
     }
 
-    if (recordPositions) {
+    if (recordingPositions) {
 	double rAbs = 0;
 	for(int j = 0; j < nDimensions; j++) {
 	    rAbs += prNew[i][j]*prNew[i][j];
@@ -476,7 +464,7 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i){
     }
 
     // Calculate density
-    if (recordDensity) {
+    if (recordingDensity) {
         int bin;
         double rsq = 0;
         for(int j = 0; j < nDimensions; j++) {
@@ -526,29 +514,6 @@ void VMCSolver::updateSlater(int i){
     }
 }
 
-void VMCSolver::updateInverse(int i, double ratio, double** mat, double** inv){
-    // Update the inverse matrix for all columns except the i'th.
-    for (int j = 0; j < nParticles/2; j++) {
-        if (j == i) continue;
-        S[j] = 0;
-        for (int l = 0; l < nParticles/2; l++) {
-            // d_il(new) * dInv_lj(old)
-            /* S[j] += phi(l,prNew[i])*inv[l][j]; */
-            S[j] += mat[i][l]*inv[l][j];
-        }
-    }
-
-    for (int j = 0; j < nParticles/2; j++) {
-        if (j == i) continue;
-        for (int k = 0; k < nParticles/2; k++) {
-            inv[k][j] = inv[k][j] - S[j]/ratio*inv[k][i];
-        }
-    }
-    // Update the i'th column.
-    for (int k = 0; k < nParticles/2; k++) {
-        inv[k][i] = inv[k][i]/ratio;
-    }
-}
 
 double VMCSolver::getLocalEnergyGenericNoCor(double** r){
     double waveFunctionMinus = 0;
@@ -647,10 +612,6 @@ double VMCSolver::getLocalEnergyGeneric(double** r){
     return kineticEnergy + potentialEnergy;
 }
 
-void VMCSolver::setStepLength(double stepLength){
-    this->stepLength = stepLength;
-}
-
 double VMCSolver::getStepLength(){
     return stepLength;
 }
@@ -665,119 +626,6 @@ double VMCSolver::getEnergySquared(){
 
 double VMCSolver::getR12Mean(){
     return mean;
-}
-
-bool VMCSolver::initFromFile(std::string fName){
-    ifstream myFile;
-    string  paramName;
-    string  discard;
-
-    string adress = "../../../res/" + fName;
-    myFile.open(adress.c_str());
-    if (!myFile) {
-        cout << fName << " does not exist. Solver could not initialize." << endl;
-        return false;
-    }
-    cout << "Initializing from file : " << fName << endl;
-    myFile >> paramName >> discard >> charge;
-    myFile >> paramName >> discard >> alpha;
-    myFile >> paramName >> discard >> beta;
-    myFile >> paramName >> discard >> nDimensions;
-    myFile >> paramName >> discard >> nParticles;
-    myFile >> paramName >> discard >> stepLength;
-    myFile >> paramName >> discard >> nCycles;
-    myFile >> paramName >> discard >> waveFunction;
-    myFile >> paramName >> discard >> h;
-    myFile >> paramName >> discard >> h2;
-    myFile >> paramName >> discard >> idum;
-    myFile >> paramName >> discard >> localEnergyFunction;
-    myFile >> paramName >> discard >> timeStep;
-    myFile >> paramName >> discard >> D;
-    myFile >> paramName >> discard >> importanceSampling;
-    myFile >> paramName >> discard >> recordDensity;
-    myFile >> paramName >> discard >> recordEnergyArray;
-    myFile >> paramName >> discard >> recordR12Mean;
-    myFile >> paramName >> discard >> recordPositions;
-    myFile >> paramName >> discard >> efficientSlater;
-
-    myFile.close();
-
-    return true;
-}
-
-void VMCSolver::setLocalEnergyHelium1(){
-    localEnergyFunction = LOCAL_ENERGY_HELIUM_1;
-}
-
-void VMCSolver::setLocalEnergyHelium2(){
-    localEnergyFunction = LOCAL_ENERGY_HELIUM_2;
-}
-
-void VMCSolver::setLocalEnergyHydrogen(){
-    localEnergyFunction = LOCAL_ENERGY_HYDROGEN;
-}
-
-void VMCSolver::setLocalEnergySlater(){
-    localEnergyFunction = LOCAL_ENERGY_SLATER;
-}
-
-void VMCSolver::setLocalEnergySlaterNoCor(){
-    localEnergyFunction = LOCAL_ENERGY_SLATER_NOCOR;
-}
-
-void VMCSolver::useEfficientSlater(bool param){
-    efficientSlater = param;
-}
-
-void VMCSolver::useImportanceSampling(bool param){
-    importanceSampling = param;
-}
-
-void VMCSolver::useParallel(bool param){
-    parallel = param;
-}
-
-void VMCSolver::setRecordEnergyArray(bool param){
-    recordEnergyArray = param;
-}
-
-void VMCSolver::setRecordDensity(bool param, int bins, double maxPos){
-    // This is the only place where bins and rMax are set. But 
-    // this function is called on clear().
-    recordDensity = param;
-    this->bins = bins;
-    rMax = maxPos;
-}
-
-void VMCSolver::setRecordR12Mean(bool param){
-    recordR12Mean = param;
-}
-void VMCSolver::setRecordPositions(bool param){
-    recordPositions = param;
-}
-
-void VMCSolver::setLocalEnergyGeneric(){
-    localEnergyFunction = LOCAL_ENERGY_GENERIC;
-}
-
-void VMCSolver::setLocalEnergyGenericNoCor(){
-    localEnergyFunction = LOCAL_ENERGY_GENERIC_NOCOR;
-}
-
-void VMCSolver::setWaveFunction1(){
-    waveFunction = WAVE_FUNCTION_1;
-}
-
-void VMCSolver::setWaveFunction2(){
-    waveFunction = WAVE_FUNCTION_2;
-}
-
-void VMCSolver::setWaveFunctionBeryllium1(){
-    waveFunction = WAVE_FUNCTION_BERYLLIUM_1;
-}
-
-void VMCSolver::setWaveFunctionBeryllium2(){
-    waveFunction = WAVE_FUNCTION_BERYLLIUM_2;
 }
 
 void VMCSolver::clear(){
@@ -796,13 +644,28 @@ void VMCSolver::clear(){
     timeStep = 0;
     D = 0;
 
+    rMax = 0;
+    bins = 1;
+
+    mean = 0;
+    energy = 0;
+    energySquared = 0;
+    energySum = 0;
+    energySquaredSum = 0;
+    rAbsSum = 0;
+    deltaE = 0;
+    waveFuncValOld = 0;
+    waveFuncValNew = 0;
+
+
     outputSupressed = false;
-    useImportanceSampling(false);
-    useEfficientSlater(false);
-    setRecordDensity(false);
-    setRecordEnergyArray(false);
-    setRecordR12Mean(false);
-    setRecordPositions(false);
+    importanceSampling = false;
+    efficientSlater = false;
+    parallel = false;
+    recordingDensity = false;
+    recordingEnergyArray = false;
+    recordingR12Mean = false;
+    recordingPositions = false;
 }
 
 double VMCSolver::getAcceptanceRatio(){
@@ -909,170 +772,5 @@ double VMCSolver::getWaveBeryllium2Val(double** r){
     }
     cor = exp(cor);
     return phi*cor;
-    
 }
 
-/* double VMCSolver::phi(int j, double* r){ */
-/*     double rAbs = 0; */
-/*     for (int i = 0; i < nDimensions; i++) { */
-/*         rAbs += r[i]*r[i]; */
-/*     } */
-/*     rAbs = sqrt(rAbs); */
-/*     switch (j) { */
-/*         case 0 : */
-/*             return phi1s(rAbs); */
-/*         case 1 : */
-/*             return phi2s(rAbs); */
-/*         case 2 ... 4: */
-/*             return phi2p(rAbs); */
-/*         default: */
-/*             cout << "Index out of bounds in phi()!!!" << endl; */
-/*             return 0; */
-/*     } */
-/* } */
-
-/* double VMCSolver::phi1s(double r){ */
-/*     return exp(-alpha*r); */
-/* } */
-
-/* double VMCSolver::phi2s(double r){ */
-/*     return (1-alpha*r/2)*exp(-alpha*r/2); */
-/* } */
-
-/* double VMCSolver::phi2p(double r){ */
-/*     return alpha*r*exp(-alpha*r/2); */
-/* } */
-
-bool VMCSolver::validateParamters(){
-    bool valid = true;
-    if (efficientSlater) {
-        if (nParticles > 10) {
-            cout << "Error : Slater determinant has not been implemented "
-                << "for more than 10 particles!" << endl;
-            valid = false;
-        }
-    }
-    if(importanceSampling){
-        if (timeStep == 0) {
-            cout << "Error : Cannot use importance sampling with timeStep = 0." 
-                << endl;
-            valid = false;
-            useImportanceSampling(false);
-        }
-        if (D == 0) {
-            cout << "Error : Cannot use importance sampling with D = 0." 
-                << endl;
-            valid = false;
-            useImportanceSampling(false);
-        }
-    }
-    if(localEnergyFunction == LOCAL_ENERGY_HYDROGEN && nParticles != 1) {
-        cout << "Cannot use this analytic local energy function " 
-            << "for other than 1 particle." << endl;
-        valid = false;
-    }
-    if(localEnergyFunction == LOCAL_ENERGY_HELIUM_1 && nParticles != 2) {
-        cout << "Cannot use this analytic local energy function "
-            << "for other than 2 particles." << endl;
-        valid = false;
-    }
-    if(localEnergyFunction == LOCAL_ENERGY_HELIUM_2 && nParticles != 2) {
-        cout << "Cannot use this analytic local energy function "
-            << "for other than 2 particles." << endl;
-        valid = false;
-    }
-
-    if (waveFunction == WAVE_FUNCTION_2 && nParticles != 2){
-        cout << "Cannot use this wave function  "
-            << "for other than 2 particles." << endl;
-        valid = false;
-    }
-    if (waveFunction == WAVE_FUNCTION_BERYLLIUM_1 && nParticles != 4){
-        cout << "Cannot use this wave function  "
-            << "for other than 4 particles." << endl;
-        valid = false;
-    }
-    if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2 && nParticles != 4){
-        cout << "Cannot use this wave function  "
-            << "for other than 4 particles." << endl;
-        valid = false;
-    }
-    if (recordR12Mean && nParticles != 2) {
-        cout << "Cannot use record r12 mean   "
-            << "for other than 2 particles." << endl;
-        valid = false;
-    }
-
-    return valid;
-}
-
-void VMCSolver::exportParamters(std::string fName){
-    string adress = "../../../res/" + fName;
-    ofstream myFile;
-    cout << "Dumption paramters to file : " << fName << endl;
-    myFile.open(adress.c_str());
-    myFile << "charge = " << charge <<  endl;
-    myFile << "alpha = " << alpha << endl;
-    myFile << "beta = " << beta << endl;
-    myFile << "nDimensions = " << nDimensions <<  endl;
-    myFile << "nParticles = " << nParticles <<  endl;
-    myFile << "stepLength = " << stepLength << endl;
-    myFile << "nCycles = " << nCycles << endl;
-    myFile << "waveFunction = " << waveFunction << endl;
-    myFile << "h = " << h << endl;
-    myFile << "h2 = " << h2 << endl;
-    myFile << "idum = " << idum << endl;
-    myFile << "localEnergyFunction = " << localEnergyFunction << endl;
-    myFile << "timeStep = " << timeStep << endl;
-    myFile << "D = " << D << endl;
-    myFile << "useImportanceSampling = " << importanceSampling << endl;
-    myFile << "recordDensity = " << recordDensity <<  endl;
-    myFile << "recordEnergyArray = " << recordEnergyArray <<  endl;
-    myFile << "recordR12Mean = " << recordR12Mean <<  endl;
-    myFile << "recordPositions = " << recordPositions <<  endl;
-    myFile << "useEfficientSlater = " << efficientSlater <<  endl;
-    myFile.close();
-}
-
-void VMCSolver::exportDensity(std::string fName){
-    string adress = "../../../res/" + fName;
-    ofstream myFile;
-    cout << "Dumption densities to file : " << fName << endl;
-    myFile.open(adress.c_str());
-    myFile << rMax << endl;
-    for (int i = 0; i < nParticles; i++) {
-	for (int j = 0; j < bins; j++) {
-	    myFile << pDensity[i][j] << " ";
-	}
-	myFile << endl;
-    }
-    myFile.close();
-
-}
-
-void VMCSolver::exportEnergyArray(std::string fName){
-    string adress = "../../../res/" + fName;
-    ofstream myFile;
-    cout << "Dumption energies to file : " << fName << endl;
-    myFile.open(adress.c_str());
-    for (int i = 0; i < nCycles; i++) {
-	myFile << pEnergyArray[i] << " ";
-    }
-    myFile.close();
-
-}
-
-void VMCSolver::exportPositions(std::string fName){
-    string adress = "../../../res/" + fName;
-    ofstream myFile;
-    cout << "Dumption energies to file : " << fName << endl;
-    myFile.open(adress.c_str());
-    for (int i = 0; i < nParticles; i++) {
-    	for (int j = 0; j < nCycles; j++) {
-	    myFile << pPositions[i][j] << " ";
-    	}
-	myFile << endl;
-    }
-    myFile.close();
-
-}

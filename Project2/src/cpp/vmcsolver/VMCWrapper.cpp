@@ -10,10 +10,10 @@ VMCWrapper::VMCWrapper(){
 bool VMCWrapper::runIntegration(){
     bool val;
     if (parallel) {
-        VMCSolver1 solver; 
+        VMCSolver solver; 
         #pragma omp parallel private(solver)
         {
-            solver = VMCSolver1();
+            solver = VMCSolver();
             initSolver(solver);
             solver.nCycles = nCycles/omp_get_num_threads();
             solver.runIntegration();
@@ -22,7 +22,7 @@ bool VMCWrapper::runIntegration(){
         }
     }
     else {
-        VMCSolver1 solver = VMCSolver1();
+        VMCSolver solver = VMCSolver();
         initSolver(solver);
         val = solver.runIntegration();
 
@@ -39,7 +39,7 @@ bool VMCWrapper::runIntegration(){
     return val;
 }
 
-bool VMCWrapper::initSolver(VMCSolver1& solver){
+bool VMCWrapper::initSolver(VMCSolver& solver){
     solver.alpha = alpha;
     solver.beta = beta;
     solver.waveFunction = waveFunction;
