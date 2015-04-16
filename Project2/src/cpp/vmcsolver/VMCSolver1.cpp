@@ -5,6 +5,8 @@ using namespace std;
 using namespace wave_functions;
 
 VMCSolver1::VMCSolver1(){
+    dist_uniform = std::uniform_real_distribution<double>(0.0,1.0);
+    dist_uniform = std::uniform_real_distribution<double>(0.0,sqrt(2));
     clear();
 }
 
@@ -62,7 +64,7 @@ void VMCSolver1::runQuantumStep(int cycle){
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
             /* prNew[i][j] = prOld[i][j] + Random::gauss(idum)*sqrt(timeStep) */ 
-            prNew[i][j] = prOld[i][j] + rng.gauss(idum)*sqrt(timeStep) 
+            prNew[i][j] = prOld[i][j] + dist_gauss(gen)*sqrt(timeStep) 
 		+ pqForceOld[i][j]*timeStep*D;
         }
         //For the other particles we need to set the position to the old
@@ -93,7 +95,7 @@ void VMCSolver1::runQuantumStep(int cycle){
         // update position, if no, reset position)
         // The metropolis test is performed by moving one particle at the time.
         /* if(Random::ran2(idum) <= greensFunction*(waveFuncValNew*waveFuncValNew) */
-        if(rng.ran2(idum) <= greensFunction*(waveFuncValNew*waveFuncValNew)
+        if(dist_uniform(gen) <= greensFunction*(waveFuncValNew*waveFuncValNew)
                 / (waveFuncValOld*waveFuncValOld)) {
             for(int j = 0; j < nDimensions; j++) {
                 prOld[i][j] = prNew[i][j];
@@ -119,7 +121,7 @@ void VMCSolver1::runRandomStep(int cycle){
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
                 /* prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
-                prNew[i][j] = prOld[i][j] + stepLength*(rng.ran2(idum) - 0.5);
+                prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
             }
             double ratio = 0;
             for (int j = 0; j < nParticles/2; j++) {
@@ -131,7 +133,7 @@ void VMCSolver1::runRandomStep(int cycle){
             // Check for step acceptance (if yes, 
             // update position, if no, reset position)
             /* if(Random::ran2(idum) <= ratio) { */
-            if(rng.ran2(idum) <= ratio) {
+            if(dist_uniform(gen) <= ratio) {
                 for(int j = 0; j < nDimensions; j++) {
                     prOld[i][j] = prNew[i][j];
                 }
@@ -162,7 +164,7 @@ void VMCSolver1::runRandomStep(int cycle){
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
                 /* prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
-                prNew[i][j] = prOld[i][j] + stepLength*(rng.ran2(idum) - 0.5);
+                prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
             }
             // Recalculate the value of the wave function
             waveFuncValNew = (this->*getWaveFuncVal)(prNew);
@@ -170,7 +172,7 @@ void VMCSolver1::runRandomStep(int cycle){
                     waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
             // Check for step acceptance (if yes, 
             // update position, if no, reset position)
-            if(rng.ran2(idum) <= ratio) {
+            if(dist_uniform(gen) <= ratio) {
                 for(int j = 0; j < nDimensions; j++) {
                     prOld[i][j] = prNew[i][j];
                 }
@@ -276,24 +278,20 @@ bool VMCSolver1::initRunVariables(){
     prNew = rNew.getArrayPointer();
     prOld = rOld.getArrayPointer();
 
-    // Initialize a random number generator.
-    rng = CPhys::Random::RNG();
-
     // initial trial positions
     if (importanceSampling == true) {
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
                 /* prOld[i][j] = Random::gauss(idum)*sqrt(timeStep); */
-                prOld[i][j] = rng.gauss(idum)*sqrt(timeStep);
+                /* prOld[i][j] = rng.gauss(idum)*sqrt(timeStep); */
+                prOld[i][j] = dist_gauss(gen)*sqrt(timeStep);
             }
         }
     }
     else {
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                /* prOld[i][j] = stepLength * (Random::ran2(idum) - 0.5); */
-                /* prOld[i][j] = (Random::ran2(idum) - 0.5); */
-                prOld[i][j] = stepLength * (rng.ran2(idum) - 0.5);
+                prOld[i][j] = stepLength * (dist_uniform(gen) - 0.5);
             }
         }
     }

@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <omp.h>
+#include <random>
 #include "../CPhys/CPhys.h"
 #include "SingleParticleWaveFunctions.h"
 
@@ -83,6 +84,10 @@ private:
 
 public:
 
+    std::mt19937 gen;
+    std::uniform_real_distribution<double> dist_uniform;
+    std::normal_distribution<double> dist_gauss;
+
     double mean;
     double energy;
     double energySquared;
@@ -127,9 +132,6 @@ public:
     double** pDensity;
     Vector energyArray;
     double* pEnergyArray;
-
-    CPhys::Random::RNG rng;
-
 };
 
 #endif // VMCSOLVER_H

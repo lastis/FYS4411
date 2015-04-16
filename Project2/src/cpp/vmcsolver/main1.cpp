@@ -23,7 +23,7 @@ int main()
     solver.idum = 2;
     solver.useWaveFunctionBeryllium1();
     solver.useLocalEnergyGenericNoCor();
-    solver.useEfficientSlater(true);
+    /* solver.useEfficientSlater(true); */
     solver.useParallel(true);
 
     clock_t start = clock();

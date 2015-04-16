@@ -305,31 +305,31 @@ SUITE(VMCSolver){
         solver.setLocalEnergyGeneric();
         solver.useEfficientSlater(true);
 
-        solver.initRunVariables();
-        double r1Abs = 0;
-        double r2Abs = 0;
-        double r3Abs = 0;
-        double r4Abs = 0;
-        for (int i = 0; i < solver.nDimensions; i++) {
-            r1Abs += solver.prNew[0][i]*solver.prNew[0][i];
-            r2Abs += solver.prNew[1][i]*solver.prNew[1][i];
-            r3Abs += solver.prNew[2][i]*solver.prNew[2][i];
-            r4Abs += solver.prNew[3][i]*solver.prNew[3][i];
-        }
-        r1Abs = sqrt(r1Abs);
-        r2Abs = sqrt(r2Abs);
-        r3Abs = sqrt(r3Abs);
-        r4Abs = sqrt(r4Abs);
-        // Check the first "Up" slater det.
-        CHECK_CLOSE( 0.33039, solver.phi(0,solver.prNew[0]), 0.0001);
-        CHECK_CLOSE( 0.256508, solver.phi(1,solver.prNew[0]), 0.0001);
-        CHECK_CLOSE( 0.367256, solver.phi(0,solver.prNew[1]), 0.0001);
-        CHECK_CLOSE( 0.302494, solver.phi(1,solver.prNew[1]), 0.0001);
+        /* solver.initRunVariables(); */
+        /* double r1Abs = 0; */
+        /* double r2Abs = 0; */
+        /* double r3Abs = 0; */
+        /* double r4Abs = 0; */
+        /* for (int i = 0; i < solver.nDimensions; i++) { */
+        /*     r1Abs += solver.prNew[0][i]*solver.prNew[0][i]; */
+        /*     r2Abs += solver.prNew[1][i]*solver.prNew[1][i]; */
+        /*     r3Abs += solver.prNew[2][i]*solver.prNew[2][i]; */
+        /*     r4Abs += solver.prNew[3][i]*solver.prNew[3][i]; */
+        /* } */
+        /* r1Abs = sqrt(r1Abs); */
+        /* r2Abs = sqrt(r2Abs); */
+        /* r3Abs = sqrt(r3Abs); */
+        /* r4Abs = sqrt(r4Abs); */
+        /* // Check the first "Up" slater det. */
+        /* CHECK_CLOSE( 0.33039, solver.phi(0,solver.prNew[0]), 0.0001); */
+        /* CHECK_CLOSE( 0.256508, solver.phi(1,solver.prNew[0]), 0.0001); */
+        /* CHECK_CLOSE( 0.367256, solver.phi(0,solver.prNew[1]), 0.0001); */
+        /* CHECK_CLOSE( 0.302494, solver.phi(1,solver.prNew[1]), 0.0001); */
 
-        CHECK_CLOSE( 52.7273, solver.pslater1Inv[0][0], 0.01);
-        CHECK_CLOSE(-44.7116, solver.pslater1Inv[0][1], 0.01);
-        CHECK_CLOSE(-64.0158, solver.pslater1Inv[1][0], 0.01);
-        CHECK_CLOSE( 57.5898, solver.pslater1Inv[1][1], 0.01);
+        /* CHECK_CLOSE( 52.7273, solver.pslater1Inv[0][0], 0.01); */
+        /* CHECK_CLOSE(-44.7116, solver.pslater1Inv[0][1], 0.01); */
+        /* CHECK_CLOSE(-64.0158, solver.pslater1Inv[1][0], 0.01); */
+        /* CHECK_CLOSE( 57.5898, solver.pslater1Inv[1][1], 0.01); */
 
         // Check if the function updateInverse works. 
         Matrix AOld = Matrix(2,2);
@@ -351,18 +351,6 @@ SUITE(VMCSolver){
         solver.updateInverse(0,ratio,ANew.getArrayPointer(),testMat.getArrayPointer());
         cout << "Ratio : " << ratio << endl;
 
-        /* cout << "A Old : " << endl; */
-        /* AOld.print(); */
-        /* cout << "A Old Inv : " << endl; */
-        /* AOldInv.print(); */
-        /* cout << "Det Old : " << detAOld << endl; */
-        /* cout << "A New : " << endl; */
-        /* ANew.print(); */
-        /* cout << "A New Inv : " << endl; */
-        /* ANewInv.print(); */
-        /* cout << "Det New : " << detANew << endl; */
-        /* cout << "A New Inv Calculated : " << endl; */
-        /* testMat.print(); */
         CHECK_CLOSE(ANewInv(0,0),testMat(0,0), 0.0001);
         CHECK_CLOSE(ANewInv(0,1),testMat(0,1), 0.0001);
         CHECK_CLOSE(ANewInv(1,0),testMat(1,0), 0.0001);
