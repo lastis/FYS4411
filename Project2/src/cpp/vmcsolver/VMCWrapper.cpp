@@ -17,8 +17,8 @@ bool VMCWrapper::runIntegration(){
             initSolver(solver);
             solver.nCycles = nCycles/omp_get_num_threads();
             solver.runIntegration();
-            printf("Energy : %f\n", solver.getEnergy());
-            solver.nCycles = nCycles;
+            /* printf("Energy : %f\n", solver.getEnergy()); */
+            /* solver.nCycles = nCycles; */
         }
     }
     else {
@@ -30,7 +30,7 @@ bool VMCWrapper::runIntegration(){
         energy = solver.getEnergy();
         energySquared = solver.getEnergySquared();
         acceptanceRatio = solver.getAcceptanceRatio();
-
+        if (outputSupressed) return val;
         cout << "Energy : " << energy << endl;
         cout << "Energy squared : " << energySquared << endl;
         cout << "Variance : " << energySquared - energy*energy << endl;
