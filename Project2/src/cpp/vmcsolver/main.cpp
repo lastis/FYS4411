@@ -17,14 +17,14 @@ int main()
     solver.nParticles = 4;
     solver.charge = 4;
     solver.stepLength = 1.52;
-    solver.nCycles = 1e3;
+    solver.nCycles = 5e4;
     solver.h = 0.001;
     solver.h2 = 1e+06;
     solver.idum = 2;
     solver.useWaveFunctionBeryllium1();
     solver.useLocalEnergyGenericNoCor();
     solver.useEfficientSlater(true);
-    solver.useParallel(true);
+    /* solver.useParallel(true); */
 
     auto start = chrono::high_resolution_clock::now();
     solver.runIntegration();

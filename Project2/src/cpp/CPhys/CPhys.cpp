@@ -286,7 +286,8 @@ void pMatOp::updateInverse(int i, double ratio, double** mat, double** inv, int 
     }
     // Update the i'th column.
     for (int k = 0; k < N; k++) {
-        inv[k][i] = inv[k][i]/ratio;
+        /* inv[k][i] = inv[k][i]/ratio; */
+        inv[k][i] = inv[k][i];
     }
     /* // Update the inverse matrix for all columns except the i'th. */
     /* for (int j = 0; j < nParticles/2; j++) { */
