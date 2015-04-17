@@ -219,9 +219,16 @@ void VMCWrapper::clear(){
     timeStep = 0;
     D = 0;
 
+    // Results from the solver
+    mean = 0;
+    energy = 0;
+    energySquared = 0;
+    acceptanceRatio = 0;
+
     outputSupressed = false;
     useImportanceSampling(false);
     useEfficientSlater(false);
+    useParallel(false);
     setRecordDensity(false);
     setRecordEnergyArray(false);
     setRecordR12Mean(false);
