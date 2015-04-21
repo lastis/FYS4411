@@ -36,6 +36,7 @@ public:
     void clear();
     void supressOutput();
 
+    void    setSeed(long seed);
     double getLocalEnergyGeneric(double** r, int i);
     double getLocalEnergyGenericNoCor(double** r, int i);
     double getLocalEnergyHelium1(double** r, int i);

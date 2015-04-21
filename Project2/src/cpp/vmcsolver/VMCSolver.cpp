@@ -116,6 +116,10 @@ void VMCSolver::runQuantumStep(int cycle){
     }
 }
 
+void VMCSolver::setSeed(long seed){
+    gen.seed(seed);
+}
+
 void VMCSolver::runRandomStep(int cycle){
     if (efficientSlater){
         // New position to test

@@ -16,6 +16,7 @@ bool VMCWrapper::runIntegration(){
             solver = VMCSolver();
             initSolver(solver);
             solver.nCycles = nCycles/omp_get_num_threads();
+            solver.setSeed(idum + omp_get_thread_num());
             solver.runIntegration();
             printf("Energy : %f\n", solver.getEnergy());
             solver.nCycles = nCycles;

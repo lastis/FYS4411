@@ -24,7 +24,7 @@ int main()
     solver.useWaveFunctionBeryllium1();
     solver.useLocalEnergyGenericNoCor();
     solver.useEfficientSlater(true);
-    /* solver.useParallel(true); */
+    solver.useParallel(true);
 
     auto start = chrono::high_resolution_clock::now();
     solver.runIntegration();
