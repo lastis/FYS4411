@@ -10,6 +10,11 @@ VMCWrapper::VMCWrapper(){
 bool VMCWrapper::runIntegration(){
     bool val;
     if (parallel) {
+        int totalCycles = 0;
+        threads = 4;
+        omp_set_num_threads(threads);
+        Vector* energyArrays = new Vector[threads]();
+        double** pEnergyArrays = new double*[threads];
         VMCSolver solver; 
         #pragma omp parallel private(solver)
         {
@@ -18,9 +23,28 @@ bool VMCWrapper::runIntegration(){
             solver.nCycles = nCycles/omp_get_num_threads();
             solver.setSeed(idum + omp_get_thread_num());
             solver.runIntegration();
+            /* printf("Thread : %i\n", omp_get_thread_num()); */
             printf("Energy : %f\n", solver.getEnergy());
-            solver.nCycles = nCycles;
+            energyArrays[omp_get_thread_num()] = solver.getEnergyArray();
+            totalCycles += solver.nCycles;
         }
+        for (int i = 0; i < threads; i++) {
+            pEnergyArrays[i] = energyArrays[i].getArrayPointer();
+        }
+        energyArray = Vector(totalCycles);
+        double* pEnergyArray = energyArray.getArrayPointer();
+        int cnt = 0;
+        for (int thread = 0; thread < threads; thread++) {
+            int N = energyArrays[thread].getLength();
+            for (int i = 0; i < N; i++) {
+                pEnergyArray[cnt] = pEnergyArrays[thread][i];
+                cnt++;
+            }
+        }
+        cout << "Cnt " << cnt << endl;
+        delete[] energyArrays;
+        delete[] pEnergyArrays;
+
     }
     else {
         VMCSolver solver = VMCSolver();

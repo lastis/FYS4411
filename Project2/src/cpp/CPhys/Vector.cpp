@@ -6,7 +6,7 @@
 using namespace std;
 
 Vector::Vector(){
-	mN = 1;
+	mN = 0;
 	allocateMemory(mN);
     reset();
 }

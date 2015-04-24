@@ -61,6 +61,7 @@ public:
     bool validateParamters();
 
 
+    int threads;
     // Paramters to the solver.
     double alpha;
     double beta;
@@ -88,6 +89,8 @@ public:
     bool importanceSampling;
     bool efficientSlater;
     bool parallel;
+
+    Vector energyArray;
 
     // Results from the solver
     double mean;

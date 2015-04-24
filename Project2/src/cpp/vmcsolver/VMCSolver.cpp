@@ -756,18 +756,18 @@ void VMCSolver::clear(){
     recordingPositions = false;
 
     // Initialize all variables, they are mostly overwritten.
-    slater1 = Matrix(1,1);
-    slater1Inv = Matrix(1,1);
-    slater2 = Matrix(1,1);
-    slater2Inv = Matrix(1,1);
-    qForceOld = Matrix(1,1);
-    qForceNew = Matrix(1,1);
-    rOld = Matrix(1,1);
-    rNew = Matrix(1,1);
-    positions = Matrix(1,1);
-    density = Matrix(1,1);
-    vS = Vector(1);
-    energyArray = Vector(1);
+    slater1 = Matrix();
+    slater1Inv = Matrix();
+    slater2 = Matrix();
+    slater2Inv = Matrix();
+    qForceOld = Matrix();
+    qForceNew = Matrix();
+    rOld = Matrix();
+    rNew = Matrix();
+    positions = Matrix();
+    density = Matrix();
+    vS = Vector();
+    energyArray = Vector();
     pslater1 = slater1.getArrayPointer();
     pslater1Inv = slater1Inv.getArrayPointer();
     pslater2 = slater2.getArrayPointer();
