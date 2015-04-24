@@ -10,11 +10,18 @@ VMCWrapper::VMCWrapper(){
 bool VMCWrapper::runIntegration(){
     bool val;
     if (parallel) {
-        int totalCycles = 0;
         threads = 4;
+        // Set the max number of threads that can be run.
         omp_set_num_threads(threads);
+        // We need to gather all the recordings of all the 
+        // parallel solvers. We do this by copying
+        // each solvers energy array into the following
+        // list of energy arrays.  
         Vector* energyArrays = new Vector[threads]();
         double** pEnergyArrays = new double*[threads];
+        // totalCycles might differ from nCycles if nCycles 
+        // is not a multiple of the number of threads.
+        int totalCycles = 0;
         VMCSolver solver; 
         #pragma omp parallel private(solver)
         {
@@ -23,14 +30,17 @@ bool VMCWrapper::runIntegration(){
             solver.nCycles = nCycles/omp_get_num_threads();
             solver.setSeed(idum + omp_get_thread_num());
             solver.runIntegration();
-            /* printf("Thread : %i\n", omp_get_thread_num()); */
-            printf("Energy : %f\n", solver.getEnergy());
+            // Copy the energy array to the more easily handled energy
+            // array list we created before. 
             energyArrays[omp_get_thread_num()] = solver.getEnergyArray();
             totalCycles += solver.nCycles;
         }
+        // Get the pointers for every energy array.
         for (int i = 0; i < threads; i++) {
             pEnergyArrays[i] = energyArrays[i].getArrayPointer();
         }
+        // Copy each solver's energy array to one longer
+        // energy array.
         energyArray = Vector(totalCycles);
         double* pEnergyArray = energyArray.getArrayPointer();
         int cnt = 0;
@@ -59,6 +69,7 @@ bool VMCWrapper::runIntegration(){
         cout << "Energy squared : " << energySquared << endl;
         cout << "Variance : " << energySquared - energy*energy << endl;
         cout << "Acceptance Ratio : " << acceptanceRatio << endl;
+        energyArray = solver.getEnergyArray();
     }
     return val;
 }
