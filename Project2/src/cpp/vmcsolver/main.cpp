@@ -26,6 +26,7 @@ int main()
     /* solver.useLocalEnergySlater(); */
     solver.useEfficientSlater(true);
     solver.useParallel(true);
+    solver.recordEnergyArray(true);
 
     auto start = chrono::high_resolution_clock::now();
     solver.runIntegration();

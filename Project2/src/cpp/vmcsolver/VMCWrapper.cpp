@@ -41,7 +41,6 @@ bool VMCWrapper::runIntegration(){
                 cnt++;
             }
         }
-        cout << "Cnt " << cnt << endl;
         delete[] energyArrays;
         delete[] pEnergyArrays;
 
@@ -185,11 +184,11 @@ void VMCWrapper::useParallel(bool param){
     parallel = param;
 }
 
-void VMCWrapper::setRecordEnergyArray(bool param){
+void VMCWrapper::recordEnergyArray(bool param){
     recordingEnergyArray = param;
 }
 
-void VMCWrapper::setRecordDensity(bool param, int bins, double maxPos){
+void VMCWrapper::recordDensity(bool param, int bins, double maxPos){
     // This is the only place where bins and rMax are set. But 
     // this function is called on clear().
     recordingDensity = param;
@@ -197,10 +196,10 @@ void VMCWrapper::setRecordDensity(bool param, int bins, double maxPos){
     rMax = maxPos;
 }
 
-void VMCWrapper::setRecordR12Mean(bool param){
+void VMCWrapper::recordR12Mean(bool param){
     recordingR12Mean = param;
 }
-void VMCWrapper::setRecordPositions(bool param){
+void VMCWrapper::recordPositions(bool param){
     recordingPositions = param;
 }
 
@@ -254,10 +253,10 @@ void VMCWrapper::clear(){
     useImportanceSampling(false);
     useEfficientSlater(false);
     useParallel(false);
-    setRecordDensity(false);
-    setRecordEnergyArray(false);
-    setRecordR12Mean(false);
-    setRecordPositions(false);
+    recordDensity(false);
+    recordEnergyArray(false);
+    recordR12Mean(false);
+    recordPositions(false);
 }
 
 double VMCWrapper::getAcceptanceRatio(){

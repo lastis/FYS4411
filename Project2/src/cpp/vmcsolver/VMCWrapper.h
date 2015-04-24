@@ -43,10 +43,10 @@ public:
     void useLocalEnergyGenericNoCor();
     void useLocalEnergySlater();
     void useLocalEnergySlaterNoCor();
-    void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
-    void setRecordEnergyArray(bool param);
-    void setRecordR12Mean(bool param);
-    void setRecordPositions(bool param);
+    void recordDensity(bool param, int bins = 9, double maxPos = 2);
+    void recordEnergyArray(bool param);
+    void recordR12Mean(bool param);
+    void recordPositions(bool param);
     void setStepLength(double stepLength);
     void useParallel(bool param);
     void useImportanceSampling(bool param);
