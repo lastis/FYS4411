@@ -4,6 +4,28 @@
 using namespace std;
 
 namespace util {
+    Vector getMeanArray(int blockSize, Vector& dataVec){
+        double* data = dataVec.getArrayPointer();
+        int nBlocks = dataVec.getLength()/blockSize;
+        Vector meanArray = Vector(nBlocks);
+        double* means = meanArray.getArrayPointer();
+        int cnt = 0;
+        // Calculate the mean with a given blocksize.
+        for (int block = 0; block < nBlocks; block++) {
+            double sample;
+            double mean = 0;
+            for (int i = 0; i < blockSize; i++) {
+               sample = data[cnt];
+               mean += sample; 
+               cnt++;
+            }
+            means[block] = mean/blockSize;
+
+        }
+        return meanArray;
+    }
+
+
     void blockingVar(int minBlockSize, Vector& dataVec, 
             Vector& contStdArray, Vector& contBlockSizes){
         // Get the data from the data vector.
