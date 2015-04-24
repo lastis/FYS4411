@@ -7,10 +7,10 @@ using namespace std;
 int main()
 {
     VMCWrapper solver = VMCWrapper();
-    /* solver.alpha = 3.4; */
     /* solver.D = 0.5; */
     /* solver.timeStep = 0.01; */
     /* solver.setImportanceSampling(true); */
+    /* solver.alpha = 3.7; */
     solver.alpha = 4;
     solver.beta = 0.8;
     solver.nDimensions = 3;
@@ -21,8 +21,9 @@ int main()
     solver.h = 0.001;
     solver.h2 = 1e+06;
     solver.idum = 2;
-    solver.useWaveFunctionBeryllium1();
-    solver.useLocalEnergyGenericNoCor();
+    solver.useWaveFunctionBeryllium2();
+    solver.useLocalEnergyGeneric();
+    /* solver.useLocalEnergySlater(); */
     solver.useEfficientSlater(true);
     solver.useParallel(true);
 

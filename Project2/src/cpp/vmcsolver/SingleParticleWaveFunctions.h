@@ -59,6 +59,23 @@ namespace wave_functions{
         }
     }
 
+    static double phiD(int j, double* r){
+        double rAbs = 0;
+        for (int i = 0; i < nDimensions; i++) {
+            rAbs += r[i]*r[i];
+        }
+        rAbs = sqrt(rAbs);
+        switch (j) {
+            case 0 :
+                return phi1sD(rAbs);
+            case 1 :
+                return phi2sD(rAbs);
+            default:
+                std::cout << "Index out of bounds in phi()!!!" << std::endl;
+                return 0;
+        }
+    }
+
     static double phiDD(int j, double* r){
         double rAbs = 0;
         for (int i = 0; i < nDimensions; i++) {
