@@ -9,19 +9,27 @@ namespace util {
         // Get the data from the data vector.
         double* data = dataVec.getArrayPointer();
         int dataLength = dataVec.getLength();
+        // From the minimum block size we can find out what the
+        // maxium number of block "bins" there are. 
         int nBins = dataLength/minBlockSize;
-        // Make a list of block sizes. We
+        // Make a list of block sizes. 
         contBlockSizes = Vector(nBins);
         contBlockSizes.linspace(1,dataLength);
         double* blockSizes = contBlockSizes.getArrayPointer();
+        // Make an array we can fill with variances. 
         contStdArray = Vector(nBins);
         double* stdArray = contStdArray.getArrayPointer();
+        // This counter is used to get rid of unecessary data points.
         int zeroes = 0;
         // Chose a block of a spesific block size, 
         // and calculate the sample with this. 
         for (int bin = 0; bin < nBins; bin++) {
             int blockSize = blockSizes[bin];
             int nBlocks = dataLength/blockSize;
+            // If we are not on the last "bin", we want to check
+            // if the next bin has the same number of blocks that we are currently
+            // on. If it's the same, we skip it. This ensures the maximum
+            // number of bins possible.
             if (bin != nBins-1){
                 int blockSizeNext = blockSizes[bin+1];
                 int nBlocksNext = dataLength/blockSizeNext;
@@ -49,6 +57,9 @@ namespace util {
             }
             stdArray[bin] = std/nBlocks;
         }
+        // This method of finding the maximum number of 
+        // block sizes has left us with a lot of zeroes. 
+        // This next code reduces that.
         Vector newStdArray = Vector(nBins-zeroes);
         Vector newBlockSizes = Vector(nBins-zeroes);
         double* ptr1 = newStdArray.getArrayPointer();
