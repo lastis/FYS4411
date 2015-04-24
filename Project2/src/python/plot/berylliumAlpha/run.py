@@ -7,5 +7,5 @@ cppDir = "../../../cpp/plot/"
 
 os.chdir(cppDir)
 call(["make","cpp_file=berylliumAlpha.cpp"])
-call(["./a.out"])
+call(["./a.out", "4","0.8"])
 

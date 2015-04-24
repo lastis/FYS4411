@@ -4,11 +4,16 @@
 #include <iostream>
 
 using namespace std;
-int main()
+int main(int argc, const char *argv[])
 {
+    // Take alpha and beta from command line. 
+    if (argc != 3) return -1;
+    double alpha = atof(argv[1]);
+    double beta = atof(argv[2]);
+
     VMCWrapper solver = VMCWrapper();
-    solver.alpha = 4;
-    solver.beta = 0.8;
+    solver.alpha = alpha;
+    solver.beta = beta;
     solver.nDimensions = 3;
     solver.nParticles = 4;
     solver.charge = 4;
@@ -48,8 +53,6 @@ int main()
     string fName;
     string adress;
     dir = "berylliumAlpha/";
-
-
 
     // Dump raw energy file
     fName = "energy.dat";
