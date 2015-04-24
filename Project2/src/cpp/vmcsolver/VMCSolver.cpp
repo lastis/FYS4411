@@ -696,6 +696,10 @@ double VMCSolver::getLocalEnergyGeneric(double** r, int i){
     return kineticEnergy + potentialEnergy;
 }
 
+Vector VMCSolver::getEnergyArray(){
+    return energyArray;
+}
+
 double VMCSolver::getStepLength(){
     return stepLength;
 }

@@ -50,6 +50,7 @@ public:
     double getWaveFunc2Val(double** r);
     double getWaveBeryllium1Val(double** r);
     double getWaveBeryllium2Val(double** r);
+    Vector getEnergyArray();
 
 
     double alpha;
