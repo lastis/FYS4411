@@ -1,8 +1,8 @@
-main:
+default:
 	g++ -std=c++0x -fopenmp \
-    VMCWrapper.cpp      \
-    VMCSolver.cpp       \
-    main.cpp            \
+    $(cpp_file)         \
+    ../vmcsolver/VMCWrapper.cpp      \
+    ../vmcsolver/VMCSolver.cpp       \
     ../CPhys/CPhys.cpp  \
     ../CPhys/Vector.cpp \
     ../CPhys/Matrix.cpp \

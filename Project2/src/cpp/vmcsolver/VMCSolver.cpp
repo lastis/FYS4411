@@ -691,8 +691,6 @@ double VMCSolver::getLocalEnergyGeneric(double** r, int i){
             potentialEnergy += 1 / sqrt(r12);
         }
     }
-    
-
     return kineticEnergy + potentialEnergy;
 }
 

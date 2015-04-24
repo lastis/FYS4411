@@ -25,7 +25,7 @@ public:
     static const int WAVE_FUNCTION_BERYLLIUM_1  = VMCSolver::WAVE_FUNCTION_BERYLLIUM_1;
     static const int WAVE_FUNCTION_BERYLLIUM_2  = VMCSolver::WAVE_FUNCTION_BERYLLIUM_2;
 
-    bool runIntegration();
+    void runIntegration();
     bool initSolver(VMCSolver& solver);
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
@@ -56,6 +56,7 @@ public:
     double getR12Mean();
     double getEnergy();
     double getEnergySquared();
+    Vector getEnergyArray();
     void clear();
     void supressOutput();
     bool validateParamters();
@@ -90,9 +91,9 @@ public:
     bool efficientSlater;
     bool parallel;
 
-    Vector energyArray;
 
     // Results from the solver
+    Vector energyArray;
     double mean;
     double energy;
     double energySquared;

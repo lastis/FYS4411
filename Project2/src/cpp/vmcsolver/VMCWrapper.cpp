@@ -7,8 +7,7 @@ VMCWrapper::VMCWrapper(){
     clear();
 }
 
-bool VMCWrapper::runIntegration(){
-    bool val;
+void VMCWrapper::runIntegration(){
     if (parallel) {
         threads = 4;
         // Set the max number of threads that can be run.
@@ -58,20 +57,14 @@ bool VMCWrapper::runIntegration(){
     else {
         VMCSolver solver = VMCSolver();
         initSolver(solver);
-        val = solver.runIntegration();
+        solver.runIntegration();
 
+        energyArray = solver.getEnergyArray();
         mean = solver.getR12Mean();
         energy = solver.getEnergy();
         energySquared = solver.getEnergySquared();
         acceptanceRatio = solver.getAcceptanceRatio();
-        if (outputSupressed) return val;
-        cout << "Energy : " << energy << endl;
-        cout << "Energy squared : " << energySquared << endl;
-        cout << "Variance : " << energySquared - energy*energy << endl;
-        cout << "Acceptance Ratio : " << acceptanceRatio << endl;
-        energyArray = solver.getEnergyArray();
     }
-    return val;
 }
 
 bool VMCWrapper::initSolver(VMCSolver& solver){
@@ -115,6 +108,10 @@ double VMCWrapper::getStepLength(){
 
 double VMCWrapper::getEnergy(){
     return energy;
+}
+
+Vector VMCWrapper::getEnergyArray(){
+    return energyArray;
 }
 
 double VMCWrapper::getEnergySquared(){
