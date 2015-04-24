@@ -13,14 +13,14 @@ int main()
     solver.nParticles = 4;
     solver.charge = 4;
     solver.stepLength = 1.52;
-    solver.nCycles = 1e5;
+    solver.nCycles = 1e4;
     solver.h = 0.001;
     solver.h2 = 1e+06;
     solver.idum = 2;
     solver.useWaveFunctionBeryllium2();
     solver.useLocalEnergyGeneric();
-    solver.useEfficientSlater(true);
-    solver.useParallel(true);
+    /* solver.useEfficientSlater(true); */
+    /* solver.useParallel(true); */
     solver.recordEnergyArray(true);
 
     // Run simulation.
@@ -33,18 +33,39 @@ int main()
     cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
 
     // Manipulate data. 
-    int bins = 10;
     Vector energyArray = solver.getEnergyArray();
     Vector blockSizes = Vector();
     Vector stdArray = Vector();
-    util::blockingVar(bins,energyArray,stdArray,blockSizes);
+    util::blockingVar(1,energyArray,stdArray,blockSizes);
+    double* pEnergyArray = energyArray.getArrayPointer();
     double* pblockSizes = blockSizes.getArrayPointer();
     double* pstdArray = stdArray.getArrayPointer();
 
-    string fName = "energyStd.dat";
-    string dir = "berylliumAlpha/";
-    string adress = "../../../res/plot/" + dir + fName;
+
+
     ofstream myFile;
+    string dir;
+    string fName;
+    string adress;
+    dir = "berylliumAlpha/";
+
+
+
+    // Dump raw energy file
+    fName = "energy.dat";
+    adress = "../../../res/plot/" + dir + fName;
+    cout << "Dumption energies to file : " << adress << endl;
+    myFile.open(adress.c_str());
+    for (int i = 0; i < energyArray.getLength(); i++) {
+        myFile << pEnergyArray[i] << " ";
+    }
+    myFile.close();
+    
+
+
+    // Dump variance
+    fName = "energyStd.dat";
+    adress = "../../../res/plot/" + dir + fName;
     cout << "Dumption energies to file : " << adress << endl;
     myFile.open(adress.c_str());
     for (int i = 0; i < blockSizes.getLength(); i++) {

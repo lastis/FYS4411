@@ -1,23 +1,35 @@
 #include <cmath>
 #include "../CPhys/CPhys.h"
+#include <iostream>
+using namespace std;
 
 namespace util {
-    void blockingVar(int nBins, Vector& dataVec, 
+    void blockingVar(int minBlockSize, Vector& dataVec, 
             Vector& contStdArray, Vector& contBlockSizes){
         // Get the data from the data vector.
         double* data = dataVec.getArrayPointer();
         int dataLength = dataVec.getLength();
+        int nBins = dataLength/minBlockSize;
         // Make a list of block sizes. We
         contBlockSizes = Vector(nBins);
         contBlockSizes.linspace(1,dataLength);
         double* blockSizes = contBlockSizes.getArrayPointer();
-        // Chose a block of a spesific block size, 
-        // and calculate the sample with this. 
         contStdArray = Vector(nBins);
         double* stdArray = contStdArray.getArrayPointer();
+        int zeroes = 0;
+        // Chose a block of a spesific block size, 
+        // and calculate the sample with this. 
         for (int bin = 0; bin < nBins; bin++) {
             int blockSize = blockSizes[bin];
             int nBlocks = dataLength/blockSize;
+            if (bin != nBins-1){
+                int blockSizeNext = blockSizes[bin+1];
+                int nBlocksNext = dataLength/blockSizeNext;
+                if (nBlocks == nBlocksNext){
+                    zeroes++;
+                    continue;
+                }
+            }
             int cnt = 0;
             double std = 0;
             // Calculate the mean with a given blocksize.
@@ -31,9 +43,24 @@ namespace util {
                    samplesSq += sample*sample;
                    cnt++;
                 }
-                std += samplesSq/blockSize - samples*samples/(blockSize*blockSize);
+                samples = samples/blockSize;
+                samplesSq = samplesSq/blockSize;
+                std += samplesSq - samples*samples;
             }
             stdArray[bin] = std/nBlocks;
         }
+        Vector newStdArray = Vector(nBins-zeroes);
+        Vector newBlockSizes = Vector(nBins-zeroes);
+        double* ptr1 = newStdArray.getArrayPointer();
+        double* ptr2 = newBlockSizes.getArrayPointer();
+        int cnt = 0;
+        for (int bin = 0; bin < nBins; bin++) {
+            if(stdArray[bin] == 0) continue;
+            ptr1[cnt] = stdArray[bin];
+            ptr2[cnt] = blockSizes[bin];
+            cnt++;
+        }
+        contStdArray = newStdArray;
+        contBlockSizes = newBlockSizes;
     }
 }
