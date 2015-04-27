@@ -192,7 +192,7 @@ and then taking the determinant of the remaining matrix.}
 of the $i$-th row of $\op D$, which means that
 we must have
 \eq{
-  \op C_{ij}^{new} = \op C_{ij}^{old} = (d_{ji}^{old})^{-1}|\op D| 
+  \op C_{ij}^{new} = \op C_{ij}^{old} = (d_{ji}^{-1})^{old}\cdot |\op D| 
     \text{ for } j=1,...,N
 }
 and using
@@ -201,23 +201,37 @@ and using
 }
 The result is
 \eq{
-  R=\sum_{j=1}^N d_{ij}^{new} (d_{ji}^{old})^{-1}
+  R=\sum_{j=1}^N d_{ij}^{new} (d_{ji}^{-1})^{old}
     =\sum_{j=1}^N \phi_j(\vec r_i^{new})\ d_{ji}^{-1} (\vec r_i^{old})
 }
 
 The algorithm for updating the inverse of the matrix 
 when a new position is accepted is then
+
 \begin{algorithm}
 	\caption{Inverse of Slater Matrix}\label{algo1}
   \begin{algorithmic}[1]
     \Procedure{Update columns $j\neq i$}{}
     \For{each column $i\neq j$}
-    \Return dfsd
+      \State{$ S_j = \sum_{l=1}^N d_{il}(\vec r^{new}) d_{lj}^{-1}(\vec r^{old}) $}
+      \State{$ (d_{kj}^{-1})^{new} 
+        = (d_{kj}^{-1})^{old} - \frac{S_j}{R}(d_{ki}^{-1})^{old} $} 
     \EndFor
+    \EndProcedure
+    \Procedure{Update column $i$}{}
+      \State{$ (d_{ki}^{-1})^{new} 
+        = \frac{1}{R}(d_{ki}^{-1})^{old} $}
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
-\ref{algo1}
+
+We can then calculate the gradient and laplacian as
+\eq{
+  \frac{\op\nabla_k |\op D|}{|\op D|} 
+    = \sum_{j=1}^N \nabla_k \phi_j(\vec r_i^{new})\ d_{ji}^{-1} (\vec r_i^{old})\\
+  \frac{\op\nabla_k^2 |\op D|}{|\op D|} 
+    = \sum_{j=1}^N \nabla_k^2 \phi_j(\vec r_i^{new})\ d_{ji}^{-1} (\vec r_i^{old})
+}
 
 REMEMBER TO SAY SOMETHING ABOUT NUMBER OF OPERATIONS.
 \section{Results}
