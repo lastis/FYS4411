@@ -1,5 +1,5 @@
-#include "../vmcsolver/VMCWrapper.h"
-#include "../vmcsolver/util.h"
+#include "../../vmcsolver/VMCWrapper.h"
+#include "../../vmcsolver/util.h"
 #include <chrono>
 #include <iostream>
 
@@ -19,7 +19,7 @@ int main(int argc, const char *argv[])
 
     // Dump variance
     /* fName = "energies_mean.dat"; */
-    adress = "../../../res/plot/berylliumAlpha/" + fName;
+    adress = "../../../../res/plot/berylliumAlpha/" + fName;
 
     VMCWrapper solver = VMCWrapper();
     solver.alpha = alpha;

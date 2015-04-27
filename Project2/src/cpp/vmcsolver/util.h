@@ -77,7 +77,7 @@ namespace util {
                 samplesSq = samplesSq/blockSize;
                 std += samplesSq - samples*samples;
             }
-            stdArray[bin] = std/nBlocks;
+            stdArray[bin] = sqrt(std/nBlocks);
         }
         // This method of finding the maximum number of 
         // block sizes has left us with a lot of zeroes. 
