@@ -116,12 +116,15 @@ void VMCSolver::runQuantumStep(int cycle){
     }
 }
 
+void VMCSolver::setSeed(long seed){
+    gen.seed(seed);
+}
+
 void VMCSolver::runRandomStep(int cycle){
     if (efficientSlater){
         // New position to test
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                /* prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
                 prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
             }
             double ratio = 0;
@@ -164,7 +167,6 @@ void VMCSolver::runRandomStep(int cycle){
         // New position to test
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                /* prNew[i][j] = prOld[i][j] + stepLength*(Random::ran2(idum) - 0.5); */
                 prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
             }
             // Recalculate the value of the wave function
@@ -323,10 +325,6 @@ bool VMCSolver::initRunVariables(){
             slater2Inv = CPhys::MatOp::getInverse(slater2);
             pslater1Inv = slater1Inv.getArrayPointer();
             pslater2Inv = slater1Inv.getArrayPointer();
-            /* slater1.print(); */
-            /* slater1Inv.print(); */
-            /* slater2.print(); */
-            /* slater2Inv.print(); */
         }
         else {
             slater1 = Matrix(nParticles,nParticles);
@@ -344,7 +342,7 @@ bool VMCSolver::initRunVariables(){
     return true;
 }
 
-double VMCSolver::getLocalEnergyHydrogen(double** r){
+double VMCSolver::getLocalEnergyHydrogen(double** r, int i){
     double* r1 = r[0];
     double rAbs = 0;
     for(int j = 0; j < nDimensions; j++) {
@@ -354,16 +352,113 @@ double VMCSolver::getLocalEnergyHydrogen(double** r){
     return  -1/rAbs - 0.5*alpha*(alpha - 2/rAbs);
 }
 
-double VMCSolver::getLocalEnergySlater(double** r){
-    double D = 0;
+double VMCSolver::getLocalEnergySlater(double** r, int i){
+    double DD = 0;
     for (int i = 0; i < nParticles; i++) {
         for (int j = 0; j < nParticles/2; j++) {
-            D += phiDD(j,r[i]);
+            DD += phiDD(j,r[i]);
         }
     }
+    double CC = 0;
+    double a1, a2;
+    double tmp = 0;
+    double rkj, rki;
+    double bki, bkj;
+    int spinI, spinJ, spinK;
+    double dot;
+    for (int k = 0; k < nParticles; k++) {
+        for (int j = 0; j < nParticles; j++) {
+            if (j == k) continue;
+            rkj = 0;
+            for (int x = 0; x < nDimensions; x++) {
+                tmp = (r[j][x] - r[k][x]);
+                rkj += tmp*tmp;
+            }
+            rkj = sqrt(rkj);
+            spinK = k/nHalf;
+            spinJ = j/nHalf;
+            switch (spinK + spinJ){
+                case 0:
+                    a1 = 0.25;
+                case 1:
+                    a1 = 0.5;
+                case 2:
+                    a1 = 0.25;
+            }
+            bkj = 1/(1 + beta*rkj);
+            CC += 2*a1*bkj*bkj/rkj;
+            CC -= 2*a1*beta*bkj*bkj*bkj;
+            for (int i = 0; i < nParticles; i++) {
+                if (i == k) continue;
+                rki = 0;
+                dot = 0;
+                for (int x = 0; x < nDimensions; x++) {
+                    tmp = (r[i][x] - r[k][x]);
+                    rki += tmp*tmp;
+                    dot += r[k][x]*r[k][x] - r[k][x]*r[j][x] 
+                        - r[k][x]*r[i][x] + r[i][x]*r[j][x];
+                }
+                rki = sqrt(rki);
+                bki = 1/(1 + beta*rki);
+                spinI = i/nHalf;
+                switch (spinK + spinI){
+                    case 0:
+                        a2 = 0.25;
+                    case 1:
+                        a2 = 0.5;
+                    case 2:
+                        a2 = 0.25;
+                }
+                CC += dot/(rki*rkj)*a1*a2*bki*bki*bkj*bkj;
+            }
+        }
+    }
+    double DC = 0;
+    double rk;
+    for (int k = 0; k < nParticles; k++) {
+        rk = 0;
+        for (int x = 0; x < nDimensions; x++) {
+            rk += r[k][x]*r[k][x];
+        }
+        rk = sqrt(rk);
+        for (int j = 0; j < nParticles; j++) {
+            if (j == k) continue;
+            rkj = 0;
+            for (int x = 0; x < nDimensions; x++) {
+                tmp = (r[j][x] - r[k][x]);
+                rkj += tmp*tmp;
+            }
+            rkj = sqrt(rkj);
+            spinK = k/nHalf;
+            spinJ = j/nHalf;
+            switch (spinK + spinJ){
+                case 0:
+                    a1 = 0.25;
+                case 1:
+                    a1 = 0.5;
+                case 2:
+                    a1 = 0.25;
+            }
+            bkj = 1/(1 + beta*rkj);
+            switch (k) {
+                case 0:
+                    tmp = phi(1,r[1])*phiD(0,r[k]) - phi(0,r[1])*phiD(1,r[k]);
+                case 1:
+                    tmp = phi(0,r[0])*phiD(1,r[k]) - phi(1,r[0])*phiD(0,r[k]);
+                case 2:
+                    tmp = phi(1,r[3])*phiD(0,r[k]) - phi(0,r[3])*phiD(1,r[k]);
+                case 3:
+                    tmp = phi(0,r[2])*phiD(1,r[k]) - phi(1,r[2])*phiD(0,r[k]);
+            }
+            for (int x = 0; x < nDimensions; x++) {
+                DC += tmp*r[k][x]/rk*(r[j][x] - r[k][x])*a1*bkj*bkj/rkj;
+            }
+        }
+    }
+    return -0.5*DD - 0.5*CC - DC;
 }
 
-double VMCSolver::getLocalEnergySlaterNoCor(double** r){
+double VMCSolver::getLocalEnergySlaterNoCor(double** r, int i){
     double sum = 0;
     for (int i = 0; i < nParticles; i++) {
         for (int j = 0; j < nParticles/2; j++) {
@@ -373,7 +468,7 @@ double VMCSolver::getLocalEnergySlaterNoCor(double** r){
     return -0.5*sum;
 }
 
-double VMCSolver::getLocalEnergyHelium1(double** r){
+double VMCSolver::getLocalEnergyHelium1(double** r, int i){
     double* r1 = r[0];
     double* r2 = r[1];
     double temp = 0;
@@ -382,15 +477,15 @@ double VMCSolver::getLocalEnergyHelium1(double** r){
     double r2Abs = 0;
     double r1r2 = 0; // Dot product.
     for(int j = 0; j < nDimensions; j++) {
-	temp = r1[j] * r1[j];
-	r1Abs += temp;
-	temp = r2[j] * r2[j];
-	r2Abs += temp;
-	temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
-	r12Abs += temp;
-	// Dot product.
-	temp = r1[j]*r2[j];
-	r1r2 += temp;
+        temp = r1[j] * r1[j];
+        r1Abs += temp;
+        temp = r2[j] * r2[j];
+        r2Abs += temp;
+        temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
+        r12Abs += temp;
+        // Dot product.
+        temp = r1[j]*r2[j];
+        r1r2 += temp;
     }
     r1Abs = sqrt(r1Abs);
     r2Abs = sqrt(r2Abs);
@@ -399,7 +494,7 @@ double VMCSolver::getLocalEnergyHelium1(double** r){
     return E1;
 }
 
-double VMCSolver::getLocalEnergyHelium2(double** r){
+double VMCSolver::getLocalEnergyHelium2(double** r, int i){
     double* r1 = r[0];
     double* r2 = r[1];
     double temp = 0;
@@ -445,7 +540,7 @@ void VMCSolver::endOfCycle(int cycle){
 
 void VMCSolver::endOfSingleParticleStep(int cycle, int i){
     // update energies
-    deltaE = (this->*getLocalEnergy)(prNew); 
+    deltaE = (this->*getLocalEnergy)(prNew, i); 
     energySum += deltaE;
     energySquaredSum += deltaE*deltaE;
 
@@ -515,7 +610,7 @@ void VMCSolver::updateSlater(int i){
 }
 
 
-double VMCSolver::getLocalEnergyGenericNoCor(double** r){
+double VMCSolver::getLocalEnergyGenericNoCor(double** r, int i){
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
@@ -557,7 +652,7 @@ double VMCSolver::getLocalEnergyGenericNoCor(double** r){
     return kineticEnergy + potentialEnergy;
 }
 
-double VMCSolver::getLocalEnergyGeneric(double** r){
+double VMCSolver::getLocalEnergyGeneric(double** r, int i){
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
@@ -607,9 +702,11 @@ double VMCSolver::getLocalEnergyGeneric(double** r){
             potentialEnergy += 1 / sqrt(r12);
         }
     }
-    
-
     return kineticEnergy + potentialEnergy;
+}
+
+Vector VMCSolver::getEnergyArray(){
+    return energyArray;
 }
 
 double VMCSolver::getStepLength(){
@@ -666,6 +763,32 @@ void VMCSolver::clear(){
     recordingEnergyArray = false;
     recordingR12Mean = false;
     recordingPositions = false;
+
+    // Initialize all variables, they are mostly overwritten.
+    slater1 = Matrix();
+    slater1Inv = Matrix();
+    slater2 = Matrix();
+    slater2Inv = Matrix();
+    qForceOld = Matrix();
+    qForceNew = Matrix();
+    rOld = Matrix();
+    rNew = Matrix();
+    positions = Matrix();
+    density = Matrix();
+    vS = Vector();
+    energyArray = Vector();
+    pslater1 = slater1.getArrayPointer();
+    pslater1Inv = slater1Inv.getArrayPointer();
+    pslater2 = slater2.getArrayPointer();
+    pslater2Inv = slater2Inv.getArrayPointer();
+    pqForceOld = qForceOld.getArrayPointer();
+    pqForceNew = qForceNew.getArrayPointer();
+    prOld = rOld.getArrayPointer();
+    prNew = rNew.getArrayPointer();
+    pPositions = positions.getArrayPointer();
+    pDensity = density.getArrayPointer();
+    S = vS.getArrayPointer();
+    pEnergyArray = energyArray.getArrayPointer();
 }
 
 double VMCSolver::getAcceptanceRatio(){
@@ -762,12 +885,12 @@ double VMCSolver::getWaveBeryllium2Val(double** r){
 	    	rij += (r[j][k] - r[i][k])*(r[j][k] - r[i][k]);
 	    }
 	    rij = sqrt(rij);
-	    if ((i == 0 || i == 0) && (j == 1 || j == 1))
-		cor += 0.25*rij/(1+beta*rij);
-	    else if ((i == 2 || i == 2) && (j == 3 || j == 3))
-		cor += 0.25*rij/(1+beta*rij);
+	    if ((i == 0 || j == 0) && (i == 1 || j == 1))
+		    cor += 0.25*rij/(1+beta*rij);
+	    else if ((i == 2 || j == 2) && (i == 3 || j == 3))
+		    cor += 0.25*rij/(1+beta*rij);
 	    else
-		cor += 0.5*rij/(1+beta*rij);
+		    cor += 0.5*rij/(1+beta*rij);
     	}
     }
     cor = exp(cor);

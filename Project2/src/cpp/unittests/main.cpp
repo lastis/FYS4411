@@ -274,6 +274,7 @@ SUITE(VMCWrapper){
         VMCWrapper solver = VMCWrapper();
         solver.nDimensions = 3;
         solver.alpha = 3.75;
+        wave_functions::alpha = 3.75;
         double* r = new double[3];
         r[0] = 0.5;
         r[1] = 0.5;

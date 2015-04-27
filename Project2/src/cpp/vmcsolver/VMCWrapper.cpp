@@ -7,36 +7,69 @@ VMCWrapper::VMCWrapper(){
     clear();
 }
 
-bool VMCWrapper::runIntegration(){
-    bool val;
+void VMCWrapper::runIntegration(){
     if (parallel) {
+        threads = 4;
+        // Set the max number of threads that can be run.
+        omp_set_num_threads(threads);
+        // We need to gather all the recordings of all the 
+        // parallel solvers. We do this by copying
+        // each solvers energy array into the following
+        // list of energy arrays.  
+        double energySum = 0;
+        double ratioSum = 0;
+        Vector* energyArrays = new Vector[threads]();
+        double** pEnergyArrays = new double*[threads];
+        // totalCycles might differ from nCycles if nCycles 
+        // is not a multiple of the number of threads.
+        int totalCycles = 0;
         VMCSolver solver; 
         #pragma omp parallel private(solver)
         {
             solver = VMCSolver();
             initSolver(solver);
             solver.nCycles = nCycles/omp_get_num_threads();
+            solver.setSeed(idum + omp_get_thread_num());
             solver.runIntegration();
-            printf("Energy : %f\n", solver.getEnergy());
-            solver.nCycles = nCycles;
+            // Copy the energy array to the more easily handled energy
+            // array list we created before. 
+            energyArrays[omp_get_thread_num()] = solver.getEnergyArray();
+            totalCycles += solver.nCycles;
+            energySum += solver.getEnergy();
+            ratioSum += solver.getAcceptanceRatio();
         }
+        // Get the pointers for every energy array.
+        for (int i = 0; i < threads; i++) {
+            pEnergyArrays[i] = energyArrays[i].getArrayPointer();
+        }
+        // Copy each solver's energy array to one longer
+        // energy array.
+        energyArray = Vector(totalCycles);
+        double* pEnergyArray = energyArray.getArrayPointer();
+        int cnt = 0;
+        for (int thread = 0; thread < threads; thread++) {
+            int N = energyArrays[thread].getLength();
+            for (int i = 0; i < N; i++) {
+                pEnergyArray[cnt] = pEnergyArrays[thread][i];
+                cnt++;
+            }
+        }
+        delete[] energyArrays;
+        delete[] pEnergyArrays;
+        energy = energySum/threads;
+        acceptanceRatio = ratioSum/threads;
     }
     else {
         VMCSolver solver = VMCSolver();
         initSolver(solver);
-        val = solver.runIntegration();
+        solver.runIntegration();
 
+        energyArray = solver.getEnergyArray();
         mean = solver.getR12Mean();
         energy = solver.getEnergy();
         energySquared = solver.getEnergySquared();
         acceptanceRatio = solver.getAcceptanceRatio();
-        if (outputSupressed) return val;
-        cout << "Energy : " << energy << endl;
-        cout << "Energy squared : " << energySquared << endl;
-        cout << "Variance : " << energySquared - energy*energy << endl;
-        cout << "Acceptance Ratio : " << acceptanceRatio << endl;
     }
-    return val;
 }
 
 bool VMCWrapper::initSolver(VMCSolver& solver){
@@ -80,6 +113,10 @@ double VMCWrapper::getStepLength(){
 
 double VMCWrapper::getEnergy(){
     return energy;
+}
+
+Vector VMCWrapper::getEnergyArray(){
+    return energyArray;
 }
 
 double VMCWrapper::getEnergySquared(){
@@ -160,11 +197,11 @@ void VMCWrapper::useParallel(bool param){
     parallel = param;
 }
 
-void VMCWrapper::setRecordEnergyArray(bool param){
+void VMCWrapper::recordEnergyArray(bool param){
     recordingEnergyArray = param;
 }
 
-void VMCWrapper::setRecordDensity(bool param, int bins, double maxPos){
+void VMCWrapper::recordDensity(bool param, int bins, double maxPos){
     // This is the only place where bins and rMax are set. But 
     // this function is called on clear().
     recordingDensity = param;
@@ -172,10 +209,10 @@ void VMCWrapper::setRecordDensity(bool param, int bins, double maxPos){
     rMax = maxPos;
 }
 
-void VMCWrapper::setRecordR12Mean(bool param){
+void VMCWrapper::recordR12Mean(bool param){
     recordingR12Mean = param;
 }
-void VMCWrapper::setRecordPositions(bool param){
+void VMCWrapper::recordPositions(bool param){
     recordingPositions = param;
 }
 
@@ -219,13 +256,20 @@ void VMCWrapper::clear(){
     timeStep = 0;
     D = 0;
 
+    // Results from the solver
+    mean = 0;
+    energy = 0;
+    energySquared = 0;
+    acceptanceRatio = 0;
+
     outputSupressed = false;
     useImportanceSampling(false);
     useEfficientSlater(false);
-    setRecordDensity(false);
-    setRecordEnergyArray(false);
-    setRecordR12Mean(false);
-    setRecordPositions(false);
+    useParallel(false);
+    recordDensity(false);
+    recordEnergyArray(false);
+    recordR12Mean(false);
+    recordPositions(false);
 }
 
 double VMCWrapper::getAcceptanceRatio(){
@@ -235,6 +279,7 @@ double VMCWrapper::getAcceptanceRatio(){
 bool VMCWrapper::validateParamters(){
     bool valid = true;
     if (efficientSlater) {
+        if (nParticles != 4 && nParticles)
         if (nParticles > 10) {
             cout << "Error : Slater determinant has not been implemented "
                 << "for more than 10 particles!" << endl;

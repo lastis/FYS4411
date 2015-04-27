@@ -25,7 +25,7 @@ public:
     static const int WAVE_FUNCTION_BERYLLIUM_1  = VMCSolver::WAVE_FUNCTION_BERYLLIUM_1;
     static const int WAVE_FUNCTION_BERYLLIUM_2  = VMCSolver::WAVE_FUNCTION_BERYLLIUM_2;
 
-    bool runIntegration();
+    void runIntegration();
     bool initSolver(VMCSolver& solver);
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
@@ -43,10 +43,10 @@ public:
     void useLocalEnergyGenericNoCor();
     void useLocalEnergySlater();
     void useLocalEnergySlaterNoCor();
-    void setRecordDensity(bool param, int bins = 9, double maxPos = 2);
-    void setRecordEnergyArray(bool param);
-    void setRecordR12Mean(bool param);
-    void setRecordPositions(bool param);
+    void recordDensity(bool param, int bins = 9, double maxPos = 2);
+    void recordEnergyArray(bool param);
+    void recordR12Mean(bool param);
+    void recordPositions(bool param);
     void setStepLength(double stepLength);
     void useParallel(bool param);
     void useImportanceSampling(bool param);
@@ -56,11 +56,13 @@ public:
     double getR12Mean();
     double getEnergy();
     double getEnergySquared();
+    Vector getEnergyArray();
     void clear();
     void supressOutput();
     bool validateParamters();
 
 
+    int threads;
     // Paramters to the solver.
     double alpha;
     double beta;
@@ -89,7 +91,9 @@ public:
     bool efficientSlater;
     bool parallel;
 
+
     // Results from the solver
+    Vector energyArray;
     double mean;
     double energy;
     double energySquared;

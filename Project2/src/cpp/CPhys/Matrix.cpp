@@ -5,8 +5,8 @@
 /* using namespace std; */
 
 Matrix::Matrix(){
-	mN = 1;
-	mM = 1;
+	mN = 0;
+	mM = 0;
 	allocateMemory(mN,mM);
     reset();
 }

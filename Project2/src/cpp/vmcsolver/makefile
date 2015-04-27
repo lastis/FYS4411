@@ -6,4 +6,5 @@ main:
     ../CPhys/CPhys.cpp  \
     ../CPhys/Vector.cpp \
     ../CPhys/Matrix.cpp \
-    ../CPhys/Cube.cpp 
+    ../CPhys/Cube.cpp   
+	
