@@ -1,15 +1,20 @@
-#include "../vmcsolver/VMCWrapper.h"
-#include "../vmcsolver/util.h"
+#include "../../vmcsolver/VMCWrapper.h"
+#include "../../vmcsolver/util.h"
 #include <chrono>
 #include <iostream>
 
 using namespace std;
 int main(int argc, const char *argv[])
 {
-    // Take alpha and beta from command line. 
-    if (argc != 3) return -1;
-    double alpha = atof(argv[1]);
-    double beta = atof(argv[2]);
+    // Arguments are, 1.output_file_name, 2.alpha, 3.beta 
+    if (argc != 4) return -1;
+    string fName = string(argv[1]);
+    double alpha = atof(argv[2]);
+    double beta = atof(argv[3]);
+
+    // Output variables.
+    string adress;
+    adress = "../../../../res/plot/berylliumBlocking/"  + fName;
 
     VMCWrapper solver = VMCWrapper();
     solver.alpha = alpha;
@@ -33,7 +38,7 @@ int main(int argc, const char *argv[])
     solver.runIntegration();
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = end-start;
-    cout << "Time = " << diff.count() << " seconds." << endl;
+    /* cout << "Time = " << diff.count() << " seconds." << endl; */
     using microfortnights = std::chrono::duration<float, std::ratio<12096,10000>>;
     cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
 
@@ -41,42 +46,22 @@ int main(int argc, const char *argv[])
     Vector energyArray = solver.getEnergyArray();
     Vector blockSizes = Vector();
     Vector stdArray = Vector();
+    // Do the blocking analysis.
     util::blockingVar(1,energyArray,stdArray,blockSizes);
-    double* pEnergyArray = energyArray.getArrayPointer();
+    /* double* pEnergyArray = energyArray.getArrayPointer(); */
     double* pblockSizes = blockSizes.getArrayPointer();
     double* pstdArray = stdArray.getArrayPointer();
 
-
-
-    ofstream myFile;
-    string dir;
-    string fName;
-    string adress;
-    dir = "berylliumAlpha/";
-
-    // Dump raw energy file
-    fName = "energy.dat";
-    adress = "../../../res/plot/" + dir + fName;
-    cout << "Dumption energies to file : " << adress << endl;
-    myFile.open(adress.c_str());
-    for (int i = 0; i < energyArray.getLength(); i++) {
-        myFile << pEnergyArray[i] << " ";
-    }
-    myFile.close();
-    
-
-
     // Dump variance
-    fName = "energyStd.dat";
-    adress = "../../../res/plot/" + dir + fName;
-    cout << "Dumption energies to file : " << adress << endl;
+    ofstream myFile;
     myFile.open(adress.c_str());
-    for (int i = 0; i < blockSizes.getLength(); i++) {
-        myFile << pblockSizes[i] << " ";
-    }
-    myFile << endl;
+    cout << "dumping to adress" << adress << endl;
     for (int i = 0; i < stdArray.getLength(); i++) {
         myFile << pstdArray[i] << " ";
+    }
+    myFile << endl;
+    for (int i = 0; i < blockSizes.getLength(); i++) {
+        myFile << pblockSizes[i] << " ";
     }
     myFile.close();
 

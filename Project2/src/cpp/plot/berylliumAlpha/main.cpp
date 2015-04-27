@@ -13,13 +13,8 @@ int main(int argc, const char *argv[])
     double beta = atof(argv[3]);
     int binSize = atof(argv[4]);
 
-    ofstream myFile;
-    /* string fName; */
-    string adress;
-
     // Dump variance
-    /* fName = "energies_mean.dat"; */
-    adress = "../../../../res/plot/berylliumAlpha/" + fName;
+    string adress = "../../../../res/plot/berylliumAlpha/" + fName;
 
     VMCWrapper solver = VMCWrapper();
     solver.alpha = alpha;
@@ -52,6 +47,7 @@ int main(int argc, const char *argv[])
     Vector meanArray = util::getMeanArray(binSize,energyArray);
     double* mean = meanArray.getArrayPointer();
     // Dump results to the end of the file. 
+    ofstream myFile;
     myFile.open(adress.c_str(),std::ios_base::app);
     for (int i = 0; i < meanArray.getLength(); i++) {
         myFile << mean[i] << " ";
