@@ -1,42 +1,55 @@
-
 import os
 from subprocess import call
 import matplotlib.pyplot as plt
 import numpy as np
 
 curDir = os.getcwd();
+# Adress to target directories from this directory. 
 cppDir = "../../../cpp/plot/"
 resDir = "../../../../res/plot/berylliumAlpha/";
 
-# Compile the code
-os.chdir(curDir)
-os.chdir(cppDir)
-call(["make","cpp_file=berylliumAlphas.cpp"])
+fileName = "energies_mean.txt"
+alphaFileName = "alpha_array.txt"
+
+# # Delete the exsiting output file. 
+# os.chdir(curDir)
+# os.chdir(resDir)
+# os.remove(fileName)
+# # Compile the code
+# os.chdir(curDir)
+# os.chdir(cppDir)
+# call(["make","cpp_file=berylliumAlphas.cpp"])
+
+# # Run the cpp code
+# os.chdir(curDir)
+# os.chdir(cppDir)
+# for alpha in alphaArray:
+#     call(["./a.out", fileName, str(alpha),"0.8", "100"])
 
 mean = []
 meanVar = []
-alphaArray = np.linspace(3.3,4,100)
-for alpha in alphaArray:
-    # Run the cpp code
-    os.chdir(curDir)
-    os.chdir(cppDir)
-    call(["./a.out", str(alpha),"0.8", "100"])
+# alphaArray = np.linspace(3.3,4,5)
+# Manipulate data
+os.chdir(curDir)
+os.chdir(resDir)
 
-    # Manipulate data
-    os.chdir(curDir)
-    os.chdir(resDir)
-    meanFile = open('array_mean.dat', 'r')
-    meanArray = np.loadtxt(meanFile)
-    meanFile.close()
+alphaFile = open(alphaFileName,'r')
+alphaArray = np.loadtxt(alphaFile)
+alphaFile.close()
+
+meanFile = open(fileName, 'r')
+meanArray = np.loadtxt(meanFile)
+meanFile.close()
+for i,array in enumerate(meanArray):
     sample = 0
     sampleSq = 0
-    for tmp in meanArray:
+    for tmp in meanArray[i]:
         sample += tmp
         sampleSq += tmp*tmp
-    sample = sample/len(meanArray)
-    sampleSq = sampleSq/len(meanArray)
+    sample = sample/len(meanArray[i])
+    sampleSq = sampleSq/len(meanArray[i])
     mean.append(sample)
-    meanVar.append(sampleSq - sample*sample)
+    meanVar.append(np.sqrt(sampleSq - sample*sample))
 
 mean = np.asarray(mean)
 meanVar = np.asarray(meanVar)

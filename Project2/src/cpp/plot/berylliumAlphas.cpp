@@ -7,10 +7,19 @@ using namespace std;
 int main(int argc, const char *argv[])
 {
     // Take alpha and beta from command line. 
-    if (argc != 4) return -1;
-    double alpha = atof(argv[1]);
-    double beta = atof(argv[2]);
-    int binSize = atof(argv[3]);
+    if (argc != 5) return -1;
+    string fName = string(argv[1]);
+    double alpha = atof(argv[2]);
+    double beta = atof(argv[3]);
+    int binSize = atof(argv[4]);
+
+    ofstream myFile;
+    /* string fName; */
+    string adress;
+
+    // Dump variance
+    /* fName = "energies_mean.dat"; */
+    adress = "../../../res/plot/berylliumAlpha/" + fName;
 
     VMCWrapper solver = VMCWrapper();
     solver.alpha = alpha;
@@ -42,22 +51,12 @@ int main(int argc, const char *argv[])
     Vector energyArray = solver.getEnergyArray();
     Vector meanArray = util::getMeanArray(binSize,energyArray);
     double* mean = meanArray.getArrayPointer();
-
-
-    ofstream myFile;
-    string dir;
-    string fName;
-    string adress;
-    dir = "berylliumAlpha/";
-
-    // Dump variance
-    fName = "array_mean.dat";
-    adress = "../../../res/plot/" + dir + fName;
-    /* cout << "Dumption mean energies to file : " << adress << endl; */
-    myFile.open(adress.c_str());
+    // Dump results to the end of the file. 
+    myFile.open(adress.c_str(),std::ios_base::app);
     for (int i = 0; i < meanArray.getLength(); i++) {
         myFile << mean[i] << " ";
     }
+    myFile << endl;
     myFile.close();
 
     return 0;
