@@ -1,3 +1,6 @@
+#include <cmath>
+#include <iostream>
+
 namespace wave_functions{
     static double alpha;
     static double beta;
@@ -16,11 +19,11 @@ namespace wave_functions{
     }
 
     static double phi1sD(double r){
-        return -alpha*g(r)*g(r);
+        return -alpha;//*g(r)*g(r);
     }
 
     static double phi1sDD(double r){
-        return alpha*alpha*g(r)*g(r);
+        return alpha*alpha;//*g(r)*g(r);
     }
 
     static double phi2s(double r){
@@ -29,11 +32,11 @@ namespace wave_functions{
 
 
     static double phi2sD(double r){
-        return -alpha*g(r)*(1+0.5*f(r));
+        return -alpha*g(r)*(1+0.5*f(r))/phi2s(r);
     }
 
     static double phi2sDD(double r){
-        return 0.75*alpha*alpha*g(r)*(1+f(r)/3);
+        return 0.75*alpha*alpha*g(r)*(1+f(r)/3)/phi2s(r);
     }
 
     static double phi2p(double r){

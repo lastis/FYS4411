@@ -19,7 +19,7 @@ try :
 except OSError:
     pass
 # Save the alpha values.
-alphaArray = np.linspace(2,5,10)
+alphaArray = np.linspace(2,5,50)
 np.savetxt(alphaFile,alphaArray)
 # Compile the code
 os.chdir(curDir)

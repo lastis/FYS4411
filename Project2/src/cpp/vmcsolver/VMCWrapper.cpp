@@ -16,6 +16,8 @@ void VMCWrapper::runIntegration(){
         // parallel solvers. We do this by copying
         // each solvers energy array into the following
         // list of energy arrays.  
+        double energySum = 0;
+        double ratioSum = 0;
         Vector* energyArrays = new Vector[threads]();
         double** pEnergyArrays = new double*[threads];
         // totalCycles might differ from nCycles if nCycles 
@@ -33,6 +35,8 @@ void VMCWrapper::runIntegration(){
             // array list we created before. 
             energyArrays[omp_get_thread_num()] = solver.getEnergyArray();
             totalCycles += solver.nCycles;
+            energySum += solver.getEnergy();
+            ratioSum += solver.getAcceptanceRatio();
         }
         // Get the pointers for every energy array.
         for (int i = 0; i < threads; i++) {
@@ -52,7 +56,8 @@ void VMCWrapper::runIntegration(){
         }
         delete[] energyArrays;
         delete[] pEnergyArrays;
-
+        energy = energySum/threads;
+        acceptanceRatio = ratioSum/threads;
     }
     else {
         VMCSolver solver = VMCSolver();
