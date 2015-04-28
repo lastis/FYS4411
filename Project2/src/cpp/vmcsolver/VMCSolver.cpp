@@ -229,11 +229,11 @@ bool VMCSolver::initRunVariables(){
         getWaveFuncVal = &VMCSolver::getWaveBeryllium1Val;
     else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2)
         getWaveFuncVal = &VMCSolver::getWaveBeryllium2Val;
-    else {
-        cout << "Error: Wave function not set, integration not running."
-            << endl;
-        return false;
-    }
+    /* else { */
+    /*     cout << "Error: Wave function not set, integration not running." */
+    /*         << endl; */
+    /*     return false; */
+    /* } */
 
     // Set the local energy function as a function pointer
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
