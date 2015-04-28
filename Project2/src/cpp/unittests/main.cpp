@@ -291,21 +291,6 @@ SUITE(VMCWrapper){
     }
 
     TEST(SlaterDet){
-        VMCWrapper solver = VMCWrapper();
-        solver.charge = 4; 
-        solver.alpha = 3.75;
-        solver.beta = 0.8;
-        solver.nDimensions = 3;
-        solver.nParticles = 4;
-        solver.stepLength = 1.52;
-        solver.nCycles = 1000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.useWaveFunctionBeryllium2();
-        solver.useLocalEnergyGeneric();
-        solver.useEfficientSlater(true);
-
         // Check if the function updateInverse works (and in parallel)
         #pragma omp parallel 
         {
