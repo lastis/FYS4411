@@ -30,7 +30,6 @@ namespace wave_functions{
         return g(r)*(1+f(r));
     }
 
-
     static double phi2sD(double r){
         return -alpha*g(r)*(1+0.5*f(r));
     }
@@ -48,6 +47,7 @@ namespace wave_functions{
         for (int i = 0; i < nDimensions; i++) {
             rAbs += r[i]*r[i];
         }
+        using namespace std;
         rAbs = sqrt(rAbs);
         switch (j) {
             case 0 :

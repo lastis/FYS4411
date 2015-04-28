@@ -300,6 +300,10 @@ bool VMCWrapper::validateParamters(){
             useImportanceSampling(false);
         }
     }
+    if(nDimensions == 0 ) {
+        cout << "Cannot simulate with 0 dimensions." << endl;
+        valid = false;
+    }
     if(localEnergyFunction == LOCAL_ENERGY_HYDROGEN && nParticles != 1) {
         cout << "Cannot use this analytic local energy function " 
             << "for other than 1 particle." << endl;

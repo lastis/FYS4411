@@ -230,6 +230,38 @@ SUITE(CPhys){
         CHECK_CLOSE(0,res2(2,1),0.0001);
         CHECK_CLOSE(1,res2(2,2),0.0001);
     }
+
+    TEST(UpdateInverse){
+        // Check if the function updateInverse works (and in parallel)
+        #pragma omp parallel 
+        {
+            Matrix AOld;
+            AOld = Matrix(2,2);
+            AOld(0,0) = 4;
+            AOld(0,1) = 3;
+            AOld(1,0) = 3;
+            AOld(1,1) = 2;
+            Matrix AOldInv = CPhys::MatOp::getInverse(AOld);
+            double detAOld = -1;
+
+            Matrix ANew = Matrix(AOld);
+            ANew(0,0) = ANew(0,0) + 1;
+            ANew(0,1) = ANew(0,1) + 1;
+            Matrix ANewInv = CPhys::MatOp::getInverse(ANew);
+            double detANew = ANew(0,0)*ANew(1,1)-ANew(1,0)*ANew(0,1);
+            double ratio = detANew/detAOld;
+
+            Matrix testMat = Matrix(AOldInv);
+            double** pANew = ANew.getArrayPointer();
+            double** pTestMat = testMat.getArrayPointer();
+            CPhys::pMatOp::updateInverse(0,ratio,pANew,pTestMat,ANew.getN());
+
+            CHECK_CLOSE(ANewInv(0,0),testMat(0,0), 0.0001);
+            CHECK_CLOSE(ANewInv(0,1),testMat(0,1), 0.0001);
+            CHECK_CLOSE(ANewInv(1,0),testMat(1,0), 0.0001);
+            CHECK_CLOSE(ANewInv(1,1),testMat(1,1), 0.0001);
+        }
+    }
 }
 
 SUITE(Hydrogen){
@@ -275,6 +307,7 @@ SUITE(VMCWrapper){
         solver.nDimensions = 3;
         solver.alpha = 3.75;
         wave_functions::alpha = 3.75;
+        wave_functions::nDimensions = 3;
         double* r = new double[3];
         r[0] = 0.5;
         r[1] = 0.5;
@@ -287,40 +320,10 @@ SUITE(VMCWrapper){
 
         // Check values of phi.
         CHECK_CLOSE(0.0388675, phi1s(rAbs), 0.00001);
-        CHECK_CLOSE(-0.122980, phi2s(rAbs),0.00001);
+        CHECK_CLOSE(-0.122980, phi2s(rAbs), 0.00001);
+        delete[] r;
     }
 
-    TEST(SlaterDet){
-        // Check if the function updateInverse works (and in parallel)
-        #pragma omp parallel 
-        {
-            Matrix AOld;
-            AOld = Matrix(2,2);
-            AOld(0,0) = 4;
-            AOld(0,1) = 3;
-            AOld(1,0) = 3;
-            AOld(1,1) = 2;
-            Matrix AOldInv = CPhys::MatOp::getInverse(AOld);
-            double detAOld = -1;
-
-            Matrix ANew = Matrix(AOld);
-            ANew(0,0) = ANew(0,0) + 1;
-            ANew(0,1) = ANew(0,1) + 1;
-            Matrix ANewInv = CPhys::MatOp::getInverse(ANew);
-            double detANew = ANew(0,0)*ANew(1,1)-ANew(1,0)*ANew(0,1);
-            double ratio = detANew/detAOld;
-
-            Matrix testMat = Matrix(AOldInv);
-            double** pANew = ANew.getArrayPointer();
-            double** pTestMat = testMat.getArrayPointer();
-            CPhys::pMatOp::updateInverse(0,ratio,pANew,pTestMat,ANew.getN());
-
-            CHECK_CLOSE(ANewInv(0,0),testMat(0,0), 0.0001);
-            CHECK_CLOSE(ANewInv(0,1),testMat(0,1), 0.0001);
-            CHECK_CLOSE(ANewInv(1,0),testMat(1,0), 0.0001);
-            CHECK_CLOSE(ANewInv(1,1),testMat(1,1), 0.0001);
-        }
-    }
 }
 
 SUITE(Helium){
@@ -328,19 +331,18 @@ SUITE(Helium){
     double energy;
 
     TEST(Instantiate){
-	solver.charge = 2;
-	solver.alpha = 1.66;
-	solver.beta = 0.8;
-	solver.nDimensions = 3;
-	solver.nParticles = 2;
-	solver.stepLength = 1.52;
-	solver.nCycles = 10000;
-	solver.waveFunction = solver.WAVE_FUNCTION_2;
-	solver.h = 0.001;
-	solver.h2 = 1e+06;
-	solver.idum = 1;
-	solver.localEnergyFunction = solver.LOCAL_ENERGY_HELIUM_2;
-	//TODO Check all variable names.
+        solver.charge = 2;
+        solver.alpha = 1.66;
+        solver.beta = 0.8;
+        solver.nDimensions = 3;
+        solver.nParticles = 2;
+        solver.stepLength = 1.52;
+        solver.nCycles = 10000;
+        solver.waveFunction = solver.WAVE_FUNCTION_2;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.localEnergyFunction = solver.LOCAL_ENERGY_HELIUM_2;
     }
 
     TEST(h0LocalGenergic){
