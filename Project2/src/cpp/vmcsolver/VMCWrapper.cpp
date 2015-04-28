@@ -241,8 +241,8 @@ void VMCWrapper::useWaveFunctionBeryllium2(){
 }
 
 void VMCWrapper::clear(){
-    waveFunction = WAVE_FUNCTION_1;
-    localEnergyFunction = LOCAL_ENERGY_GENERIC;
+    waveFunction = 0;
+    localEnergyFunction = 0;
     nDimensions = 0;
     charge = 0;
     stepLength = 0;
@@ -303,6 +303,16 @@ bool VMCWrapper::validateParamters(){
     if(localEnergyFunction == LOCAL_ENERGY_HYDROGEN && nParticles != 1) {
         cout << "Cannot use this analytic local energy function " 
             << "for other than 1 particle." << endl;
+        valid = false;
+    }
+    if (localEnergyFunction == LOCAL_ENERGY_GENERIC_NOCOR && waveFunction == 0) {
+        cout << "Cannot use generic local energy function "
+            << "with no wave function." << endl;
+        valid = false;
+    }
+    if (localEnergyFunction == LOCAL_ENERGY_GENERIC && waveFunction == 0) {
+        cout << "Cannot use generic local energy function "
+            << "with no wave function." << endl;
         valid = false;
     }
     if(localEnergyFunction == LOCAL_ENERGY_HELIUM_1 && nParticles != 2) {

@@ -5,8 +5,8 @@ import numpy as np
 
 curDir = os.getcwd();
 # Adress to target directories from this directory. 
-cppDir = "../../../cpp/plot/heliumAlphaNoCor/"
-resDir = "../../../../res/plot/heliumAlphaNoCor/";
+cppDir = "../../../cpp/plot/berylliumSlaterNoCor/"
+resDir = "../../../../res/plot/berylliumSlaterNoCor/";
 
 fileName = "energies_mean.txt"
 alphaFile = "alpha_array.txt"
@@ -19,9 +19,9 @@ try :
 except OSError:
     pass
 
-nCycles = 1e6
+nCycles = 1e5
 blockSize = 1000
-alphaArray = np.linspace(1.5,2.7,13)
+alphaArray = np.linspace(3.5,4.5,11)
 # Save the alpha values.
 np.savetxt(alphaFile,alphaArray)
 # Compile the code

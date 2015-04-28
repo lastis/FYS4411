@@ -5,8 +5,8 @@ import numpy as np
 
 curDir = os.getcwd();
 # Adress to target directories from this directory. 
-cppDir = "../../../cpp/plot/heliumAlphaNoCor/"
-resDir = "../../../../res/plot/heliumAlphaNoCor/";
+cppDir = "../../../cpp/plot/berylliumSlaterNoCor/"
+resDir = "../../../../res/plot/berylliumSlaterNoCor/";
 
 fileName = "energies_mean.txt"
 alphaFileName = "alpha_array.txt"

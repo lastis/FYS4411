@@ -7,14 +7,15 @@ using namespace std;
 int main(int argc, const char *argv[])
 {
     // Take alpha and beta from command line. 
-    if (argc != 5) return -1;
+    if (argc != 6) return -1;
     string fName = string(argv[1]);
     double alpha = atof(argv[2]);
     double beta = atof(argv[3]);
-    int binSize = atof(argv[4]);
+    double nCycles = atof(argv[4]);
+    int binSize = atof(argv[5]);
 
     // Dump variance
-    string adress = "../../../../res/plot/berylliumAlpha/" + fName;
+    string adress = "../../../../res/plot/berylliumAlphaNoCor/" + fName;
 
     VMCWrapper solver = VMCWrapper();
     solver.alpha = alpha;
@@ -23,13 +24,13 @@ int main(int argc, const char *argv[])
     solver.nParticles = 4;
     solver.charge = 4;
     solver.stepLength = 1.52;
-    solver.nCycles = 1e5;
+    solver.nCycles = nCycles;
     solver.h = 0.001;
     solver.h2 = 1e+06;
     solver.idum = 2;
-    solver.useWaveFunctionBeryllium2();
-    solver.useLocalEnergyGeneric();
-    solver.useParallel(true);
+    solver.useWaveFunctionBeryllium1();
+    solver.useLocalEnergyGenericNoCor();
+    /* solver.useParallel(true); */
     solver.recordEnergyArray(true);
 
     // Run simulation.

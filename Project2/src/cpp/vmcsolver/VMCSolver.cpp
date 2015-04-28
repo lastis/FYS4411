@@ -7,7 +7,7 @@ using namespace wave_functions;
 VMCSolver::VMCSolver(){
     // Initialize the random generators.
     dist_uniform = std::uniform_real_distribution<double>(0.0,1.0);
-    dist_uniform = std::uniform_real_distribution<double>(0.0,sqrt(2));
+    dist_gauss = std::normal_distribution<double>(0.0,sqrt(2));
     clear();
 }
 
@@ -462,10 +462,34 @@ double VMCSolver::getLocalEnergySlaterNoCor(double** r, int i){
     double sum = 0;
     for (int i = 0; i < nParticles; i++) {
         for (int j = 0; j < nParticles/2; j++) {
-            sum += phiDD(j,r[i]);
+            if (i < nHalf) 
+                sum += phiDD(j,r[i])*pslater1Inv[j][i];
+            else 
+                sum += phiDD(j,r[i])*pslater2Inv[j][i-nHalf];
         }
     }
-    return -0.5*sum;
+    // Potential energy.
+    double potentialEnergy = 0;
+    double rSingleParticle = 0;
+    for(int i = 0; i < nParticles; i++) {
+        rSingleParticle = 0;
+        for(int j = 0; j < nDimensions; j++) {
+            rSingleParticle += r[i][j]*r[i][j];
+        }
+        potentialEnergy -= charge / sqrt(rSingleParticle);
+    }
+    /* // Contribution from electron-electron potential */
+    /* double r12 = 0; */
+    /* for(int i = 0; i < nParticles; i++) { */
+    /*     for(int j = i + 1; j < nParticles; j++) { */
+    /*         r12 = 0; */
+    /*         for(int k = 0; k < nDimensions; k++) { */
+    /*             r12 += (r[i][k] - r[j][k]) * (r[i][k] - r[j][k]); */
+    /*         } */
+    /*         potentialEnergy += 1 / sqrt(r12); */
+    /*     } */
+    /* } */
+    return -0.5*sum + potentialEnergy;
 }
 
 double VMCSolver::getLocalEnergyHelium1(double** r, int i){
@@ -582,22 +606,20 @@ void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
     double rPlus;
     double rMinus;
     double r0;
-    double kineticEnergy = 0;
     // Kinetic energy
-
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-	    rPlus 	= r[i][j] + h;
-	    rMinus 	= r[i][j] - h;
-	    r0 		= r[i][j];
+            rPlus 	= r[i][j] + h;
+            rMinus 	= r[i][j] - h;
+            r0 		= r[i][j];
 
-	    r[i][j] = rMinus;
-	    waveFunctionMinus = (this->*getWaveFuncVal)(r);
-	    r[i][j] = rPlus;
-	    waveFunctionPlus = (this->*getWaveFuncVal)(r);
-	    r[i][j] = r0;
-	    qForce[i][j] = 
-		(waveFunctionPlus - waveFunctionMinus)*h/factor;
+            r[i][j] = rMinus;
+            waveFunctionMinus = (this->*getWaveFuncVal)(r);
+            r[i][j] = rPlus;
+            waveFunctionPlus = (this->*getWaveFuncVal)(r);
+            r[i][j] = r0;
+            qForce[i][j] = 
+            (waveFunctionPlus - waveFunctionMinus)*h/factor;
         }
     }
 }
@@ -649,6 +671,17 @@ double VMCSolver::getLocalEnergyGenericNoCor(double** r, int i){
         }
         potentialEnergy -= charge / sqrt(rSingleParticle);
     }
+    /* // Contribution from electron-electron potential */
+    /* double r12 = 0; */
+    /* for(int i = 0; i < nParticles; i++) { */
+    /*     for(int j = i + 1; j < nParticles; j++) { */
+    /*         r12 = 0; */
+    /*         for(int k = 0; k < nDimensions; k++) { */
+    /*             r12 += (r[i][k] - r[j][k]) * (r[i][k] - r[j][k]); */
+    /*         } */
+    /*         potentialEnergy += 1 / sqrt(r12); */
+    /*     } */
+    /* } */
     return kineticEnergy + potentialEnergy;
 }
 
@@ -726,8 +759,8 @@ double VMCSolver::getR12Mean(){
 }
 
 void VMCSolver::clear(){
-    waveFunction = WAVE_FUNCTION_1;
-    localEnergyFunction = LOCAL_ENERGY_GENERIC;
+    waveFunction = 0;
+    localEnergyFunction = 0;
     nDimensions = 0;
     charge = 0;
     stepLength = 0;
