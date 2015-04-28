@@ -1,4 +1,4 @@
-\documentclass[twocolumn,12pt]{extarticle}
+\documentclass[twocolumn,12pt,fleqn]{extarticle}
 \usepackage[english]{babel} 
 \usepackage[latin1]{inputenc} 
 \usepackage{times}			% Default times font style
@@ -15,6 +15,9 @@
 \usepackage{hyperref}
 \usepackage[a4paper, margin=1in]{geometry}
 
+% Alghorithm packages:
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 
 % Start custom \abs \norm 
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
@@ -149,8 +152,8 @@ determinant becomes increasingly numerically demanding
 to compute. Computing these quantities with brute force, 
 leads to $N\cdot d$ operations to find the determinant and thus
 multiplying this with our $O(N^3)$ operations.
-
-ADD THE SLATER-DETERMINANT MATH HERE:
+In the following, we derive a method that deals with this issue, 
+and achieves a lower number of operations.
 
 We can approximate the Slater determinant as
 \eq{
@@ -163,14 +166,74 @@ This is true only if $\OP H$ is spin independent.
 Then, $\det \op D = |\op D| = |\op D|_{\uparrow}\cdot |\op D|_{\downarrow}$, 
 where the Slater matrices are dependent on the positions of the electrons. 
 Each time we update the positions and differentiate the Slater determinant,
-the Slater matrix is changed, but by calculating the  from scratch each time,
-we will certainly do unnecessary computations. This motivates the ratio
+the Slater matrix is changed, but by calculating the determinant 
+from scratch each time, we will certainly do unnecessary computations. 
+
+This is solved by the following algorithm, that instead of calculating 
+the determinant, updates the \textit{inverse} of the Slater matrix suitably.
+
+We first express $(i,j)$ elements of the inverse of $\op D$ as
 \eq{
-  R = \frac{|\op D|_{\uparrow}^{new}}{|\op D|_{\uparrow}^{old}} 
-  \cdot \frac{|\op D|_{\downarrow}^{new}}{|\op D|_{\downarrow}^{old}}
+  d_{ij}^{-1} = \frac{C_{ji}}{|\op D|}
 }
-Every time we accept a new trial position, the i-th row of $\op D$ changes,
-and we have to update the inverse.
+where $C_{ji}$ is the transposed cofactor-matrix element of $\op D$.
+
+This motivates the ratio
+\eq{
+  R \equiv \frac{|\op D(\vec r^{new})|_{\uparrow}}{|\op D(\vec r^{old})|_{\uparrow}} 
+  = \frac{\sum_{j=1}^N d_{ij}^{new} C_{ij}^{new}}
+    {\sum_{j=1}^N d_{ij}^{old} C_{ij}^{old}}
+}
+Every time we move particle $i$, the $i$-th row of $\op D$ changes,
+and we have to update the inverse. However, the $i$-th row of $\op C$
+is independent\footnote{Since the cofactor-matrix elements $c_{ij}$ is defined by 
+removing $i$-th row and $j$-th column from a matrix $\op A$,
+and then taking the determinant of the remaining matrix.} 
+of the $i$-th row of $\op D$, which means that
+we must have
+\eq{
+  \op C_{ij}^{new} = \op C_{ij}^{old} = (d_{ji}^{-1})^{old}\cdot |\op D| 
+    \text{ for } j=1,...,N
+}
+and using
+\eq{
+  \sum_{k=1}^N d_{ik}\ d_{kj}^{-1} =\delta_{ij}
+}
+The result is
+\eq{
+  R=\sum_{j=1}^N d_{ij}^{new} (d_{ji}^{-1})^{old}
+    =\sum_{j=1}^N \phi_j(\vec r_i^{new})\ d_{ji}^{-1} (\vec r_i^{old})
+}
+
+The algorithm for updating the inverse of the matrix 
+when a new position is accepted is then
+
+\begin{algorithm}
+	\caption{Inverse of Slater Matrix}\label{algo1}
+  \begin{algorithmic}[1]
+    \Procedure{Update columns $j\neq i$}{}
+    \For{each column $i\neq j$}
+      \State{$ S_j = \sum_{l=1}^N d_{il}(\vec r^{new}) d_{lj}^{-1}(\vec r^{old}) $}
+      \State{$ (d_{kj}^{-1})^{new} 
+        = (d_{kj}^{-1})^{old} - \frac{S_j}{R}(d_{ki}^{-1})^{old} $} 
+    \EndFor
+    \EndProcedure
+    \Procedure{Update column $i$}{}
+      \State{$ (d_{ki}^{-1})^{new} 
+        = \frac{1}{R}(d_{ki}^{-1})^{old} $}
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+We can then calculate the gradient and laplacian as
+\eq{
+  \frac{\op\nabla_k |\op D|}{|\op D|} 
+    = \sum_{j=1}^N \nabla_k \phi_j(\vec r_i^{new})\ d_{ji}^{-1} (\vec r_i^{old})\\
+  \frac{\op\nabla_k^2 |\op D|}{|\op D|} 
+    = \sum_{j=1}^N \nabla_k^2 \phi_j(\vec r_i^{new})\ d_{ji}^{-1} (\vec r_i^{old})
+}
+
+REMEMBER TO SAY SOMETHING ABOUT NUMBER OF OPERATIONS.
 \section{Results}
 
 \appendix
@@ -203,7 +266,13 @@ of the Hydrogen-like wavefunctions in the following way
   \frac{\partial^2 \phi_{1s}^i}{\partial r_i^2} &= \alpha^2 g_i^2\\
   \phi_{2s}^i &= g_i(1+f_i)\\
   \frac{\partial \phi_{2s}^i}{\partial r_i} &= -\alpha g_i(1+f_i/2)\\
-  \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)
+  \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)\\
+  \phi_{2p_k}^i &= \alpha k_i g_i \text{ for } k_i = x_i,y_i,z_i\\
+  \frac{\partial\phi_{2p_k}^i}{\partial r_i} 
+    &= \left( \frac{1}{r_i} - \frac{\alpha}{2} \right) \alpha k_i g_i \\
+  \frac{\partial^2\phi_{2p_k}^i}{\partial r_i^2} 
+    &=\left(\left[ \frac{1}{r_i} - \frac{\alpha}{2} \right]^2 
+    -\frac{1}{r_i}\right) \alpha k_i g_i
 }
 and then the terms required to calculate the Slater determinant
 \eq{
