@@ -120,44 +120,74 @@ void VMCSolver::setSeed(long seed){
     gen.seed(seed);
 }
 
+void VMCSolver::runSingleStepSlater(int i, int cycle){
+    // New position to test
+    for(int j = 0; j < nDimensions; j++) {
+        prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
+    }
+    for (int j = 0; j < nParticles/2; j++) {
+        if (i < nParticles/2) 
+            ratio += phi(j,prNew[i]) * pslater1Inv[j][i];
+        else 
+            ratio += phi(j,prNew[i]) * pslater2Inv[j][i - nParticles/2];
+    }
+    // Check for step acceptance (if yes, 
+    // update position, if no, reset position)
+    if(dist_uniform(gen) <= ratio) {
+        for(int j = 0; j < nDimensions; j++) {
+            prOld[i][j] = prNew[i][j];
+        }
+        // Update the i'th particle (row) in the slater matrix.
+        updateSlater(i);
+        // Update the inverse of the slater matrix.
+        if (i < nHalf) 
+            pMatOp::updateInverse(i, ratio, pslater1, pslater1Inv,nHalf);
+        else 
+            pMatOp::updateInverse(i-nHalf, ratio,pslater2,pslater2Inv,nHalf);
+        accepts++;
+    } 
+    else {
+        for(int j = 0; j < nDimensions; j++) {
+            prNew[i][j] = prOld[i][j];
+        }
+        rejects++;
+    }
+    endOfSingleParticleStep(cycle, i);
+}
+
+void VMCSolver::runSingleStep(int i, int cycle){
+    for(int j = 0; j < nDimensions; j++) {
+        prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
+    }
+    // Recalculate the value of the wave function
+    waveFuncValNew = (this->*getWaveFuncVal)(prNew);
+    double ratio = 
+            waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
+    // Check for step acceptance (if yes, 
+    // update position, if no, reset position)
+    if(dist_uniform(gen) <= ratio) {
+        for(int j = 0; j < nDimensions; j++) {
+            prOld[i][j] = prNew[i][j];
+        }
+        waveFuncValOld = waveFuncValNew;
+        accepts++;
+    } 
+    else {
+        for(int j = 0; j < nDimensions; j++) {
+            prNew[i][j] = prOld[i][j];
+        }
+        waveFuncValNew = waveFuncValOld;
+        rejects++;
+    }
+    endOfSingleParticleStep(cycle, i);
+}
+
 void VMCSolver::runRandomStep(int cycle){
     if (efficientSlater){
-        // New position to test
         for(int i = 0; i < nParticles; i++) {
-            for(int j = 0; j < nDimensions; j++) {
-                prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
-            }
-            for (int j = 0; j < nParticles/2; j++) {
-                if (i < nParticles/2) 
-                    ratio += phi(j,prNew[i]) * pslater1Inv[j][i];
-                else 
-                    ratio += phi(j,prNew[i]) * pslater2Inv[j][i - nParticles/2];
-            }
-            // Check for step acceptance (if yes, 
-            // update position, if no, reset position)
-            if(dist_uniform(gen) <= ratio) {
-                for(int j = 0; j < nDimensions; j++) {
-                    prOld[i][j] = prNew[i][j];
-                }
-                // Update the i'th particle (row) in the slater matrix.
-                updateSlater(i);
-                // Update the inverse of the slater matrix.
-                if (i < nHalf) 
-                    pMatOp::updateInverse(i, ratio, pslater1, pslater1Inv,nHalf);
-                else 
-                    pMatOp::updateInverse(i-nHalf, ratio,pslater2,pslater2Inv,nHalf);
-                accepts++;
-            } 
-            else {
-                for(int j = 0; j < nDimensions; j++) {
-                    prNew[i][j] = prOld[i][j];
-                }
-                rejects++;
-            }
-            endOfSingleParticleStep(cycle, i);
+            runSingleStepSlater(i, cycle);
         }
         // ALL PARTICLES MOVED ONE STEP AT THIS POINT.
-        endOfCycle(cycle);
     } 
     // Not using efficient slater
     else {
@@ -165,33 +195,11 @@ void VMCSolver::runRandomStep(int cycle){
         waveFuncValOld = (this->*getWaveFuncVal)(prOld);
         // New position to test
         for(int i = 0; i < nParticles; i++) {
-            for(int j = 0; j < nDimensions; j++) {
-                prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
-            }
-            // Recalculate the value of the wave function
-            waveFuncValNew = (this->*getWaveFuncVal)(prNew);
-            double ratio = 
-                    waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
-            // Check for step acceptance (if yes, 
-            // update position, if no, reset position)
-            if(dist_uniform(gen) <= ratio) {
-                for(int j = 0; j < nDimensions; j++) {
-                    prOld[i][j] = prNew[i][j];
-                }
-                waveFuncValOld = waveFuncValNew;
-                accepts++;
-            } else {
-                for(int j = 0; j < nDimensions; j++) {
-                    prNew[i][j] = prOld[i][j];
-                }
-                waveFuncValNew = waveFuncValOld;
-                rejects++;
-            }
-            endOfSingleParticleStep(cycle, i);
+            runSingleStep(i,cycle);
         }
         // All particles moved one step at this point.
-        endOfCycle(cycle);
     }
+    endOfCycle(cycle);
 }
 
 void VMCSolver::supressOutput(){

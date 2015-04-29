@@ -43,6 +43,8 @@ public:
     void supressOutput();
     void runRandomStep(int cycle);
     void runQuantumStep(int cycle);
+    void runSingleStepSlater(int i, int cycle);
+    void runSingleStep(int i, int cycle);
 
     double (VMCSolver::*getWaveFuncVal)(double** r);
     double (VMCSolver::*getLocalEnergy)(double** r, int i);
