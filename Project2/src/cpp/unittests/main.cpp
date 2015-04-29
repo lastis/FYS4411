@@ -321,6 +321,34 @@ SUITE(VMCWrapper){
         CHECK_EQUAL(solver.alpha,solverUnique.alpha);
     }
 
+    TEST(RngPositions){
+        VMCWrapper solver = VMCWrapper();
+        solver.charge = 4; 
+        solver.alpha = 3.75;
+        solver.beta = 0.8;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.useEfficientSlater(true);
+        solver.useLocalEnergyGenericNoCor();
+        VMCSolver solverUnique1 = solver.getInitializedSolver();
+        solver.useLocalEnergySlater();
+        VMCSolver solverUnique2 = solver.getInitializedSolver();
+        // This will initialize the slater matrix and the initial 
+        // positions. 
+        solverUnique1.initRunVariables();
+        solverUnique2.initRunVariables();
+        // Check that the positions are the same for the two different solvers.
+        for (int i = 0; i < solverUnique1.nParticles; i++) {
+            CHECK_EQUAL(solverUnique1.prOld[i][0], solverUnique2.prOld[i][0]);
+        }
+
+    }
+
     TEST(BerylliumAndSlaterDet){
         VMCWrapper solver = VMCWrapper();
         solver.charge = 4; 
@@ -333,11 +361,28 @@ SUITE(VMCWrapper){
         solver.h = 0.001;
         solver.h2 = 1e+06;
         solver.idum = 1;
-        solver.useWaveFunctionBeryllium1();
-        solver.useEfficientSlater(true);
-
-        VMCSolver solverUnique = solver.getInitializedSolver();
-
+        solver.useWaveFunction1();
+        /* solver.useLocalEnergyGenericNoCor(); */
+        VMCSolver solverUnique1 = solver.getInitializedSolver();
+        /* solver.useLocalEnergyHelium1(); */
+        VMCSolver solverUnique2 = solver.getInitializedSolver();
+        // This will initialize the slater matrix and the initial 
+        // positions. 
+        solverUnique1.initRunVariables();
+        solverUnique2.initRunVariables();
+        // These two should be the same. 
+        double** r1 = solverUnique1.prOld;
+        double** r2 = solverUnique2.prOld;
+        for (int i = 0; i < solverUnique1.nParticles; i++) {
+            CHECK_EQUAL(r1[i][0],r2[i][0]);
+        }
+        double localEnergy1 = solverUnique1.getLocalEnergyGenericNoCor(r1);
+        double localEnergy2 = solverUnique2.getLocalEnergyGenericNoCor(r2);
+        // Just to make sure things are equal.
+        CHECK_EQUAL(localEnergy1,localEnergy2);
+        localEnergy1 = solverUnique1.getLocalEnergyGenericNoCor(r1);
+        localEnergy2 = solverUnique2.getLocalEnergyHelium1(r2);
+        CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
     }
 
     TEST(phi){
