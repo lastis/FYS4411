@@ -302,6 +302,24 @@ SUITE(Hydrogen){
 }
 
 SUITE(VMCWrapper){
+    TEST(getSolver){
+        VMCWrapper solver = VMCWrapper();
+        solver.charge = 2;
+        solver.alpha = 1.66;
+        solver.beta = 0.8;
+        solver.nDimensions = 3;
+        solver.nParticles = 2;
+        solver.stepLength = 1.52;
+        solver.nCycles = 10000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.useWaveFunction2();
+        solver.useLocalEnergyHelium2();
+        VMCSolver solverUnique = solver.getInitializedSolver();
+        CHECK_EQUAL(solver.charge,solverUnique.charge);
+        CHECK_EQUAL(solver.alpha,solverUnique.alpha);
+    }
     TEST(phi){
         VMCWrapper solver = VMCWrapper();
         solver.nDimensions = 3;

@@ -24,7 +24,6 @@ bool VMCSolver::runIntegration(){
     for(int cycle = 0; cycle < nCycles; cycle++) {
         if (importanceSampling) runQuantumStep(cycle);
         else runRandomStep(cycle);
-        endOfCycle(cycle);
     }
     // Calculate the density
     if (recordingDensity) {
@@ -112,8 +111,9 @@ void VMCSolver::runQuantumStep(int cycle){
             }
             rejects++;
         }
-	endOfSingleParticleStep(cycle, i);
+        endOfSingleParticleStep(cycle, i);
     }
+    endOfCycle(cycle);
 }
 
 void VMCSolver::setSeed(long seed){
@@ -157,6 +157,7 @@ void VMCSolver::runRandomStep(int cycle){
             endOfSingleParticleStep(cycle, i);
         }
         // ALL PARTICLES MOVED ONE STEP AT THIS POINT.
+        endOfCycle(cycle);
     } 
     // Not using efficient slater
     else {
@@ -189,6 +190,7 @@ void VMCSolver::runRandomStep(int cycle){
             endOfSingleParticleStep(cycle, i);
         }
         // All particles moved one step at this point.
+        endOfCycle(cycle);
     }
 }
 

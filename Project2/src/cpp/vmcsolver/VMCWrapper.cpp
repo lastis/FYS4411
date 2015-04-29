@@ -7,6 +7,12 @@ VMCWrapper::VMCWrapper(){
     clear();
 }
 
+VMCSolver VMCWrapper::getInitializedSolver(){
+    VMCSolver solver = VMCSolver();
+    initSolver(solver);
+    return solver;
+}
+
 void VMCWrapper::runIntegration(){
     if (parallel) {
         threads = 4;

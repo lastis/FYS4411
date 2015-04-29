@@ -60,6 +60,7 @@ public:
     void clear();
     void supressOutput();
     bool validateParamters();
+    VMCSolver getInitializedSolver();
 
 
     int threads;

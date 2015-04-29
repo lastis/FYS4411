@@ -12,8 +12,6 @@
 
 class VMCSolver
 {
-public:
-    VMCSolver();
     static const int LOCAL_ENERGY_GENERIC = 1;
     static const int LOCAL_ENERGY_HELIUM_1 = 2;
     static const int LOCAL_ENERGY_HELIUM_2 = 4;
@@ -25,18 +23,28 @@ public:
     static const int WAVE_FUNCTION_2 = 9;
     static const int WAVE_FUNCTION_BERYLLIUM_1 = 10;
     static const int WAVE_FUNCTION_BERYLLIUM_2 = 11;
+private:
+    bool initRunVariables();
+    void endOfSingleParticleStep(int cycle, int i);
+    void endOfCycle(int cycle);
+    void updateQuantumForce(double** r, double ** qForce,double factor);
+    void updateSlater(int i);
+public:
+    VMCSolver();
 
     bool runIntegration();
-    bool initRunVariables();
+    void clear();
     double getAcceptanceRatio();
     double getStepLength();
     double getR12Mean();
     double getEnergy();
     double getEnergySquared();
-    void clear();
     void supressOutput();
+    void runRandomStep(int cycle);
+    void runQuantumStep(int cycle);
 
-    void    setSeed(long seed);
+    double (VMCSolver::*getWaveFuncVal)(double** r);
+    double (VMCSolver::*getLocalEnergy)(double** r, int i);
     double getLocalEnergyGeneric(double** r, int i);
     double getLocalEnergyGenericNoCor(double** r, int i);
     double getLocalEnergyHelium1(double** r, int i);
@@ -44,15 +52,13 @@ public:
     double getLocalEnergyHydrogen(double** r, int i);
     double getLocalEnergySlater(double** r, int i);
     double getLocalEnergySlaterNoCor(double** r, int i);
-    void updateQuantumForce(double** r, double ** qForce,double factor);
-    void updateSlater(int i);
     double getWaveFunc1Val(double** r);
     double getWaveFunc2Val(double** r);
     double getWaveBeryllium1Val(double** r);
     double getWaveBeryllium2Val(double** r);
     Vector getEnergyArray();
 
-
+    void    setSeed(long seed);
     double alpha;
     double beta;
     int waveFunction;
@@ -72,18 +78,6 @@ public:
     double rMax;
     int bins;
 
-private:
-
-    // Private functions
-    double (VMCSolver::*getWaveFuncVal)(double** r);
-    double (VMCSolver::*getLocalEnergy)(double** r, int i);
-    void endOfSingleParticleStep(int cycle, int i);
-    void endOfCycle(int cycle);
-    void runRandomStep(int cycle);
-    void runQuantumStep(int cycle);
-
-
-public:
 
     std::mt19937 gen;
     std::uniform_real_distribution<double> dist_uniform;
