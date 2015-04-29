@@ -12,6 +12,7 @@
 
 class VMCSolver
 {
+public:
     static const int LOCAL_ENERGY_GENERIC = 1;
     static const int LOCAL_ENERGY_HELIUM_1 = 2;
     static const int LOCAL_ENERGY_HELIUM_2 = 4;
