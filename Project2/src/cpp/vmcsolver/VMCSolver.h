@@ -25,7 +25,6 @@ public:
     static const int WAVE_FUNCTION_BERYLLIUM_1 = 10;
     static const int WAVE_FUNCTION_BERYLLIUM_2 = 11;
 private:
-    bool initRunVariables();
     void endOfSingleParticleStep(int cycle, int i);
     void endOfCycle(int cycle);
     void updateQuantumForce(double** r, double ** qForce,double factor);
@@ -42,6 +41,7 @@ public:
     void supressOutput();
 
     bool runIntegration();
+    bool initRunVariables();
 
     void runStep(int cycle);
     void runStepSlater(int cycle);
@@ -53,15 +53,16 @@ public:
     void runSingleStepQuantum(int i, int cycle);
     void runSingleStepSlaterQuantum(int i, int cycle);
 
+    double (VMCSolver::*getLocalEnergy)(double** r);
+    double getLocalEnergyGeneric(double** r);
+    double getLocalEnergyGenericNoCor(double** r);
+    double getLocalEnergyHelium1(double** r);
+    double getLocalEnergyHelium2(double** r);
+    double getLocalEnergyHydrogen(double** r);
+    double getLocalEnergySlater(double** r);
+    double getLocalEnergySlaterNoCor(double** r);
+
     double (VMCSolver::*getWaveFuncVal)(double** r);
-    double (VMCSolver::*getLocalEnergy)(double** r, int i);
-    double getLocalEnergyGeneric(double** r, int i);
-    double getLocalEnergyGenericNoCor(double** r, int i);
-    double getLocalEnergyHelium1(double** r, int i);
-    double getLocalEnergyHelium2(double** r, int i);
-    double getLocalEnergyHydrogen(double** r, int i);
-    double getLocalEnergySlater(double** r, int i);
-    double getLocalEnergySlaterNoCor(double** r, int i);
     double getWaveFunc1Val(double** r);
     double getWaveFunc2Val(double** r);
     double getWaveBeryllium1Val(double** r);

@@ -276,11 +276,6 @@ bool VMCSolver::initRunVariables(){
         getLocalEnergy = &VMCSolver::getLocalEnergySlater;
     else if (localEnergyFunction == LOCAL_ENERGY_SLATER_NOCOR)
         getLocalEnergy = &VMCSolver::getLocalEnergySlaterNoCor;
-    else {
-	cout << "Error: Local energy function not set, integration not running."
-	    << endl;
-        return false;
-    }
 
     // Initialize arrays
     if (recordingPositions) {
@@ -366,7 +361,7 @@ bool VMCSolver::initRunVariables(){
     return true;
 }
 
-double VMCSolver::getLocalEnergyHydrogen(double** r, int i){
+double VMCSolver::getLocalEnergyHydrogen(double** r){
     double* r1 = r[0];
     double rAbs = 0;
     for(int j = 0; j < nDimensions; j++) {
@@ -376,7 +371,7 @@ double VMCSolver::getLocalEnergyHydrogen(double** r, int i){
     return  -1/rAbs - 0.5*alpha*(alpha - 2/rAbs);
 }
 
-double VMCSolver::getLocalEnergySlater(double** r, int i){
+double VMCSolver::getLocalEnergySlater(double** r){
     double DD = 0;
     for (int i = 0; i < nParticles; i++) {
         for (int j = 0; j < nParticles/2; j++) {
@@ -482,7 +477,7 @@ double VMCSolver::getLocalEnergySlater(double** r, int i){
     return -0.5*DD - 0.5*CC - DC;
 }
 
-double VMCSolver::getLocalEnergySlaterNoCor(double** r, int i){
+double VMCSolver::getLocalEnergySlaterNoCor(double** r){
     double sum = 0;
     for (int i = 0; i < nParticles; i++) {
         for (int j = 0; j < nParticles/2; j++) {
@@ -505,7 +500,7 @@ double VMCSolver::getLocalEnergySlaterNoCor(double** r, int i){
     return -0.5*sum + potentialEnergy;
 }
 
-double VMCSolver::getLocalEnergyHelium1(double** r, int i){
+double VMCSolver::getLocalEnergyHelium1(double** r){
     double* r1 = r[0];
     double* r2 = r[1];
     double temp = 0;
@@ -531,7 +526,7 @@ double VMCSolver::getLocalEnergyHelium1(double** r, int i){
     return E1;
 }
 
-double VMCSolver::getLocalEnergyHelium2(double** r, int i){
+double VMCSolver::getLocalEnergyHelium2(double** r){
     double* r1 = r[0];
     double* r2 = r[1];
     double temp = 0;
@@ -577,7 +572,7 @@ void VMCSolver::endOfCycle(int cycle){
 
 void VMCSolver::endOfSingleParticleStep(int cycle, int i){
     // update energies
-    deltaE = (this->*getLocalEnergy)(prNew, i); 
+    deltaE = (this->*getLocalEnergy)(prNew); 
     energySum += deltaE;
     energySquaredSum += deltaE*deltaE;
 
@@ -645,7 +640,7 @@ void VMCSolver::updateSlater(int i){
 }
 
 
-double VMCSolver::getLocalEnergyGenericNoCor(double** r, int i){
+double VMCSolver::getLocalEnergyGenericNoCor(double** r){
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
@@ -687,7 +682,7 @@ double VMCSolver::getLocalEnergyGenericNoCor(double** r, int i){
     return kineticEnergy + potentialEnergy;
 }
 
-double VMCSolver::getLocalEnergyGeneric(double** r, int i){
+double VMCSolver::getLocalEnergyGeneric(double** r){
     double waveFunctionMinus = 0;
     double waveFunctionPlus = 0;
     double waveFunctionCurrent;
@@ -851,13 +846,13 @@ double VMCSolver::getWaveFunc2Val(double** r){
     double r2Abs = 0;
     double r12 = 0;
     for(int j = 0; j < nDimensions; j++) {
-	temp = r1[j] * r1[j];
-	r1Abs += temp;
-	temp = r2[j] * r2[j];
-	r2Abs += temp;
+        temp = r1[j] * r1[j];
+        r1Abs += temp;
+        temp = r2[j] * r2[j];
+        r2Abs += temp;
 
-	temp = (r2[j] - r1[j]) * (r2[j] - r1[j]);
-	r12 += temp;
+        temp = (r2[j] - r1[j]) * (r2[j] - r1[j]);
+        r12 += temp;
     }
     r1Abs = sqrt(r1Abs);
     r2Abs = sqrt(r2Abs);
