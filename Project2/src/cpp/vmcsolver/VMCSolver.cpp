@@ -127,7 +127,6 @@ void VMCSolver::runRandomStep(int cycle){
             for(int j = 0; j < nDimensions; j++) {
                 prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
             }
-            double ratio = 0;
             for (int j = 0; j < nParticles/2; j++) {
                 if (i < nParticles/2) 
                     ratio += phi(j,prNew[i]) * pslater1Inv[j][i];
@@ -143,7 +142,6 @@ void VMCSolver::runRandomStep(int cycle){
                 // Update the i'th particle (row) in the slater matrix.
                 updateSlater(i);
                 // Update the inverse of the slater matrix.
-                /* if (ratio > 100) cout << ratio << endl; */
                 if (i < nHalf) 
                     pMatOp::updateInverse(i, ratio, pslater1, pslater1Inv,nHalf);
                 else 
@@ -229,11 +227,6 @@ bool VMCSolver::initRunVariables(){
         getWaveFuncVal = &VMCSolver::getWaveBeryllium1Val;
     else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2)
         getWaveFuncVal = &VMCSolver::getWaveBeryllium2Val;
-    /* else { */
-    /*     cout << "Error: Wave function not set, integration not running." */
-    /*         << endl; */
-    /*     return false; */
-    /* } */
 
     // Set the local energy function as a function pointer
     if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
@@ -287,8 +280,6 @@ bool VMCSolver::initRunVariables(){
     if (importanceSampling == true) {
         for(int i = 0; i < nParticles; i++) {
             for(int j = 0; j < nDimensions; j++) {
-                /* prOld[i][j] = Random::gauss(idum)*sqrt(timeStep); */
-                /* prOld[i][j] = rng.gauss(idum)*sqrt(timeStep); */
                 prOld[i][j] = dist_gauss(gen)*sqrt(timeStep);
             }
         }
@@ -346,7 +337,7 @@ double VMCSolver::getLocalEnergyHydrogen(double** r, int i){
     double* r1 = r[0];
     double rAbs = 0;
     for(int j = 0; j < nDimensions; j++) {
-	rAbs += r1[j] * r1[j];
+        rAbs += r1[j] * r1[j];
     }
     rAbs = sqrt(rAbs);
     return  -1/rAbs - 0.5*alpha*(alpha - 2/rAbs);
@@ -478,17 +469,6 @@ double VMCSolver::getLocalEnergySlaterNoCor(double** r, int i){
         }
         potentialEnergy -= charge / sqrt(rSingleParticle);
     }
-    /* // Contribution from electron-electron potential */
-    /* double r12 = 0; */
-    /* for(int i = 0; i < nParticles; i++) { */
-    /*     for(int j = i + 1; j < nParticles; j++) { */
-    /*         r12 = 0; */
-    /*         for(int k = 0; k < nDimensions; k++) { */
-    /*             r12 += (r[i][k] - r[j][k]) * (r[i][k] - r[j][k]); */
-    /*         } */
-    /*         potentialEnergy += 1 / sqrt(r12); */
-    /*     } */
-    /* } */
     return -0.5*sum + potentialEnergy;
 }
 
@@ -527,15 +507,15 @@ double VMCSolver::getLocalEnergyHelium2(double** r, int i){
     double r2Abs = 0;
     double r1r2 = 0; // Dot product.
     for(int j = 0; j < nDimensions; j++) {
-	temp = r1[j] * r1[j];
-	r1Abs += temp;
-	temp = r2[j] * r2[j];
-	r2Abs += temp;
-	temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
-	r12Abs += temp;
-	// Dot product.
-	temp = r1[j]*r2[j];
-	r1r2 += temp;
+        temp = r1[j] * r1[j];
+        r1Abs += temp;
+        temp = r2[j] * r2[j];
+        r2Abs += temp;
+        temp = (r1[j] - r2[j]) * (r1[j] - r2[j]);
+        r12Abs += temp;
+        // Dot product.
+        temp = r1[j]*r2[j];
+        r1r2 += temp;
     }
     r1Abs = sqrt(r1Abs);
     r2Abs = sqrt(r2Abs);
@@ -627,7 +607,7 @@ void VMCSolver::updateQuantumForce(double** r, double ** qForce, double factor){
 void VMCSolver::updateSlater(int i){
     for (int j = 0; j < nParticles/2; j++) {
         if (i < nParticles/2) pslater1[i][j] = phi(j,prNew[i]);
-        else pslater2[i - nParticles/2][j] = phi(j,prNew[i]);
+        else pslater2[i - nHalf][j] = phi(j,prNew[i]);
     }
 }
 
@@ -775,6 +755,7 @@ void VMCSolver::clear(){
     deltaE = 0;
     waveFuncValOld = 0;
     waveFuncValNew = 0;
+    ratio = 0;
 
 
     outputSupressed = false;
@@ -871,7 +852,7 @@ double VMCSolver::getWaveBeryllium1Val(double** r){
     r3Abs = sqrt(r3Abs);
     r4Abs = sqrt(r4Abs);
     return (phi1s(r1Abs)*phi2s(r2Abs) - phi1s(r2Abs)*phi2s(r1Abs))
-	*(phi1s(r3Abs)*phi2s(r4Abs) - phi1s(r4Abs)*phi2s(r3Abs));
+        *(phi1s(r3Abs)*phi2s(r4Abs) - phi1s(r4Abs)*phi2s(r3Abs));
 }
 
 double VMCSolver::getWaveBeryllium2Val(double** r){

@@ -98,6 +98,7 @@ public:
     double deltaE;
     double waveFuncValOld;
     double waveFuncValNew;
+    double ratio;
     int nHalf;
 
     bool outputSupressed;
