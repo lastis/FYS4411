@@ -33,7 +33,6 @@ private:
 public:
     VMCSolver();
 
-    bool runIntegration();
     void clear();
     double getAcceptanceRatio();
     double getStepLength();
@@ -41,10 +40,18 @@ public:
     double getEnergy();
     double getEnergySquared();
     void supressOutput();
-    void runRandomStep(int cycle);
-    void runQuantumStep(int cycle);
-    void runSingleStepSlater(int i, int cycle);
+
+    bool runIntegration();
+
+    void runStep(int cycle);
+    void runStepSlater(int cycle);
+    void runStepQuantum(int cycle);
+    void runStepSlaterQuantum(int cycle);
+
     void runSingleStep(int i, int cycle);
+    void runSingleStepSlater(int i, int cycle);
+    void runSingleStepQuantum(int i, int cycle);
+    void runSingleStepSlaterQuantum(int i, int cycle);
 
     double (VMCSolver::*getWaveFuncVal)(double** r);
     double (VMCSolver::*getLocalEnergy)(double** r, int i);

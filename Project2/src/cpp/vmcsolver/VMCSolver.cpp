@@ -21,10 +21,30 @@ bool VMCSolver::runIntegration(){
     }
     // Main part of the code. 
     // Loop over Monte Carlo cycles.
-    for(int cycle = 0; cycle < nCycles; cycle++) {
-        if (importanceSampling) runQuantumStep(cycle);
-        else runRandomStep(cycle);
+    // This implementation might look stupid, but everything breaks all
+    // the time and every tiny step requires rigorous testing. 
+    if (importanceSampling == true && efficientSlater == false) {
+        for(int cycle = 0; cycle < nCycles; cycle++) {
+            runStepQuantum(cycle);
+        }
     }
+    else if (importanceSampling == true && efficientSlater == true){
+        cout << "This step has not been implemented yet. " << endl;
+        for(int cycle = 0; cycle < nCycles; cycle++) {
+            runStepSlaterQuantum(cycle);
+        }
+    }
+    else if (importanceSampling == false && efficientSlater == true){
+        for(int cycle = 0; cycle < nCycles; cycle++) {
+            runStepSlater(cycle);
+        }
+    }
+    else if (importanceSampling == false && efficientSlater == false){
+        for(int cycle = 0; cycle < nCycles; cycle++) {
+            runStep(cycle);
+        }
+    }
+
     // Calculate the density
     if (recordingDensity) {
         for (int i = 0; i < nParticles; i++) {
@@ -54,7 +74,11 @@ bool VMCSolver::runIntegration(){
     return true;
 }
 
-void VMCSolver::runQuantumStep(int cycle){
+void VMCSolver::runStepSlaterQuantum(int cycle){
+
+}
+
+void VMCSolver::runStepQuantum(int cycle){
     double greensFunction;
     // Store the current value of the wave function
     waveFuncValOld = (this->*getWaveFuncVal)(prOld);
@@ -182,23 +206,22 @@ void VMCSolver::runSingleStep(int i, int cycle){
     endOfSingleParticleStep(cycle, i);
 }
 
-void VMCSolver::runRandomStep(int cycle){
-    if (efficientSlater){
-        for(int i = 0; i < nParticles; i++) {
-            runSingleStepSlater(i, cycle);
-        }
-        // ALL PARTICLES MOVED ONE STEP AT THIS POINT.
-    } 
-    // Not using efficient slater
-    else {
-        // Store the current value of the wave function
-        waveFuncValOld = (this->*getWaveFuncVal)(prOld);
-        // New position to test
-        for(int i = 0; i < nParticles; i++) {
-            runSingleStep(i,cycle);
-        }
-        // All particles moved one step at this point.
+void VMCSolver::runStepSlater(int cycle){
+    for(int i = 0; i < nParticles; i++) {
+        runSingleStepSlater(i, cycle);
     }
+    // ALL PARTICLES MOVED ONE STEP AT THIS POINT.
+    endOfCycle(cycle);
+}
+
+void VMCSolver::runStep(int cycle){
+    // Store the current value of the wave function
+    waveFuncValOld = (this->*getWaveFuncVal)(prOld);
+    // New position to test
+    for(int i = 0; i < nParticles; i++) {
+        runSingleStep(i,cycle);
+    }
+    // All particles moved one step at this point.
     endOfCycle(cycle);
 }
 
