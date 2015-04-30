@@ -349,22 +349,19 @@ SUITE(VMCWrapper){
 
     }
 
-    TEST(BerylliumAndSlaterDet){
+    TEST(HeliumLocalEnergy){
         VMCWrapper solver = VMCWrapper();
-        solver.charge = 4; 
-        solver.alpha = 3.75;
-        solver.beta = 0.8;
+        solver.charge = 2; 
+        solver.alpha = 2;
         solver.nDimensions = 3;
-        solver.nParticles = 4;
+        solver.nParticles = 2;
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
         solver.h2 = 1e+06;
         solver.idum = 1;
         solver.useWaveFunction1();
-        /* solver.useLocalEnergyGenericNoCor(); */
         VMCSolver solverUnique1 = solver.getInitializedSolver();
-        /* solver.useLocalEnergyHelium1(); */
         VMCSolver solverUnique2 = solver.getInitializedSolver();
         // This will initialize the slater matrix and the initial 
         // positions. 
@@ -441,31 +438,11 @@ SUITE(Helium){
     TEST(h0LocalAnalytic){
         solver.alpha = 2;
         solver.waveFunction = solver.WAVE_FUNCTION_1;
-        solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR;
+        solver.useLocalEnergyHelium1();
         solver.supressOutput();
         solver.runIntegration();
         energy = solver.getEnergy();
         CHECK_CLOSE(-4,energy,0.1);
-    }
-
-    TEST(WaveFunc1LocalEnergyGeneric){
-        solver.alpha = 1.66;
-        solver.useWaveFunction1();
-        solver.useLocalEnergyGeneric();
-        solver.supressOutput();
-        solver.runIntegration();
-        energy = solver.getEnergy();
-        CHECK_CLOSE(-2.8,energy,0.2);
-    }
-
-    TEST(WaveFunc1LocalEnergyAnalytic){
-        solver.alpha = 1.66;
-        solver.useLocalEnergyHelium1();
-        solver.useWaveFunction1();
-        solver.supressOutput();
-        solver.runIntegration();
-        energy = solver.getEnergy();
-        CHECK_CLOSE(-2.9,energy,0.1);
     }
 
     TEST(WaveFunction2LocalEnergyGenergic){

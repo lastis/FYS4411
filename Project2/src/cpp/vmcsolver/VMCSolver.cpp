@@ -522,7 +522,7 @@ double VMCSolver::getLocalEnergyHelium1(double** r){
     r1Abs = sqrt(r1Abs);
     r2Abs = sqrt(r2Abs);
     r12Abs = sqrt(r12Abs);
-    double E1 = (alpha-charge)*(1/r1Abs + 1/r2Abs) + 1/r12Abs - alpha*alpha;
+    double E1 = (alpha-charge)*(1/r1Abs + 1/r2Abs) - alpha*alpha;
     return E1;
 }
 
