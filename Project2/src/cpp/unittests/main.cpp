@@ -382,6 +382,34 @@ SUITE(VMCWrapper){
         CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
     }
 
+    TEST(BerylliumLocalEnergy){
+        VMCWrapper solver = VMCWrapper();
+        solver.charge = 4; 
+        solver.alpha = 4;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.useWaveFunctionBeryllium1();
+        solver.useEfficientSlater(true);
+        VMCSolver solverUnique1 = solver.getInitializedSolver();
+        VMCSolver solverUnique2 = solver.getInitializedSolver();
+        // This will initialize the slater matrix and the initial 
+        // positions. 
+        solverUnique1.initRunVariables();
+        solverUnique2.initRunVariables();
+        // These two should be the same. 
+        double** r1 = solverUnique1.prOld;
+        double** r2 = solverUnique2.prOld;
+        // Just to make sure things are equal.
+        double localEnergy1 = solverUnique1.getLocalEnergyGenericNoCor(r1);
+        double localEnergy2 = solverUnique2.getLocalEnergySlaterNoCor(r2);
+        CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
+    }
+
     TEST(phi){
         VMCWrapper solver = VMCWrapper();
         solver.nDimensions = 3;
