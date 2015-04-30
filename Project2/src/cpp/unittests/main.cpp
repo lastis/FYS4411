@@ -410,6 +410,60 @@ SUITE(VMCWrapper){
         CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
     }
 
+    TEST(BerylliumSlater){
+        VMCWrapper solver = VMCWrapper();
+        solver.charge = 4; 
+        solver.alpha = 4;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.useWaveFunctionBeryllium1();
+        solver.useEfficientSlater(true);
+        VMCSolver solverUnique1 = solver.getInitializedSolver();
+        // This will initialize the slater matrix and the initial 
+        // positions. 
+        solverUnique1.initRunVariables();
+        // These two should be the same. 
+        double* r1 = solverUnique1.prOld[0];
+        double* r2 = solverUnique1.prOld[1];
+        double* r3 = solverUnique1.prOld[2];
+        double* r4 = solverUnique1.prOld[3];
+
+        double rAbs1 = 0;
+        double rAbs2 = 0;
+        double rAbs3 = 0;
+        double rAbs4 = 0;
+
+        for (int i = 0; i < 3; i++) {
+          rAbs1 += r1[0]*r1[0];
+          rAbs2 += r2[0]*r2[0];
+          rAbs3 += r3[0]*r3[0];
+          rAbs4 += r4[0]*r4[0];
+        }
+          rAbs1 = sqrt(r1[0]*r1[0]);
+          rAbs2 = sqrt(r2[0]*r2[0]);
+          rAbs3 = sqrt(r3[0]*r3[0]);
+          rAbs4 = sqrt(r4[0]*r4[0]);
+
+        using namespace wave_functions;
+
+        wave_functions::alpha = 4.;
+        wave_functions::nDimensions = 3;
+        CHECK_CLOSE(phi1s(rAbs1), solverUnique1.pslater1[0][0], 0.0001);
+        CHECK_CLOSE(phi2s(rAbs1), solverUnique1.pslater1[0][1], 0.0001);
+        CHECK_CLOSE(phi1s(rAbs2), solverUnique1.pslater1[1][0], 0.0001);
+        CHECK_CLOSE(phi2s(rAbs2), solverUnique1.pslater1[1][1], 0.0001);
+
+        CHECK_CLOSE(phi1s(rAbs3), solverUnique1.pslater2[0][0], 0.0001);
+        CHECK_CLOSE(phi2s(rAbs3), solverUnique1.pslater2[0][1], 0.0001);
+        CHECK_CLOSE(phi1s(rAbs4), solverUnique1.pslater2[1][0], 0.0001);
+        CHECK_CLOSE(phi2s(rAbs4), solverUnique1.pslater2[1][1], 0.0001);
+    }
+
     TEST(phi){
         VMCWrapper solver = VMCWrapper();
         solver.nDimensions = 3;
