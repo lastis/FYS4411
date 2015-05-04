@@ -29,8 +29,7 @@ int main(int argc, const char *argv[])
     solver.h2 = 1e+06;
     solver.idum = 2;
     solver.useEfficientSlater(true);
-    solver.useWaveFunctionBeryllium1();
-    solver.useLocalEnergyGenericNoCor();
+    solver.useLocalEnergySlaterNoCor();
     solver.recordEnergyArray(true);
 
     // Run simulation.
