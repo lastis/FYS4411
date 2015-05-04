@@ -382,10 +382,10 @@ SUITE(VMCWrapper){
         CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
     }
 
-    TEST(BerylliumLocalEnergy){
+    TEST(SlaterVsNormalRatio){
         VMCWrapper solver = VMCWrapper();
         solver.charge = 4; 
-        solver.alpha = 4;
+        solver.alpha = 4.6;
         solver.nDimensions = 3;
         solver.nParticles = 4;
         solver.stepLength = 1.52;
@@ -395,6 +395,65 @@ SUITE(VMCWrapper){
         solver.idum = 1;
         solver.useWaveFunctionBeryllium1();
         solver.useEfficientSlater(true);
+        VMCSolver solverUnique1 = solver.getInitializedSolver();
+        VMCSolver solverUnique2 = solver.getInitializedSolver();
+        // This will initialize the slater matrix and the initial 
+        // positions. 
+        solverUnique1.initRunVariables();
+        solverUnique2.initRunVariables();
+
+        double** r = solverUnique2.prOld;
+        double rAbs[4];
+        for (int i = 0; i < 4; i++) {
+            rAbs[i] = 0;
+            for(int j = 0; j < 3; j++) {
+                rAbs[i] += r[i][j] * r[i][j];
+            }
+            rAbs[i] = sqrt(rAbs[i]);
+        }
+        // Check if the slater matrix is correct.
+        using namespace wave_functions;
+        wave_functions::alpha = solver.alpha;
+        wave_functions::nDimensions = solver.nDimensions;
+        CHECK_EQUAL(phi1s(rAbs[0]),solverUnique1.pslater1[0][0]);
+        CHECK_EQUAL(phi2s(rAbs[0]),solverUnique1.pslater1[0][1]);
+        CHECK_EQUAL(phi1s(rAbs[1]),solverUnique1.pslater1[1][0]);
+        CHECK_EQUAL(phi2s(rAbs[1]),solverUnique1.pslater1[1][1]);
+
+
+        // Check that the ratios are the same for the normal step and the 
+        // efficient slater step.
+        double ratio1, ratio2;
+        int cycles = 2;
+        int particles = 4;
+        for (int i = 0; i < cycles; i++) {
+            // Hack to update the first old wavefunction value. 
+            solverUnique1.waveFuncValOld 
+                = solverUnique1.getWaveBeryllium1Val(solverUnique1.prOld);
+            for (int j = 0; j < particles; j++) {
+                solverUnique1.runSingleStep(0,0);
+                solverUnique2.runSingleStepSlater(0,0);
+                ratio1 = solverUnique1.ratio;
+                ratio2 = solverUnique2.ratio;
+                CHECK_CLOSE(ratio1,ratio2,0.000001);
+            }
+        }
+    }
+
+    TEST(BerylliumLocalEnergy){
+        VMCWrapper solver = VMCWrapper();
+        solver.charge = 4; 
+        solver.alpha = 4.6;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.useWaveFunctionBeryllium1();
+        solver.useEfficientSlater(true);
+        solver.useLocalEnergySlaterNoCor();
         VMCSolver solverUnique1 = solver.getInitializedSolver();
         VMCSolver solverUnique2 = solver.getInitializedSolver();
         // This will initialize the slater matrix and the initial 
@@ -450,9 +509,9 @@ SUITE(VMCWrapper){
         rAbs4 = sqrt(rAbs4);
 
         using namespace wave_functions;
-
         wave_functions::alpha = 4.;
         wave_functions::nDimensions = 3;
+
         // Check explicit wave functions against the slater matrix.
         CHECK_CLOSE(phi1s(rAbs1), solverUnique1.pslater1[0][0], 0.0001);
         CHECK_CLOSE(phi(0,r1), solverUnique1.pslater1[0][0], 0.0001);

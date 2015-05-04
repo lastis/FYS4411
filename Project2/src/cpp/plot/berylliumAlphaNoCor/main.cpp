@@ -30,7 +30,6 @@ int main(int argc, const char *argv[])
     solver.idum = 2;
     solver.useWaveFunctionBeryllium1();
     solver.useLocalEnergyGenericNoCor();
-    /* solver.useParallel(true); */
     solver.recordEnergyArray(true);
 
     // Run simulation.

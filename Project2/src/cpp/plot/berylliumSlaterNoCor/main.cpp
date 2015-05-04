@@ -26,13 +26,11 @@ int main(int argc, const char *argv[])
     solver.stepLength = 1.52;
     solver.nCycles = nCycles;
     solver.h = 0.001;
-    solver.h2 = solver.h*solver.h;
+    solver.h2 = 1e+06;
     solver.idum = 2;
     solver.useEfficientSlater(true);
     solver.useWaveFunctionBeryllium1();
     solver.useLocalEnergyGenericNoCor();
-    /* solver.useLocalEnergySlaterNoCor(); */
-    /* solver.useParallel(true); */
     solver.recordEnergyArray(true);
 
     // Run simulation.
@@ -43,7 +41,7 @@ int main(int argc, const char *argv[])
     /* cout << "Time = " << diff.count() << " seconds." << endl; */
     using microfortnights = std::chrono::duration<float, std::ratio<12096,10000>>;
     cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
-    /* cout << "Energy " << solver.getEnergy() << endl; */
+    cout << "Energy " << solver.getEnergy() << endl;
     cout << "Acceptance Ratio : " << solver.getAcceptanceRatio() << endl;
 
     // Manipulate data. 
