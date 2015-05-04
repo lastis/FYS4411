@@ -20,7 +20,7 @@ except OSError:
     pass
 
 nCycles = 1e5
-blockSize = 1000
+blockSize = 100
 alphaArray = np.linspace(3.5,4.5,11)
 # Save the alpha values.
 np.savetxt(alphaFile,alphaArray)

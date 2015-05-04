@@ -395,6 +395,7 @@ SUITE(VMCWrapper){
         solver.idum = 1;
         solver.useWaveFunctionBeryllium1();
         solver.useEfficientSlater(true);
+        solver.useLocalEnergyGenericNoCor();
         VMCSolver solverUnique1 = solver.getInitializedSolver();
         VMCSolver solverUnique2 = solver.getInitializedSolver();
         // This will initialize the slater matrix and the initial 
@@ -424,18 +425,58 @@ SUITE(VMCWrapper){
         // Check that the ratios are the same for the normal step and the 
         // efficient slater step.
         double ratio1, ratio2;
-        int cycles = 2;
+        int cycles = 10;
         int particles = 4;
         for (int i = 0; i < cycles; i++) {
             // Hack to update the first old wavefunction value. 
             solverUnique1.waveFuncValOld 
                 = solverUnique1.getWaveBeryllium1Val(solverUnique1.prOld);
             for (int j = 0; j < particles; j++) {
-                solverUnique1.runSingleStep(0,0);
-                solverUnique2.runSingleStepSlater(0,0);
+                solverUnique1.runSingleStep(j,i);
+                solverUnique2.runSingleStepSlater(j,i);
                 ratio1 = solverUnique1.ratio;
                 ratio2 = solverUnique2.ratio;
                 CHECK_CLOSE(ratio1,ratio2,0.000001);
+            }
+        }
+    }
+
+    TEST(SlaterVsNormalLocalEnergy){
+        VMCWrapper solver = VMCWrapper();
+        solver.charge = 4; 
+        solver.alpha = 4.6;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.useWaveFunctionBeryllium1();
+        solver.useEfficientSlater(true);
+        solver.useLocalEnergyGenericNoCor();
+        VMCSolver solverUnique1 = solver.getInitializedSolver();
+        VMCSolver solverUnique2 = solver.getInitializedSolver();
+        // This will initialize the slater matrix and the initial 
+        // positions. 
+        solverUnique1.initRunVariables();
+        solverUnique2.initRunVariables();
+
+        // Check that the ratios are the same for the normal step and the 
+        // efficient slater step.
+        double energy1, energy2;
+        int cycles = 1;
+        int particles = 4;
+        for (int i = 0; i < cycles; i++) {
+            // Hack to update the first old wavefunction value. 
+            solverUnique1.waveFuncValOld 
+                = solverUnique1.getWaveBeryllium1Val(solverUnique1.prOld);
+            for (int j = 0; j < particles; j++) {
+                solverUnique1.runSingleStep(j,i);
+                solverUnique2.runSingleStepSlater(j,i);
+                energy1 = solverUnique1.deltaE;
+                energy2 = solverUnique2.deltaE;
+                CHECK_CLOSE(energy1,energy2,0.000001);
             }
         }
     }

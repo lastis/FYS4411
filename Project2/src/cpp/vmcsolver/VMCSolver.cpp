@@ -149,12 +149,14 @@ void VMCSolver::runSingleStepSlater(int i, int cycle){
     for(int j = 0; j < nDimensions; j++) {
         prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
     }
-    for (int j = 0; j < nParticles/2; j++) {
-        if (i < nParticles/2) 
-            ratio += phi(j,prNew[i]) * pslater1Inv[j][i];
+    double ratioTmp = 0;
+    for (int j = 0; j < nHalf; j++) {
+        if (i < nHalf) 
+            ratioTmp += phi(j,prNew[i]) * pslater1Inv[j][i];
         else 
-            ratio += phi(j,prNew[i]) * pslater2Inv[j][i - nParticles/2];
+            ratioTmp += phi(j,prNew[i]) * pslater2Inv[j][i - nHalf];
     }
+    ratio = ratioTmp*ratioTmp;
     // Check for step acceptance (if yes, 
     // update position, if no, reset position)
     if(dist_uniform(gen) <= ratio) {
@@ -165,9 +167,9 @@ void VMCSolver::runSingleStepSlater(int i, int cycle){
         updateSlater(i);
         // Update the inverse of the slater matrix.
         if (i < nHalf) 
-            pMatOp::updateInverse(i, ratio, pslater1, pslater1Inv,nHalf);
+            pMatOp::updateInverse(i, ratioTmp, pslater1, pslater1Inv,nHalf);
         else 
-            pMatOp::updateInverse(i-nHalf, ratio,pslater2,pslater2Inv,nHalf);
+            pMatOp::updateInverse(i-nHalf, ratioTmp,pslater2,pslater2Inv,nHalf);
         accepts++;
     } 
     else {
@@ -185,7 +187,7 @@ void VMCSolver::runSingleStep(int i, int cycle){
     }
     // Recalculate the value of the wave function
     waveFuncValNew = (this->*getWaveFuncVal)(prNew);
-    double ratio = 
+    ratio = 
             waveFuncValNew*waveFuncValNew/(waveFuncValOld*waveFuncValOld);
     // Check for step acceptance (if yes, 
     // update position, if no, reset position)
@@ -343,7 +345,7 @@ bool VMCSolver::initRunVariables(){
             slater1Inv = CPhys::MatOp::getInverse(slater1);
             slater2Inv = CPhys::MatOp::getInverse(slater2);
             pslater1Inv = slater1Inv.getArrayPointer();
-            pslater2Inv = slater1Inv.getArrayPointer();
+            pslater2Inv = slater2Inv.getArrayPointer();
         }
         else {
             slater1 = Matrix(nParticles,nParticles);
@@ -477,16 +479,11 @@ double VMCSolver::getLocalEnergySlater(double** r){
     return -0.5*DD - 0.5*CC - DC;
 }
 
-double VMCSolver::getLocalEnergySlaterNoCor(double** r){
+double VMCSolver::getLocalEnergySlaterNoCor(double** r)
+{
     double sum = 0;
-    for (int i = 0; i < nParticles; i++) {
-        for (int j = 0; j < nParticles/2; j++) {
-            if (i < nHalf) 
-                sum += phiDD(j,r[i])*pslater1Inv[j][i];
-            else 
-                sum += phiDD(j,r[i])*pslater2Inv[j][i-nHalf];
-        }
-    }
+    sum = berylliumPsiDD(r);
+
     // Potential energy.
     double potentialEnergy = 0;
     double rSingleParticle = 0;
@@ -582,12 +579,12 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i){
     }
 
     if (recordingPositions) {
-	double rAbs = 0;
-	for(int j = 0; j < nDimensions; j++) {
-	    rAbs += prNew[i][j]*prNew[i][j];
-	}
-	rAbs = sqrt(rAbs);
-	pPositions[i][cycle] = rAbs;
+        double rAbs = 0;
+        for(int j = 0; j < nDimensions; j++) {
+            rAbs += prNew[i][j]*prNew[i][j];
+        }
+        rAbs = sqrt(rAbs);
+        pPositions[i][cycle] = rAbs;
     }
 
     // Calculate density
@@ -654,17 +651,17 @@ double VMCSolver::getLocalEnergyGenericNoCor(double** r){
     double kineticEnergy = 0;
     for(int i = 0; i < nParticles; i++) {
         for(int j = 0; j < nDimensions; j++) {
-	    rPlus 	= r[i][j] + h;
-	    rMinus 	= r[i][j] - h;
-	    r0 		= r[i][j];
+            rPlus 	= r[i][j] + h;
+            rMinus 	= r[i][j] - h;
+            r0 		= r[i][j];
 
-	    r[i][j] = rMinus;
-	    waveFunctionMinus = (this->*getWaveFuncVal)(r);
-	    r[i][j] = rPlus;
-	    waveFunctionPlus = (this->*getWaveFuncVal)(r);
-	    r[i][j] = r0;
-	    kineticEnergy -= (waveFunctionMinus + waveFunctionPlus 
-			- 2 * waveFunctionCurrent);
+            r[i][j] = rMinus;
+            waveFunctionMinus = (this->*getWaveFuncVal)(r);
+            r[i][j] = rPlus;
+            waveFunctionPlus = (this->*getWaveFuncVal)(r);
+            r[i][j] = r0;
+            kineticEnergy -= (waveFunctionMinus + waveFunctionPlus 
+                - 2 * waveFunctionCurrent);
         }
     }
     kineticEnergy = 0.5 * h2 * kineticEnergy / waveFunctionCurrent;
