@@ -404,7 +404,7 @@ SUITE(VMCWrapper){
         // These two should be the same. 
         double** r1 = solverUnique1.prOld;
         double** r2 = solverUnique2.prOld;
-        // Just to make sure things are equal.
+
         double localEnergy1 = solverUnique1.getLocalEnergyGenericNoCor(r1);
         double localEnergy2 = solverUnique2.getLocalEnergySlaterNoCor(r2);
         CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
@@ -439,29 +439,45 @@ SUITE(VMCWrapper){
         double rAbs4 = 0;
 
         for (int i = 0; i < 3; i++) {
-          rAbs1 += r1[0]*r1[0];
-          rAbs2 += r2[0]*r2[0];
-          rAbs3 += r3[0]*r3[0];
-          rAbs4 += r4[0]*r4[0];
+          rAbs1 += r1[i]*r1[i];
+          rAbs2 += r2[i]*r2[i];
+          rAbs3 += r3[i]*r3[i];
+          rAbs4 += r4[i]*r4[i];
         }
-          rAbs1 = sqrt(r1[0]*r1[0]);
-          rAbs2 = sqrt(r2[0]*r2[0]);
-          rAbs3 = sqrt(r3[0]*r3[0]);
-          rAbs4 = sqrt(r4[0]*r4[0]);
+        rAbs1 = sqrt(rAbs1);
+        rAbs2 = sqrt(rAbs2);
+        rAbs3 = sqrt(rAbs3);
+        rAbs4 = sqrt(rAbs4);
 
         using namespace wave_functions;
 
         wave_functions::alpha = 4.;
         wave_functions::nDimensions = 3;
+        // Check explicit wave functions against the slater matrix.
         CHECK_CLOSE(phi1s(rAbs1), solverUnique1.pslater1[0][0], 0.0001);
-        CHECK_CLOSE(phi2s(rAbs1), solverUnique1.pslater1[0][1], 0.0001);
-        CHECK_CLOSE(phi1s(rAbs2), solverUnique1.pslater1[1][0], 0.0001);
-        CHECK_CLOSE(phi2s(rAbs2), solverUnique1.pslater1[1][1], 0.0001);
+        CHECK_CLOSE(phi(0,r1), solverUnique1.pslater1[0][0], 0.0001);
 
+        CHECK_CLOSE(phi2s(rAbs1), solverUnique1.pslater1[0][1], 0.0001);
+        CHECK_CLOSE(phi(1,r1), solverUnique1.pslater1[0][1], 0.0001);
+
+        CHECK_CLOSE(phi1s(rAbs2), solverUnique1.pslater1[1][0], 0.0001);
+        CHECK_CLOSE(phi(0,r2), solverUnique1.pslater1[1][0], 0.0001);
+
+        CHECK_CLOSE(phi2s(rAbs2), solverUnique1.pslater1[1][1], 0.0001);
+        CHECK_CLOSE(phi(1,r2), solverUnique1.pslater1[1][1], 0.0001);
+
+        // Second slater matrix.
         CHECK_CLOSE(phi1s(rAbs3), solverUnique1.pslater2[0][0], 0.0001);
+        CHECK_CLOSE(phi(0,r3), solverUnique1.pslater2[0][0], 0.0001);
+
         CHECK_CLOSE(phi2s(rAbs3), solverUnique1.pslater2[0][1], 0.0001);
+        CHECK_CLOSE(phi(1,r3), solverUnique1.pslater2[0][1], 0.0001);
+
         CHECK_CLOSE(phi1s(rAbs4), solverUnique1.pslater2[1][0], 0.0001);
+        CHECK_CLOSE(phi(0,r4), solverUnique1.pslater2[1][0], 0.0001);
+
         CHECK_CLOSE(phi2s(rAbs4), solverUnique1.pslater2[1][1], 0.0001);
+        CHECK_CLOSE(phi(1,r4), solverUnique1.pslater2[1][1], 0.0001);
     }
 
     TEST(phi){
