@@ -148,9 +148,12 @@ void VMCSolver::setSeed(long seed){
 
 void VMCSolver::runSingleStepSlater(int i, int cycle){
     // New position to test
+    rAbsNew[i] = 0;
     for(int j = 0; j < nDimensions; j++) {
         prNew[i][j] = prOld[i][j] + stepLength*(dist_uniform(gen) - 0.5);
+        rAbsNew[i] += prNew[i][j]*prNew[i][j];
     }
+    rAbsNew[i] = sqrt(rAbsNew[i]);
     double ratioTmp = 0;
     for (int j = 0; j < nHalf; j++) {
         if (i < nHalf) 
@@ -165,6 +168,7 @@ void VMCSolver::runSingleStepSlater(int i, int cycle){
         for(int j = 0; j < nDimensions; j++) {
             prOld[i][j] = prNew[i][j];
         }
+        rAbsOld[i] = rAbsNew[i];
         // Update the i'th particle (row) in the slater matrix.
         updateSlater(i);
         // Update the inverse of the slater matrix.
@@ -178,6 +182,7 @@ void VMCSolver::runSingleStepSlater(int i, int cycle){
         for(int j = 0; j < nDimensions; j++) {
             prNew[i][j] = prOld[i][j];
         }
+        rAbsNew[i] = rAbsOld[i];
         rejects++;
     }
 
@@ -202,14 +207,6 @@ void VMCSolver::runSingleStep(int i, int cycle){
             prOld[i][j] = prNew[i][j];
         }
         rAbsOld[i] = rAbsNew[i];
-        /* double tmp = 0; */
-        /* for (int j = 0; j < nDimensions; j++) { */
-        /*     tmp += prOld[i][j]*prOld[i][j]; */
-        /* } */
-        /* tmp = sqrt(tmp); */
-        /* using namespace std; */
-        /* cout << tmp << endl; */
-        /* cout << rAbsOld[i] << endl; */
         waveFuncValOld = waveFuncValNew;
         accepts++;
     } 
@@ -399,16 +396,6 @@ void VMCSolver::endOfCycle(int cycle){
 }
 
 void VMCSolver::endOfSingleParticleStep(int cycle, int i){
-    /* for (int i = 0; i < nParticles; i++) { */
-    /*     double tmp = 0; */
-    /*     for (int j = 0; j < nDimensions; j++) { */
-    /*         tmp += prNew[i][j]*prNew[i][j]; */
-    /*     } */
-    /*     tmp = sqrt(tmp); */
-    /*     cout << tmp << endl; */
-    /*     cout << rAbsNew[i] << endl; */
-    /* } */
-
     // update energies
     if (localEnergyFunction == LOCAL_ENERGY_SLATER)
         deltaE = getLocalEnergySlater(prNew,rAbsNew);

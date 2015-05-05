@@ -469,9 +469,10 @@ SUITE(VMCWrapper){
         solver.h2 = 1e+06;
         solver.idum = 1;
         solver.useWaveFunctionBeryllium1();
-        solver.useEfficientSlater(true);
         solver.useLocalEnergyGenericNoCor();
         VMCSolver solverUnique1 = solver.getInitializedSolver();
+        solver.useEfficientSlater(true);
+        solver.useLocalEnergySlaterNoCor();
         VMCSolver solverUnique2 = solver.getInitializedSolver();
         // This will initialize the slater matrix and the initial 
         // positions. 
@@ -495,7 +496,7 @@ SUITE(VMCWrapper){
                 solverUnique2.runSingleStepSlater(j,i);
                 energy1 = solverUnique1.deltaE;
                 energy2 = solverUnique2.deltaE;
-                CHECK_CLOSE(energy1,energy2,0.000001);
+                CHECK_CLOSE(energy1,energy2,0.0001);
             }
         }
     }
@@ -719,9 +720,9 @@ SUITE(Beryllium){
     }
 
     TEST(EfficientSlater){
-        solver.useWaveFunctionBeryllium2();
-        solver.useLocalEnergyGeneric();
         solver.useEfficientSlater(true);
+        solver.useLocalEnergyGeneric();
+        solver.useWaveFunctionBeryllium2();
         solver.supressOutput();
         solver.runIntegration();
         double energy = solver.getEnergy();
