@@ -3,6 +3,19 @@
 
 using namespace std;
 
+static void initWaveFunctions(VMCSolver& solver)
+{
+    wave_functions::alpha = solver.alpha;
+    wave_functions::beta = solver.beta;
+    wave_functions::nDimensions = solver.nDimensions;
+    wave_functions::h = solver.h;
+    wave_functions::h2 = solver.h2;
+    wave_functions::charge = solver.charge;
+    wave_functions::nParticles = solver.nParticles;
+    wave_functions::nHalf = solver.nHalf;
+    wave_functions::getWaveFuncVal = solver.getWaveFuncVal;
+}
+
 SUITE(CPhys){
     TEST(Matrix){
         Matrix mat1;
@@ -275,16 +288,14 @@ SUITE(Hydrogen){
         solver.nParticles = 1;
         solver.stepLength = 1.52;
         solver.nCycles = 10000;
-        solver.waveFunction = solver.WAVE_FUNCTION_1;
         solver.h = 0.001;
         solver.h2 = 1e+06;
         solver.idum = 1;
-        //TODO Check all variable names.
     }
 
     TEST(GroundStateGenergic){
-        solver.waveFunction = solver.WAVE_FUNCTION_1;
-        solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC;
+        solver.useWaveFunction1();
+        solver.useLocalEnergyGenericNoCor();
         solver.supressOutput();
         solver.runIntegration();
         double energy = solver.getEnergy();
@@ -373,12 +384,16 @@ SUITE(VMCWrapper){
         for (int i = 0; i < solverUnique1.nParticles; i++) {
             CHECK_EQUAL(r1[i][0],r2[i][0]);
         }
-        double localEnergy1 = solverUnique1.getLocalEnergyGenericNoCor(r1);
-        double localEnergy2 = solverUnique2.getLocalEnergyGenericNoCor(r2);
+        double* r1Abs = solverUnique1.rAbsOld;
+        double* r2Abs = solverUnique2.rAbsOld;
+
+        initWaveFunctions(solverUnique1);
+        double localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs);
+        double localEnergy2 = wave_functions::getLocalEnergyGenericNoCor(r2,r2Abs);
         // Just to make sure things are equal.
         CHECK_EQUAL(localEnergy1,localEnergy2);
-        localEnergy1 = solverUnique1.getLocalEnergyGenericNoCor(r1);
-        localEnergy2 = solverUnique2.getLocalEnergyHelium1(r2);
+        localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs);
+        localEnergy2 = wave_functions::getLocalEnergyHeliumNoCor(r2,r2Abs);
         CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
     }
 
@@ -414,8 +429,7 @@ SUITE(VMCWrapper){
         }
         // Check if the slater matrix is correct.
         using namespace wave_functions;
-        wave_functions::alpha = solver.alpha;
-        wave_functions::nDimensions = solver.nDimensions;
+        initWaveFunctions(solverUnique1);
         CHECK_EQUAL(phi1s(rAbs[0]),solverUnique1.pslater1[0][0]);
         CHECK_EQUAL(phi2s(rAbs[0]),solverUnique1.pslater1[0][1]);
         CHECK_EQUAL(phi1s(rAbs[1]),solverUnique1.pslater1[1][0]);
@@ -429,8 +443,10 @@ SUITE(VMCWrapper){
         int particles = 4;
         for (int i = 0; i < cycles; i++) {
             // Hack to update the first old wavefunction value. 
+            double** r = solverUnique1.prOld;
+            double* rAbs = solverUnique1.rAbsOld;
             solverUnique1.waveFuncValOld 
-                = solverUnique1.getWaveBeryllium1Val(solverUnique1.prOld);
+                = wave_functions::getWaveBerylliumNoCor(r,rAbs);
             for (int j = 0; j < particles; j++) {
                 solverUnique1.runSingleStep(j,i);
                 solverUnique2.runSingleStepSlater(j,i);
@@ -462,6 +478,7 @@ SUITE(VMCWrapper){
         solverUnique1.initRunVariables();
         solverUnique2.initRunVariables();
 
+        initWaveFunctions(solverUnique1);
         // Check that the ratios are the same for the normal step and the 
         // efficient slater step.
         double energy1, energy2;
@@ -469,8 +486,10 @@ SUITE(VMCWrapper){
         int particles = 4;
         for (int i = 0; i < cycles; i++) {
             // Hack to update the first old wavefunction value. 
+            double** r = solverUnique1.prOld;
+            double* rAbs = solverUnique1.rAbsOld;
             solverUnique1.waveFuncValOld 
-                = solverUnique1.getWaveBeryllium1Val(solverUnique1.prOld);
+                = wave_functions::getWaveBerylliumNoCor(r,rAbs);
             for (int j = 0; j < particles; j++) {
                 solverUnique1.runSingleStep(j,i);
                 solverUnique2.runSingleStepSlater(j,i);
@@ -504,9 +523,12 @@ SUITE(VMCWrapper){
         // These two should be the same. 
         double** r1 = solverUnique1.prOld;
         double** r2 = solverUnique2.prOld;
+        double* r1Abs = solverUnique1.rAbsOld;
+        double* r2Abs = solverUnique2.rAbsOld;
 
-        double localEnergy1 = solverUnique1.getLocalEnergyGenericNoCor(r1);
-        double localEnergy2 = solverUnique2.getLocalEnergySlaterNoCor(r2);
+        initWaveFunctions(solverUnique1);
+        double localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs);
+        double localEnergy2 = solverUnique2.getLocalEnergySlaterNoCor(r2,r2Abs);
         CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
     }
 
@@ -550,8 +572,7 @@ SUITE(VMCWrapper){
         rAbs4 = sqrt(rAbs4);
 
         using namespace wave_functions;
-        wave_functions::alpha = 4.;
-        wave_functions::nDimensions = 3;
+        initWaveFunctions(solverUnique1);
 
         // Check explicit wave functions against the slater matrix.
         CHECK_CLOSE(phi1s(rAbs1), solverUnique1.pslater1[0][0], 0.0001);

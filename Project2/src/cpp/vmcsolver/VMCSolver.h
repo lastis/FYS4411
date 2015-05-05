@@ -27,7 +27,7 @@ public:
 private:
     void endOfSingleParticleStep(int cycle, int i);
     void endOfCycle(int cycle);
-    void updateQuantumForce(double** r, double ** qForce,double factor);
+    void updateQuantumForce(double** r, double* rAbs, double ** qForce,double factor);
     void updateSlater(int i);
 public:
     VMCSolver();
@@ -43,6 +43,8 @@ public:
     bool runIntegration();
     bool initRunVariables();
 
+    /* static void initWaveFunctions(VMCSolver& solver); */
+
     void runStep(int cycle);
     void runStepSlater(int cycle);
     void runStepQuantum(int cycle);
@@ -53,23 +55,14 @@ public:
     void runSingleStepQuantum(int i, int cycle);
     void runSingleStepSlaterQuantum(int i, int cycle);
 
-    double (VMCSolver::*getLocalEnergy)(double** r);
-    double getLocalEnergyGeneric(double** r);
-    double getLocalEnergyGenericNoCor(double** r);
-    double getLocalEnergyHelium1(double** r);
-    double getLocalEnergyHelium2(double** r);
-    double getLocalEnergyHydrogen(double** r);
-    double getLocalEnergySlater(double** r);
-    double getLocalEnergySlaterNoCor(double** r);
+    double (*getWaveFuncVal)(double** r, double* rAbs);
+    double (*getLocalEnergy)(double** r, double* rAbs);
+    double getLocalEnergySlater(double** r, double* rAbs);
+    double getLocalEnergySlaterNoCor(double** r, double* rAbs);
 
-    double (VMCSolver::*getWaveFuncVal)(double** r);
-    double getWaveFunc1Val(double** r);
-    double getWaveFunc2Val(double** r);
-    double getWaveBeryllium1Val(double** r);
-    double getWaveBeryllium2Val(double** r);
     Vector getEnergyArray();
 
-    void    setSeed(long seed);
+    void setSeed(long seed);
     double alpha;
     double beta;
     int waveFunction;
@@ -134,6 +127,10 @@ public:
     Matrix rNew;
     double** prOld;
     double** prNew;
+    Vector rAbsOldVec;
+    Vector rAbsNewVec;
+    double* rAbsOld;
+    double* rAbsNew;
     Matrix positions;
     double** pPositions;
     Matrix density;
