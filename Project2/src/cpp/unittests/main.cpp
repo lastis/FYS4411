@@ -313,94 +313,95 @@ SUITE(Hydrogen){
 }
 
 SUITE(VMCWrapper){
-    TEST(getSolver){
-        VMCWrapper solver = VMCWrapper();
-        solver.charge = 2;
-        solver.alpha = 1.66;
-        solver.beta = 0.8;
-        solver.nDimensions = 3;
-        solver.nParticles = 2;
-        solver.stepLength = 1.52;
-        solver.nCycles = 10000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.useWaveFunction2();
-        solver.useLocalEnergyHelium2();
-        VMCSolver solverUnique = solver.getInitializedSolver();
-        CHECK_EQUAL(solver.charge,solverUnique.charge);
-        CHECK_EQUAL(solver.alpha,solverUnique.alpha);
-    }
+    /* TEST(getSolver){ */
+    /*     VMCWrapper solver = VMCWrapper(); */
+    /*     solver.charge = 2; */
+    /*     solver.alpha = 1.66; */
+    /*     solver.beta = 0.8; */
+    /*     solver.nDimensions = 3; */
+    /*     solver.nParticles = 2; */
+    /*     solver.stepLength = 1.52; */
+    /*     solver.nCycles = 10000; */
+    /*     solver.h = 0.001; */
+    /*     solver.h2 = 1e+06; */
+    /*     solver.idum = 1; */
+    /*     solver.useWaveFunction2(); */
+    /*     solver.useLocalEnergyHelium2(); */
+    /*     VMCSolver solverUnique = solver.getInitializedSolver(); */
+    /*     CHECK_EQUAL(solver.charge,solverUnique.charge); */
+    /*     CHECK_EQUAL(solver.alpha,solverUnique.alpha); */
+    /* } */
 
-    TEST(RngPositions){
-        VMCWrapper solver = VMCWrapper();
-        solver.charge = 4; 
-        solver.alpha = 3.75;
-        solver.beta = 0.8;
-        solver.nDimensions = 3;
-        solver.nParticles = 4;
-        solver.stepLength = 1.52;
-        solver.nCycles = 1000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.useEfficientSlater(true);
-        solver.useLocalEnergyGenericNoCor();
-        VMCSolver solverUnique1 = solver.getInitializedSolver();
-        solver.useLocalEnergySlater();
-        VMCSolver solverUnique2 = solver.getInitializedSolver();
-        // This will initialize the slater matrix and the initial 
-        // positions. 
-        solverUnique1.initRunVariables();
-        solverUnique2.initRunVariables();
-        // Check that the positions are the same for the two different solvers.
-        for (int i = 0; i < solverUnique1.nParticles; i++) {
-            CHECK_EQUAL(solverUnique1.prOld[i][0], solverUnique2.prOld[i][0]);
-        }
+    /* TEST(RngPositions){ */
+    /*     VMCWrapper solver = VMCWrapper(); */
+    /*     solver.charge = 4; */ 
+    /*     solver.alpha = 3.75; */
+    /*     solver.beta = 0.8; */
+    /*     solver.nDimensions = 3; */
+    /*     solver.nParticles = 4; */
+    /*     solver.stepLength = 1.52; */
+    /*     solver.nCycles = 1000; */
+    /*     solver.h = 0.001; */
+    /*     solver.h2 = 1e+06; */
+    /*     solver.idum = 1; */
+    /*     solver.useEfficientSlater(true); */
+    /*     solver.useLocalEnergyGenericNoCor(); */
+    /*     VMCSolver solverUnique1 = solver.getInitializedSolver(); */
+    /*     solver.useLocalEnergySlater(); */
+    /*     VMCSolver solverUnique2 = solver.getInitializedSolver(); */
+    /*     // This will initialize the slater matrix and the initial */ 
+    /*     // positions. */ 
+    /*     solverUnique1.initRunVariables(); */
+    /*     solverUnique2.initRunVariables(); */
+    /*     // Check that the positions are the same for the two different solvers. */
+    /*     for (int i = 0; i < solverUnique1.nParticles; i++) { */
+    /*         CHECK_EQUAL(solverUnique1.prOld[i][0], solverUnique2.prOld[i][0]); */
+    /*     } */
 
-    }
+    /* } */
 
-    TEST(HeliumLocalEnergy){
-        VMCWrapper solver = VMCWrapper();
-        solver.charge = 2; 
-        solver.alpha = 2;
-        solver.nDimensions = 3;
-        solver.nParticles = 2;
-        solver.stepLength = 1.52;
-        solver.nCycles = 1000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.useWaveFunction1();
-        VMCSolver solverUnique1 = solver.getInitializedSolver();
-        VMCSolver solverUnique2 = solver.getInitializedSolver();
-        // This will initialize the slater matrix and the initial 
-        // positions. 
-        solverUnique1.initRunVariables();
-        solverUnique2.initRunVariables();
-        // These two should be the same. 
-        double** r1 = solverUnique1.prOld;
-        double** r2 = solverUnique2.prOld;
-        for (int i = 0; i < solverUnique1.nParticles; i++) {
-            CHECK_EQUAL(r1[i][0],r2[i][0]);
-        }
-        double* r1Abs = solverUnique1.rAbsOld;
-        double* r2Abs = solverUnique2.rAbsOld;
+    /* TEST(HeliumLocalEnergy){ */
+    /*     VMCWrapper solver = VMCWrapper(); */
+    /*     solver.charge = 2; */ 
+    /*     solver.alpha = 2; */
+    /*     solver.nDimensions = 3; */
+    /*     solver.nParticles = 2; */
+    /*     solver.stepLength = 1.52; */
+    /*     solver.nCycles = 1000; */
+    /*     solver.h = 0.001; */
+    /*     solver.h2 = 1e+06; */
+    /*     solver.idum = 1; */
+    /*     solver.useWaveFunction1(); */
+    /*     VMCSolver solverUnique1 = solver.getInitializedSolver(); */
+    /*     VMCSolver solverUnique2 = solver.getInitializedSolver(); */
+    /*     // This will initialize the slater matrix and the initial */ 
+    /*     // positions. */ 
+    /*     solverUnique1.initRunVariables(); */
+    /*     solverUnique2.initRunVariables(); */
+    /*     // These two should be the same. */ 
+    /*     double** r1 = solverUnique1.prOld; */
+    /*     double** r2 = solverUnique2.prOld; */
+    /*     for (int i = 0; i < solverUnique1.nParticles; i++) { */
+    /*         CHECK_EQUAL(r1[i][0],r2[i][0]); */
+    /*     } */
+    /*     double* r1Abs = solverUnique1.rAbsOld; */
+    /*     double* r2Abs = solverUnique2.rAbsOld; */
 
-        initWaveFunctions(solverUnique1);
-        double localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs);
-        double localEnergy2 = wave_functions::getLocalEnergyGenericNoCor(r2,r2Abs);
-        // Just to make sure things are equal.
-        CHECK_EQUAL(localEnergy1,localEnergy2);
-        localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs);
-        localEnergy2 = wave_functions::getLocalEnergyHeliumNoCor(r2,r2Abs);
-        CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
-    }
+    /*     initWaveFunctions(solverUnique1); */
+    /*     double localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs); */
+    /*     double localEnergy2 = wave_functions::getLocalEnergyGenericNoCor(r2,r2Abs); */
+    /*     // Just to make sure things are equal. */
+    /*     CHECK_EQUAL(localEnergy1,localEnergy2); */
+    /*     localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs); */
+    /*     localEnergy2 = wave_functions::getLocalEnergyHeliumNoCor(r2,r2Abs); */
+    /*     CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001); */
+    /* } */
 
     TEST(SlaterVsNormalRatio){
         VMCWrapper solver = VMCWrapper();
         solver.charge = 4; 
         solver.alpha = 4.6;
+        solver.beta = 1;
         solver.nDimensions = 3;
         solver.nParticles = 4;
         solver.stepLength = 1.52;
@@ -445,6 +446,7 @@ SUITE(VMCWrapper){
         VMCWrapper solver = VMCWrapper();
         solver.charge = 4; 
         solver.alpha = 4.6;
+        solver.beta = 1;
         solver.nDimensions = 3;
         solver.nParticles = 4;
         solver.stepLength = 1.52;
@@ -456,7 +458,7 @@ SUITE(VMCWrapper){
         solver.useLocalEnergyGeneric();
         VMCSolver solverUnique1 = solver.getInitializedSolver();
         solver.useEfficientSlater(true);
-        /* solver.useLocalEnergySlater(); */
+        solver.useLocalEnergySlater();
         VMCSolver solverUnique2 = solver.getInitializedSolver();
         // This will initialize the slater matrix and the initial 
         // positions. 
@@ -468,7 +470,7 @@ SUITE(VMCWrapper){
         // efficient slater step.
         double energy1, energy2;
         int cycles = 1;
-        int particles = 4;
+        int particles = 1;
         for (int i = 0; i < cycles; i++) {
             // Hack to update the first old wavefunction value. 
             double** r = solverUnique1.prOld;
@@ -485,338 +487,338 @@ SUITE(VMCWrapper){
         }
     }
 
-    TEST(SlaterVsNormalRatioNoCor){
-        VMCWrapper solver = VMCWrapper();
-        solver.charge = 4; 
-        solver.alpha = 4.6;
-        solver.nDimensions = 3;
-        solver.nParticles = 4;
-        solver.stepLength = 1.52;
-        solver.nCycles = 1000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.useWaveFunctionBeryllium1();
-        solver.useEfficientSlater(true);
-        solver.useLocalEnergyGenericNoCor();
-        VMCSolver solverUnique1 = solver.getInitializedSolver();
-        VMCSolver solverUnique2 = solver.getInitializedSolver();
-        // This will initialize the slater matrix and the initial 
-        // positions. 
-        solverUnique1.initRunVariables();
-        solverUnique2.initRunVariables();
+    /* TEST(SlaterVsNormalRatioNoCor){ */
+    /*     VMCWrapper solver = VMCWrapper(); */
+    /*     solver.charge = 4; */ 
+    /*     solver.alpha = 4.6; */
+    /*     solver.nDimensions = 3; */
+    /*     solver.nParticles = 4; */
+    /*     solver.stepLength = 1.52; */
+    /*     solver.nCycles = 1000; */
+    /*     solver.h = 0.001; */
+    /*     solver.h2 = 1e+06; */
+    /*     solver.idum = 1; */
+    /*     solver.useWaveFunctionBeryllium1(); */
+    /*     solver.useEfficientSlater(true); */
+    /*     solver.useLocalEnergyGenericNoCor(); */
+    /*     VMCSolver solverUnique1 = solver.getInitializedSolver(); */
+    /*     VMCSolver solverUnique2 = solver.getInitializedSolver(); */
+    /*     // This will initialize the slater matrix and the initial */ 
+    /*     // positions. */ 
+    /*     solverUnique1.initRunVariables(); */
+    /*     solverUnique2.initRunVariables(); */
 
-        double** r = solverUnique2.prOld;
-        double rAbs[4];
-        for (int i = 0; i < 4; i++) {
-            rAbs[i] = 0;
-            for(int j = 0; j < 3; j++) {
-                rAbs[i] += r[i][j] * r[i][j];
-            }
-            rAbs[i] = sqrt(rAbs[i]);
-        }
-        // Check if the slater matrix is correct.
-        using namespace wave_functions;
-        initWaveFunctions(solverUnique1);
-        CHECK_EQUAL(phi1s(rAbs[0]),solverUnique1.pslater1[0][0]);
-        CHECK_EQUAL(phi2s(rAbs[0]),solverUnique1.pslater1[0][1]);
-        CHECK_EQUAL(phi1s(rAbs[1]),solverUnique1.pslater1[1][0]);
-        CHECK_EQUAL(phi2s(rAbs[1]),solverUnique1.pslater1[1][1]);
+    /*     double** r = solverUnique2.prOld; */
+    /*     double rAbs[4]; */
+    /*     for (int i = 0; i < 4; i++) { */
+    /*         rAbs[i] = 0; */
+    /*         for(int j = 0; j < 3; j++) { */
+    /*             rAbs[i] += r[i][j] * r[i][j]; */
+    /*         } */
+    /*         rAbs[i] = sqrt(rAbs[i]); */
+    /*     } */
+    /*     // Check if the slater matrix is correct. */
+    /*     using namespace wave_functions; */
+    /*     initWaveFunctions(solverUnique1); */
+    /*     CHECK_EQUAL(phi1s(rAbs[0]),solverUnique1.pslater1[0][0]); */
+    /*     CHECK_EQUAL(phi2s(rAbs[0]),solverUnique1.pslater1[0][1]); */
+    /*     CHECK_EQUAL(phi1s(rAbs[1]),solverUnique1.pslater1[1][0]); */
+    /*     CHECK_EQUAL(phi2s(rAbs[1]),solverUnique1.pslater1[1][1]); */
 
 
-        // Check that the ratios are the same for the normal step and the 
-        // efficient slater step.
-        double ratio1, ratio2;
-        int cycles = 1;
-        int particles = 4;
-        for (int i = 0; i < cycles; i++) {
-            // Hack to update the first old wavefunction value. 
-            double** r = solverUnique1.prOld;
-            double* rAbs = solverUnique1.rAbsOld;
-            solverUnique1.waveFuncValOld 
-                = wave_functions::getWaveBerylliumNoCor(r,rAbs);
-            for (int j = 0; j < particles; j++) {
-                solverUnique1.runSingleStep(j,i);
-                solverUnique2.runSingleStepSlater(j,i);
-                ratio1 = solverUnique1.ratio;
-                ratio2 = solverUnique2.ratio;
-                CHECK_CLOSE(ratio1,ratio2,0.000001);
-            }
-        }
-    }
+    /*     // Check that the ratios are the same for the normal step and the */ 
+    /*     // efficient slater step. */
+    /*     double ratio1, ratio2; */
+    /*     int cycles = 1; */
+    /*     int particles = 4; */
+    /*     for (int i = 0; i < cycles; i++) { */
+    /*         // Hack to update the first old wavefunction value. */ 
+    /*         double** r = solverUnique1.prOld; */
+    /*         double* rAbs = solverUnique1.rAbsOld; */
+    /*         solverUnique1.waveFuncValOld */ 
+    /*             = wave_functions::getWaveBerylliumNoCor(r,rAbs); */
+    /*         for (int j = 0; j < particles; j++) { */
+    /*             solverUnique1.runSingleStep(j,i); */
+    /*             solverUnique2.runSingleStepSlater(j,i); */
+    /*             ratio1 = solverUnique1.ratio; */
+    /*             ratio2 = solverUnique2.ratio; */
+    /*             CHECK_CLOSE(ratio1,ratio2,0.000001); */
+    /*         } */
+    /*     } */
+    /* } */
 
-    TEST(SlaterVsNormalLocalEnergyNoCor){
-        VMCWrapper solver = VMCWrapper();
-        solver.charge = 4; 
-        solver.alpha = 4.6;
-        solver.nDimensions = 3;
-        solver.nParticles = 4;
-        solver.stepLength = 1.52;
-        solver.nCycles = 1000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.useWaveFunctionBeryllium1();
-        solver.useLocalEnergyGenericNoCor();
-        VMCSolver solverUnique1 = solver.getInitializedSolver();
-        solver.useEfficientSlater(true);
-        solver.useLocalEnergySlaterNoCor();
-        VMCSolver solverUnique2 = solver.getInitializedSolver();
-        // This will initialize the slater matrix and the initial 
-        // positions. 
-        solverUnique1.initRunVariables();
-        solverUnique2.initRunVariables();
+    /* TEST(SlaterVsNormalLocalEnergyNoCor){ */
+    /*     VMCWrapper solver = VMCWrapper(); */
+    /*     solver.charge = 4; */ 
+    /*     solver.alpha = 4.6; */
+    /*     solver.nDimensions = 3; */
+    /*     solver.nParticles = 4; */
+    /*     solver.stepLength = 1.52; */
+    /*     solver.nCycles = 1000; */
+    /*     solver.h = 0.001; */
+    /*     solver.h2 = 1e+06; */
+    /*     solver.idum = 1; */
+    /*     solver.useWaveFunctionBeryllium1(); */
+    /*     solver.useLocalEnergyGenericNoCor(); */
+    /*     VMCSolver solverUnique1 = solver.getInitializedSolver(); */
+    /*     solver.useEfficientSlater(true); */
+    /*     solver.useLocalEnergySlaterNoCor(); */
+    /*     VMCSolver solverUnique2 = solver.getInitializedSolver(); */
+    /*     // This will initialize the slater matrix and the initial */ 
+    /*     // positions. */ 
+    /*     solverUnique1.initRunVariables(); */
+    /*     solverUnique2.initRunVariables(); */
 
-        initWaveFunctions(solverUnique1);
-        // Check that the ratios are the same for the normal step and the 
-        // efficient slater step.
-        double energy1, energy2;
-        int cycles = 1;
-        int particles = 4;
-        for (int i = 0; i < cycles; i++) {
-            // Hack to update the first old wavefunction value. 
-            double** r = solverUnique1.prOld;
-            double* rAbs = solverUnique1.rAbsOld;
-            solverUnique1.waveFuncValOld 
-                = wave_functions::getWaveBerylliumNoCor(r,rAbs);
-            for (int j = 0; j < particles; j++) {
-                solverUnique1.runSingleStep(j,i);
-                solverUnique2.runSingleStepSlater(j,i);
-                energy1 = solverUnique1.deltaE;
-                energy2 = solverUnique2.deltaE;
-                CHECK_CLOSE(energy1,energy2,0.0001);
-            }
-        }
-    }
+    /*     initWaveFunctions(solverUnique1); */
+    /*     // Check that the ratios are the same for the normal step and the */ 
+    /*     // efficient slater step. */
+    /*     double energy1, energy2; */
+    /*     int cycles = 1; */
+    /*     int particles = 4; */
+    /*     for (int i = 0; i < cycles; i++) { */
+    /*         // Hack to update the first old wavefunction value. */ 
+    /*         double** r = solverUnique1.prOld; */
+    /*         double* rAbs = solverUnique1.rAbsOld; */
+    /*         solverUnique1.waveFuncValOld */ 
+    /*             = wave_functions::getWaveBerylliumNoCor(r,rAbs); */
+    /*         for (int j = 0; j < particles; j++) { */
+    /*             solverUnique1.runSingleStep(j,i); */
+    /*             solverUnique2.runSingleStepSlater(j,i); */
+    /*             energy1 = solverUnique1.deltaE; */
+    /*             energy2 = solverUnique2.deltaE; */
+    /*             CHECK_CLOSE(energy1,energy2,0.0001); */
+    /*         } */
+    /*     } */
+    /* } */
 
-    TEST(BerylliumLocalEnergy){
-        VMCWrapper solver = VMCWrapper();
-        solver.charge = 4; 
-        solver.alpha = 4.6;
-        solver.nDimensions = 3;
-        solver.nParticles = 4;
-        solver.stepLength = 1.52;
-        solver.nCycles = 1000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.useWaveFunctionBeryllium1();
-        solver.useEfficientSlater(true);
-        solver.useLocalEnergySlaterNoCor();
-        VMCSolver solverUnique1 = solver.getInitializedSolver();
-        VMCSolver solverUnique2 = solver.getInitializedSolver();
-        // This will initialize the slater matrix and the initial 
-        // positions. 
-        solverUnique1.initRunVariables();
-        solverUnique2.initRunVariables();
-        // These two should be the same. 
-        double** r1 = solverUnique1.prOld;
-        double** r2 = solverUnique2.prOld;
-        double* r1Abs = solverUnique1.rAbsOld;
-        double* r2Abs = solverUnique2.rAbsOld;
+    /* TEST(BerylliumLocalEnergy){ */
+    /*     VMCWrapper solver = VMCWrapper(); */
+    /*     solver.charge = 4; */ 
+    /*     solver.alpha = 4.6; */
+    /*     solver.nDimensions = 3; */
+    /*     solver.nParticles = 4; */
+    /*     solver.stepLength = 1.52; */
+    /*     solver.nCycles = 1000; */
+    /*     solver.h = 0.001; */
+    /*     solver.h2 = 1e+06; */
+    /*     solver.idum = 1; */
+    /*     solver.useWaveFunctionBeryllium1(); */
+    /*     solver.useEfficientSlater(true); */
+    /*     solver.useLocalEnergySlaterNoCor(); */
+    /*     VMCSolver solverUnique1 = solver.getInitializedSolver(); */
+    /*     VMCSolver solverUnique2 = solver.getInitializedSolver(); */
+    /*     // This will initialize the slater matrix and the initial */ 
+    /*     // positions. */ 
+    /*     solverUnique1.initRunVariables(); */
+    /*     solverUnique2.initRunVariables(); */
+    /*     // These two should be the same. */ 
+    /*     double** r1 = solverUnique1.prOld; */
+    /*     double** r2 = solverUnique2.prOld; */
+    /*     double* r1Abs = solverUnique1.rAbsOld; */
+    /*     double* r2Abs = solverUnique2.rAbsOld; */
 
-        initWaveFunctions(solverUnique1);
-        double localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs);
-        double localEnergy2 = solverUnique2.getLocalEnergySlaterNoCor(r2,r2Abs);
-        CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
-    }
+    /*     initWaveFunctions(solverUnique1); */
+    /*     double localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs); */
+    /*     double localEnergy2 = solverUnique2.getLocalEnergySlaterNoCor(r2,r2Abs); */
+    /*     CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001); */
+    /* } */
 
-    TEST(BerylliumSlater){
-        VMCWrapper solver = VMCWrapper();
-        solver.charge = 4; 
-        solver.alpha = 4;
-        solver.nDimensions = 3;
-        solver.nParticles = 4;
-        solver.stepLength = 1.52;
-        solver.nCycles = 1000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.useWaveFunctionBeryllium1();
-        solver.useEfficientSlater(true);
-        VMCSolver solverUnique1 = solver.getInitializedSolver();
-        // This will initialize the slater matrix and the initial 
-        // positions. 
-        solverUnique1.initRunVariables();
-        // These two should be the same. 
-        double* r1 = solverUnique1.prOld[0];
-        double* r2 = solverUnique1.prOld[1];
-        double* r3 = solverUnique1.prOld[2];
-        double* r4 = solverUnique1.prOld[3];
+    /* TEST(BerylliumSlater){ */
+    /*     VMCWrapper solver = VMCWrapper(); */
+    /*     solver.charge = 4; */ 
+    /*     solver.alpha = 4; */
+    /*     solver.nDimensions = 3; */
+    /*     solver.nParticles = 4; */
+    /*     solver.stepLength = 1.52; */
+    /*     solver.nCycles = 1000; */
+    /*     solver.h = 0.001; */
+    /*     solver.h2 = 1e+06; */
+    /*     solver.idum = 1; */
+    /*     solver.useWaveFunctionBeryllium1(); */
+    /*     solver.useEfficientSlater(true); */
+    /*     VMCSolver solverUnique1 = solver.getInitializedSolver(); */
+    /*     // This will initialize the slater matrix and the initial */ 
+    /*     // positions. */ 
+    /*     solverUnique1.initRunVariables(); */
+    /*     // These two should be the same. */ 
+    /*     double* r1 = solverUnique1.prOld[0]; */
+    /*     double* r2 = solverUnique1.prOld[1]; */
+    /*     double* r3 = solverUnique1.prOld[2]; */
+    /*     double* r4 = solverUnique1.prOld[3]; */
 
-        double rAbs1 = 0;
-        double rAbs2 = 0;
-        double rAbs3 = 0;
-        double rAbs4 = 0;
+    /*     double rAbs1 = 0; */
+    /*     double rAbs2 = 0; */
+    /*     double rAbs3 = 0; */
+    /*     double rAbs4 = 0; */
 
-        for (int i = 0; i < 3; i++) {
-          rAbs1 += r1[i]*r1[i];
-          rAbs2 += r2[i]*r2[i];
-          rAbs3 += r3[i]*r3[i];
-          rAbs4 += r4[i]*r4[i];
-        }
-        rAbs1 = sqrt(rAbs1);
-        rAbs2 = sqrt(rAbs2);
-        rAbs3 = sqrt(rAbs3);
-        rAbs4 = sqrt(rAbs4);
+    /*     for (int i = 0; i < 3; i++) { */
+    /*       rAbs1 += r1[i]*r1[i]; */
+    /*       rAbs2 += r2[i]*r2[i]; */
+    /*       rAbs3 += r3[i]*r3[i]; */
+    /*       rAbs4 += r4[i]*r4[i]; */
+    /*     } */
+    /*     rAbs1 = sqrt(rAbs1); */
+    /*     rAbs2 = sqrt(rAbs2); */
+    /*     rAbs3 = sqrt(rAbs3); */
+    /*     rAbs4 = sqrt(rAbs4); */
 
-        using namespace wave_functions;
-        initWaveFunctions(solverUnique1);
+    /*     using namespace wave_functions; */
+    /*     initWaveFunctions(solverUnique1); */
 
-        // Check explicit wave functions against the slater matrix.
-        CHECK_CLOSE(phi1s(rAbs1), solverUnique1.pslater1[0][0], 0.0001);
-        CHECK_CLOSE(phi(0,r1,rAbs1), solverUnique1.pslater1[0][0], 0.0001);
+    /*     // Check explicit wave functions against the slater matrix. */
+    /*     CHECK_CLOSE(phi1s(rAbs1), solverUnique1.pslater1[0][0], 0.0001); */
+    /*     CHECK_CLOSE(phi(0,r1,rAbs1), solverUnique1.pslater1[0][0], 0.0001); */
 
-        CHECK_CLOSE(phi2s(rAbs1), solverUnique1.pslater1[0][1], 0.0001);
-        CHECK_CLOSE(phi(1,r1,rAbs1), solverUnique1.pslater1[0][1], 0.0001);
+    /*     CHECK_CLOSE(phi2s(rAbs1), solverUnique1.pslater1[0][1], 0.0001); */
+    /*     CHECK_CLOSE(phi(1,r1,rAbs1), solverUnique1.pslater1[0][1], 0.0001); */
 
-        CHECK_CLOSE(phi1s(rAbs2), solverUnique1.pslater1[1][0], 0.0001);
-        CHECK_CLOSE(phi(0,r2,rAbs2), solverUnique1.pslater1[1][0], 0.0001);
+    /*     CHECK_CLOSE(phi1s(rAbs2), solverUnique1.pslater1[1][0], 0.0001); */
+    /*     CHECK_CLOSE(phi(0,r2,rAbs2), solverUnique1.pslater1[1][0], 0.0001); */
 
-        CHECK_CLOSE(phi2s(rAbs2), solverUnique1.pslater1[1][1], 0.0001);
-        CHECK_CLOSE(phi(1,r2,rAbs2), solverUnique1.pslater1[1][1], 0.0001);
+    /*     CHECK_CLOSE(phi2s(rAbs2), solverUnique1.pslater1[1][1], 0.0001); */
+    /*     CHECK_CLOSE(phi(1,r2,rAbs2), solverUnique1.pslater1[1][1], 0.0001); */
 
-        // Second slater matrix.
-        CHECK_CLOSE(phi1s(rAbs3), solverUnique1.pslater2[0][0], 0.0001);
-        CHECK_CLOSE(phi(0,r3,rAbs3), solverUnique1.pslater2[0][0], 0.0001);
+    /*     // Second slater matrix. */
+    /*     CHECK_CLOSE(phi1s(rAbs3), solverUnique1.pslater2[0][0], 0.0001); */
+    /*     CHECK_CLOSE(phi(0,r3,rAbs3), solverUnique1.pslater2[0][0], 0.0001); */
 
-        CHECK_CLOSE(phi2s(rAbs3), solverUnique1.pslater2[0][1], 0.0001);
-        CHECK_CLOSE(phi(1,r3,rAbs3), solverUnique1.pslater2[0][1], 0.0001);
+    /*     CHECK_CLOSE(phi2s(rAbs3), solverUnique1.pslater2[0][1], 0.0001); */
+    /*     CHECK_CLOSE(phi(1,r3,rAbs3), solverUnique1.pslater2[0][1], 0.0001); */
 
-        CHECK_CLOSE(phi1s(rAbs4), solverUnique1.pslater2[1][0], 0.0001);
-        CHECK_CLOSE(phi(0,r4,rAbs4), solverUnique1.pslater2[1][0], 0.0001);
+    /*     CHECK_CLOSE(phi1s(rAbs4), solverUnique1.pslater2[1][0], 0.0001); */
+    /*     CHECK_CLOSE(phi(0,r4,rAbs4), solverUnique1.pslater2[1][0], 0.0001); */
 
-        CHECK_CLOSE(phi2s(rAbs4), solverUnique1.pslater2[1][1], 0.0001);
-        CHECK_CLOSE(phi(1,r4,rAbs4), solverUnique1.pslater2[1][1], 0.0001);
-    }
+    /*     CHECK_CLOSE(phi2s(rAbs4), solverUnique1.pslater2[1][1], 0.0001); */
+    /*     CHECK_CLOSE(phi(1,r4,rAbs4), solverUnique1.pslater2[1][1], 0.0001); */
+    /* } */
 
-    TEST(phi){
-        VMCWrapper solver = VMCWrapper();
-        solver.nDimensions = 3;
-        solver.alpha = 3.75;
-        wave_functions::alpha = 3.75;
-        wave_functions::nDimensions = 3;
-        double* r = new double[3];
-        r[0] = 0.5;
-        r[1] = 0.5;
-        r[2] = 0.5;
-        double rAbs = 0.8660254;
-        // Check that the function phi(j,r_i) works.
-        using namespace wave_functions;
-        CHECK_CLOSE(phi1s(rAbs),phi(0,r,rAbs),0.00001);
-        CHECK_CLOSE(phi2s(rAbs),phi(1,r,rAbs),0.00001);
+    /* TEST(phi){ */
+    /*     VMCWrapper solver = VMCWrapper(); */
+    /*     solver.nDimensions = 3; */
+    /*     solver.alpha = 3.75; */
+    /*     wave_functions::alpha = 3.75; */
+    /*     wave_functions::nDimensions = 3; */
+    /*     double* r = new double[3]; */
+    /*     r[0] = 0.5; */
+    /*     r[1] = 0.5; */
+    /*     r[2] = 0.5; */
+    /*     double rAbs = 0.8660254; */
+    /*     // Check that the function phi(j,r_i) works. */
+    /*     using namespace wave_functions; */
+    /*     CHECK_CLOSE(phi1s(rAbs),phi(0,r,rAbs),0.00001); */
+    /*     CHECK_CLOSE(phi2s(rAbs),phi(1,r,rAbs),0.00001); */
 
-        // Check values of phi.
-        CHECK_CLOSE(0.0388675, phi1s(rAbs), 0.00001);
-        CHECK_CLOSE(-0.122980, phi2s(rAbs), 0.00001);
-        delete[] r;
-    }
+    /*     // Check values of phi. */
+    /*     CHECK_CLOSE(0.0388675, phi1s(rAbs), 0.00001); */
+    /*     CHECK_CLOSE(-0.122980, phi2s(rAbs), 0.00001); */
+    /*     delete[] r; */
+    /* } */
 
 }
 
-SUITE(Helium){
-    VMCWrapper solver = VMCWrapper();
-    double energy;
+/* SUITE(Helium){ */
+/*     VMCWrapper solver = VMCWrapper(); */
+/*     double energy; */
 
-    TEST(Instantiate){
-        solver.charge = 2;
-        solver.alpha = 1.66;
-        solver.beta = 0.8;
-        solver.nDimensions = 3;
-        solver.nParticles = 2;
-        solver.stepLength = 1.52;
-        solver.nCycles = 10000;
-        solver.waveFunction = solver.WAVE_FUNCTION_2;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-        solver.localEnergyFunction = solver.LOCAL_ENERGY_HELIUM_2;
-    }
+/*     TEST(Instantiate){ */
+/*         solver.charge = 2; */
+/*         solver.alpha = 1.66; */
+/*         solver.beta = 0.8; */
+/*         solver.nDimensions = 3; */
+/*         solver.nParticles = 2; */
+/*         solver.stepLength = 1.52; */
+/*         solver.nCycles = 10000; */
+/*         solver.waveFunction = solver.WAVE_FUNCTION_2; */
+/*         solver.h = 0.001; */
+/*         solver.h2 = 1e+06; */
+/*         solver.idum = 1; */
+/*         solver.localEnergyFunction = solver.LOCAL_ENERGY_HELIUM_2; */
+/*     } */
 
-    TEST(h0LocalGenergic){
-        solver.alpha = 2;
-        solver.waveFunction = solver.WAVE_FUNCTION_1;
-        solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR;
-        solver.supressOutput();
-        solver.runIntegration();
-        energy = solver.getEnergy();
-        CHECK_CLOSE(-4,energy,0.1);
-    }
+/*     TEST(h0LocalGenergic){ */
+/*         solver.alpha = 2; */
+/*         solver.waveFunction = solver.WAVE_FUNCTION_1; */
+/*         solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR; */
+/*         solver.supressOutput(); */
+/*         solver.runIntegration(); */
+/*         energy = solver.getEnergy(); */
+/*         CHECK_CLOSE(-4,energy,0.1); */
+/*     } */
 
-    TEST(h0LocalAnalytic){
-        solver.alpha = 2;
-        solver.waveFunction = solver.WAVE_FUNCTION_1;
-        solver.useLocalEnergyHelium1();
-        solver.supressOutput();
-        solver.runIntegration();
-        energy = solver.getEnergy();
-        CHECK_CLOSE(-4,energy,0.1);
-    }
+/*     TEST(h0LocalAnalytic){ */
+/*         solver.alpha = 2; */
+/*         solver.waveFunction = solver.WAVE_FUNCTION_1; */
+/*         solver.useLocalEnergyHelium1(); */
+/*         solver.supressOutput(); */
+/*         solver.runIntegration(); */
+/*         energy = solver.getEnergy(); */
+/*         CHECK_CLOSE(-4,energy,0.1); */
+/*     } */
 
-    TEST(WaveFunction2LocalEnergyGenergic){
-        solver.alpha = 1.66;
-        solver.useWaveFunction2();
-        solver.useLocalEnergyGeneric();
-        solver.supressOutput();
-        solver.runIntegration();
-        energy = solver.getEnergy();
-        CHECK_CLOSE(-2.8,energy,0.2);
-    }
+/*     TEST(WaveFunction2LocalEnergyGenergic){ */
+/*         solver.alpha = 1.66; */
+/*         solver.useWaveFunction2(); */
+/*         solver.useLocalEnergyGeneric(); */
+/*         solver.supressOutput(); */
+/*         solver.runIntegration(); */
+/*         energy = solver.getEnergy(); */
+/*         CHECK_CLOSE(-2.8,energy,0.2); */
+/*     } */
 
-    TEST(WaveFunction2LocalEnergyAnalytic){
-        solver.alpha = 1.66;
-        solver.useWaveFunction2();
-        solver.useLocalEnergyHelium2();
-        solver.supressOutput();
-        solver.runIntegration();
-        energy = solver.getEnergy();
-        CHECK_CLOSE(-2.8,energy,0.2);
-    }
-}
+/*     TEST(WaveFunction2LocalEnergyAnalytic){ */
+/*         solver.alpha = 1.66; */
+/*         solver.useWaveFunction2(); */
+/*         solver.useLocalEnergyHelium2(); */
+/*         solver.supressOutput(); */
+/*         solver.runIntegration(); */
+/*         energy = solver.getEnergy(); */
+/*         CHECK_CLOSE(-2.8,energy,0.2); */
+/*     } */
+/* } */
 
-SUITE(Beryllium){
-    VMCWrapper solver = VMCWrapper();
-    TEST(Initialize){
-        solver.charge = 4; 
-        solver.alpha = 3.75;
-        solver.beta = 0.8;
-        solver.nDimensions = 3;
-        solver.nParticles = 4;
-        solver.stepLength = 1.52;
-        solver.nCycles = 1000;
-        solver.h = 0.001;
-        solver.h2 = 1e+06;
-        solver.idum = 1;
-    }
+/* SUITE(Beryllium){ */
+/*     VMCWrapper solver = VMCWrapper(); */
+/*     TEST(Initialize){ */
+/*         solver.charge = 4; */ 
+/*         solver.alpha = 3.75; */
+/*         solver.beta = 0.8; */
+/*         solver.nDimensions = 3; */
+/*         solver.nParticles = 4; */
+/*         solver.stepLength = 1.52; */
+/*         solver.nCycles = 1000; */
+/*         solver.h = 0.001; */
+/*         solver.h2 = 1e+06; */
+/*         solver.idum = 1; */
+/*     } */
 
-    TEST(h0LocalGeneric){
-        solver.waveFunction = solver.WAVE_FUNCTION_BERYLLIUM_1;
-        solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR;
-        solver.supressOutput();
-        solver.runIntegration();
-        double energy = solver.getEnergy();
-        CHECK_CLOSE(-20,energy,0.5);
-    }
+/*     TEST(h0LocalGeneric){ */
+/*         solver.waveFunction = solver.WAVE_FUNCTION_BERYLLIUM_1; */
+/*         solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR; */
+/*         solver.supressOutput(); */
+/*         solver.runIntegration(); */
+/*         double energy = solver.getEnergy(); */
+/*         CHECK_CLOSE(-20,energy,0.5); */
+/*     } */
 
-    TEST(WaveFunction2LocalEnergyGeneric){
-        solver.useWaveFunctionBeryllium2();
-        solver.useLocalEnergyGeneric();
-        solver.supressOutput();
-        solver.runIntegration();
-        double energy = solver.getEnergy();
-        CHECK_CLOSE(-14.3,energy,0.5);
-    }
+/*     TEST(WaveFunction2LocalEnergyGeneric){ */
+/*         solver.useWaveFunctionBeryllium2(); */
+/*         solver.useLocalEnergyGeneric(); */
+/*         solver.supressOutput(); */
+/*         solver.runIntegration(); */
+/*         double energy = solver.getEnergy(); */
+/*         CHECK_CLOSE(-14.3,energy,0.5); */
+/*     } */
 
-    TEST(EfficientSlater){
-        solver.useEfficientSlater(true);
-        solver.useLocalEnergyGeneric();
-        solver.useWaveFunctionBeryllium2();
-        solver.supressOutput();
-        solver.runIntegration();
-        double energy = solver.getEnergy();
-        CHECK_CLOSE(-14.3,energy,0.5);
-    }
-}
+/*     TEST(EfficientSlater){ */
+/*         solver.useEfficientSlater(true); */
+/*         solver.useLocalEnergyGeneric(); */
+/*         solver.useWaveFunctionBeryllium2(); */
+/*         solver.supressOutput(); */
+/*         solver.runIntegration(); */
+/*         double energy = solver.getEnergy(); */
+/*         CHECK_CLOSE(-14.3,energy,0.5); */
+/*     } */
+/* } */
 
 int main()
 {

@@ -15,22 +15,21 @@ int main(int argc, const char *argv[])
     int binSize = atof(argv[5]);
 
     // Dump variance
-    string adress = "../../../../res/plot/berylliumSlater/" + fName;
+    string adress = "../../../../res/plot/neonSlaterNoCor/" + fName;
 
     VMCWrapper solver = VMCWrapper();
     solver.alpha = alpha;
     solver.beta = beta;
     solver.nDimensions = 3;
-    solver.nParticles = 4;
-    solver.charge = 4;
+    solver.nParticles = 10;
+    solver.charge = 10;
     solver.stepLength = 1.52;
     solver.nCycles = nCycles;
     solver.h = 0.001;
     solver.h2 = 1e+06;
     solver.idum = 2;
     solver.useEfficientSlater(true);
-    solver.useLocalEnergySlater();
-    solver.useParallel(true);
+    solver.useLocalEnergySlaterNoCor();
     solver.recordEnergyArray(true);
 
     // Run simulation.

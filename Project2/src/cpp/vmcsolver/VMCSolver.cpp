@@ -406,6 +406,11 @@ bool VMCSolver::initRunVariables(){
     else if (localEnergyFunction == LOCAL_ENERGY_GENERIC_NOCOR){
         getLocalEnergy = wave_functions::getLocalEnergyGenericNoCor;
     }
+    else if (localEnergyFunction == LOCAL_ENERGY_SLATER_NOCOR){
+    }
+    else if (localEnergyFunction == LOCAL_ENERGY_SLATER){
+        usingCorrelation = true;
+    }
 
     // Initialize arrays
     if (recordingPositions) {
@@ -723,6 +728,17 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
         }
         potentialEnergy -= charge / sqrt(rSingleParticle);
     }
+    // Contribution from electron-electron potential
+    double rij = 0;
+    for(int i = 0; i < nParticles; i++) {
+        for(int j = i + 1; j < nParticles; j++) {
+            rij = 0;
+            for(int k = 0; k < nDimensions; k++) {
+                rij += (r[i][k] - r[j][k]) * (r[i][k] - r[j][k]);
+            }
+            potentialEnergy += 1 / sqrt(rij);
+        }
+    }
 
     double CC = 0;
     double a1, a2;
@@ -772,10 +788,13 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
                 switch (spinK + spinI){
                     case 0:
                         a2 = 0.25;
+                        break;
                     case 1:
                         a2 = 0.5;
+                        break;
                     case 2:
                         a2 = 0.25;
+                        break;
                 }
                 CC += dot/(rki*rkj)*a1*a2*bki*bki*bkj*bkj;
             }
@@ -822,13 +841,8 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             // Calculate the final vector, the gradient of the correction function.
             for (int x = 0; x < nDimensions; x++) 
             {
-                rkVec[x] += rkjVec[x]*a1*bkj*bkj/rkjAbs;
+                rkVec[x] -= rkjVec[x]*a1*bkj*bkj/rkjAbs;
             }
-        }
-        // Reset rkGrad.
-        for (int x = 0; x < nDimensions; x++) 
-        {
-            rkGrad[x] = 0;
         }
         tmp = 0;
         // Calculate rkGrad.
@@ -842,7 +856,7 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
         }
         for (int x = 0; x < nDimensions; x++) 
         {
-            rkGrad[x] += r[k][x]*tmp/rAbs[k];
+            rkGrad[x] = r[k][x]*tmp/rAbs[k];
         }
         // Calculate DC.
         for (int x = 0; x < nDimensions; x++) 
