@@ -797,18 +797,23 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             }
         }
         tmp = 0;
-        // Calculate rkGrad.
-        for (int j = 0; j < nHalf; j++) 
-        {
-            if (k < nHalf)
-                tmp += phiD(j,r[k],rAbs[k])*pslater1Inv[j][k];
-            else
-                tmp += phiD(j,r[k],rAbs[k])*pslater2Inv[j][k-nHalf];
-
-        }
+        // Reset rkGrad.
         for (int x = 0; x < nDimensions; x++) 
         {
-            rkGrad[x] = r[k][x]*tmp/rAbs[k];
+            rkGrad[x] = 0;
+        }
+        // Calculate rkGrad.
+        for (int x = 0; x < nDimensions; x++) 
+        {
+            /* rkGrad[x] = r[k][x]*tmp/rAbs[k]; */
+            for (int j = 0; j < nHalf; j++) 
+            {
+                if (k < nHalf)
+                    rkGrad[x] += phiD(j,r[k],rAbs[k],x)*pslater1Inv[j][k];
+                else
+                    rkGrad[x] += phiD(j,r[k],rAbs[k],x)*pslater2Inv[j][k-nHalf];
+
+            }
         }
         // Calculate DC.
         for (int x = 0; x < nDimensions; x++) 

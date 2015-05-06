@@ -29,36 +29,73 @@ namespace wave_functions{
         return g(r)*g(r);
     }
 
-    static double phi1sD(double r){
-        return -alpha*g(r)*g(r);
+    static double phi1sD(double x, double r){
+        return -x*alpha*g(r)*g(r)/r;
     }
 
     static double phi1sDD(double r){
-        return alpha*alpha*g(r)*g(r) + 2*phi1sD(r)/r;
+        return alpha*alpha*g(r)*g(r) - 2*alpha*g(r)*g(r)/r;
     }
 
     static double phi2s(double r){
         return g(r)*(1+f(r));
     }
 
-    static double phi2sD(double r){
-        return -alpha*g(r)*(1+0.5*f(r));
+    static double phi2sD(double x, double r){
+        return -x*alpha*g(r)*(1+0.5*f(r))/r;
     }
 
     static double phi2sDD(double r){
-        return 0.75*alpha*alpha*g(r)*(1+f(r)/3) + 2*phi2sD(r)/r;
+        return 0.75*alpha*alpha*g(r)*(1+f(r)/3) - 2*alpha*g(r)*(1+0.5*f(r))/r;
     }
 
-    static double phi2p(double x, double r){
-        return x*alpha*g(r);
+    static double phi2p(int x, double* r, double rAbs){
+        return r[x]*alpha*g(rAbs);
     }
 
-    static double phi2pD(double x, double r){
-        return (1/r -0.5*alpha)*alpha*x*g(r);
+    static double phi2pxD(int x, double* r, double rAbs){
+        switch (x) {
+            case 0:
+                return 0.5*phi2p(x,r,rAbs)*(-alpha*r[x]+2*rAbs/r[x])/rAbs;
+            case 1: 
+                return -alpha*r[x];
+            case 2:
+                return -alpha*r[x];
+            default:
+                std::cout << "Out of bound in phi2px!!" << std::endl;
+                return 0;
+        }
     }
 
-    static double phi2pDD(double x, double r){
-        return phi2p(x,r)*alpha*(alpha*r - 8)/(4*r);
+    static double phi2pyD(int x, double* r, double rAbs){
+        switch (x) {
+            case 0:
+                return -alpha*r[x];
+            case 1: 
+                return 0.5*phi2p(x,r,rAbs)*(-alpha*r[x]+2*rAbs/r[x])/rAbs;
+            case 2:
+                return -alpha*r[x];
+            default:
+                std::cout << "Out of bound in phi2py!!" << std::endl;
+                return 0;
+        }
+    }
+
+    static double phi2pzD(int x, double* r, double rAbs){
+        switch (x) {
+            case 0:
+                return -alpha*r[x];
+            case 1: 
+                return -alpha*r[x];
+            case 2:
+                return 0.5*phi2p(x,r,rAbs)*(-alpha*r[x]+2*rAbs/r[x])/rAbs;
+            default:
+                std::cout << "Out of bound in phi2py!!" << std::endl;
+                return 0;
+        }
+    }
+    static double phi2pDD(int x, double* r, double rAbs){
+        return phi2p(x,r,rAbs)*alpha*(alpha*rAbs - 8)/(4*rAbs);
     }
 
     static double phi(int j, double* r, double rAbs){
@@ -68,29 +105,29 @@ namespace wave_functions{
             case 1 :
                 return phi2s(rAbs);
             case 2 :
-                return phi2p(r[0],rAbs);
+                return phi2p(0,r,rAbs);
             case 3 : 
-                return phi2p(r[1],rAbs);
+                return phi2p(1,r,rAbs);
             case 4 : 
-                return phi2p(r[2],rAbs);
+                return phi2p(2,r,rAbs);
             default:
                 std::cout << "Index out of bounds in phi()!!!" << std::endl;
                 return 0;
         }
     }
 
-    static double phiD(int j, double* r, double rAbs){
+    static double phiD(int j, double* r, double rAbs, int x){
         switch (j) {
             case 0 :
-                return phi1sD(rAbs);
+                return phi1sD(r[x],rAbs); // Spherical coordinates. 
             case 1 :
-                return phi2sD(rAbs);
+                return phi2sD(r[x],rAbs);
             case 2 :
-                return phi2pD(r[0],rAbs);
+                return phi2pxD(x,r,rAbs); // Cartesian coordinates.
             case 3 : 
-                return phi2pD(r[1],rAbs);
+                return phi2pyD(x,r,rAbs); // Cartesian coordinates.
             case 4 : 
-                return phi2pD(r[2],rAbs);
+                return phi2pzD(x,r,rAbs); // Cartesian coordinates.
             default:
                 std::cout << "Index out of bounds in phi()!!!" << std::endl;
                 return 0;
@@ -100,43 +137,43 @@ namespace wave_functions{
     static double phiDD(int j, double* r, double rAbs){
         switch (j) {
             case 0 :
-                return phi1sDD(rAbs);
+                return phi1sDD(rAbs); // Spherical coordinates.
             case 1 :
                 return phi2sDD(rAbs);
             case 2 :
-                return phi2pDD(r[0],rAbs);
+                return phi2pDD(0,r,rAbs); // Cartestian coordinates
             case 3 : 
-                return phi2pDD(r[1],rAbs);
+                return phi2pDD(1,r,rAbs);
             case 4 : 
-                return phi2pDD(r[2],rAbs);
+                return phi2pDD(2,r,rAbs);
             default:
                 std::cout << "Index out of bounds in phi()!!!" << std::endl;
                 return 0;
         }
     }
 
-    static double berylliumPsiDD(double** r, double* rAbs)
-    {
-        double tmp = 0;
-        double sum = 0;
-        tmp += phi2s(rAbs[1])*phi1sDD(rAbs[0]) - phi1s(rAbs[1])*phi2sDD(rAbs[0]);
-        tmp -= phi2s(rAbs[0])*phi1sDD(rAbs[1]) - phi1s(rAbs[0])*phi2sDD(rAbs[1]);
-        tmp += 2*(phi2s(rAbs[1])*phi1sD(rAbs[0]) 
-                - phi1s(rAbs[1])*phi2sD(rAbs[0]))/rAbs[0];
-        tmp -= 2*(phi2s(rAbs[0])*phi1sD(rAbs[1]) 
-                - phi1s(rAbs[0])*phi2sD(rAbs[1]))/rAbs[1];
-        sum += tmp/(phi1s(rAbs[0]) * phi2s(rAbs[1]) - phi2s(rAbs[0]) * phi1s(rAbs[1]));
+    /* static double berylliumPsiDD(double** r, double* rAbs) */
+    /* { */
+    /*     double tmp = 0; */
+    /*     double sum = 0; */
+    /*     tmp += phi2s(rAbs[1])*phi1sDD(rAbs[0]) - phi1s(rAbs[1])*phi2sDD(rAbs[0]); */
+    /*     tmp -= phi2s(rAbs[0])*phi1sDD(rAbs[1]) - phi1s(rAbs[0])*phi2sDD(rAbs[1]); */
+    /*     tmp += 2*(phi2s(rAbs[1])*phi1sD(rAbs[0]) */ 
+    /*             - phi1s(rAbs[1])*phi2sD(rAbs[0]))/rAbs[0]; */
+    /*     tmp -= 2*(phi2s(rAbs[0])*phi1sD(rAbs[1]) */ 
+    /*             - phi1s(rAbs[0])*phi2sD(rAbs[1]))/rAbs[1]; */
+    /*     sum += tmp/(phi1s(rAbs[0]) * phi2s(rAbs[1]) - phi2s(rAbs[0]) * phi1s(rAbs[1])); */
 
-        tmp = 0;
-        tmp += phi2s(rAbs[3])*phi1sDD(rAbs[2]) - phi1s(rAbs[3])*phi2sDD(rAbs[2]);
-        tmp -= phi2s(rAbs[2])*phi1sDD(rAbs[3]) - phi1s(rAbs[2])*phi2sDD(rAbs[3]);
-        tmp += 2*(phi2s(rAbs[3])*phi1sD(rAbs[2]) 
-                - phi1s(rAbs[3])*phi2sD(rAbs[2]))/rAbs[2];
-        tmp -= 2*(phi2s(rAbs[2])*phi1sD(rAbs[3]) 
-                - phi1s(rAbs[2])*phi2sD(rAbs[3]))/rAbs[3];
-        sum += tmp/(phi1s(rAbs[2]) * phi2s(rAbs[3]) - phi2s(rAbs[2]) * phi1s(rAbs[3]));
-        return sum;
-    }
+    /*     tmp = 0; */
+    /*     tmp += phi2s(rAbs[3])*phi1sDD(rAbs[2]) - phi1s(rAbs[3])*phi2sDD(rAbs[2]); */
+    /*     tmp -= phi2s(rAbs[2])*phi1sDD(rAbs[3]) - phi1s(rAbs[2])*phi2sDD(rAbs[3]); */
+    /*     tmp += 2*(phi2s(rAbs[3])*phi1sD(rAbs[2]) */ 
+    /*             - phi1s(rAbs[3])*phi2sD(rAbs[2]))/rAbs[2]; */
+    /*     tmp -= 2*(phi2s(rAbs[2])*phi1sD(rAbs[3]) */ 
+    /*             - phi1s(rAbs[2])*phi2sD(rAbs[3]))/rAbs[3]; */
+    /*     sum += tmp/(phi1s(rAbs[2]) * phi2s(rAbs[3]) - phi2s(rAbs[2]) * phi1s(rAbs[3])); */
+    /*     return sum; */
+    /* } */
 
     static double getLocalEnergyGeneric(double** r, double* rAbs){
         double waveFunctionMinus = 0;
