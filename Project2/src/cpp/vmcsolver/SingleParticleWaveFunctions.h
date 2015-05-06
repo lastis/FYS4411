@@ -53,13 +53,7 @@ namespace wave_functions{
         return alpha*r*exp(-alpha*r/2);
     }
 
-    static double phi(int j, double* r){
-        double rAbs = 0;
-        for (int i = 0; i < nDimensions; i++) {
-            rAbs += r[i]*r[i];
-        }
-        using namespace std;
-        rAbs = sqrt(rAbs);
+    static double phi(int j, double* r, double rAbs){
         switch (j) {
             case 0 :
                 return phi1s(rAbs);
@@ -73,12 +67,7 @@ namespace wave_functions{
         }
     }
 
-    static double phiD(int j, double* r){
-        double rAbs = 0;
-        for (int i = 0; i < nDimensions; i++) {
-            rAbs += r[i]*r[i];
-        }
-        rAbs = sqrt(rAbs);
+    static double phiD(int j, double* r, double rAbs){
         switch (j) {
             case 0 :
                 return phi1sD(rAbs);
@@ -90,12 +79,12 @@ namespace wave_functions{
         }
     }
 
-    static double phiDD(int j, double* r){
-        double rAbs = 0;
-        for (int i = 0; i < nDimensions; i++) {
-            rAbs += r[i]*r[i];
-        }
-        rAbs = sqrt(rAbs);
+    static double phiDD(int j, double* r, double rAbs){
+        /* double rAbs = 0; */
+        /* for (int i = 0; i < nDimensions; i++) { */
+        /*     rAbs += r[i]*r[i]; */
+        /* } */
+        /* rAbs = sqrt(rAbs); */
         switch (j) {
             case 0 :
                 return phi1sDD(rAbs) + 2*phi1sD(rAbs)/rAbs;

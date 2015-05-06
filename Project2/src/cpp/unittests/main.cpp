@@ -439,7 +439,7 @@ SUITE(VMCWrapper){
         // Check that the ratios are the same for the normal step and the 
         // efficient slater step.
         double ratio1, ratio2;
-        int cycles = 10;
+        int cycles = 1;
         int particles = 4;
         for (int i = 0; i < cycles; i++) {
             // Hack to update the first old wavefunction value. 
@@ -577,29 +577,29 @@ SUITE(VMCWrapper){
 
         // Check explicit wave functions against the slater matrix.
         CHECK_CLOSE(phi1s(rAbs1), solverUnique1.pslater1[0][0], 0.0001);
-        CHECK_CLOSE(phi(0,r1), solverUnique1.pslater1[0][0], 0.0001);
+        CHECK_CLOSE(phi(0,r1,rAbs1), solverUnique1.pslater1[0][0], 0.0001);
 
         CHECK_CLOSE(phi2s(rAbs1), solverUnique1.pslater1[0][1], 0.0001);
-        CHECK_CLOSE(phi(1,r1), solverUnique1.pslater1[0][1], 0.0001);
+        CHECK_CLOSE(phi(1,r1,rAbs1), solverUnique1.pslater1[0][1], 0.0001);
 
         CHECK_CLOSE(phi1s(rAbs2), solverUnique1.pslater1[1][0], 0.0001);
-        CHECK_CLOSE(phi(0,r2), solverUnique1.pslater1[1][0], 0.0001);
+        CHECK_CLOSE(phi(0,r2,rAbs2), solverUnique1.pslater1[1][0], 0.0001);
 
         CHECK_CLOSE(phi2s(rAbs2), solverUnique1.pslater1[1][1], 0.0001);
-        CHECK_CLOSE(phi(1,r2), solverUnique1.pslater1[1][1], 0.0001);
+        CHECK_CLOSE(phi(1,r2,rAbs2), solverUnique1.pslater1[1][1], 0.0001);
 
         // Second slater matrix.
         CHECK_CLOSE(phi1s(rAbs3), solverUnique1.pslater2[0][0], 0.0001);
-        CHECK_CLOSE(phi(0,r3), solverUnique1.pslater2[0][0], 0.0001);
+        CHECK_CLOSE(phi(0,r3,rAbs3), solverUnique1.pslater2[0][0], 0.0001);
 
         CHECK_CLOSE(phi2s(rAbs3), solverUnique1.pslater2[0][1], 0.0001);
-        CHECK_CLOSE(phi(1,r3), solverUnique1.pslater2[0][1], 0.0001);
+        CHECK_CLOSE(phi(1,r3,rAbs3), solverUnique1.pslater2[0][1], 0.0001);
 
         CHECK_CLOSE(phi1s(rAbs4), solverUnique1.pslater2[1][0], 0.0001);
-        CHECK_CLOSE(phi(0,r4), solverUnique1.pslater2[1][0], 0.0001);
+        CHECK_CLOSE(phi(0,r4,rAbs4), solverUnique1.pslater2[1][0], 0.0001);
 
         CHECK_CLOSE(phi2s(rAbs4), solverUnique1.pslater2[1][1], 0.0001);
-        CHECK_CLOSE(phi(1,r4), solverUnique1.pslater2[1][1], 0.0001);
+        CHECK_CLOSE(phi(1,r4,rAbs4), solverUnique1.pslater2[1][1], 0.0001);
     }
 
     TEST(phi){
@@ -615,8 +615,8 @@ SUITE(VMCWrapper){
         double rAbs = 0.8660254;
         // Check that the function phi(j,r_i) works.
         using namespace wave_functions;
-        CHECK_CLOSE(phi1s(rAbs),phi(0,r),0.00001);
-        CHECK_CLOSE(phi2s(rAbs),phi(1,r),0.00001);
+        CHECK_CLOSE(phi1s(rAbs),phi(0,r,rAbs),0.00001);
+        CHECK_CLOSE(phi2s(rAbs),phi(1,r,rAbs),0.00001);
 
         // Check values of phi.
         CHECK_CLOSE(0.0388675, phi1s(rAbs), 0.00001);

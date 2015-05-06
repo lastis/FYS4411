@@ -157,9 +157,9 @@ void VMCSolver::runSingleStepSlater(int i, int cycle){
     double ratioTmp = 0;
     for (int j = 0; j < nHalf; j++) {
         if (i < nHalf) 
-            ratioTmp += phi(j,prNew[i]) * pslater1Inv[j][i];
+            ratioTmp += phi(j,prNew[i],rAbsNew[i]) * pslater1Inv[j][i];
         else 
-            ratioTmp += phi(j,prNew[i]) * pslater2Inv[j][i - nHalf];
+            ratioTmp += phi(j,prNew[i],rAbsNew[i]) * pslater2Inv[j][i - nHalf];
     }
     ratio = ratioTmp*ratioTmp;
     // Check for step acceptance (if yes, 
@@ -365,8 +365,8 @@ bool VMCSolver::initRunVariables(){
         pslater2 = slater2.getArrayPointer();
         for (int i = 0; i < nParticles/2; i++) {
             for (int j = 0; j < nParticles/2; j++) {
-                pslater1[i][j] = phi(j,prNew[i]);
-                pslater2[i][j] = phi(j,prNew[i+2]);
+                pslater1[i][j] = phi(j,prNew[i],rAbsNew[i]);
+                pslater2[i][j] = phi(j,prNew[i+2],rAbsNew[i+2]);
             }
         }
         slater1Inv = CPhys::MatOp::getInverse(slater1);
@@ -465,8 +465,8 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs,
 void VMCSolver::updateSlater(int i)
 {
     for (int j = 0; j < nParticles/2; j++) {
-        if (i < nParticles/2) pslater1[i][j] = phi(j,prNew[i]);
-        else pslater2[i - nHalf][j] = phi(j,prNew[i]);
+        if (i < nParticles/2) pslater1[i][j] = phi(j,prNew[i],rAbsNew[i]);
+        else pslater2[i - nHalf][j] = phi(j,prNew[i],rAbsNew[i]);
     }
 }
 
@@ -568,9 +568,9 @@ double VMCSolver::getLocalEnergySlaterNoCor(double** r, double* rAbs)
     for (int i = 0; i < nParticles; i++) {
         for (int j = 0; j < nHalf; j++) {
             if (i < nHalf)
-                sum += phiDD(j,r[i])*pslater1Inv[j][i];
+                sum += phiDD(j,r[i],rAbs[i])*pslater1Inv[j][i];
             else
-                sum += phiDD(j,r[i])*pslater2Inv[j][i-nHalf];
+                sum += phiDD(j,r[i],rAbs[i])*pslater2Inv[j][i-nHalf];
         }
     }
 
@@ -592,7 +592,7 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
     double DD = 0;
     for (int i = 0; i < nParticles; i++) {
         for (int j = 0; j < nParticles/2; j++) {
-            DD += phiDD(j,r[i]);
+            DD += phiDD(j,r[i],rAbs[i]);
         }
     }
     double CC = 0;
@@ -678,13 +678,17 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             bkj = 1/(1 + beta*rkj);
             switch (k) {
                 case 0:
-                    tmp = phi(1,r[1])*phiD(0,r[k]) - phi(0,r[1])*phiD(1,r[k]);
+                    tmp = phi(1,r[1],rAbs[1])*phiD(0,r[k],rAbs[k]) 
+                        - phi(0,r[1],rAbs[1])*phiD(1,r[k],rAbs[k]);
                 case 1:
-                    tmp = phi(0,r[0])*phiD(1,r[k]) - phi(1,r[0])*phiD(0,r[k]);
+                    tmp = phi(0,r[0],rAbs[0])*phiD(1,r[k],rAbs[k]) 
+                        - phi(1,r[0],rAbs[0])*phiD(0,r[k],rAbs[k]);
                 case 2:
-                    tmp = phi(1,r[3])*phiD(0,r[k]) - phi(0,r[3])*phiD(1,r[k]);
+                    tmp = phi(1,r[3],rAbs[3])*phiD(0,r[k],rAbs[k]) 
+                        - phi(0,r[3],rAbs[3])*phiD(1,r[k],rAbs[k]);
                 case 3:
-                    tmp = phi(0,r[2])*phiD(1,r[k]) - phi(1,r[2])*phiD(0,r[k]);
+                    tmp = phi(0,r[2],rAbs[2])*phiD(1,r[k],rAbs[k]) 
+                        - phi(1,r[2],rAbs[2])*phiD(0,r[k],rAbs[k]);
             }
             for (int x = 0; x < nDimensions; x++) {
                 DC += tmp*r[k][x]/rk*(r[j][x] - r[k][x])*a1*bkj*bkj/rkj;
