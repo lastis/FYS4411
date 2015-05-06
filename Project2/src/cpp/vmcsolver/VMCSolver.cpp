@@ -591,10 +591,25 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
 {
     double DD = 0;
     for (int i = 0; i < nParticles; i++) {
-        for (int j = 0; j < nParticles/2; j++) {
-            DD += phiDD(j,r[i],rAbs[i]);
+        for (int j = 0; j < nHalf; j++) {
+            if (i < nHalf)
+                DD += phiDD(j,r[i],rAbs[i])*pslater1Inv[j][i];
+            else
+                DD += phiDD(j,r[i],rAbs[i])*pslater2Inv[j][i-nHalf];
         }
     }
+
+    // Potential energy.
+    double potentialEnergy = 0;
+    double rSingleParticle = 0;
+    for(int i = 0; i < nParticles; i++) {
+        rSingleParticle = 0;
+        for(int j = 0; j < nDimensions; j++) {
+            rSingleParticle += r[i][j]*r[i][j];
+        }
+        potentialEnergy -= charge / sqrt(rSingleParticle);
+    }
+
     double CC = 0;
     double a1, a2;
     double tmp = 0;
@@ -649,22 +664,23 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             }
         }
     }
+
     double DC = 0;
-    double rk;
-    for (int k = 0; k < nParticles; k++) {
-        rk = 0;
-        for (int x = 0; x < nDimensions; x++) {
-            rk += r[k][x]*r[k][x];
+    double rkVec[nDimensions];
+    double rkjVec[nDimensions];
+    double rkjAbs;
+    double rkGrad[nDimensions];
+    for (int k = 0; k < nParticles; k++) 
+    {
+        // Reset rkVec.
+        for (int x = 0; x < nDimensions; x++) 
+        {
+            rkVec[x] = 0;
         }
-        rk = sqrt(rk);
-        for (int j = 0; j < nParticles; j++) {
+        // Calculate rkVec.
+        for (int j = 0; j < nParticles; j++) 
+        {
             if (j == k) continue;
-            rkj = 0;
-            for (int x = 0; x < nDimensions; x++) {
-                tmp = (r[j][x] - r[k][x]);
-                rkj += tmp*tmp;
-            }
-            rkj = sqrt(rkj);
             spinK = k/nHalf;
             spinJ = j/nHalf;
             switch (spinK + spinJ){
@@ -675,25 +691,92 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
                 case 2:
                     a1 = 0.25;
             }
-            bkj = 1/(1 + beta*rkj);
-            switch (k) {
-                case 0:
-                    tmp = phi(1,r[1],rAbs[1])*phiD(0,r[k],rAbs[k]) 
-                        - phi(0,r[1],rAbs[1])*phiD(1,r[k],rAbs[k]);
-                case 1:
-                    tmp = phi(0,r[0],rAbs[0])*phiD(1,r[k],rAbs[k]) 
-                        - phi(1,r[0],rAbs[0])*phiD(0,r[k],rAbs[k]);
-                case 2:
-                    tmp = phi(1,r[3],rAbs[3])*phiD(0,r[k],rAbs[k]) 
-                        - phi(0,r[3],rAbs[3])*phiD(1,r[k],rAbs[k]);
-                case 3:
-                    tmp = phi(0,r[2],rAbs[2])*phiD(1,r[k],rAbs[k]) 
-                        - phi(1,r[2],rAbs[2])*phiD(0,r[k],rAbs[k]);
+            rkjAbs = 0;
+            for (int x = 0; x < nDimensions; x++) 
+            {
+                rkjVec[x] = r[j][x] - r[k][x];
+                rkjAbs += rkjVec[x]*rkjVec[x];
             }
-            for (int x = 0; x < nDimensions; x++) {
-                DC += tmp*r[k][x]/rk*(r[j][x] - r[k][x])*a1*bkj*bkj/rkj;
+            rkjAbs = sqrt(rkjAbs);
+            bkj = 1/(1 + beta*rkjAbs);
+            // Calculate the final vector, the gradient of the correction function.
+            for (int x = 0; x < nDimensions; x++) 
+            {
+                rkVec[x] += rkjVec[x]*a1*bkj*bkj/rkjAbs;
             }
         }
+        // Reset rkGrad.
+        for (int x = 0; x < nDimensions; x++) 
+        {
+            rkGrad[x] = 0;
+        }
+        tmp = 0;
+        // Calculate rkGrad.
+        for (int j = 0; j < nHalf; j++) 
+        {
+            if (k < nHalf)
+                tmp += phiD(j,r[k],rAbs[k])*pslater1Inv[j][k];
+            else
+                tmp += phiD(j,r[k],rAbs[k])*pslater2Inv[j][k-nHalf];
+
+        }
+        for (int x = 0; x < nDimensions; x++) 
+        {
+            rkGrad[x] += r[k][x]*tmp/rAbs[k];
+        }
+        // Calculate DC.
+        for (int x = 0; x < nDimensions; x++) 
+        {
+            DC += rkVec[x]*rkGrad[x];
+        }
     }
-    return -0.5*DD - 0.5*CC - DC;
+
+
+    /* double DC = 0; */
+    /* double rk; */
+    /* for (int k = 0; k < nParticles; k++) { */
+    /*     rk = 0; */
+    /*     for (int x = 0; x < nDimensions; x++) { */
+    /*         rk += r[k][x]*r[k][x]; */
+    /*     } */
+    /*     rk = sqrt(rk); */
+    /*     for (int j = 0; j < nParticles; j++) { */
+    /*         if (j == k) continue; */
+    /*         rkj = 0; */
+    /*         for (int x = 0; x < nDimensions; x++) { */
+    /*             tmp = (r[j][x] - r[k][x]); */
+    /*             rkj += tmp*tmp; */
+    /*         } */
+    /*         rkj = sqrt(rkj); */
+    /*         spinK = k/nHalf; */
+    /*         spinJ = j/nHalf; */
+    /*         switch (spinK + spinJ){ */
+    /*             case 0: */
+    /*                 a1 = 0.25; */
+    /*             case 1: */
+    /*                 a1 = 0.5; */
+    /*             case 2: */
+    /*                 a1 = 0.25; */
+    /*         } */
+    /*         bkj = 1/(1 + beta*rkj); */
+    /*         switch (k) { */
+    /*             case 0: */
+    /*                 tmp = phi(1,r[1],rAbs[1])*phiD(0,r[k],rAbs[k]) */ 
+    /*                     - phi(0,r[1],rAbs[1])*phiD(1,r[k],rAbs[k]); */
+    /*             case 1: */
+    /*                 tmp = phi(0,r[0],rAbs[0])*phiD(1,r[k],rAbs[k]) */ 
+    /*                     - phi(1,r[0],rAbs[0])*phiD(0,r[k],rAbs[k]); */
+    /*             case 2: */
+    /*                 tmp = phi(1,r[3],rAbs[3])*phiD(0,r[k],rAbs[k]) */ 
+    /*                     - phi(0,r[3],rAbs[3])*phiD(1,r[k],rAbs[k]); */
+    /*             case 3: */
+    /*                 tmp = phi(0,r[2],rAbs[2])*phiD(1,r[k],rAbs[k]) */ 
+    /*                     - phi(1,r[2],rAbs[2])*phiD(0,r[k],rAbs[k]); */
+    /*         } */
+    /*         for (int x = 0; x < nDimensions; x++) { */
+    /*             DC += tmp*r[k][x]/rk*(r[j][x] - r[k][x])*a1*bkj*bkj/rkj; */
+    /*         } */
+    /*     } */
+    /* } */
+    return -0.5*DD - 0.5*CC - DC + potentialEnergy;
 }

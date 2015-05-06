@@ -35,7 +35,7 @@ for i,array in enumerate(meanArray):
     sampleSq = sampleSq/len(meanArray[i])
     mean.append(sample)
     # meanVar.append(np.sqrt(sampleSq - sample*sample))
-    # Actually the SEM, Standard Error of the Mean.
+    # Actually the SEM, Standard Error of the Mean. Or is it?
     meanVar.append(np.sqrt((sampleSq - sample*sample)/len(meanArray[i])))
 
 mean = np.asarray(mean)
@@ -43,4 +43,5 @@ meanVar = np.asarray(meanVar)
 plt.plot(alphaArray, mean)
 plt.plot(alphaArray, mean+meanVar)
 plt.plot(alphaArray, mean-meanVar)
+plt.savefig('alpha_plot.png')
 plt.show()

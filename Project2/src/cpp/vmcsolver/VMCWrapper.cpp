@@ -24,6 +24,7 @@ void VMCWrapper::runIntegration(){
         // list of energy arrays.  
         double energySum = 0;
         double ratioSum = 0;
+        // A list of vectors. 
         Vector* energyArrays = new Vector[threads]();
         double** pEnergyArrays = new double*[threads];
         // totalCycles might differ from nCycles if nCycles 
@@ -34,7 +35,7 @@ void VMCWrapper::runIntegration(){
         {
             solver = VMCSolver();
             initSolver(solver);
-            solver.nCycles = nCycles/omp_get_num_threads();
+            solver.nCycles = nCycles;
             solver.setSeed(idum + omp_get_thread_num());
             solver.runIntegration();
             // Copy the energy array to the more easily handled energy
