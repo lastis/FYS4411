@@ -153,55 +153,6 @@ double VMCSolver::getCorrelationRatio(int i){
     double valNew = 0;
     double valOld = 0;
     double tmp;
-    /* for (int k = 0; k < nParticles; k++) */ 
-    /* { */
-    /*     for (int j = 0; j < nParticles; j++) */ 
-    /*     { */
-    /*         if (j <= k) continue; */ 
-    /*         // If i < j, calculate something. */
-    /*         rkjNew = 0; */
-    /*         for (int x = 0; x < nDimensions; x++) { */
-    /*             rkjNew += (prNew[j][x] - prNew[k][x])*(prNew[j][x] - prNew[k][x]); */
-    /*         } */
-    /*         rkjNew = sqrt(rkjNew); */
-    /*         int spinK = k/nHalf; */
-    /*         int spinJ = j/nHalf; */
-    /*         switch (spinK + spinJ){ */
-    /*             case 0: */
-    /*                 a = 0.25; */
-    /*                 break; */
-    /*             case 1: */
-    /*                 a = 0.5; */
-    /*                 break; */
-    /*             case 2: */
-    /*                 a = 0.25; */
-    /*                 break; */
-    /*         } */
-    /*         double bkjNew = 1/(1 + beta*rkjNew); */
-    /*         valNew += rkjNew*bkjNew*a; */
-    /*         // Again for old. */
-    /*         rkjOld = 0; */
-    /*         for (int x = 0; x < nDimensions; x++) { */
-    /*             rkjOld += (prOld[j][x] - prOld[k][x])*(prOld[j][x] - prOld[k][x]); */
-    /*         } */
-    /*         rkjOld = sqrt(rkjOld); */
-    /*         spinK = k/nHalf; */
-    /*         spinJ = j/nHalf; */
-    /*         switch (spinK + spinJ){ */
-    /*             case 0: */
-    /*                 a = 0.25; */
-    /*                 break; */
-    /*             case 1: */
-    /*                 a = 0.5; */
-    /*                 break; */
-    /*             case 2: */
-    /*                 a = 0.25; */
-    /*                 break; */
-    /*         } */
-    /*         double bkjOld = 1/(1 + beta*rkjOld); */
-    /*         valOld += rkjOld*bkjOld*a; */
-    /*     } */
-    /* } */
     for (int k = 0; k < nParticles; k++) 
     {
         for (int j = k+1; j < nParticles; j++) 
@@ -220,16 +171,17 @@ double VMCSolver::getCorrelationRatio(int i){
                 rkjNew = sqrt(rkjNew);
                 int spinK = k/nHalf;
                 int spinJ = j/nHalf;
-                /* printf("i: %d (%d,%d)\n",i,k,j); */
                 switch (spinK + spinJ){
                     case 0:
                         a = 0.25;
+                        /* a = 0.5; */
                         break;
                     case 1:
                         a = 0.5;
                         break;
                     case 2:
                         a = 0.25;
+                        /* a = 0.5; */
                         break;
                 }
                 double bkjOld = 1/(1 + beta*rkjOld);

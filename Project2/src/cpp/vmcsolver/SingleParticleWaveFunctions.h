@@ -34,7 +34,7 @@ namespace wave_functions{
     }
 
     static double phi1sDD(double r){
-        return alpha*alpha*g(r)*g(r);
+        return alpha*alpha*g(r)*g(r) + 2*phi1sD(r)/r;
     }
 
     static double phi2s(double r){
@@ -46,11 +46,19 @@ namespace wave_functions{
     }
 
     static double phi2sDD(double r){
-        return 0.75*alpha*alpha*g(r)*(1+f(r)/3);
+        return 0.75*alpha*alpha*g(r)*(1+f(r)/3) + 2*phi2sD(r)/r;
     }
 
-    static double phi2p(double r){
-        return alpha*r*exp(-alpha*r/2);
+    static double phi2p(double x, double r){
+        return x*alpha*g(r);
+    }
+
+    static double phi2pD(double x, double r){
+        return (1/r -0.5*alpha)*alpha*x*g(r);
+    }
+
+    static double phi2pDD(double x, double r){
+        return phi2p(x,r)*alpha*(alpha*r - 8)/(4*r);
     }
 
     static double phi(int j, double* r, double rAbs){
@@ -59,8 +67,12 @@ namespace wave_functions{
                 return phi1s(rAbs);
             case 1 :
                 return phi2s(rAbs);
-            case 2 ... 4:
-                return phi2p(rAbs);
+            case 2 :
+                return phi2p(r[0],rAbs);
+            case 3 : 
+                return phi2p(r[1],rAbs);
+            case 4 : 
+                return phi2p(r[2],rAbs);
             default:
                 std::cout << "Index out of bounds in phi()!!!" << std::endl;
                 return 0;
@@ -73,6 +85,12 @@ namespace wave_functions{
                 return phi1sD(rAbs);
             case 1 :
                 return phi2sD(rAbs);
+            case 2 :
+                return phi2pD(r[0],rAbs);
+            case 3 : 
+                return phi2pD(r[1],rAbs);
+            case 4 : 
+                return phi2pD(r[2],rAbs);
             default:
                 std::cout << "Index out of bounds in phi()!!!" << std::endl;
                 return 0;
@@ -80,16 +98,17 @@ namespace wave_functions{
     }
 
     static double phiDD(int j, double* r, double rAbs){
-        /* double rAbs = 0; */
-        /* for (int i = 0; i < nDimensions; i++) { */
-        /*     rAbs += r[i]*r[i]; */
-        /* } */
-        /* rAbs = sqrt(rAbs); */
         switch (j) {
             case 0 :
-                return phi1sDD(rAbs) + 2*phi1sD(rAbs)/rAbs;
+                return phi1sDD(rAbs);
             case 1 :
-                return phi2sDD(rAbs) + 2*phi2sD(rAbs)/rAbs;
+                return phi2sDD(rAbs);
+            case 2 :
+                return phi2pDD(r[0],rAbs);
+            case 3 : 
+                return phi2pDD(r[1],rAbs);
+            case 4 : 
+                return phi2pDD(r[2],rAbs);
             default:
                 std::cout << "Index out of bounds in phi()!!!" << std::endl;
                 return 0;
@@ -98,14 +117,6 @@ namespace wave_functions{
 
     static double berylliumPsiDD(double** r, double* rAbs)
     {
-        /* double rAbs[4]; */
-        /* for (int i = 0; i < 4; i++) { */
-        /*     rAbs[i] = 0; */
-        /*     for(int j = 0; j < nDimensions; j++) { */
-        /*         rAbs[i] += r[i][j] * r[i][j]; */
-        /*     } */
-        /*     rAbs[i] = sqrt(rAbs[i]); */
-        /* } */
         double tmp = 0;
         double sum = 0;
         tmp += phi2s(rAbs[1])*phi1sDD(rAbs[0]) - phi1s(rAbs[1])*phi2sDD(rAbs[0]);
