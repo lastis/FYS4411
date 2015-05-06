@@ -29,7 +29,9 @@ int main(int argc, const char *argv[])
     solver.h2 = 1e+06;
     solver.idum = 2;
     solver.useEfficientSlater(true);
-    solver.useLocalEnergySlater();
+    /* solver.useLocalEnergySlater(); */
+    solver.useWaveFunctionBeryllium2();
+    solver.useLocalEnergyGeneric();
     solver.useParallel(true);
     solver.recordEnergyArray(true);
 
@@ -41,8 +43,8 @@ int main(int argc, const char *argv[])
     /* cout << "Time = " << diff.count() << " seconds." << endl; */
     using microfortnights = std::chrono::duration<float, std::ratio<12096,10000>>;
     cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
-    cout << "Energy " << solver.getEnergy() << endl;
-    cout << "Acceptance Ratio : " << solver.getAcceptanceRatio() << endl;
+    /* cout << "Energy " << solver.getEnergy() << endl; */
+    /* cout << "Acceptance Ratio : " << solver.getAcceptanceRatio() << endl; */
 
     // Manipulate data. 
     Vector energyArray = solver.getEnergyArray();

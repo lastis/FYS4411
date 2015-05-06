@@ -18,9 +18,15 @@ try :
     os.remove(fileName)
 except OSError:
     pass
-# Save the alpha values.
+
+beta = 1
 alphaArray = np.linspace(2,5,11)
+nCycles = 1e5
+blockSize = 100
+
+# Save the alpha values.
 np.savetxt(alphaFile,alphaArray)
+
 # Compile the code
 os.chdir(curDir)
 os.chdir(cppDir)
@@ -30,4 +36,4 @@ os.chdir(curDir)
 os.chdir(cppDir)
 # Run the cpp code
 for alpha in alphaArray:
-    call(["./a.out", fileName, str(alpha),"0.8", "1000"])
+    call(["./a.out", fileName, str(alpha), str(beta), str(nCycles), str(blockSize)])

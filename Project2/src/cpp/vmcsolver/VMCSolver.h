@@ -14,10 +14,10 @@ class VMCSolver
 {
 public:
     static const int LOCAL_ENERGY_GENERIC = 1;
+    static const int LOCAL_ENERGY_GENERIC_NOCOR = 5;
     static const int LOCAL_ENERGY_HELIUM_1 = 2;
     static const int LOCAL_ENERGY_HELIUM_2 = 4;
     static const int LOCAL_ENERGY_HYDROGEN = 3;
-    static const int LOCAL_ENERGY_GENERIC_NOCOR = 5;
     static const int LOCAL_ENERGY_SLATER = 6;
     static const int LOCAL_ENERGY_SLATER_NOCOR = 7;
     static const int WAVE_FUNCTION_1 = 8;
@@ -59,6 +59,7 @@ public:
     double (*getLocalEnergy)(double** r, double* rAbs);
     double getLocalEnergySlater(double** r, double* rAbs);
     double getLocalEnergySlaterNoCor(double** r, double* rAbs);
+    double getCorrelationRatio(int i);
 
     Vector getEnergyArray();
 
@@ -99,6 +100,7 @@ public:
     double ratio;
     int nHalf;
 
+    bool usingCorrelation;
     bool outputSupressed;
     bool recordingDensity;
     bool recordingEnergyArray;

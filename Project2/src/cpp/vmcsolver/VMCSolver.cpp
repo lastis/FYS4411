@@ -146,6 +146,102 @@ void VMCSolver::setSeed(long seed){
     gen.seed(seed);
 }
 
+double VMCSolver::getCorrelationRatio(int i){
+    double a;
+    double rkjNew = 0;
+    double rkjOld = 0;
+    double valNew = 0;
+    double valOld = 0;
+    double tmp;
+    /* for (int k = 0; k < nParticles; k++) */ 
+    /* { */
+    /*     for (int j = 0; j < nParticles; j++) */ 
+    /*     { */
+    /*         if (j <= k) continue; */ 
+    /*         // If i < j, calculate something. */
+    /*         rkjNew = 0; */
+    /*         for (int x = 0; x < nDimensions; x++) { */
+    /*             rkjNew += (prNew[j][x] - prNew[k][x])*(prNew[j][x] - prNew[k][x]); */
+    /*         } */
+    /*         rkjNew = sqrt(rkjNew); */
+    /*         int spinK = k/nHalf; */
+    /*         int spinJ = j/nHalf; */
+    /*         switch (spinK + spinJ){ */
+    /*             case 0: */
+    /*                 a = 0.25; */
+    /*                 break; */
+    /*             case 1: */
+    /*                 a = 0.5; */
+    /*                 break; */
+    /*             case 2: */
+    /*                 a = 0.25; */
+    /*                 break; */
+    /*         } */
+    /*         double bkjNew = 1/(1 + beta*rkjNew); */
+    /*         valNew += rkjNew*bkjNew*a; */
+    /*         // Again for old. */
+    /*         rkjOld = 0; */
+    /*         for (int x = 0; x < nDimensions; x++) { */
+    /*             rkjOld += (prOld[j][x] - prOld[k][x])*(prOld[j][x] - prOld[k][x]); */
+    /*         } */
+    /*         rkjOld = sqrt(rkjOld); */
+    /*         spinK = k/nHalf; */
+    /*         spinJ = j/nHalf; */
+    /*         switch (spinK + spinJ){ */
+    /*             case 0: */
+    /*                 a = 0.25; */
+    /*                 break; */
+    /*             case 1: */
+    /*                 a = 0.5; */
+    /*                 break; */
+    /*             case 2: */
+    /*                 a = 0.25; */
+    /*                 break; */
+    /*         } */
+    /*         double bkjOld = 1/(1 + beta*rkjOld); */
+    /*         valOld += rkjOld*bkjOld*a; */
+    /*     } */
+    /* } */
+    for (int k = 0; k < nParticles; k++) 
+    {
+        for (int j = k+1; j < nParticles; j++) 
+        {
+            if (i == j || i == k) 
+            {
+                rkjOld = 0;
+                rkjNew = 0;
+                for (int x = 0; x < nDimensions; x++) {
+                    tmp = (prNew[j][x] - prNew[k][x]);
+                    rkjNew += tmp*tmp;
+                    tmp = (prOld[j][x] - prOld[k][x]);
+                    rkjOld += tmp*tmp;
+                }
+                rkjOld = sqrt(rkjOld);
+                rkjNew = sqrt(rkjNew);
+                int spinK = k/nHalf;
+                int spinJ = j/nHalf;
+                /* printf("i: %d (%d,%d)\n",i,k,j); */
+                switch (spinK + spinJ){
+                    case 0:
+                        a = 0.25;
+                        break;
+                    case 1:
+                        a = 0.5;
+                        break;
+                    case 2:
+                        a = 0.25;
+                        break;
+                }
+                double bkjOld = 1/(1 + beta*rkjOld);
+                double bkjNew = 1/(1 + beta*rkjNew);
+                valOld += a*bkjOld*rkjOld;
+                valNew += a*bkjNew*rkjNew;
+            }
+        }
+    }
+    return exp(valNew-valOld);
+}
+
 void VMCSolver::runSingleStepSlater(int i, int cycle){
     // New position to test
     rAbsNew[i] = 0;
@@ -161,7 +257,11 @@ void VMCSolver::runSingleStepSlater(int i, int cycle){
         else 
             ratioTmp += phi(j,prNew[i],rAbsNew[i]) * pslater2Inv[j][i - nHalf];
     }
-    ratio = ratioTmp*ratioTmp;
+    if (usingCorrelation){
+        ratio = ratioTmp*getCorrelationRatio(i);
+        ratio = ratio*ratio;
+    }
+    else ratio = ratioTmp*ratioTmp;
     // Check for step acceptance (if yes, 
     // update position, if no, reset position)
     if(dist_uniform(gen) <= ratio) {
@@ -185,7 +285,6 @@ void VMCSolver::runSingleStepSlater(int i, int cycle){
         rAbsNew[i] = rAbsOld[i];
         rejects++;
     }
-
     endOfSingleParticleStep(cycle, i);
 }
 
@@ -272,27 +371,41 @@ bool VMCSolver::initRunVariables(){
     wave_functions::nHalf = nHalf;
 
     // Set the wave function as a function pointer
-    if (waveFunction == WAVE_FUNCTION_1)
+    if (waveFunction == WAVE_FUNCTION_1){
         getWaveFuncVal = wave_functions::getWaveFuncHeliumNoCor;
-    else if (waveFunction == WAVE_FUNCTION_2)
+    }
+    else if (waveFunction == WAVE_FUNCTION_2){
         getWaveFuncVal = wave_functions::getWaveFuncHelium;
-    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_1)
+        usingCorrelation = true;
+    }
+    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_1){
         getWaveFuncVal = wave_functions::getWaveBerylliumNoCor;
-    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2)
+    }
+    else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2){
         getWaveFuncVal = wave_functions::getWaveBeryllium;
+        usingCorrelation = true;
+    }
     wave_functions::getWaveFuncVal = getWaveFuncVal;
 
     // Set the local energy function as a function pointer
-    if (localEnergyFunction == LOCAL_ENERGY_GENERIC)
+    if (localEnergyFunction == LOCAL_ENERGY_GENERIC){
         getLocalEnergy = wave_functions::getLocalEnergyGeneric;
-    else if (localEnergyFunction == LOCAL_ENERGY_HELIUM_1)
+        usingCorrelation = true;
+    }
+    else if (localEnergyFunction == LOCAL_ENERGY_HELIUM_1){
         getLocalEnergy = wave_functions::getLocalEnergyHeliumNoCor;
-    else if (localEnergyFunction == LOCAL_ENERGY_HELIUM_2)
+    }
+    else if (localEnergyFunction == LOCAL_ENERGY_HELIUM_2){
         getLocalEnergy = wave_functions::getLocalEnergyHelium;
-    else if (localEnergyFunction == LOCAL_ENERGY_HYDROGEN)
+        usingCorrelation = true;
+    }
+    else if (localEnergyFunction == LOCAL_ENERGY_HYDROGEN){
         getLocalEnergy = wave_functions::getLocalEnergyHydrogen;
-    else if (localEnergyFunction == LOCAL_ENERGY_GENERIC_NOCOR)
+        usingCorrelation = true;
+    }
+    else if (localEnergyFunction == LOCAL_ENERGY_GENERIC_NOCOR){
         getLocalEnergy = wave_functions::getLocalEnergyGenericNoCor;
+    }
 
     // Initialize arrays
     if (recordingPositions) {
@@ -522,6 +635,7 @@ void VMCSolver::clear(){
     ratio = 0;
 
 
+    usingCorrelation = false;
     outputSupressed = false;
     importanceSampling = false;
     efficientSlater = false;
@@ -631,10 +745,13 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             switch (spinK + spinJ){
                 case 0:
                     a1 = 0.25;
+                    break;
                 case 1:
                     a1 = 0.5;
+                    break;
                 case 2:
                     a1 = 0.25;
+                    break;
             }
             bkj = 1/(1 + beta*rkj);
             CC += 2*a1*bkj*bkj/rkj;
@@ -686,10 +803,13 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             switch (spinK + spinJ){
                 case 0:
                     a1 = 0.25;
+                    break;
                 case 1:
                     a1 = 0.5;
+                    break;
                 case 2:
                     a1 = 0.25;
+                    break;
             }
             rkjAbs = 0;
             for (int x = 0; x < nDimensions; x++) 
@@ -730,53 +850,5 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             DC += rkVec[x]*rkGrad[x];
         }
     }
-
-
-    /* double DC = 0; */
-    /* double rk; */
-    /* for (int k = 0; k < nParticles; k++) { */
-    /*     rk = 0; */
-    /*     for (int x = 0; x < nDimensions; x++) { */
-    /*         rk += r[k][x]*r[k][x]; */
-    /*     } */
-    /*     rk = sqrt(rk); */
-    /*     for (int j = 0; j < nParticles; j++) { */
-    /*         if (j == k) continue; */
-    /*         rkj = 0; */
-    /*         for (int x = 0; x < nDimensions; x++) { */
-    /*             tmp = (r[j][x] - r[k][x]); */
-    /*             rkj += tmp*tmp; */
-    /*         } */
-    /*         rkj = sqrt(rkj); */
-    /*         spinK = k/nHalf; */
-    /*         spinJ = j/nHalf; */
-    /*         switch (spinK + spinJ){ */
-    /*             case 0: */
-    /*                 a1 = 0.25; */
-    /*             case 1: */
-    /*                 a1 = 0.5; */
-    /*             case 2: */
-    /*                 a1 = 0.25; */
-    /*         } */
-    /*         bkj = 1/(1 + beta*rkj); */
-    /*         switch (k) { */
-    /*             case 0: */
-    /*                 tmp = phi(1,r[1],rAbs[1])*phiD(0,r[k],rAbs[k]) */ 
-    /*                     - phi(0,r[1],rAbs[1])*phiD(1,r[k],rAbs[k]); */
-    /*             case 1: */
-    /*                 tmp = phi(0,r[0],rAbs[0])*phiD(1,r[k],rAbs[k]) */ 
-    /*                     - phi(1,r[0],rAbs[0])*phiD(0,r[k],rAbs[k]); */
-    /*             case 2: */
-    /*                 tmp = phi(1,r[3],rAbs[3])*phiD(0,r[k],rAbs[k]) */ 
-    /*                     - phi(0,r[3],rAbs[3])*phiD(1,r[k],rAbs[k]); */
-    /*             case 3: */
-    /*                 tmp = phi(0,r[2],rAbs[2])*phiD(1,r[k],rAbs[k]) */ 
-    /*                     - phi(1,r[2],rAbs[2])*phiD(0,r[k],rAbs[k]); */
-    /*         } */
-    /*         for (int x = 0; x < nDimensions; x++) { */
-    /*             DC += tmp*r[k][x]/rk*(r[j][x] - r[k][x])*a1*bkj*bkj/rkj; */
-    /*         } */
-    /*     } */
-    /* } */
     return -0.5*DD - 0.5*CC - DC + potentialEnergy;
 }

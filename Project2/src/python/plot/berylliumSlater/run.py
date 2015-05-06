@@ -23,6 +23,8 @@ nCycles = 1e5
 blockSize = 100
 alphaArray = np.linspace(2.0,5.0,11)
 beta = 1;
+
+
 # Save the alpha values.
 np.savetxt(alphaFile,alphaArray)
 # Compile the code

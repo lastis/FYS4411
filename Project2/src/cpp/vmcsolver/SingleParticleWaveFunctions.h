@@ -246,23 +246,34 @@ namespace wave_functions{
         // The value of the slater determinant.
         double phi = (phi1s(r1Abs)*phi2s(r2Abs) -phi1s(r2Abs)*phi2s(r1Abs))
         *(phi1s(r3Abs)*phi2s(r4Abs) -phi1s(r4Abs)*phi2s(r3Abs));
+
         double cor = 0;
         double rij = 0;
+        double a;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if (i >= j) continue; 
-            // If i < j, calculate something.
-            rij = 0;
-            for (int k = 0; k < nDimensions; k++) {
-                rij += (r[j][k] - r[i][k])*(r[j][k] - r[i][k]);
-            }
-            rij = sqrt(rij);
-            if ((i == 0 || j == 0) && (i == 1 || j == 1))
-                cor += 0.25*rij/(1+beta*rij);
-            else if ((i == 2 || j == 2) && (i == 3 || j == 3))
-                cor += 0.25*rij/(1+beta*rij);
-            else
-                cor += 0.5*rij/(1+beta*rij);
+                if (j <= i) continue; 
+                // If i < j, calculate something.
+                rij = 0;
+                for (int k = 0; k < nDimensions; k++) {
+                    rij += (r[j][k] - r[i][k])*(r[j][k] - r[i][k]);
+                }
+                rij = sqrt(rij);
+                int spinI = i/nHalf;
+                int spinJ = j/nHalf;
+                switch (spinI + spinJ){
+                    case 0:
+                        a = 0.25;
+                        break;
+                    case 1:
+                        a = 0.5;
+                        break;
+                    case 2:
+                        a = 0.25;
+                        break;
+                }
+                double bij = 1/(1 + beta*rij);
+                cor += rij*bij*a;
             }
         }
         cor = exp(cor);
