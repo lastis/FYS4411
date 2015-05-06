@@ -359,22 +359,20 @@ bool VMCSolver::initRunVariables(){
     if (efficientSlater) {
         vS = Vector(nParticles/2);
         S = vS.getArrayPointer();
-        if (nParticles == 2 || nParticles == 4 || nParticles == 10){
-            slater1 = Matrix(nParticles/2,nParticles/2);
-            slater2 = Matrix(nParticles/2,nParticles/2);
-            pslater1 = slater1.getArrayPointer();
-            pslater2 = slater2.getArrayPointer();
-            for (int i = 0; i < nParticles/2; i++) {
-                for (int j = 0; j < nParticles/2; j++) {
-                    pslater1[i][j] = phi(j,prNew[i]);
-                    pslater2[i][j] = phi(j,prNew[i+2]);
-                }
+        slater1 = Matrix(nParticles/2,nParticles/2);
+        slater2 = Matrix(nParticles/2,nParticles/2);
+        pslater1 = slater1.getArrayPointer();
+        pslater2 = slater2.getArrayPointer();
+        for (int i = 0; i < nParticles/2; i++) {
+            for (int j = 0; j < nParticles/2; j++) {
+                pslater1[i][j] = phi(j,prNew[i]);
+                pslater2[i][j] = phi(j,prNew[i+2]);
             }
-            slater1Inv = CPhys::MatOp::getInverse(slater1);
-            slater2Inv = CPhys::MatOp::getInverse(slater2);
-            pslater1Inv = slater1Inv.getArrayPointer();
-            pslater2Inv = slater2Inv.getArrayPointer();
         }
+        slater1Inv = CPhys::MatOp::getInverse(slater1);
+        slater2Inv = CPhys::MatOp::getInverse(slater2);
+        pslater1Inv = slater1Inv.getArrayPointer();
+        pslater2Inv = slater2Inv.getArrayPointer();
     }
     // Finished without error (hopefully).
     return true;
