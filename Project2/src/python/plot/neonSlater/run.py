@@ -21,7 +21,7 @@ except OSError:
 
 nCycles = 1e4
 blockSize = nCycles
-alphaArray = np.linspace(8,10,11)
+alphaArray = np.linspace(10,11,11)
 # Save the alpha values.
 np.savetxt(alphaFile,alphaArray)
 # Compile the code
@@ -33,4 +33,4 @@ os.chdir(curDir)
 os.chdir(cppDir)
 # Run the cpp code
 for alpha in alphaArray:
-    call(["./a.out", fileName, str(alpha),"1.0", str(nCycles), str(blockSize)])
+    call(["./a.out", fileName, str(alpha),"0.9", str(nCycles), str(blockSize)])

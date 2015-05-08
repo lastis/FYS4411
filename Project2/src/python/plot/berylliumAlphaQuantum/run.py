@@ -19,7 +19,7 @@ try :
 except OSError:
     pass
 
-nCycles = 1e4
+nCycles = 1e5
 blockSize = nCycles/10
 alphaArray = np.linspace(2.5,4.5,11)
 beta = 1

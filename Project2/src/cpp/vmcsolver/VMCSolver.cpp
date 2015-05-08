@@ -93,6 +93,12 @@ bool VMCSolver::runIntegration()
 
 void VMCSolver::runStepSlaterQuantum(int cycle)
 {
+    for (int i = 0; i < nParticles; i++)
+    {
+        runSingleStepSlaterQuantum(i, cycle);
+    }
+    // ALL PARTICLES MOVED ONE STEP AT THIS POINT.
+    endOfCycle(cycle);
 }
 
 void VMCSolver::runSingleStepQuantum(int i, int cycle)
@@ -233,6 +239,10 @@ double VMCSolver::getCorrelationRatio(int i)
         }
     }
     return exp(valNew - valOld);
+}
+
+void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
+{
 }
 
 void VMCSolver::runSingleStepSlater(int i, int cycle)
