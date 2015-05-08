@@ -13,17 +13,21 @@ class VMCWrapper
 {
 public:
     VMCWrapper();
-    static const int LOCAL_ENERGY_GENERIC       = VMCSolver::LOCAL_ENERGY_GENERIC;
-    static const int LOCAL_ENERGY_HELIUM_1      = VMCSolver::LOCAL_ENERGY_HELIUM_1;
-    static const int LOCAL_ENERGY_HELIUM_2      = VMCSolver::LOCAL_ENERGY_HELIUM_2;
-    static const int LOCAL_ENERGY_HYDROGEN      = VMCSolver::LOCAL_ENERGY_HYDROGEN;
-    static const int LOCAL_ENERGY_GENERIC_NOCOR = VMCSolver::LOCAL_ENERGY_GENERIC_NOCOR;
-    static const int LOCAL_ENERGY_SLATER        = VMCSolver::LOCAL_ENERGY_SLATER;
-    static const int LOCAL_ENERGY_SLATER_NOCOR  = VMCSolver::LOCAL_ENERGY_SLATER_NOCOR;
-    static const int WAVE_FUNCTION_1            = VMCSolver::WAVE_FUNCTION_1;
-    static const int WAVE_FUNCTION_2            = VMCSolver::WAVE_FUNCTION_2;
-    static const int WAVE_FUNCTION_BERYLLIUM_1  = VMCSolver::WAVE_FUNCTION_BERYLLIUM_1;
-    static const int WAVE_FUNCTION_BERYLLIUM_2  = VMCSolver::WAVE_FUNCTION_BERYLLIUM_2;
+    static const int LOCAL_ENERGY_GENERIC = VMCSolver::LOCAL_ENERGY_GENERIC;
+    static const int LOCAL_ENERGY_HELIUM_1 = VMCSolver::LOCAL_ENERGY_HELIUM_1;
+    static const int LOCAL_ENERGY_HELIUM_2 = VMCSolver::LOCAL_ENERGY_HELIUM_2;
+    static const int LOCAL_ENERGY_HYDROGEN = VMCSolver::LOCAL_ENERGY_HYDROGEN;
+    static const int LOCAL_ENERGY_GENERIC_NOCOR =
+        VMCSolver::LOCAL_ENERGY_GENERIC_NOCOR;
+    static const int LOCAL_ENERGY_SLATER = VMCSolver::LOCAL_ENERGY_SLATER;
+    static const int LOCAL_ENERGY_SLATER_NOCOR =
+        VMCSolver::LOCAL_ENERGY_SLATER_NOCOR;
+    static const int WAVE_FUNCTION_1 = VMCSolver::WAVE_FUNCTION_1;
+    static const int WAVE_FUNCTION_2 = VMCSolver::WAVE_FUNCTION_2;
+    static const int WAVE_FUNCTION_BERYLLIUM_1 =
+        VMCSolver::WAVE_FUNCTION_BERYLLIUM_1;
+    static const int WAVE_FUNCTION_BERYLLIUM_2 =
+        VMCSolver::WAVE_FUNCTION_BERYLLIUM_2;
 
     void runIntegration();
     bool initSolver(VMCSolver& solver);
@@ -62,7 +66,6 @@ public:
     bool validateParamters();
     VMCSolver getInitializedSolver();
 
-
     int threads;
     // Paramters to the solver.
     double alpha;
@@ -92,14 +95,12 @@ public:
     bool efficientSlater;
     bool parallel;
 
-
     // Results from the solver
     Vector energyArray;
     double mean;
     double energy;
     double energySquared;
     double acceptanceRatio;
-
 };
 
-#endif // VMCSOLVER_H
+#endif  // VMCSOLVER_H

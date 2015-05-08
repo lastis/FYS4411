@@ -24,11 +24,14 @@ public:
     static const int WAVE_FUNCTION_2 = 9;
     static const int WAVE_FUNCTION_BERYLLIUM_1 = 10;
     static const int WAVE_FUNCTION_BERYLLIUM_2 = 11;
+
 private:
     void endOfSingleParticleStep(int cycle, int i);
     void endOfCycle(int cycle);
-    void updateQuantumForce(double** r, double* rAbs, double ** qForce,double factor);
+    void updateQuantumForce(double** r, double* rAbs, double** qForce,
+                            double factor);
     void updateSlater(int i);
+
 public:
     VMCSolver();
 
@@ -42,8 +45,6 @@ public:
 
     bool runIntegration();
     bool initRunVariables();
-
-    /* static void initWaveFunctions(VMCSolver& solver); */
 
     void runStep(int cycle);
     void runStepSlater(int cycle);
@@ -82,7 +83,6 @@ public:
     double D;
     double rMax;
     int bins;
-
 
     std::mt19937 gen;
     std::uniform_real_distribution<double> dist_uniform;
@@ -141,5 +141,4 @@ public:
     double* pEnergyArray;
 };
 
-#endif // VMCSOLVER_H
-
+#endif  // VMCSOLVER_H
