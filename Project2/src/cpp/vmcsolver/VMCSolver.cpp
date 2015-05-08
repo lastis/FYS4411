@@ -35,7 +35,6 @@ bool VMCSolver::runIntegration()
     }
     else if (importanceSampling == true && efficientSlater == true)
     {
-        cout << "This step has not been implemented yet. " << endl;
         for (int cycle = 0; cycle < nCycles; cycle++)
         {
             runStepSlaterQuantum(cycle);
@@ -93,6 +92,7 @@ bool VMCSolver::runIntegration()
 
 void VMCSolver::runStepSlaterQuantum(int cycle)
 {
+    startOfCycleSlaterQuantum();
     for (int i = 0; i < nParticles; i++)
     {
         runSingleStepSlaterQuantum(i, cycle);
@@ -103,7 +103,6 @@ void VMCSolver::runStepSlaterQuantum(int cycle)
 
 void VMCSolver::runSingleStepQuantum(int i, int cycle)
 {
-    double greensFunction;
     rAbsNew[i] = 0;
     for (int j = 0; j < nDimensions; j++)
     {
@@ -112,18 +111,6 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
         rAbsNew[i] += prNew[i][j] * prNew[i][j];
     }
     rAbsNew[i] = sqrt(rAbsNew[i]);
-    // For the other particles we need to set the position to the old
-    // position since we move only one particle at the time.
-    for (int k = 0; k < nParticles; k++)
-    {
-        if (k != i)
-        {
-            for (int j = 0; j < nDimensions; j++)
-            {
-                prNew[k][j] = prOld[k][j];
-            }
-        }
-    }
 
     // Recalculate the value of the wave function
     waveFuncValNew = getWaveFuncVal(prNew, rAbsNew);
@@ -140,31 +127,31 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
              prNew[i][j] + prOld[i][j]);
     }
     greensFunction = exp(greensFunction);
+    ratio = greensFunction * (waveFuncValNew * waveFuncValNew) /
+            (waveFuncValOld * waveFuncValOld);
 
     // Check for step acceptance (if yes,
     // update position, if no, reset position)
     // The metropolis test is performed by moving one particle at the time.
-    if (dist_uniform(gen) <= greensFunction *
-                                 (waveFuncValNew * waveFuncValNew) /
-                                 (waveFuncValOld * waveFuncValOld))
+    if (dist_uniform(gen) <= ratio)
     {
         for (int j = 0; j < nDimensions; j++)
         {
             prOld[i][j] = prNew[i][j];
             rAbsOld[i] = rAbsNew[i];
             pqForceOld[i][j] = pqForceNew[i][j];
-            waveFuncValOld = waveFuncValNew;
         }
+        waveFuncValOld = waveFuncValNew;
         accepts++;
     }
     else
     {
-        for (int j = 0; j < nDimensions; j++)
-        {
-            prNew[i][j] = prOld[i][j];
-            rAbsNew[i] = rAbsOld[i];
-            pqForceNew[i][j] = pqForceOld[i][j];
-        }
+        /* for (int j = 0; j < nDimensions; j++) */
+        /* { */
+        /*     prNew[i][j] = prOld[i][j]; */
+        /*     rAbsNew[i] = rAbsOld[i]; */
+        /*     pqForceNew[i][j] = pqForceOld[i][j]; */
+        /* } */
         rejects++;
     }
     // update energies
@@ -173,10 +160,7 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
 
 void VMCSolver::runStepQuantum(int cycle)
 {
-    // Store the current value of the wave function
-    waveFuncValOld = getWaveFuncVal(prOld, rAbsOld);
-    updateQuantumForce(prOld, rAbsOld, pqForceOld, waveFuncValOld);
-
+    startOfCycleQuantum();
     // New position to test
     for (int i = 0; i < nParticles; i++)
     {
@@ -241,8 +225,92 @@ double VMCSolver::getCorrelationRatio(int i)
     return exp(valNew - valOld);
 }
 
+void VMCSolver::startOfCycleQuantum()
+{
+    // Store the current value of the wave function
+    waveFuncValOld = getWaveFuncVal(prOld, rAbsOld);
+    updateQuantumForce(prOld, rAbsOld, pqForceOld, waveFuncValOld);
+}
+
+void VMCSolver::startOfCycleSlaterQuantum()
+{
+    updateQuantumForceSlater(prOld, rAbsOld, pqForceOld);
+}
+
 void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
 {
+    // New position to test
+    rAbsNew[i] = 0;
+    for (int j = 0; j < nDimensions; j++)
+    {
+        prNew[i][j] = prOld[i][j] + dist_gauss(gen) * sqrt(timeStep) +
+                      pqForceOld[i][j] * timeStep * D;
+        rAbsNew[i] += prNew[i][j] * prNew[i][j];
+    }
+    rAbsNew[i] = sqrt(rAbsNew[i]);
+    double ratioTmp = 0;
+    for (int j = 0; j < nHalf; j++)
+    {
+        if (i < nHalf)
+            ratioTmp += phi(j, prNew[i], rAbsNew[i]) * pslater1Inv[j][i];
+        else
+            ratioTmp +=
+                phi(j, prNew[i], rAbsNew[i]) * pslater2Inv[j][i - nHalf];
+    }
+    if (usingCorrelation)
+    {
+        ratio = ratioTmp * getCorrelationRatio(i);
+        ratio = ratio * ratio;
+    }
+    else
+        ratio = ratioTmp * ratioTmp;
+
+    // Update the quantum force.
+    updateQuantumForceSlater(prNew, rAbsNew, pqForceNew);
+    // Compute the log ratio of the greens functions to be used in the
+    // Metropolis-Hastings algorithm.
+    greensFunction = 0;
+    for (int j = 0; j < nDimensions; j++)
+    {
+        greensFunction +=
+            0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) *
+            (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) -
+             prNew[i][j] + prOld[i][j]);
+    }
+    greensFunction = exp(greensFunction);
+
+    // Check for step acceptance (if yes,
+    // update position, if no, reset position)
+    // The metropolis test is performed by moving one particle at the time.
+    if (dist_uniform(gen) <= greensFunction * ratio)
+    {
+        for (int j = 0; j < nDimensions; j++)
+        {
+            prOld[i][j] = prNew[i][j];
+            pqForceOld[i][j] = pqForceNew[i][j];
+        }
+        rAbsOld[i] = rAbsNew[i];
+        // Update the i'th particle (row) in the slater matrix.
+        updateSlater(i);
+        // Update the inverse of the slater matrix.
+        if (i < nHalf)
+            pMatOp::updateInverse(i, ratioTmp, pslater1, pslater1Inv, nHalf);
+        else
+            pMatOp::updateInverse(i - nHalf, ratioTmp, pslater2, pslater2Inv,
+                                  nHalf);
+        accepts++;
+    }
+    else
+    {
+        /* for (int j = 0; j < nDimensions; j++) */
+        /* { */
+        /*     prNew[i][j] = prOld[i][j]; */
+        /*     pqForceNew[i][j] = pqForceOld[i][j]; */
+        /* } */
+        /* rAbsNew[i] = rAbsOld[i]; */
+        rejects++;
+    }
+    endOfSingleParticleStep(cycle, i);
 }
 
 void VMCSolver::runSingleStepSlater(int i, int cycle)
@@ -566,11 +634,11 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i)
 {
     // update energies
     if (localEnergyFunction == LOCAL_ENERGY_SLATER)
-        deltaE = getLocalEnergySlater(prNew, rAbsNew);
+        deltaE = getLocalEnergySlater(prOld, rAbsOld);
     else if (localEnergyFunction == LOCAL_ENERGY_SLATER_NOCOR)
-        deltaE = getLocalEnergySlaterNoCor(prNew, rAbsNew);
+        deltaE = getLocalEnergySlaterNoCor(prOld, rAbsOld);
     else
-        deltaE = getLocalEnergy(prNew, rAbsNew);
+        deltaE = getLocalEnergy(prOld, rAbsOld);
     energySum += deltaE;
     energySquaredSum += deltaE * deltaE;
 
@@ -585,7 +653,7 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i)
         double rAbs = 0;
         for (int j = 0; j < nDimensions; j++)
         {
-            rAbs += prNew[i][j] * prNew[i][j];
+            rAbs += prOld[i][j] * prOld[i][j];
         }
         rAbs = sqrt(rAbs);
         pPositions[i][cycle] = rAbs;
@@ -598,13 +666,118 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i)
         double rsq = 0;
         for (int j = 0; j < nDimensions; j++)
         {
-            rsq += prNew[i][j] * prNew[i][j];
+            rsq += prOld[i][j] * prOld[i][j];
         }
         double rAbs = sqrt(rsq);
         if (rAbs < rMax)
         {
             bin = rAbs / rMax * bins;
             pDensity[i][bin] += 1;
+        }
+    }
+}
+
+void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
+                                         double** qForce)
+{
+    /* double rkVec[nDimensions]; */
+    /* double rkjVec[nDimensions]; */
+    /* double rkjAbs; */
+    /* double rkGrad[nDimensions]; */
+    if (usingCorrelation)
+    {
+        /* for (int k = 0; k < nParticles; k++) */
+        /* { */
+        /*     // Reset rkVec. */
+        /*     for (int x = 0; x < nDimensions; x++) */
+        /*     { */
+        /*         rkVec[x] = 0; */
+        /*     } */
+        /*     // Calculate rkVec. */
+        /*     for (int j = 0; j < nParticles; j++) */
+        /*     { */
+        /*         if (j == k) continue; */
+        /*         spinK = k / nHalf; */
+        /*         spinJ = j / nHalf; */
+        /*         switch (spinK + spinJ) */
+        /*         { */
+        /*             case 0: */
+        /*                 a1 = 0.25; */
+        /*                 break; */
+        /*             case 1: */
+        /*                 a1 = 0.5; */
+        /*                 break; */
+        /*             case 2: */
+        /*                 a1 = 0.25; */
+        /*                 break; */
+        /*         } */
+        /*         rkjAbs = 0; */
+        /*         for (int x = 0; x < nDimensions; x++) */
+        /*         { */
+        /*             rkjVec[x] = r[j][x] - r[k][x]; */
+        /*             rkjAbs += rkjVec[x] * rkjVec[x]; */
+        /*         } */
+        /*         rkjAbs = sqrt(rkjAbs); */
+        /*         bkj = 1 / (1 + beta * rkjAbs); */
+        /*         // Calculate the final vector, the gradient of the correction
+         */
+        /*         // function. */
+        /*         for (int x = 0; x < nDimensions; x++) */
+        /*         { */
+        /*             rkVec[x] -= rkjVec[x] * a1 * bkj * bkj / rkjAbs; */
+        /*         } */
+        /*     } */
+        /*     tmp = 0; */
+        /*     // Reset rkGrad. */
+        /*     for (int x = 0; x < nDimensions; x++) */
+        /*     { */
+        /*         rkGrad[x] = 0; */
+        /*     } */
+        /*     // Calculate rkGrad. */
+        /*     for (int x = 0; x < nDimensions; x++) */
+        /*     { */
+        /*         /1* rkGrad[x] = r[k][x]*tmp/rAbs[k]; *1/ */
+        /*         for (int j = 0; j < nHalf; j++) */
+        /*         { */
+        /*             if (k < nHalf) */
+        /*                 rkGrad[x] += phiD(j, r[k], rAbs[k], x) *
+         * pslater1Inv[j][k]; */
+        /*             else */
+        /*                 rkGrad[x] += */
+        /*                     phiD(j, r[k], rAbs[k], x) * pslater2Inv[j][k -
+         * nHalf]; */
+        /*         } */
+        /*     } */
+        /*     // Calculate DC. */
+        /*     for (int x = 0; x < nDimensions; x++) */
+        /*     { */
+        /*         DC += rkVec[x] * rkGrad[x]; */
+        /*     } */
+        /* } */
+    }
+    // Not using correlation.
+    else
+    {
+        for (int k = 0; k < nParticles; k++)
+        {
+            // Reset qForce.
+            for (int x = 0; x < nDimensions; x++)
+            {
+                qForce[k][x] = 0;
+            }
+            // Calculate.
+            for (int x = 0; x < nDimensions; x++)
+            {
+                for (int j = 0; j < nHalf; j++)
+                {
+                    if (k < nHalf)
+                        qForce[k][x] +=
+                            phiD(j, r[k], rAbs[k], x) * pslater1Inv[j][k];
+                    else
+                        qForce[k][x] += phiD(j, r[k], rAbs[k], x) *
+                                        pslater2Inv[j][k - nHalf];
+                }
+            }
         }
     }
 }

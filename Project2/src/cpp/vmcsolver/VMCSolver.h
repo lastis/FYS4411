@@ -30,6 +30,7 @@ private:
     void endOfCycle(int cycle);
     void updateQuantumForce(double** r, double* rAbs, double** qForce,
                             double factor);
+    void updateQuantumForceSlater(double** r, double* rAbs, double** qForce);
     void updateSlater(int i);
 
 public:
@@ -45,6 +46,10 @@ public:
 
     bool runIntegration();
     bool initRunVariables();
+
+    void startOfCycle();
+    void startOfCycleQuantum();
+    void startOfCycleSlaterQuantum();
 
     void runStep(int cycle);
     void runStepSlater(int cycle);
@@ -97,6 +102,7 @@ public:
     double deltaE;
     double waveFuncValOld;
     double waveFuncValNew;
+    double greensFunction;
     double ratio;
     int nHalf;
 

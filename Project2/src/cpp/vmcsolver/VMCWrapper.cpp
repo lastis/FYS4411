@@ -8,8 +8,10 @@ VMCWrapper::VMCWrapper(){
 }
 
 VMCSolver VMCWrapper::getInitializedSolver(){
+    validateParamters();
     VMCSolver solver = VMCSolver();
     initSolver(solver);
+    solver.initRunVariables();
     return solver;
 }
 

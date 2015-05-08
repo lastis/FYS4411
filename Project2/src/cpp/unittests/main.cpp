@@ -346,18 +346,29 @@ SUITE(VMCWrapper){
         solver.idum = 1;
         solver.useEfficientSlater(true);
         solver.useLocalEnergyGenericNoCor();
+        solver.useWaveFunctionBeryllium1();
         VMCSolver solverUnique1 = solver.getInitializedSolver();
         solver.useLocalEnergySlater();
         VMCSolver solverUnique2 = solver.getInitializedSolver();
-        // This will initialize the slater matrix and the initial 
-        // positions. 
-        solverUnique1.initRunVariables();
-        solverUnique2.initRunVariables();
         // Check that the positions are the same for the two different solvers.
         for (int i = 0; i < solverUnique1.nParticles; i++) {
             CHECK_EQUAL(solverUnique1.prOld[i][0], solverUnique2.prOld[i][0]);
         }
 
+        // Do the same for importance sampling. 
+        solver.useImportanceSampling(true);
+        solver.timeStep = 0.001;
+        solver.D = 0.5;
+        solver.useLocalEnergySlater();
+        solver.useEfficientSlater(true);
+        VMCSolver solverUnique3 = solver.getInitializedSolver();
+        solver.useLocalEnergyGeneric();
+        solver.useEfficientSlater(false);
+        solver.useWaveFunctionBeryllium2();
+        VMCSolver solverUnique4 = solver.getInitializedSolver();
+        for (int i = 0; i < solverUnique1.nParticles; i++) {
+            CHECK_EQUAL(solverUnique3.prOld[i][0], solverUnique4.prOld[i][0]);
+        }
     }
 
     TEST(HeliumLocalEnergy){
@@ -395,6 +406,59 @@ SUITE(VMCWrapper){
         localEnergy1 = wave_functions::getLocalEnergyGenericNoCor(r1,r1Abs);
         localEnergy2 = wave_functions::getLocalEnergyHeliumNoCor(r2,r2Abs);
         CHECK_CLOSE(localEnergy1,localEnergy2, 0.0001);
+    }
+
+    TEST(QuantumSlaterVsNormalGreensFunctionNoCor){
+        VMCWrapper solver = VMCWrapper();
+        solver.charge = 4; 
+        solver.alpha = 4.6;
+        solver.beta = 1;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+
+        solver.useImportanceSampling(true);
+        solver.timeStep = 0.001;
+        solver.D = 0.5;
+
+        solver.useWaveFunctionBeryllium1();
+        solver.useLocalEnergyGenericNoCor();
+        VMCSolver solverUnique1 = solver.getInitializedSolver();
+        solver.useEfficientSlater(true);
+        solver.useLocalEnergySlaterNoCor();
+        VMCSolver solverUnique2 = solver.getInitializedSolver();
+        // This will initialize the slater matrix and the initial 
+        // positions. 
+        solverUnique1.initRunVariables();
+        solverUnique2.initRunVariables();
+
+        using namespace wave_functions;
+        initWaveFunctions(solverUnique1);
+        // Check that the ratios are the same for the normal step and the 
+        // efficient slater step.
+        double ratio1, ratio2;
+        double rx1, rx2;
+        int cycles = 1;
+        int particles = 1;
+        for (int i = 0; i < cycles; i++) {
+            solverUnique1.startOfCycleQuantum();
+            solverUnique2.startOfCycleSlaterQuantum();
+            for (int j = 0; j < particles; j++) {
+                solverUnique1.runSingleStepQuantum(j,i);
+                solverUnique2.runSingleStepSlaterQuantum(j,i);
+                ratio1 = solverUnique1.greensFunction;
+                ratio2 = solverUnique2.greensFunction;
+                rx1 = solverUnique1.prNew[j][0];
+                rx2 = solverUnique2.prNew[j][0];
+                // Check that the particles have the same positions. 
+                CHECK_CLOSE(rx1,rx2,0.000001);
+                CHECK_CLOSE(ratio1,ratio2,0.000001);
+            }
+        }
     }
 
     TEST(SlaterVsNormalRatio){
