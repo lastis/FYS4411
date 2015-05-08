@@ -145,6 +145,7 @@ public:
     double** pDensity;
     Vector energyArray;
     double* pEnergyArray;
+
 };
 
 #endif  // VMCSOLVER_H

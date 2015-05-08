@@ -790,23 +790,45 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
     double waveFunctionCurrent;
     waveFunctionCurrent = getWaveFuncVal(r, rAbs);
 
-    double rPlus;
-    double rMinus;
     double r0;
+    double rAbs0;
     // Kinetic energy
     for (int i = 0; i < nParticles; i++)
     {
         for (int j = 0; j < nDimensions; j++)
         {
-            rPlus = r[i][j] + h;
-            rMinus = r[i][j] - h;
+            // Save the current position of the particle. 
             r0 = r[i][j];
+            rAbs0 = 0;
+            for (int x = 0; x < nDimensions; x++) 
+            {
+                rAbs0 += r[i][x]*r[i][x];
+            }
+            rAbs0 = sqrt(rAbs0);
 
-            r[i][j] = rMinus;
+            // Evaluate at plus h. 
+            r[i][j] = r0 - h;
+            rAbs[i] = 0;
+            for (int x = 0; x < nDimensions; x++) 
+            {
+                rAbs[i] += r[i][x]*r[i][x];
+            }
+            rAbs[i] = sqrt(rAbs[i]);
             waveFunctionMinus = getWaveFuncVal(r, rAbs);
-            r[i][j] = rPlus;
+
+            // Evaluate at minus h.
+            r[i][j] = r0 + h;
+            rAbs[i] = 0;
+            for (int x = 0; x < nDimensions; x++) 
+            {
+                rAbs[i] += r[i][x]*r[i][x];
+            }
+            rAbs[i] = sqrt(rAbs[i]);
             waveFunctionPlus = getWaveFuncVal(r, rAbs);
+
+            // Reset position. 
             r[i][j] = r0;
+            rAbs[i] = rAbs0;
             qForce[i][j] = (waveFunctionPlus - waveFunctionMinus) * h / factor;
         }
     }
