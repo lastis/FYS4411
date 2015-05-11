@@ -138,20 +138,20 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
         for (int j = 0; j < nDimensions; j++)
         {
             prOld[i][j] = prNew[i][j];
-            rAbsOld[i] = rAbsNew[i];
             pqForceOld[i][j] = pqForceNew[i][j];
         }
+        rAbsOld[i] = rAbsNew[i];
         waveFuncValOld = waveFuncValNew;
         accepts++;
     }
     else
     {
-        /* for (int j = 0; j < nDimensions; j++) */
-        /* { */
-        /*     prNew[i][j] = prOld[i][j]; */
-        /*     rAbsNew[i] = rAbsOld[i]; */
-        /*     pqForceNew[i][j] = pqForceOld[i][j]; */
-        /* } */
+        for (int j = 0; j < nDimensions; j++)
+        {
+            prNew[i][j] = prOld[i][j];
+            pqForceNew[i][j] = pqForceOld[i][j];
+        }
+        rAbsNew[i] = rAbsOld[i];
         rejects++;
     }
     // update energies
@@ -224,6 +224,13 @@ double VMCSolver::getCorrelationRatio(int i)
     }
     return exp(valNew - valOld);
 }
+
+void VMCSolver::startOfCycle()
+{
+    // Store the current value of the wave function
+    waveFuncValOld = wave_functions::getWaveFuncVal(prOld, rAbsOld);
+}
+
 
 void VMCSolver::startOfCycleQuantum()
 {
@@ -302,12 +309,12 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
     }
     else
     {
-        /* for (int j = 0; j < nDimensions; j++) */
-        /* { */
-        /*     prNew[i][j] = prOld[i][j]; */
-        /*     pqForceNew[i][j] = pqForceOld[i][j]; */
-        /* } */
-        /* rAbsNew[i] = rAbsOld[i]; */
+        for (int j = 0; j < nDimensions; j++)
+        {
+            prNew[i][j] = prOld[i][j];
+            pqForceNew[i][j] = pqForceOld[i][j];
+        }
+        rAbsNew[i] = rAbsOld[i];
         rejects++;
     }
     endOfSingleParticleStep(cycle, i);
@@ -401,7 +408,6 @@ void VMCSolver::runSingleStep(int i, int cycle)
             prNew[i][j] = prOld[i][j];
         }
         rAbsNew[i] = rAbsOld[i];
-        waveFuncValNew = waveFuncValOld;
         rejects++;
     }
     // update energies
@@ -420,8 +426,6 @@ void VMCSolver::runStepSlater(int cycle)
 
 void VMCSolver::runStep(int cycle)
 {
-    // Store the current value of the wave function
-    waveFuncValOld = wave_functions::getWaveFuncVal(prOld, rAbsOld);
     // New position to test
     for (int i = 0; i < nParticles; i++)
     {

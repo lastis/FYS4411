@@ -19,10 +19,10 @@ try :
 except OSError:
     pass
 
+beta = 1
+alphaArray = np.linspace(2.5,4.5,11)
 nCycles = 1e5
-blockSize = 100
-alphaArray = np.linspace(2.0,5.0,11)
-beta = 1;
+blockSize = nCycles/10
 
 
 # Save the alpha values.

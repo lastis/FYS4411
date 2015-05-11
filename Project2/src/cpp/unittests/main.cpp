@@ -332,44 +332,44 @@ SUITE(VMCWrapper){
         CHECK_EQUAL(solver.alpha,solverUnique.alpha);
     }
 
-    /* TEST(RngPositions){ */
-    /*     VMCWrapper solver = VMCWrapper(); */
-    /*     solver.charge = 4; */ 
-    /*     solver.alpha = 3.75; */
-    /*     solver.beta = 0.8; */
-    /*     solver.nDimensions = 3; */
-    /*     solver.nParticles = 4; */
-    /*     solver.stepLength = 1.52; */
-    /*     solver.nCycles = 1000; */
-    /*     solver.h = 0.001; */
-    /*     solver.h2 = 1e+06; */
-    /*     solver.idum = 1; */
-    /*     solver.useEfficientSlater(true); */
-    /*     solver.useLocalEnergyGenericNoCor(); */
-    /*     solver.useWaveFunctionBeryllium1(); */
-    /*     VMCSolver solverUnique1 = solver.getInitializedSolver(); */
-    /*     solver.useLocalEnergySlater(); */
-    /*     VMCSolver solverUnique2 = solver.getInitializedSolver(); */
-    /*     // Check that the positions are the same for the two different solvers. */
-    /*     for (int i = 0; i < solverUnique1.nParticles; i++) { */
-    /*         CHECK_EQUAL(solverUnique1.prOld[i][0], solverUnique2.prOld[i][0]); */
-    /*     } */
+    TEST(RngPositions){
+        VMCWrapper solver = VMCWrapper();
+        solver.charge = 4; 
+        solver.alpha = 3.75;
+        solver.beta = 0.8;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.useEfficientSlater(true);
+        solver.useLocalEnergyGenericNoCor();
+        solver.useWaveFunctionBeryllium1();
+        VMCSolver solverUnique1 = solver.getInitializedSolver();
+        solver.useLocalEnergySlater();
+        VMCSolver solverUnique2 = solver.getInitializedSolver();
+        // Check that the positions are the same for the two different solvers.
+        for (int i = 0; i < solverUnique1.nParticles; i++) {
+            CHECK_EQUAL(solverUnique1.prOld[i][0], solverUnique2.prOld[i][0]);
+        }
 
-    /*     // Do the same for importance sampling. */ 
-    /*     solver.useImportanceSampling(true); */
-    /*     solver.timeStep = 0.001; */
-    /*     solver.D = 0.5; */
-    /*     solver.useLocalEnergySlater(); */
-    /*     solver.useEfficientSlater(true); */
-    /*     VMCSolver solverUnique3 = solver.getInitializedSolver(); */
-    /*     solver.useLocalEnergyGeneric(); */
-    /*     solver.useEfficientSlater(false); */
-    /*     solver.useWaveFunctionBeryllium2(); */
-    /*     VMCSolver solverUnique4 = solver.getInitializedSolver(); */
-    /*     for (int i = 0; i < solverUnique1.nParticles; i++) { */
-    /*         CHECK_EQUAL(solverUnique3.prOld[i][0], solverUnique4.prOld[i][0]); */
-    /*     } */
-    /* } */
+        // Do the same for importance sampling. 
+        solver.useImportanceSampling(true);
+        solver.timeStep = 0.001;
+        solver.D = 0.5;
+        solver.useLocalEnergySlater();
+        solver.useEfficientSlater(true);
+        VMCSolver solverUnique3 = solver.getInitializedSolver();
+        solver.useLocalEnergyGeneric();
+        solver.useEfficientSlater(false);
+        solver.useWaveFunctionBeryllium2();
+        VMCSolver solverUnique4 = solver.getInitializedSolver();
+        for (int i = 0; i < solverUnique1.nParticles; i++) {
+            CHECK_EQUAL(solverUnique3.prOld[i][0], solverUnique4.prOld[i][0]);
+        }
+    }
 
     TEST(HeliumLocalEnergy){
         VMCWrapper solver = VMCWrapper();
@@ -492,11 +492,7 @@ SUITE(VMCWrapper){
         int cycles = 10;
         int particles = 4;
         for (int i = 0; i < cycles; i++) {
-            // Hack to update the first old wavefunction value. 
-            double** r = solverUnique1.prOld;
-            double* rAbs = solverUnique1.rAbsOld;
-            solverUnique1.waveFuncValOld 
-                = wave_functions::getWaveBeryllium(r,rAbs);
+            solverUnique1.startOfCycle();
             for (int j = 0; j < particles; j++) {
                 solverUnique1.runSingleStep(j,i);
                 solverUnique2.runSingleStepSlater(j,i);
@@ -537,11 +533,7 @@ SUITE(VMCWrapper){
         int cycles = 10;
         int particles = 4;
         for (int i = 0; i < cycles; i++) {
-            // Hack to update the first old wavefunction value. 
-            double** r = solverUnique1.prOld;
-            double* rAbs = solverUnique1.rAbsOld;
-            solverUnique1.waveFuncValOld 
-                = wave_functions::getWaveBeryllium(r,rAbs);
+            solverUnique1.startOfCycle();
             for (int j = 0; j < particles; j++) {
                 solverUnique1.runSingleStep(j,i);
                 solverUnique2.runSingleStepSlater(j,i);
