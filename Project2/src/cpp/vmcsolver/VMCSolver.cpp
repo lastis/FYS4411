@@ -785,11 +785,8 @@ void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
 void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
                                    double factor)
 {
-    double waveFunctionMinus = 0;
-    double waveFunctionPlus = 0;
-    double waveFunctionCurrent;
-    waveFunctionCurrent = getWaveFuncVal(r, rAbs);
-
+    double waveFunctionMinus;
+    double waveFunctionPlus;
     double r0;
     double rAbs0;
     // Kinetic energy
@@ -1135,7 +1132,6 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
         // Calculate rkGrad.
         for (int x = 0; x < nDimensions; x++)
         {
-            /* rkGrad[x] = r[k][x]*tmp/rAbs[k]; */
             for (int j = 0; j < nHalf; j++)
             {
                 if (k < nHalf)

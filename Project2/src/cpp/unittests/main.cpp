@@ -456,8 +456,8 @@ SUITE(VMCWrapper){
                 rx1 = solverUnique1.prNew[j][0];
                 rx2 = solverUnique2.prNew[j][0];
                 // Check that the particles have the same positions. 
-                CHECK_CLOSE(rx1,rx2,0.000001);
-                CHECK_CLOSE(ratio1,ratio2,0.000001);
+                CHECK_CLOSE(rx1,rx2,0.001);
+                CHECK_CLOSE(ratio1,ratio2,0.001);
             }
         }
     }
@@ -534,8 +534,8 @@ SUITE(VMCWrapper){
         // Check that the ratios are the same for the normal step and the 
         // efficient slater step.
         double energy1, energy2;
-        int cycles = 1;
-        int particles = 1;
+        int cycles = 10;
+        int particles = 4;
         for (int i = 0; i < cycles; i++) {
             // Hack to update the first old wavefunction value. 
             double** r = solverUnique1.prOld;
@@ -547,7 +547,7 @@ SUITE(VMCWrapper){
                 solverUnique2.runSingleStepSlater(j,i);
                 energy1 = solverUnique1.deltaE;
                 energy2 = solverUnique2.deltaE;
-                CHECK_CLOSE(energy1,energy2,0.0001);
+                CHECK_CLOSE(energy1,energy2,0.001);
             }
         }
     }
@@ -594,7 +594,7 @@ SUITE(VMCWrapper){
         // Check that the ratios are the same for the normal step and the 
         // efficient slater step.
         double ratio1, ratio2;
-        int cycles = 1;
+        int cycles = 10;
         int particles = 4;
         for (int i = 0; i < cycles; i++) {
             // Hack to update the first old wavefunction value. 
@@ -638,7 +638,7 @@ SUITE(VMCWrapper){
         // Check that the ratios are the same for the normal step and the 
         // efficient slater step.
         double energy1, energy2;
-        int cycles = 1;
+        int cycles = 10;
         int particles = 4;
         for (int i = 0; i < cycles; i++) {
             // Hack to update the first old wavefunction value. 
@@ -651,7 +651,7 @@ SUITE(VMCWrapper){
                 solverUnique2.runSingleStepSlater(j,i);
                 energy1 = solverUnique1.deltaE;
                 energy2 = solverUnique2.deltaE;
-                CHECK_CLOSE(energy1,energy2,0.0001);
+                CHECK_CLOSE(energy1,energy2,0.001);
             }
         }
     }
@@ -781,109 +781,109 @@ SUITE(VMCWrapper){
 
 }
 
-/* SUITE(Helium){ */
-/*     VMCWrapper solver = VMCWrapper(); */
-/*     double energy; */
+SUITE(Helium){
+    VMCWrapper solver = VMCWrapper();
+    double energy;
 
-/*     TEST(Instantiate){ */
-/*         solver.charge = 2; */
-/*         solver.alpha = 1.66; */
-/*         solver.beta = 0.8; */
-/*         solver.nDimensions = 3; */
-/*         solver.nParticles = 2; */
-/*         solver.stepLength = 1.52; */
-/*         solver.nCycles = 10000; */
-/*         solver.waveFunction = solver.WAVE_FUNCTION_2; */
-/*         solver.h = 0.001; */
-/*         solver.h2 = 1e+06; */
-/*         solver.idum = 1; */
-/*         solver.localEnergyFunction = solver.LOCAL_ENERGY_HELIUM_2; */
-/*     } */
+    TEST(Instantiate){
+        solver.charge = 2;
+        solver.alpha = 1.66;
+        solver.beta = 0.8;
+        solver.nDimensions = 3;
+        solver.nParticles = 2;
+        solver.stepLength = 1.52;
+        solver.nCycles = 10000;
+        solver.waveFunction = solver.WAVE_FUNCTION_2;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+        solver.localEnergyFunction = solver.LOCAL_ENERGY_HELIUM_2;
+    }
 
-/*     TEST(h0LocalGenergic){ */
-/*         solver.alpha = 2; */
-/*         solver.waveFunction = solver.WAVE_FUNCTION_1; */
-/*         solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR; */
-/*         solver.supressOutput(); */
-/*         solver.runIntegration(); */
-/*         energy = solver.getEnergy(); */
-/*         CHECK_CLOSE(-4,energy,0.1); */
-/*     } */
+    TEST(h0LocalGenergic){
+        solver.alpha = 2;
+        solver.waveFunction = solver.WAVE_FUNCTION_1;
+        solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR;
+        solver.supressOutput();
+        solver.runIntegration();
+        energy = solver.getEnergy();
+        CHECK_CLOSE(-4,energy,0.1);
+    }
 
-/*     TEST(h0LocalAnalytic){ */
-/*         solver.alpha = 2; */
-/*         solver.waveFunction = solver.WAVE_FUNCTION_1; */
-/*         solver.useLocalEnergyHelium1(); */
-/*         solver.supressOutput(); */
-/*         solver.runIntegration(); */
-/*         energy = solver.getEnergy(); */
-/*         CHECK_CLOSE(-4,energy,0.1); */
-/*     } */
+    TEST(h0LocalAnalytic){
+        solver.alpha = 2;
+        solver.waveFunction = solver.WAVE_FUNCTION_1;
+        solver.useLocalEnergyHelium1();
+        solver.supressOutput();
+        solver.runIntegration();
+        energy = solver.getEnergy();
+        CHECK_CLOSE(-4,energy,0.1);
+    }
 
-/*     TEST(WaveFunction2LocalEnergyGenergic){ */
-/*         solver.alpha = 1.66; */
-/*         solver.useWaveFunction2(); */
-/*         solver.useLocalEnergyGeneric(); */
-/*         solver.supressOutput(); */
-/*         solver.runIntegration(); */
-/*         energy = solver.getEnergy(); */
-/*         CHECK_CLOSE(-2.8,energy,0.2); */
-/*     } */
+    TEST(WaveFunction2LocalEnergyGenergic){
+        solver.alpha = 1.66;
+        solver.useWaveFunction2();
+        solver.useLocalEnergyGeneric();
+        solver.supressOutput();
+        solver.runIntegration();
+        energy = solver.getEnergy();
+        CHECK_CLOSE(-2.8,energy,0.2);
+    }
 
-/*     TEST(WaveFunction2LocalEnergyAnalytic){ */
-/*         solver.alpha = 1.66; */
-/*         solver.useWaveFunction2(); */
-/*         solver.useLocalEnergyHelium2(); */
-/*         solver.supressOutput(); */
-/*         solver.runIntegration(); */
-/*         energy = solver.getEnergy(); */
-/*         CHECK_CLOSE(-2.8,energy,0.2); */
-/*     } */
-/* } */
+    TEST(WaveFunction2LocalEnergyAnalytic){
+        solver.alpha = 1.66;
+        solver.useWaveFunction2();
+        solver.useLocalEnergyHelium2();
+        solver.supressOutput();
+        solver.runIntegration();
+        energy = solver.getEnergy();
+        CHECK_CLOSE(-2.8,energy,0.2);
+    }
+}
 
-/* SUITE(Beryllium){ */
-/*     VMCWrapper solver = VMCWrapper(); */
-/*     TEST(Initialize){ */
-/*         solver.charge = 4; */ 
-/*         solver.alpha = 3.75; */
-/*         solver.beta = 0.8; */
-/*         solver.nDimensions = 3; */
-/*         solver.nParticles = 4; */
-/*         solver.stepLength = 1.52; */
-/*         solver.nCycles = 1000; */
-/*         solver.h = 0.001; */
-/*         solver.h2 = 1e+06; */
-/*         solver.idum = 1; */
-/*     } */
+SUITE(Beryllium){
+    VMCWrapper solver = VMCWrapper();
+    TEST(Initialize){
+        solver.charge = 4; 
+        solver.alpha = 3.75;
+        solver.beta = 0.8;
+        solver.nDimensions = 3;
+        solver.nParticles = 4;
+        solver.stepLength = 1.52;
+        solver.nCycles = 1000;
+        solver.h = 0.001;
+        solver.h2 = 1e+06;
+        solver.idum = 1;
+    }
 
-/*     TEST(h0LocalGeneric){ */
-/*         solver.waveFunction = solver.WAVE_FUNCTION_BERYLLIUM_1; */
-/*         solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR; */
-/*         solver.supressOutput(); */
-/*         solver.runIntegration(); */
-/*         double energy = solver.getEnergy(); */
-/*         CHECK_CLOSE(-20,energy,0.5); */
-/*     } */
+    TEST(h0LocalGeneric){
+        solver.waveFunction = solver.WAVE_FUNCTION_BERYLLIUM_1;
+        solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR;
+        solver.supressOutput();
+        solver.runIntegration();
+        double energy = solver.getEnergy();
+        CHECK_CLOSE(-20,energy,0.5);
+    }
 
-/*     TEST(WaveFunction2LocalEnergyGeneric){ */
-/*         solver.useWaveFunctionBeryllium2(); */
-/*         solver.useLocalEnergyGeneric(); */
-/*         solver.supressOutput(); */
-/*         solver.runIntegration(); */
-/*         double energy = solver.getEnergy(); */
-/*         CHECK_CLOSE(-14.3,energy,0.5); */
-/*     } */
+    TEST(WaveFunction2LocalEnergyGeneric){
+        solver.useWaveFunctionBeryllium2();
+        solver.useLocalEnergyGeneric();
+        solver.supressOutput();
+        solver.runIntegration();
+        double energy = solver.getEnergy();
+        CHECK_CLOSE(-14.3,energy,0.5);
+    }
 
-/*     TEST(EfficientSlater){ */
-/*         solver.useEfficientSlater(true); */
-/*         solver.useLocalEnergyGeneric(); */
-/*         solver.useWaveFunctionBeryllium2(); */
-/*         solver.supressOutput(); */
-/*         solver.runIntegration(); */
-/*         double energy = solver.getEnergy(); */
-/*         CHECK_CLOSE(-14.3,energy,0.5); */
-/*     } */
-/* } */
+    TEST(EfficientSlater){
+        solver.useEfficientSlater(true);
+        solver.useLocalEnergyGeneric();
+        solver.useWaveFunctionBeryllium2();
+        solver.supressOutput();
+        solver.runIntegration();
+        double energy = solver.getEnergy();
+        CHECK_CLOSE(-14.3,energy,0.5);
+    }
+}
 
 int main()
 {
