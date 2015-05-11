@@ -440,8 +440,8 @@ SUITE(VMCWrapper){
         double rx1, rx2;
         int cycles = 1;
         int particles = 0;
-        int tmp1;
-        int tmp2;
+        double tmp1;
+        double tmp2;
         for (int i = 0; i < cycles; i++) {
             solverUnique1.startOfCycleQuantum();
             solverUnique2.startOfCycleSlaterQuantum();
