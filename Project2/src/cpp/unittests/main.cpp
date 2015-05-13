@@ -9,7 +9,8 @@ static void initWaveFunctions(VMCSolver& solver)
     wave_functions::beta = solver.beta;
     wave_functions::nDimensions = solver.nDimensions;
     wave_functions::h = solver.h;
-    wave_functions::h2 = solver.h2;
+    wave_functions::hInv = solver.hInv;
+    wave_functions::h2Inv = solver.h2Inv;
     wave_functions::charge = solver.charge;
     wave_functions::nParticles = solver.nParticles;
     wave_functions::nHalf = solver.nHalf;
@@ -301,7 +302,8 @@ SUITE(Hydrogen){
         solver.stepLength = 1.52;
         solver.nCycles = 10000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
     }
 
@@ -335,7 +337,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 10000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.useWaveFunction2();
         solver.useLocalEnergyHelium2();
@@ -354,7 +357,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.useEfficientSlater(true);
         solver.useLocalEnergyGenericNoCor();
@@ -392,7 +396,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.useWaveFunction1();
         VMCSolver solverUnique1 = solver.getInitializedSolver();
@@ -430,7 +435,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
 
         solver.useImportanceSampling(true);
@@ -451,7 +457,7 @@ SUITE(VMCWrapper){
         double ratio1, ratio2;
         double rx1, rx2;
         int cycles = 1;
-        int particles = 0;
+        int particles = 1;
         double tmp1;
         double tmp2;
         for (int i = 0; i < cycles; i++) {
@@ -459,16 +465,17 @@ SUITE(VMCWrapper){
             solverUnique2.startOfCycleSlaterQuantum();
             tmp1 = solverUnique1.pqForceOld[0][0];
             tmp2 = solverUnique2.pqForceOld[0][0];
-            CHECK_CLOSE(tmp1,tmp2,0.000001);
+            CHECK_CLOSE(tmp1,tmp2,0.01);
             for (int j = 0; j < particles; j++) {
+                // Check that the particles have the same positions. 
+                rx1 = solverUnique1.prNew[j][0];
+                rx2 = solverUnique2.prNew[j][0];
+                CHECK_CLOSE(rx1,rx2,0.001);
+                // Check the ratios.
                 solverUnique1.runSingleStepQuantum(j,i);
                 solverUnique2.runSingleStepSlaterQuantum(j,i);
                 ratio1 = solverUnique1.greensFunction;
                 ratio2 = solverUnique2.greensFunction;
-                rx1 = solverUnique1.prNew[j][0];
-                rx2 = solverUnique2.prNew[j][0];
-                // Check that the particles have the same positions. 
-                CHECK_CLOSE(rx1,rx2,0.001);
                 CHECK_CLOSE(ratio1,ratio2,0.001);
             }
         }
@@ -484,7 +491,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.useWaveFunctionBeryllium2();
         solver.useLocalEnergyGeneric();
@@ -525,7 +533,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.useWaveFunctionBeryllium2();
         solver.useLocalEnergyGeneric();
@@ -565,7 +574,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.useWaveFunctionBeryllium1();
         solver.useEfficientSlater(true);
@@ -625,7 +635,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.useWaveFunctionBeryllium1();
         solver.useLocalEnergyGenericNoCor();
@@ -669,7 +680,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.useWaveFunctionBeryllium1();
         solver.useEfficientSlater(true);
@@ -701,7 +713,8 @@ SUITE(VMCWrapper){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.useWaveFunctionBeryllium1();
         solver.useEfficientSlater(true);
@@ -783,6 +796,22 @@ SUITE(VMCWrapper){
         delete[] r;
     }
 
+    /* TEST(phiD){ */
+    /*     VMCWrapper solver = VMCWrapper(); */
+    /*     solver.nDimensions = 3; */
+    /*     solver.alpha = 3.75; */
+    /*     wave_functions::alpha = 3.75; */
+    /*     wave_functions::nDimensions = 3; */
+    /*     double* r = new double[3]; */
+    /*     r[0] = 0.5; */
+    /*     r[1] = 0.5; */
+    /*     r[2] = 0.5; */
+    /*     double rAbs = 0.8660254; */
+    /*     // Check that the function phi(j,r_i) works. */
+    /*     using namespace wave_functions; */
+    /*     CHECK_CLOSE(, phi1sD(r[0],rAbs), 0.00001); */
+    /*     delete[] r; */
+    /* } */
 }
 
 SUITE(Helium){
@@ -799,7 +828,8 @@ SUITE(Helium){
         solver.nCycles = 10000;
         solver.waveFunction = solver.WAVE_FUNCTION_2;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
         solver.localEnergyFunction = solver.LOCAL_ENERGY_HELIUM_2;
     }
@@ -856,7 +886,8 @@ SUITE(Beryllium){
         solver.stepLength = 1.52;
         solver.nCycles = 1000;
         solver.h = 0.001;
-        solver.h2 = 1e+06;
+        solver.hInv = 1e3;
+        solver.h2Inv = 1e6;
         solver.idum = 1;
     }
 

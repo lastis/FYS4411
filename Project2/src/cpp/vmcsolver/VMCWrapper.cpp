@@ -92,7 +92,8 @@ bool VMCWrapper::initSolver(VMCSolver& solver){
     solver.nParticles = nParticles;
     solver.stepLength = stepLength;
     solver.h = h;
-    solver.h2 = h2;
+    solver.hInv = hInv;
+    solver.h2Inv = h2Inv;
     solver.idum = idum;
     solver.timeStep = timeStep;
     solver.D = D;
@@ -157,7 +158,8 @@ bool VMCWrapper::initFromFile(std::string fName){
     myFile >> paramName >> discard >> nCycles;
     myFile >> paramName >> discard >> waveFunction;
     myFile >> paramName >> discard >> h;
-    myFile >> paramName >> discard >> h2;
+    myFile >> paramName >> discard >> hInv;
+    myFile >> paramName >> discard >> h2Inv;
     myFile >> paramName >> discard >> idum;
     myFile >> paramName >> discard >> localEnergyFunction;
     myFile >> paramName >> discard >> timeStep;
@@ -257,7 +259,8 @@ void VMCWrapper::clear(){
     stepLength = 0;
     nParticles = 0;
     h = 0;
-    h2 = 0;
+    hInv = 0;
+    h2Inv = 0;
     idum = 1;
     alpha = 0;
     beta = 0;
@@ -376,7 +379,8 @@ void VMCWrapper::exportParamters(std::string fName){
     myFile << "nCycles = " << nCycles << endl;
     myFile << "waveFunction = " << waveFunction << endl;
     myFile << "h = " << h << endl;
-    myFile << "h2 = " << h2 << endl;
+    myFile << "hInv = " << hInv << endl;
+    myFile << "h2Inv = " << h2Inv << endl;
     myFile << "idum = " << idum << endl;
     myFile << "localEnergyFunction = " << localEnergyFunction << endl;
     myFile << "timeStep = " << timeStep << endl;

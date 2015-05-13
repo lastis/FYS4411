@@ -107,10 +107,19 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
     for (int j = 0; j < nDimensions; j++)
     {
         prNew[i][j] = prOld[i][j] + dist_gauss(gen) * sqrt(timeStep) +
-                      pqForceOld[i][j] * timeStep * D;
+                      2 * pqForceOld[i][j] * timeStep * D;
         rAbsNew[i] += prNew[i][j] * prNew[i][j];
     }
     rAbsNew[i] = sqrt(rAbsNew[i]);
+
+    /* for (int k = 0; k < nParticles; k++) */ 
+    /* { */
+    /*     if (k == i) continue; */
+    /*     for (int x = 0; x < nDimensions; x++) */ 
+    /*     { */
+    /*         prNew[k][x] = prOld[k][x]; */
+    /*     } */
+    /* } */
 
     // Recalculate the value of the wave function
     waveFuncValNew = getWaveFuncVal(prNew, rAbsNew);
@@ -121,10 +130,14 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
     greensFunction = 0;
     for (int j = 0; j < nDimensions; j++)
     {
-        greensFunction +=
-            0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) *
-            (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) -
-             prNew[i][j] + prOld[i][j]);
+        greensFunction += (prNew[i][j] - prOld[i][j]) *
+                              (pqForceNew[i][j] + pqForceOld[i][j]) +
+                          D * timeStep * (pqForceNew[i][j] * pqForceNew[i][j] -
+                                          pqForceOld[i][j] * pqForceOld[i][j]);
+        /* greensFunction += */
+        /*     0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) * */
+        /*     (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) - */
+        /*      prNew[i][j] + prOld[i][j]); */
     }
     greensFunction = exp(greensFunction);
     ratio = greensFunction * (waveFuncValNew * waveFuncValNew) /
@@ -152,6 +165,7 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
             pqForceNew[i][j] = pqForceOld[i][j];
         }
         rAbsNew[i] = rAbsOld[i];
+        waveFuncValNew = waveFuncValOld;
         rejects++;
     }
     // update energies
@@ -231,7 +245,6 @@ void VMCSolver::startOfCycle()
     waveFuncValOld = wave_functions::getWaveFuncVal(prOld, rAbsOld);
 }
 
-
 void VMCSolver::startOfCycleQuantum()
 {
     // Store the current value of the wave function
@@ -251,10 +264,20 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
     for (int j = 0; j < nDimensions; j++)
     {
         prNew[i][j] = prOld[i][j] + dist_gauss(gen) * sqrt(timeStep) +
-                      pqForceOld[i][j] * timeStep * D;
+                      2*pqForceOld[i][j] * timeStep * D;
         rAbsNew[i] += prNew[i][j] * prNew[i][j];
     }
     rAbsNew[i] = sqrt(rAbsNew[i]);
+
+    /* for (int k = 0; k < nParticles; k++) */ 
+    /* { */
+    /*     if (k == i) continue; */
+    /*     for (int x = 0; x < nDimensions; x++) */ 
+    /*     { */
+    /*         prNew[k][x] = prOld[k][x]; */
+    /*     } */
+    /* } */
+
     double ratioTmp = 0;
     for (int j = 0; j < nHalf; j++)
     {
@@ -279,12 +302,18 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
     greensFunction = 0;
     for (int j = 0; j < nDimensions; j++)
     {
-        greensFunction +=
-            0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) *
-            (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) -
-             prNew[i][j] + prOld[i][j]);
+        greensFunction += (prNew[i][j] - prOld[i][j]) *
+                              (pqForceNew[i][j] + pqForceOld[i][j]) +
+                          D * timeStep * (pqForceNew[i][j] * pqForceNew[i][j] -
+                                          pqForceOld[i][j] * pqForceOld[i][j]);
+        /* cout << greensFunction << endl; */
+        /* greensFunction += */
+        /*     0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) * */
+        /*     (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) - */
+        /*      prNew[i][j] + prOld[i][j]); */
     }
     greensFunction = exp(greensFunction);
+    /* cout << greensFunction << endl; */
 
     // Check for step acceptance (if yes,
     // update position, if no, reset position)
@@ -462,7 +491,8 @@ bool VMCSolver::initRunVariables()
     wave_functions::beta = beta;
     wave_functions::nDimensions = nDimensions;
     wave_functions::h = h;
-    wave_functions::h2 = h2;
+    wave_functions::hInv = hInv;
+    wave_functions::h2Inv = h2Inv;
     wave_functions::charge = charge;
     wave_functions::nParticles = nParticles;
     wave_functions::nHalf = nHalf;
@@ -762,6 +792,16 @@ void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
     // Not using correlation.
     else
     {
+        /* for (int x = 0; x < nDimensions; x++) */
+        /* { */
+        /*     qForce[0][x] = (phi1sD(r[0][x], rAbs[0]) * phi2s(rAbs[1]) - */
+        /*                     phi2sD(r[0][x], rAbs[0]) * phi1s(rAbs[1])) * */
+        /*                    (phi1s(rAbs[2]) * phi2s(rAbs[3]) - */
+        /*                     phi2s(rAbs[2]) * phi1s(rAbs[3])) / */
+        /*                    MatOp::getDet(slater1) / MatOp::getDet(slater2);
+         */
+        /*     /1* cout << qForce[0][x] << endl; *1/ */
+        /* } */
         for (int k = 0; k < nParticles; k++)
         {
             // Reset qForce.
@@ -797,21 +837,21 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
     {
         for (int j = 0; j < nDimensions; j++)
         {
-            // Save the current position of the particle. 
+            // Save the current position of the particle.
             r0 = r[i][j];
             rAbs0 = 0;
-            for (int x = 0; x < nDimensions; x++) 
+            for (int x = 0; x < nDimensions; x++)
             {
-                rAbs0 += r[i][x]*r[i][x];
+                rAbs0 += r[i][x] * r[i][x];
             }
             rAbs0 = sqrt(rAbs0);
 
-            // Evaluate at minus h. 
+            // Evaluate at minus h.
             r[i][j] = r0 - h;
             rAbs[i] = 0;
-            for (int x = 0; x < nDimensions; x++) 
+            for (int x = 0; x < nDimensions; x++)
             {
-                rAbs[i] += r[i][x]*r[i][x];
+                rAbs[i] += r[i][x] * r[i][x];
             }
             rAbs[i] = sqrt(rAbs[i]);
             waveFunctionMinus = getWaveFuncVal(r, rAbs);
@@ -819,17 +859,18 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
             // Evaluate at plus h.
             r[i][j] = r0 + h;
             rAbs[i] = 0;
-            for (int x = 0; x < nDimensions; x++) 
+            for (int x = 0; x < nDimensions; x++)
             {
-                rAbs[i] += r[i][x]*r[i][x];
+                rAbs[i] += r[i][x] * r[i][x];
             }
             rAbs[i] = sqrt(rAbs[i]);
             waveFunctionPlus = getWaveFuncVal(r, rAbs);
 
-            // Reset position. 
+            // Reset position.
             r[i][j] = r0;
             rAbs[i] = rAbs0;
-            qForce[i][j] = (waveFunctionPlus - waveFunctionMinus) * h / factor;
+            qForce[i][j] =
+                (waveFunctionPlus - waveFunctionMinus) * 0.5 * hInv / factor;
         }
     }
 }
@@ -879,7 +920,8 @@ void VMCSolver::clear()
     stepLength = 0;
     nParticles = 0;
     h = 0;
-    h2 = 0;
+    hInv = 0;
+    h2Inv = 0;
     idum = 1;
     alpha = 0;
     beta = 0;

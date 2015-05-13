@@ -82,7 +82,8 @@ public:
     int nParticles;
     double stepLength;
     double h;
-    double h2;
+    double hInv;
+    double h2Inv;
     long idum;
     double timeStep;
     double D;

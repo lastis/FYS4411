@@ -10,7 +10,8 @@ namespace wave_functions{
     static double beta;
     static double nDimensions;
     static double h;
-    static double h2;
+    static double hInv;
+    static double h2Inv;
     static double charge;
     static int nParticles;
     static int nHalf;
@@ -220,7 +221,7 @@ namespace wave_functions{
                     - 2 * waveFunctionCurrent);
             }
         }
-        kineticEnergy = 0.5 * h2 * kineticEnergy / waveFunctionCurrent;
+        kineticEnergy = 0.5 * h2Inv * kineticEnergy / waveFunctionCurrent;
 
         // Potential energy
         double potentialEnergy = 0;
@@ -375,7 +376,7 @@ namespace wave_functions{
                     - 2 * waveFunctionCurrent);
             }
         }
-        kineticEnergy = 0.5 * h2 * kineticEnergy / waveFunctionCurrent;
+        kineticEnergy = 0.5 * h2Inv * kineticEnergy / waveFunctionCurrent;
 
         // Potential energy
         double potentialEnergy = 0;

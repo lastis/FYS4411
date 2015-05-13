@@ -26,7 +26,8 @@ int main(int argc, const char *argv[])
     solver.stepLength = 1.52;
     solver.nCycles = nCycles;
     solver.h = 0.001;
-    solver.h2 = 1e+06;
+    solver.hInv = 1e3;
+    solver.h2Inv = 1e6;
     solver.idum = 2;
     solver.useWaveFunctionBeryllium1();
     solver.useLocalEnergyGenericNoCor();
