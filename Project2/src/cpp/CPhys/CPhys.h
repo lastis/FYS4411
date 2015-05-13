@@ -18,21 +18,12 @@ namespace CPhys{
         void    decomposeLU(Matrix& mat, Matrix& L, Matrix& U);
         void    substituteForward(Matrix& L, Matrix& y, Matrix& b);
         void    substituteBackward(Matrix& U, Matrix& x, Matrix& y);
+        double  getDet(Matrix& A);
         Matrix  getInverse(Matrix A);
 	}
 	namespace VecOp{
 		double	normalize(Vector& v, double dx);
 	}
-	namespace Random{
-        class RNG{
-            public:
-            double  ran0(long& seed);
-            double	ran2(long& seed);
-            double	gauss(long& seed);
-        };
-        RNG getRandomNumberGen();
-	}
-
 
 	// prefix p (abbr. for 'pointer') is used to avoid name collision
 	namespace pMatOp{
