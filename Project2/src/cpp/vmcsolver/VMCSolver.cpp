@@ -793,7 +793,6 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
     double waveFunctionPlus;
     double r0;
     double rAbs0;
-    // Kinetic energy
     for (int i = 0; i < nParticles; i++)
     {
         for (int j = 0; j < nDimensions; j++)
@@ -807,7 +806,7 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
             }
             rAbs0 = sqrt(rAbs0);
 
-            // Evaluate at plus h. 
+            // Evaluate at minus h. 
             r[i][j] = r0 - h;
             rAbs[i] = 0;
             for (int x = 0; x < nDimensions; x++) 
@@ -817,7 +816,7 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
             rAbs[i] = sqrt(rAbs[i]);
             waveFunctionMinus = getWaveFuncVal(r, rAbs);
 
-            // Evaluate at minus h.
+            // Evaluate at plus h.
             r[i][j] = r0 + h;
             rAbs[i] = 0;
             for (int x = 0; x < nDimensions; x++) 

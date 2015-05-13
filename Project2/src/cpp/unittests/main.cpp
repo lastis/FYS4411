@@ -244,6 +244,18 @@ SUITE(CPhys){
         CHECK_CLOSE(1,res2(2,2),0.0001);
     }
 
+    TEST(Determinant)
+    {
+        Matrix AOld = Matrix(2,2);
+        AOld(0,0) = 4;
+        AOld(0,1) = 3;
+        AOld(1,0) = 3;
+        AOld(1,1) = 2;
+        double det = CPhys::MatOp::getDet(AOld);
+        CHECK_CLOSE(-1,det, 0.001);
+
+    }
+
     TEST(UpdateInverse){
         // Check if the function updateInverse works (and in parallel)
         #pragma omp parallel 
