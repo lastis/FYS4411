@@ -1,5 +1,6 @@
 #include <unittest++/UnitTest++.h>
 #include "../vmcsolver/VMCWrapper.h"
+#include "TestReporterStdout.h"
 
 using namespace std;
 
@@ -795,23 +796,6 @@ SUITE(VMCWrapper){
         CHECK_CLOSE(-0.122980, phi2s(rAbs), 0.00001);
         delete[] r;
     }
-
-    /* TEST(phiD){ */
-    /*     VMCWrapper solver = VMCWrapper(); */
-    /*     solver.nDimensions = 3; */
-    /*     solver.alpha = 3.75; */
-    /*     wave_functions::alpha = 3.75; */
-    /*     wave_functions::nDimensions = 3; */
-    /*     double* r = new double[3]; */
-    /*     r[0] = 0.5; */
-    /*     r[1] = 0.5; */
-    /*     r[2] = 0.5; */
-    /*     double rAbs = 0.8660254; */
-    /*     // Check that the function phi(j,r_i) works. */
-    /*     using namespace wave_functions; */
-    /*     CHECK_CLOSE(, phi1sD(r[0],rAbs), 0.00001); */
-    /*     delete[] r; */
-    /* } */
 }
 
 SUITE(Helium){
@@ -922,6 +906,11 @@ SUITE(Beryllium){
 
 int main()
 {
+
 	return UnitTest::RunAllTests();
 	return 0;
+
+
+
+
 }

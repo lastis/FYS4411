@@ -1,5 +1,5 @@
 default:
-	g++ -std=c++0x -fopenmp \
+	g++ -std=c++0x -fopenmp -O3 \
     $(cpp_file)         \
     ../../vmcsolver/VMCWrapper.cpp      \
     ../../vmcsolver/VMCSolver.cpp       \
