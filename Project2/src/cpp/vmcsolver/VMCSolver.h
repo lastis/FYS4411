@@ -105,6 +105,9 @@ public:
     double waveFuncValNew;
     double greensFunction;
     double ratio;
+    double DD;
+    double CC;
+    double DC;
     int nHalf;
 
     bool usingCorrelation;

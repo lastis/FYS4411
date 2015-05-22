@@ -1,6 +1,7 @@
 #include <cmath>
 #include "../CPhys/CPhys.h"
 #include <iostream>
+#include <string>
 using namespace std;
 
 namespace util {
@@ -23,6 +24,25 @@ namespace util {
 
         }
         return meanArray;
+    }
+
+    /** \brief Appends vector to file.
+     *
+     * \param adress Adress to file. Warning, from the location of this
+     * function.
+     * \param fileName Name of file. 
+     * \param array Vector to print. 
+     */         
+    void appendToFile(string adress, string fileName, Vector array){
+        ofstream myFile;
+        double* pArray = array.getArrayPointer();
+        // Dump results to the end of the file. 
+        myFile.open((adress + fileName).c_str(),std::ios_base::app);
+        for (int i = 0; i < array.getLength(); i++) {
+            myFile << pArray[i] << " ";
+        }
+        myFile << endl;
+        myFile.close();
     }
 
 

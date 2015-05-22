@@ -5,8 +5,8 @@ import numpy as np
 
 curDir = os.getcwd();
 # Adress to target directories from this directory. 
-cppDir = "../../../cpp/plot/neonSlater/"
-resDir = "../../../../res/plot/neonSlater/";
+cppDir = "../../../cpp/plot/testplot/"
+resDir = "../../../../res/plot/testplot/";
 
 fileName = "energies_mean.txt"
 alphaFile = "alpha_array.txt"
@@ -19,9 +19,12 @@ try :
 except OSError:
     pass
 
-nCycles = 1e4
-blockSize = nCycles
-alphaArray = np.linspace(9,11,11)
+beta = 1
+alphaArray = np.linspace(2.5,4.5,11)
+nCycles = 1e5
+blockSize = nCycles/10
+
+
 # Save the alpha values.
 np.savetxt(alphaFile,alphaArray)
 # Compile the code
@@ -33,4 +36,4 @@ os.chdir(curDir)
 os.chdir(cppDir)
 # Run the cpp code
 for alpha in alphaArray:
-    call(["./a.out", fileName, str(alpha),"0.9", str(nCycles), str(blockSize)])
+    call(["./a.out", fileName, str(alpha), str(beta), str(nCycles), str(blockSize)])

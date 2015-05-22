@@ -473,8 +473,6 @@ SUITE(VMCWrapper)
         solver.useLocalEnergySlaterNoCor();
         VMCSolver solverUnique2 = solver.getInitializedSolver();
 
-        using namespace wave_functions;
-        initWaveFunctions(solverUnique1);
         // Check that the ratios are the same for the normal step and the
         // efficient slater step.
         double ratio1, ratio2;
@@ -525,12 +523,8 @@ SUITE(VMCWrapper)
         VMCSolver solverUnique1 = solver.getInitializedSolver();
         solver.useEfficientSlater(true);
         VMCSolver solverUnique2 = solver.getInitializedSolver();
-        // This will initialize the slater matrix and the initial
-        // positions.
-        solverUnique1.initRunVariables();
-        solverUnique2.initRunVariables();
 
-        using namespace wave_functions;
+        /* using namespace wave_functions; */
         initWaveFunctions(solverUnique1);
         // Check that the ratios are the same for the normal step and the
         // efficient slater step.
@@ -979,7 +973,10 @@ int main(int argc, const char* argv[])
                 if (strcmp(
                         bSuite ? p->m_details.suiteName : p->m_details.testName,
                         argv[i]) == 0)
+                {
                     selectedTests.Add(p);
+                    cout << p->m_details.testName << endl;
+                }
             p = p->next;
         }
 

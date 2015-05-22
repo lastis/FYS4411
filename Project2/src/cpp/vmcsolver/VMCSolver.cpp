@@ -78,15 +78,6 @@ bool VMCSolver::runIntegration()
             pEnergyArray[i] /= nParticles;
         }
     }
-
-    // Output
-    if (outputSupressed)
-    {
-        outputSupressed = false;
-        return true;
-    }
-    /* cout << "Energy: " << energy << " Energy (squared sum): " */
-    /* << energySquared << endl; */
     return true;
 }
 
@@ -112,21 +103,20 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
     }
     rAbsNew[i] = sqrt(rAbsNew[i]);
 
-    /* for (int k = 0; k < nParticles; k++) */ 
-    /* { */
-    /*     if (k == i) continue; */
-    /*     for (int x = 0; x < nDimensions; x++) */ 
-    /*     { */
-    /*         prNew[k][x] = prOld[k][x]; */
-    /*     } */
-    /* } */
-
     // Recalculate the value of the wave function
     waveFuncValNew = getWaveFuncVal(prNew, rAbsNew);
-    updateQuantumForce(prNew, rAbsNew, pqForceNew, waveFuncValNew);
+    // Calculate the ratio between the determinants.
+    ratio = (waveFuncValNew * waveFuncValNew) /
+            (waveFuncValOld * waveFuncValOld);
+
 
     // Compute the log ratio of the greens functions to be used in the
     // Metropolis-Hastings algorithm.
+    cout << "Normal1:" << endl;
+    cout << pqForceNew[0][0] << endl;
+    updateQuantumForce(prNew, rAbsNew, pqForceNew, waveFuncValNew);
+    cout << "Normal2:" << endl;
+    cout << pqForceNew[0][0] << endl;
     greensFunction = 0;
     for (int j = 0; j < nDimensions; j++)
     {
@@ -134,19 +124,13 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
                               (pqForceNew[i][j] + pqForceOld[i][j]) +
                           D * timeStep * (pqForceNew[i][j] * pqForceNew[i][j] -
                                           pqForceOld[i][j] * pqForceOld[i][j]);
-        /* greensFunction += */
-        /*     0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) * */
-        /*     (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) - */
-        /*      prNew[i][j] + prOld[i][j]); */
     }
     greensFunction = exp(greensFunction);
-    ratio = greensFunction * (waveFuncValNew * waveFuncValNew) /
-            (waveFuncValOld * waveFuncValOld);
 
     // Check for step acceptance (if yes,
     // update position, if no, reset position)
     // The metropolis test is performed by moving one particle at the time.
-    if (dist_uniform(gen) <= ratio)
+    if (dist_uniform(gen) <= ratio*greensFunction)
     {
         for (int j = 0; j < nDimensions; j++)
         {
@@ -219,14 +203,12 @@ double VMCSolver::getCorrelationRatio(int i)
                 {
                     case 0:
                         a = 0.25;
-                        /* a = 0.5; */
                         break;
                     case 1:
                         a = 0.5;
                         break;
                     case 2:
                         a = 0.25;
-                        /* a = 0.5; */
                         break;
                 }
                 double bkjOld = 1 / (1 + beta * rkjOld);
@@ -269,15 +251,6 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
     }
     rAbsNew[i] = sqrt(rAbsNew[i]);
 
-    /* for (int k = 0; k < nParticles; k++) */ 
-    /* { */
-    /*     if (k == i) continue; */
-    /*     for (int x = 0; x < nDimensions; x++) */ 
-    /*     { */
-    /*         prNew[k][x] = prOld[k][x]; */
-    /*     } */
-    /* } */
-
     double ratioTmp = 0;
     for (int j = 0; j < nHalf; j++)
     {
@@ -295,10 +268,14 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
     else
         ratio = ratioTmp * ratioTmp;
 
+    cout << "Slater1:" << endl;
+    cout << pqForceNew[0][0] << endl;
     // Update the quantum force.
     updateQuantumForceSlater(prNew, rAbsNew, pqForceNew);
     // Compute the log ratio of the greens functions to be used in the
     // Metropolis-Hastings algorithm.
+    cout << "Slater2:" << endl;
+    cout << pqForceNew[0][0] << endl;
     greensFunction = 0;
     for (int j = 0; j < nDimensions; j++)
     {
@@ -306,14 +283,8 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
                               (pqForceNew[i][j] + pqForceOld[i][j]) +
                           D * timeStep * (pqForceNew[i][j] * pqForceNew[i][j] -
                                           pqForceOld[i][j] * pqForceOld[i][j]);
-        /* cout << greensFunction << endl; */
-        /* greensFunction += */
-        /*     0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) * */
-        /*     (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) - */
-        /*      prNew[i][j] + prOld[i][j]); */
     }
     greensFunction = exp(greensFunction);
-    /* cout << greensFunction << endl; */
 
     // Check for step acceptance (if yes,
     // update position, if no, reset position)
@@ -676,12 +647,11 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i)
     energySum += deltaE;
     energySquaredSum += deltaE * deltaE;
 
-    // Store in energy array.
+    // Store data.
     if (recordingEnergyArray)
     {
         pEnergyArray[cycle] += deltaE;
     }
-
     if (recordingPositions)
     {
         double rAbs = 0;
@@ -692,7 +662,6 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i)
         rAbs = sqrt(rAbs);
         pPositions[i][cycle] = rAbs;
     }
-
     // Calculate density
     if (recordingDensity)
     {
@@ -714,12 +683,15 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i)
 void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
                                          double** qForce)
 {
-    /* double rkVec[nDimensions]; */
-    /* double rkjVec[nDimensions]; */
-    /* double rkjAbs; */
-    /* double rkGrad[nDimensions]; */
+    cout << "Pos 2" << endl;
+    cout << r[0][0] << endl;
+    cout << rAbs[0] << endl;
     if (usingCorrelation)
     {
+        /* double rkVec[nDimensions]; */
+        /* double rkjVec[nDimensions]; */
+        /* double rkjAbs; */
+        /* double rkGrad[nDimensions]; */
         /* for (int k = 0; k < nParticles; k++) */
         /* { */
         /*     // Reset rkVec. */
@@ -792,16 +764,6 @@ void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
     // Not using correlation.
     else
     {
-        /* for (int x = 0; x < nDimensions; x++) */
-        /* { */
-        /*     qForce[0][x] = (phi1sD(r[0][x], rAbs[0]) * phi2s(rAbs[1]) - */
-        /*                     phi2sD(r[0][x], rAbs[0]) * phi1s(rAbs[1])) * */
-        /*                    (phi1s(rAbs[2]) * phi2s(rAbs[3]) - */
-        /*                     phi2s(rAbs[2]) * phi1s(rAbs[3])) / */
-        /*                    MatOp::getDet(slater1) / MatOp::getDet(slater2);
-         */
-        /*     /1* cout << qForce[0][x] << endl; *1/ */
-        /* } */
         for (int k = 0; k < nParticles; k++)
         {
             // Reset qForce.
@@ -829,6 +791,9 @@ void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
 void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
                                    double factor)
 {
+    cout << "Pos 1" << endl;
+    cout << r[0][0] << endl;
+    cout << rAbs[0] << endl;
     double waveFunctionMinus;
     double waveFunctionPlus;
     double r0;
@@ -1016,7 +981,7 @@ double VMCSolver::getLocalEnergySlaterNoCor(double** r, double* rAbs)
 
 double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
 {
-    double DD = 0;
+    DD = 0;
     for (int i = 0; i < nParticles; i++)
     {
         for (int j = 0; j < nHalf; j++)
@@ -1055,7 +1020,7 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
         }
     }
 
-    double CC = 0;
+    CC = 0;
     double a1, a2;
     double tmp = 0;
     double rkj, rki;
@@ -1123,11 +1088,11 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
         }
     }
 
-    double DC = 0;
     double rkVec[nDimensions];
     double rkjVec[nDimensions];
     double rkjAbs;
     double rkGrad[nDimensions];
+    DC = 0;
     for (int k = 0; k < nParticles; k++)
     {
         // Reset rkVec.
@@ -1192,5 +1157,10 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             DC += rkVec[x] * rkGrad[x];
         }
     }
-    return -0.5 * DD - 0.5 * CC - DC + potentialEnergy;
+
+    DD = -0.5*DD;
+    CC = -0.5*CC;
+    DC = -DC;
+
+    return DD + CC + DC + potentialEnergy;
 }

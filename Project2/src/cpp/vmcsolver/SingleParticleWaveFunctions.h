@@ -55,52 +55,48 @@ namespace wave_functions{
     }
 
     static double phi2pxD(int x, double* r, double rAbs){
-        double tmp = -alpha*g(rAbs)*0.5/rAbs;
-        return tmp*(alpha*r[0]*r[x] - 2*rAbs);
-
-        /* switch (x) { */
-        /*     case 0: */
-        /*         /1* return 0.5*phi2p(x,r,rAbs)*(-alpha*r[x]+2*rAbs/r[x])/rAbs; *1/ */
-        /*     case 1: */ 
-        /*         /1* return -alpha*r[x]; *1/ */
-        /*     case 2: */
-        /*         /1* return -alpha*r[x]; *1/ */
-        /*     default: */
-        /*         std::cout << "Out of bound in phi2px!!" << std::endl; */
-        /*         return 0; */
-        /* } */
+        double tmp = alpha*g(rAbs);
+        switch (x) {
+            case 0:
+                return tmp*(1-alpha*r[0]*r[x]*0.5/rAbs);
+            case 1: 
+                return -tmp*alpha*r[0]*r[x]*0.5/rAbs;
+            case 2:
+                return -tmp*alpha*r[0]*r[x]*0.5/rAbs;
+            default:
+                std::cout << "Out of bound in phi2px!!" << std::endl;
+                return 0;
+        }
     }
 
     static double phi2pyD(int x, double* r, double rAbs){
-        double tmp = -alpha*g(rAbs)*0.5/rAbs;
-        return tmp*(alpha*r[1]*r[x] - 2*rAbs);
-        /* switch (x) { */
-        /*     case 0: */
-        /*         return -alpha*r[x]; */
-        /*     case 1: */ 
-        /*         return 0.5*phi2p(x,r,rAbs)*(-alpha*r[x]+2*rAbs/r[x])/rAbs; */
-        /*     case 2: */
-        /*         return -alpha*r[x]; */
-        /*     default: */
-        /*         std::cout << "Out of bound in phi2py!!" << std::endl; */
-        /*         return 0; */
-        /* } */
+        double tmp = alpha*g(rAbs);
+        switch (x) {
+            case 0:
+                return -tmp*alpha*r[1]*r[x]*0.5/rAbs;
+            case 1: 
+                return tmp*(1-alpha*r[1]*r[x]*0.5/rAbs);
+            case 2:
+                return -tmp*alpha*r[1]*r[x]*0.5/rAbs;
+            default:
+                std::cout << "Out of bound in phi2px!!" << std::endl;
+                return 0;
+        }
     }
 
     static double phi2pzD(int x, double* r, double rAbs){
-        double tmp = -alpha*g(rAbs)*0.5/rAbs;
-        return tmp*(alpha*r[2]*r[x] - 2*rAbs);
-        /* switch (x) { */
-        /*     case 0: */
-        /*         return -alpha*r[x]; */
-        /*     case 1: */ 
-        /*         return -alpha*r[x]; */
-        /*     case 2: */
-        /*         return 0.5*phi2p(x,r,rAbs)*(-alpha*r[x]+2*rAbs/r[x])/rAbs; */
-        /*     default: */
-        /*         std::cout << "Out of bound in phi2py!!" << std::endl; */
-        /*         return 0; */
-        /* } */
+        double tmp = alpha*g(rAbs);
+        switch (x) {
+            case 0:
+                return -tmp*alpha*r[2]*r[x]*0.5/rAbs;
+            case 1: 
+                return -tmp*alpha*r[2]*r[x]*0.5/rAbs;
+            case 2:
+                return tmp*(1-alpha*r[2]*r[x]*0.5/rAbs);
+            default:
+                std::cout << "Out of bound in phi2py!!" << std::endl;
+                return 0;
+        }
     }
 
     static double phi2pDD(int x, double* r, double rAbs){
