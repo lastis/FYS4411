@@ -105,6 +105,7 @@ public:
     double waveFuncValNew;
     double greensFunction;
     double ratio;
+    double potentialEnergy;
     double DD;
     double CC;
     double DC;

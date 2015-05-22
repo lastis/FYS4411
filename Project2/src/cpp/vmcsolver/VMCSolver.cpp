@@ -994,7 +994,7 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
     }
 
     // Potential energy.
-    double potentialEnergy = 0;
+    potentialEnergy = 0;
     double rSingleParticle = 0;
     for (int i = 0; i < nParticles; i++)
     {

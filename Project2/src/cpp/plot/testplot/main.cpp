@@ -43,10 +43,12 @@ int main(int argc, const char *argv[])
     Vector vDD = Vector(nCycles);
     Vector vCC = Vector(nCycles);
     Vector vDC = Vector(nCycles);
+    Vector vEPot = Vector(nCycles);
     double* energyArray = vEnergyArray.getArrayPointer();
     double* DD = vDD.getArrayPointer();
     double* CC = vCC.getArrayPointer();
     double* DC = vDC.getArrayPointer();
+    double* EPot = vEPot.getArrayPointer();
 
 
     // Run simulation.
@@ -60,12 +62,14 @@ int main(int argc, const char *argv[])
             DD[cycle] += solver.DD;
             CC[cycle] += solver.CC;
             DC[cycle] += solver.DC;
+            EPot[cycle] += solver.potentialEnergy;
         }
     }
     vDD /= nParticles;
     vCC /= nParticles;
     vDC /= nParticles;
     vEnergyArray /= nParticles;
+    vEPot /= nParticles;
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = end-start;
     cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
@@ -75,11 +79,13 @@ int main(int argc, const char *argv[])
     Vector meanCC = util::getMeanArray(binSize,vCC);
     Vector meanDC = util::getMeanArray(binSize,vDC);
     Vector meanArray = util::getMeanArray(binSize,vEnergyArray);
+    Vector meanEPot = util::getMeanArray(binSize,vEPot);
 
     util::appendToFile(adress,"DD.txt",meanDD);
     util::appendToFile(adress,"CC.txt",meanCC);
     util::appendToFile(adress,"DC.txt",meanDC);
     util::appendToFile(adress,"energies_mean.txt",meanArray);
+    util::appendToFile(adress,"energies_mean_potential.txt",meanEPot);
 
     return 0;
 }
