@@ -9,17 +9,16 @@ using microfortnights = std::chrono::duration<float, std::ratio<12096,10000>>;
 int main(int argc, const char *argv[])
 {
     // Take alpha and beta from command line. 
-    if (argc != 6) {
+    if (argc != 3) {
         cout << "Not enough arguments." << endl;
         return -1;
     }
-    string fName = string(argv[1]);
-    double alpha = atof(argv[2]);
-    double beta = atof(argv[3]);
-    double nCycles = atof(argv[4]);
-    int binSize = atof(argv[5]);
+    double alpha = atof(argv[1]);
+    double beta = atof(argv[2]);
 
     int nParticles = 4;
+    double nCycles = 1e5;
+    int binSize = nCycles/10;
 
     string adress = "../../../../res/plot/testplot/";
 
@@ -48,6 +47,8 @@ int main(int argc, const char *argv[])
     double* DD = vDD.getArrayPointer();
     double* CC = vCC.getArrayPointer();
     double* DC = vDC.getArrayPointer();
+
+
     // Run simulation.
     auto start = chrono::high_resolution_clock::now();
     for (int cycle = 0; cycle < nCycles; cycle++) 
@@ -61,13 +62,10 @@ int main(int argc, const char *argv[])
             DC[cycle] += solver.DC;
         }
     }
-    for (int i = 0; i < nCycles; i++) 
-    {
-        energyArray[i] /= nParticles;
-        DD[i] /=nParticles;
-        CC[i] /=nParticles;
-        DC[i] /=nParticles;
-    }
+    vDD /= nParticles;
+    vCC /= nParticles;
+    vDC /= nParticles;
+    vEnergyArray /= nParticles;
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = end-start;
     cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
@@ -81,7 +79,7 @@ int main(int argc, const char *argv[])
     util::appendToFile(adress,"DD.txt",meanDD);
     util::appendToFile(adress,"CC.txt",meanCC);
     util::appendToFile(adress,"DC.txt",meanDC);
-    util::appendToFile(adress,fName,meanArray);
+    util::appendToFile(adress,"energies_mean.txt",meanArray);
 
     return 0;
 }

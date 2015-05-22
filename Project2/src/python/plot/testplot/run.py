@@ -8,21 +8,20 @@ curDir = os.getcwd();
 cppDir = "../../../cpp/plot/testplot/"
 resDir = "../../../../res/plot/testplot/";
 
-fileName = "energies_mean.txt"
 alphaFile = "alpha_array.txt"
 
-# Delete the exsiting output file, if it exsists.
+# Delete the exsiting .txt files
 os.chdir(curDir)
 os.chdir(resDir)
+fileList = [f for f in os.listdir(".") if f.endswith(".txt")]
 try :
-    os.remove(fileName)
+    for f in fileList:
+        os.remove(f)
 except OSError:
     pass
 
 beta = 1
 alphaArray = np.linspace(2.5,4.5,11)
-nCycles = 1e5
-blockSize = nCycles/10
 
 
 # Save the alpha values.
@@ -36,4 +35,4 @@ os.chdir(curDir)
 os.chdir(cppDir)
 # Run the cpp code
 for alpha in alphaArray:
-    call(["./a.out", fileName, str(alpha), str(beta), str(nCycles), str(blockSize)])
+    call(["./a.out", str(alpha), str(beta)])
