@@ -2,6 +2,7 @@
 #include "../../vmcsolver/util.h"
 #include <chrono>
 #include <iostream>
+#include <omp.h>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ int main(int argc, const char *argv[])
     int nParticles = 4;
     double nCycles = 1e5;
     int binSize = nCycles/10;
+    int idum = 1;
 
     string adress = "../../../../res/plot/testplot/";
 
@@ -33,7 +35,7 @@ int main(int argc, const char *argv[])
     wrapper.h = 0.001;
     wrapper.hInv = 1000;
     wrapper.h2Inv = 1e+06;
-    wrapper.idum = 1;
+    wrapper.idum = idum;
     wrapper.useEfficientSlater(true);
     wrapper.useLocalEnergySlater();
 
@@ -51,25 +53,36 @@ int main(int argc, const char *argv[])
     double* EPot = vEPot.getArrayPointer();
 
 
-    // Run simulation.
+    int threads = 4;
+    // Set the max number of threads that can be run.
+    omp_set_num_threads(threads);
+
     auto start = chrono::high_resolution_clock::now();
-    for (int cycle = 0; cycle < nCycles; cycle++) 
+    #pragma omp parallel 
     {
-        for (int i = 0; i < nParticles; i++) 
+        VMCSolver solver = wrapper.getInitializedSolver();
+        solver.setSeed(idum + omp_get_thread_num());
+
+        // Run simulation.
+        for (int cycle = 0; cycle < nCycles; cycle++) 
         {
-            solver.runSingleStepSlater(i,cycle);
-            energyArray[cycle] += solver.deltaE;
-            DD[cycle] += solver.DD;
-            CC[cycle] += solver.CC;
-            DC[cycle] += solver.DC;
-            EPot[cycle] += solver.potentialEnergy;
+            for (int i = 0; i < nParticles; i++) 
+            {
+                solver.runSingleStepSlater(i,cycle);
+                energyArray[cycle] += solver.deltaE;
+                DD[cycle] += solver.DD;
+                CC[cycle] += solver.CC;
+                DC[cycle] += solver.DC;
+                EPot[cycle] += solver.potentialEnergy;
+            }
         }
     }
-    vDD /= nParticles;
-    vCC /= nParticles;
-    vDC /= nParticles;
-    vEnergyArray /= nParticles;
-    vEPot /= nParticles;
+    vDD /= (nParticles*threads);
+    vCC /= (nParticles*threads);
+    vDC /= (nParticles*threads);
+    vEnergyArray /= (nParticles*threads);
+    vEPot /= (nParticles*threads);
+
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = end-start;
     cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
