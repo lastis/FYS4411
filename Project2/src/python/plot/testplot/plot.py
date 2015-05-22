@@ -8,36 +8,32 @@ curDir = os.getcwd();
 cppDir = "../../../cpp/plot/testplot/"
 resDir = "../../../../res/plot/testplot/";
 
-fileName = "energies_mean.txt"
 alphaFileName = "alpha_array.txt"
-
+fileName = "energies_mean.txt"
 fileNameDD = "DD.txt"
 fileNameCC = "CC.txt"
 fileNameDC = "DC.txt"
 
-mean = []
-meanVar = []
-# Manipulate data
+# Load data.
 os.chdir(curDir)
 os.chdir(resDir)
+alphaFile   = open(alphaFileName,'r')
+meanFile    = open(fileName, 'r')
+fileDD      = open(fileNameDD,'r')
+fileCC      = open(fileNameCC,'r')
+fileDC      = open(fileNameDC,'r')
 
-alphaFile = open(alphaFileName,'r')
-alphaArray = np.loadtxt(alphaFile)
+alphaArray  = np.loadtxt(alphaFile)
+meanArray   = np.loadtxt(meanFile)
+DD          = np.loadtxt(fileDD)
+CC          = np.loadtxt(fileCC)
+DC          = np.loadtxt(fileDC)
+
 alphaFile.close()
-
-meanFile = open(fileName, 'r')
-meanArray = np.loadtxt(meanFile)
 meanFile.close()
-
-fileDD = open(fileNameDD,'r')
-fileCC = open(fileNameCC,'r')
-fileDC = open(fileNameDC,'r')
-DD = np.loadtxt(fileDD)
-CC = np.loadtxt(fileCC)
-DC = np.loadtxt(fileDC)
-meanDD = []
-meanCC = []
-meanDC = []
+fileDD.close();
+fileCC.close();
+fileDC.close();
 
 
 if len(meanArray.shape) == 1:
@@ -45,46 +41,11 @@ if len(meanArray.shape) == 1:
     plt.savefig('alpha_plot.png')
     plt.show()
 else :
-    for i,array in enumerate(DD):
-        sample = 0
-        for tmp in DD[i]:
-            sample += tmp
-        sample = sample/len(DD[i])
-        meanDD.append(sample)
-    meanDD = np.asarray(meanDD)
-
-    for i,array in enumerate(CC):
-        sample = 0
-        for tmp in CC[i]:
-            sample += tmp
-        sample = sample/len(CC[i])
-        meanCC.append(sample)
-    meanCC = np.asarray(meanCC)
-
-    for i,array in enumerate(DC):
-        sample = 0
-        for tmp in DC[i]:
-            sample += tmp
-        sample = sample/len(DC[i])
-        meanDC.append(sample)
-    meanDC = np.asarray(meanDC)
-
-    for i,array in enumerate(meanArray):
-        sample = 0
-        sampleSq = 0
-        for tmp in meanArray[i]:
-            sample += tmp
-            sampleSq += tmp*tmp
-
-        sample = sample/len(meanArray[i])
-        sampleSq = sampleSq/len(meanArray[i])
-        mean.append(sample)
-        # Actually the standard deviance of the mean.
-        meanVar.append(np.sqrt((sampleSq - sample*sample)/len(meanArray[i])))
-    mean = np.asarray(mean)
-    meanVar = np.asarray(meanVar)
-
-
+    mean = np.mean(meanArray,axis=1)
+    meanVar = np.std(meanArray,axis=1)
+    meanDD = np.mean(DD,axis=1)
+    meanCC = np.mean(CC,axis=1)
+    meanDC = np.mean(DC,axis=1)
 
     plt.plot(alphaArray, meanDD);
     plt.plot(alphaArray, meanCC);
