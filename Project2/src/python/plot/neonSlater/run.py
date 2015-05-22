@@ -8,20 +8,22 @@ curDir = os.getcwd();
 cppDir = "../../../cpp/plot/neonSlater/"
 resDir = "../../../../res/plot/neonSlater/";
 
-fileName = "energies_mean.txt"
 alphaFile = "alpha_array.txt"
 
-# Delete the exsiting output file, if it exsists.
+# Delete the exsiting .txt files
 os.chdir(curDir)
 os.chdir(resDir)
+fileList = [f for f in os.listdir(".") if f.endswith(".txt")]
 try :
-    os.remove(fileName)
+    for f in fileList:
+        os.remove(f)
 except OSError:
     pass
 
-nCycles = 1e4
-blockSize = nCycles
-alphaArray = np.linspace(9,11,11)
+beta = 1
+alphaArray = np.linspace(10,11,11)
+
+
 # Save the alpha values.
 np.savetxt(alphaFile,alphaArray)
 # Compile the code
@@ -33,4 +35,4 @@ os.chdir(curDir)
 os.chdir(cppDir)
 # Run the cpp code
 for alpha in alphaArray:
-    call(["./a.out", fileName, str(alpha),"0.9", str(nCycles), str(blockSize)])
+    call(["./a.out", str(alpha), str(beta)])

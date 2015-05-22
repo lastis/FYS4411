@@ -8,43 +8,54 @@ curDir = os.getcwd();
 cppDir = "../../../cpp/plot/neonSlater/"
 resDir = "../../../../res/plot/neonSlater/";
 
-fileName = "energies_mean.txt"
 alphaFileName = "alpha_array.txt"
+fileName = "energies_mean.txt"
+fileNameDD = "DD.txt"
+fileNameCC = "CC.txt"
+fileNameDC = "DC.txt"
+fileNameEPot = "energies_mean_potential.txt"
 
-mean = []
-meanVar = []
-# Manipulate data
+# Load data.
 os.chdir(curDir)
 os.chdir(resDir)
+alphaFile   = open(alphaFileName,'r')
+meanFile    = open(fileName, 'r')
+fileDD      = open(fileNameDD,'r')
+fileCC      = open(fileNameCC,'r')
+fileDC      = open(fileNameDC,'r')
+fileEPot      = open(fileNameEPot,'r')
 
-alphaFile = open(alphaFileName,'r')
-alphaArray = np.loadtxt(alphaFile)
+alphaArray  = np.loadtxt(alphaFile)
+meanArray   = np.loadtxt(meanFile)
+DD          = np.loadtxt(fileDD)
+CC          = np.loadtxt(fileCC)
+DC          = np.loadtxt(fileDC)
+EPot          = np.loadtxt(fileEPot)
+
 alphaFile.close()
-
-meanFile = open(fileName, 'r')
-meanArray = np.loadtxt(meanFile)
 meanFile.close()
+fileDD.close();
+fileCC.close();
+fileDC.close();
+fileEPot.close();
 
-if len(meanArray.shape) == 1:
-    plt.plot(alphaArray, meanArray)
-else :
-    for i,array in enumerate(meanArray):
-        sample = 0
-        sampleSq = 0
-        for tmp in meanArray[i]:
-            sample += tmp
-            sampleSq += tmp*tmp
+mean = np.mean(meanArray,axis=1)
+meanVar = np.std(meanArray,axis=1)
+meanDD = np.mean(DD,axis=1)
+meanCC = np.mean(CC,axis=1)
+meanDC = np.mean(DC,axis=1)
+meanEPot = np.mean(EPot,axis=1)
 
-        sample = sample/len(meanArray[i])
-        sampleSq = sampleSq/len(meanArray[i])
-        mean.append(sample)
-        # Actually the standard deviance of the mean.
-        meanVar.append(np.sqrt((sampleSq - sample*sample)/len(meanArray[i])))
+plt.plot(alphaArray, meanEPot);
+plt.plot(alphaArray, meanDD);
+plt.plot(alphaArray, meanCC);
+plt.plot(alphaArray, meanDC);
+plt.savefig('special.png')
+plt.show()
+plt.figure()
 
-    mean = np.asarray(mean)
-    meanVar = np.asarray(meanVar)
-    plt.plot(alphaArray, mean)
-    plt.plot(alphaArray, mean+meanVar)
-    plt.plot(alphaArray, mean-meanVar)
+plt.plot(alphaArray, mean)
+plt.plot(alphaArray, mean+meanVar)
+plt.plot(alphaArray, mean-meanVar)
 plt.savefig('alpha_plot.png')
 plt.show()
