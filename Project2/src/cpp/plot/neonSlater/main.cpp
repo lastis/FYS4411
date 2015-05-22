@@ -2,61 +2,102 @@
 #include "../../vmcsolver/util.h"
 #include <chrono>
 #include <iostream>
+#include <omp.h>
 
 using namespace std;
+
+using microfortnights = std::chrono::duration<float, std::ratio<12096,10000>>;
 int main(int argc, const char *argv[])
 {
     // Take alpha and beta from command line. 
-    if (argc != 6) return -1;
-    string fName = string(argv[1]);
-    double alpha = atof(argv[2]);
-    double beta = atof(argv[3]);
-    double nCycles = atof(argv[4]);
-    int binSize = atof(argv[5]);
+    if (argc != 3) {
+        cout << "Not enough arguments." << endl;
+        return -1;
+    }
+    double alpha = atof(argv[1]);
+    double beta = atof(argv[2]);
 
-    // Dump variance
-    string adress = "../../../../res/plot/neonSlater/" + fName;
+    int nParticles = 10;
+    double nCycles = 1e4;
+    int binSize = nCycles/10;
+    int idum = 1;
 
-    VMCWrapper solver = VMCWrapper();
-    solver.alpha = alpha;
-    solver.beta = beta;
-    solver.nDimensions = 3;
-    solver.nParticles = 10;
-    solver.charge = 10;
-    solver.stepLength = 1.52;
-    solver.nCycles = nCycles;
-    solver.h = 0.001;
-    solver.hInv = 1000;
-    solver.h2Inv = 1e+06;
-    solver.idum = 2;
-    solver.useEfficientSlater(true);
-    solver.useParallel(true);
-    solver.useLocalEnergySlater();
-    solver.recordEnergyArray(true);
+    string adress = "../../../../res/plot/neonSlater/";
 
-    // Run simulation.
+    VMCWrapper wrapper = VMCWrapper();
+    wrapper.alpha = alpha;
+    wrapper.beta = beta;
+    wrapper.nDimensions = 3;
+    wrapper.nParticles = nParticles;
+    wrapper.charge = nParticles;
+    wrapper.stepLength = 1.52;
+    wrapper.nCycles = nCycles;
+    wrapper.h = 0.001;
+    wrapper.hInv = 1000;
+    wrapper.h2Inv = 1e+06;
+    wrapper.idum = idum;
+    wrapper.useEfficientSlater(true);
+    wrapper.useLocalEnergySlater();
+
+    VMCSolver solver = wrapper.getInitializedSolver();
+
+    Vector vEnergyArray = Vector(nCycles);
+    Vector vDD = Vector(nCycles);
+    Vector vCC = Vector(nCycles);
+    Vector vDC = Vector(nCycles);
+    Vector vEPot = Vector(nCycles);
+    double* energyArray = vEnergyArray.getArrayPointer();
+    double* DD = vDD.getArrayPointer();
+    double* CC = vCC.getArrayPointer();
+    double* DC = vDC.getArrayPointer();
+    double* EPot = vEPot.getArrayPointer();
+
+    int threads = 4;
+    // Set the max number of threads that can be run.
+    omp_set_num_threads(threads);
+
     auto start = chrono::high_resolution_clock::now();
-    solver.runIntegration();
+    #pragma omp parallel 
+    {
+        VMCSolver solver = wrapper.getInitializedSolver();
+        solver.setSeed(idum + omp_get_thread_num());
+
+        // Run simulation.
+        for (int cycle = 0; cycle < nCycles; cycle++) 
+        {
+            for (int i = 0; i < nParticles; i++) 
+            {
+                solver.runSingleStepSlater(i,cycle);
+                energyArray[cycle] += solver.deltaE;
+                DD[cycle] += solver.DD;
+                CC[cycle] += solver.CC;
+                DC[cycle] += solver.DC;
+                EPot[cycle] += solver.potentialEnergy;
+            }
+        }
+    }
+    vDD /= (nParticles*threads);
+    vCC /= (nParticles*threads);
+    vDC /= (nParticles*threads);
+    vEnergyArray /= (nParticles*threads);
+    vEPot /= (nParticles*threads);
+
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = end-start;
-    /* cout << "Time = " << diff.count() << " seconds." << endl; */
-    using microfortnights = std::chrono::duration<float, std::ratio<12096,10000>>;
     cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
-    /* cout << "Energy " << solver.getEnergy() << endl; */
-    /* cout << "Acceptance Ratio : " << solver.getAcceptanceRatio() << endl; */
 
     // Manipulate data. 
-    Vector energyArray = solver.getEnergyArray();
-    Vector meanArray = util::getMeanArray(binSize,energyArray);
-    double* mean = meanArray.getArrayPointer();
-    // Dump results to the end of the file. 
-    ofstream myFile;
-    myFile.open(adress.c_str(),std::ios_base::app);
-    for (int i = 0; i < meanArray.getLength(); i++) {
-        myFile << mean[i] << " ";
-    }
-    myFile << endl;
-    myFile.close();
+    Vector meanDD = util::getMeanArray(binSize,vDD);
+    Vector meanCC = util::getMeanArray(binSize,vCC);
+    Vector meanDC = util::getMeanArray(binSize,vDC);
+    Vector meanArray = util::getMeanArray(binSize,vEnergyArray);
+    Vector meanEPot = util::getMeanArray(binSize,vEPot);
+
+    util::appendToFile(adress,"DD.txt",meanDD);
+    util::appendToFile(adress,"CC.txt",meanCC);
+    util::appendToFile(adress,"DC.txt",meanDC);
+    util::appendToFile(adress,"energies_mean.txt",meanArray);
+    util::appendToFile(adress,"energies_mean_potential.txt",meanEPot);
 
     return 0;
 }

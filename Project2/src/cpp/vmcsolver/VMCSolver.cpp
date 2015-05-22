@@ -106,17 +106,12 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
     // Recalculate the value of the wave function
     waveFuncValNew = getWaveFuncVal(prNew, rAbsNew);
     // Calculate the ratio between the determinants.
-    ratio = (waveFuncValNew * waveFuncValNew) /
-            (waveFuncValOld * waveFuncValOld);
-
+    ratio =
+        (waveFuncValNew * waveFuncValNew) / (waveFuncValOld * waveFuncValOld);
 
     // Compute the log ratio of the greens functions to be used in the
     // Metropolis-Hastings algorithm.
-    cout << "Normal1:" << endl;
-    cout << pqForceNew[0][0] << endl;
     updateQuantumForce(prNew, rAbsNew, pqForceNew, waveFuncValNew);
-    cout << "Normal2:" << endl;
-    cout << pqForceNew[0][0] << endl;
     greensFunction = 0;
     for (int j = 0; j < nDimensions; j++)
     {
@@ -130,7 +125,7 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
     // Check for step acceptance (if yes,
     // update position, if no, reset position)
     // The metropolis test is performed by moving one particle at the time.
-    if (dist_uniform(gen) <= ratio*greensFunction)
+    if (dist_uniform(gen) <= ratio * greensFunction)
     {
         for (int j = 0; j < nDimensions; j++)
         {
@@ -236,7 +231,8 @@ void VMCSolver::startOfCycleQuantum()
 
 void VMCSolver::startOfCycleSlaterQuantum()
 {
-    updateQuantumForceSlater(prOld, rAbsOld, pqForceOld);
+    updateQuantumForceSlater(prOld, rAbsOld, pqForceOld, pslater1Old,
+                             pslater2Old, pslater1InvOld, pslater2InvOld);
 }
 
 void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
@@ -246,19 +242,26 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
     for (int j = 0; j < nDimensions; j++)
     {
         prNew[i][j] = prOld[i][j] + dist_gauss(gen) * sqrt(timeStep) +
-                      2*pqForceOld[i][j] * timeStep * D;
+                      2 * pqForceOld[i][j] * timeStep * D;
         rAbsNew[i] += prNew[i][j] * prNew[i][j];
     }
     rAbsNew[i] = sqrt(rAbsNew[i]);
 
+    // Update the slater matrix and calculate the ratio.
     double ratioTmp = 0;
     for (int j = 0; j < nHalf; j++)
     {
         if (i < nHalf)
-            ratioTmp += phi(j, prNew[i], rAbsNew[i]) * pslater1Inv[j][i];
+        {
+            pslater1New[i][j] = phi(j, prNew[i], rAbsNew[i]);
+            ratioTmp += pslater1New[i][j] * pslater1InvOld[j][i];
+        }
         else
+        {
+            pslater2New[i - nHalf][j] = phi(j, prNew[i], rAbsNew[i]);
             ratioTmp +=
-                phi(j, prNew[i], rAbsNew[i]) * pslater2Inv[j][i - nHalf];
+                pslater2New[i - nHalf][j] * pslater2InvOld[j][i - nHalf];
+        }
     }
     if (usingCorrelation)
     {
@@ -268,14 +271,21 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
     else
         ratio = ratioTmp * ratioTmp;
 
-    cout << "Slater1:" << endl;
-    cout << pqForceNew[0][0] << endl;
+    // Update the inverse slater matrix for the new particle.
+    if (i < nHalf)
+    {
+        pMatOp::updateInverse(i, ratioTmp, pslater1New, pslater1InvNew, nHalf);
+    }
+    else
+    {
+        pMatOp::updateInverse(i - nHalf, ratioTmp, pslater2New, pslater2InvNew,
+                              nHalf);
+    }
     // Update the quantum force.
-    updateQuantumForceSlater(prNew, rAbsNew, pqForceNew);
+    updateQuantumForceSlater(prNew, rAbsNew, pqForceNew, pslater1New,
+                             pslater2New, pslater1InvNew, pslater2InvNew);
     // Compute the log ratio of the greens functions to be used in the
     // Metropolis-Hastings algorithm.
-    cout << "Slater2:" << endl;
-    cout << pqForceNew[0][0] << endl;
     greensFunction = 0;
     for (int j = 0; j < nDimensions; j++)
     {
@@ -291,20 +301,15 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
     // The metropolis test is performed by moving one particle at the time.
     if (dist_uniform(gen) <= greensFunction * ratio)
     {
-        for (int j = 0; j < nDimensions; j++)
+        for (int x = 0; x < nDimensions; x++)
         {
-            prOld[i][j] = prNew[i][j];
-            pqForceOld[i][j] = pqForceNew[i][j];
+            prOld[i][x] = prNew[i][x];
+            pqForceOld[i][x] = pqForceNew[i][x];
         }
         rAbsOld[i] = rAbsNew[i];
-        // Update the i'th particle (row) in the slater matrix.
-        updateSlater(i);
-        // Update the inverse of the slater matrix.
-        if (i < nHalf)
-            pMatOp::updateInverse(i, ratioTmp, pslater1, pslater1Inv, nHalf);
-        else
-            pMatOp::updateInverse(i - nHalf, ratioTmp, pslater2, pslater2Inv,
-                                  nHalf);
+        // Update the slater matrices.
+        updateSlater(i, pslater1Old, pslater1New, pslater1InvOld,
+                     pslater1InvOld);
         accepts++;
     }
     else
@@ -315,9 +320,51 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
             pqForceNew[i][j] = pqForceOld[i][j];
         }
         rAbsNew[i] = rAbsOld[i];
+        // Update the slater matrices.
+        updateSlater(i, pslater2New, pslater2Old, pslater2InvNew,
+                     pslater2InvOld);
         rejects++;
     }
     endOfSingleParticleStep(cycle, i);
+}
+
+/** \brief Copy the slated old variabes to the new variables in an effecient
+ *way.
+ *
+ * \param slaterNew Slater matrix that will be overwritten.
+ * \param slaterOld Slater matrix that will be copied.
+ * \param slaterInvNew Slater matrix that will be overwritten.
+ * \param slaterInvOld Slater matrix that will be copied.
+ */
+void VMCSolver::updateSlater(int i, double** slater1New, double** slater1Old,
+                             double** slater2New, double** slater2Old,
+                             double** slater1InvNew, double** slater1InvOld,
+                             double** slater2InvNew, double** slater2InvOld)
+{
+    cout << "start " << endl;
+    if (i < nHalf) 
+    {
+        for (int j = 0; j < nHalf; j++) 
+        {
+            slater1New[i][j] = slater1Old[i][j];
+            for (int i = 0; i < nHalf; i++) 
+            {
+                slater1InvNew[i][j] = slater1InvOld[i][j];
+            }
+        }
+    }
+    else 
+    {
+        for (int j = 0; j < nHalf; j++) 
+        {
+            slater2New[i-nHalf][j] = slater2Old[i-nHalf][j];
+            for (int i = 0; i < nHalf; i++) 
+            {
+                slater2InvNew[i][j] = slater2InvOld[i][j];
+            }
+        }
+    }
+    cout << "finished " << endl;
 }
 
 void VMCSolver::runSingleStepSlater(int i, int cycle)
@@ -330,14 +377,21 @@ void VMCSolver::runSingleStepSlater(int i, int cycle)
         rAbsNew[i] += prNew[i][j] * prNew[i][j];
     }
     rAbsNew[i] = sqrt(rAbsNew[i]);
+    // Update the slater matrix and calculate the ratio.
     double ratioTmp = 0;
     for (int j = 0; j < nHalf; j++)
     {
         if (i < nHalf)
-            ratioTmp += phi(j, prNew[i], rAbsNew[i]) * pslater1Inv[j][i];
+        {
+            pslater1New[i][j] = phi(j, prNew[i], rAbsNew[i]);
+            ratioTmp += pslater1New[i][j] * pslater1InvOld[j][i];
+        }
         else
+        {
+            pslater2New[i - nHalf][j] = phi(j, prNew[i], rAbsNew[i]);
             ratioTmp +=
-                phi(j, prNew[i], rAbsNew[i]) * pslater2Inv[j][i - nHalf];
+                pslater2New[i - nHalf][j] * pslater2InvOld[j][i - nHalf];
+        }
     }
     if (usingCorrelation)
     {
@@ -350,29 +404,42 @@ void VMCSolver::runSingleStepSlater(int i, int cycle)
     // update position, if no, reset position)
     if (dist_uniform(gen) <= ratio)
     {
-        for (int j = 0; j < nDimensions; j++)
+        cout << "hello accept 1" << endl;
+        for (int x = 0; x < nDimensions; x++)
         {
-            prOld[i][j] = prNew[i][j];
+            prOld[i][x] = prNew[i][x];
         }
         rAbsOld[i] = rAbsNew[i];
-        // Update the i'th particle (row) in the slater matrix.
-        updateSlater(i);
-        // Update the inverse of the slater matrix.
+        // Calculate the new inverse function.
+        // Update the slater matrices.
         if (i < nHalf)
-            pMatOp::updateInverse(i, ratioTmp, pslater1, pslater1Inv, nHalf);
-        else
-            pMatOp::updateInverse(i - nHalf, ratioTmp, pslater2, pslater2Inv,
+        {
+            pMatOp::updateInverse(i, ratioTmp, pslater1New, pslater1InvNew,
                                   nHalf);
+        }
+        else
+        {
+            pMatOp::updateInverse(i - nHalf, ratioTmp, pslater2New,
+                                  pslater2InvNew, nHalf);
+        }
+        updateSlater(i, pslater1Old, pslater1New, pslater1InvOld,
+                     pslater1InvOld);
         accepts++;
+        cout << "hello accept 2" << endl;
     }
     else
     {
+        cout << "hello reject 1" << endl;
         for (int j = 0; j < nDimensions; j++)
         {
             prNew[i][j] = prOld[i][j];
         }
         rAbsNew[i] = rAbsOld[i];
+        // Update the slater matrices.
+        updateSlater(i, pslater2New, pslater2Old, pslater2InvNew,
+                     pslater2InvOld);
         rejects++;
+        cout << "hello reject 2" << endl;
     }
     endOfSingleParticleStep(cycle, i);
 }
@@ -599,22 +666,27 @@ bool VMCSolver::initRunVariables()
     {
         vS = Vector(nParticles / 2);
         S = vS.getArrayPointer();
-        slater1 = Matrix(nParticles / 2, nParticles / 2);
-        slater2 = Matrix(nParticles / 2, nParticles / 2);
-        pslater1 = slater1.getArrayPointer();
-        pslater2 = slater2.getArrayPointer();
+        slater1Old = Matrix(nParticles / 2, nParticles / 2);
+        slater2Old = Matrix(nParticles / 2, nParticles / 2);
+        pslater1Old = slater1Old.getArrayPointer();
+        pslater2Old = slater2Old.getArrayPointer();
         for (int i = 0; i < nParticles / 2; i++)
         {
             for (int j = 0; j < nParticles / 2; j++)
             {
-                pslater1[i][j] = phi(j, prNew[i], rAbsNew[i]);
-                pslater2[i][j] = phi(j, prNew[i + 2], rAbsNew[i + 2]);
+                pslater1Old[i][j] = phi(j, prNew[i], rAbsNew[i]);
+                pslater2Old[i][j] = phi(j, prNew[i + 2], rAbsNew[i + 2]);
             }
         }
-        slater1Inv = CPhys::MatOp::getInverse(slater1);
-        slater2Inv = CPhys::MatOp::getInverse(slater2);
-        pslater1Inv = slater1Inv.getArrayPointer();
-        pslater2Inv = slater2Inv.getArrayPointer();
+        slater1InvOld = CPhys::MatOp::getInverse(slater1Old);
+        slater2InvOld = CPhys::MatOp::getInverse(slater2Old);
+        pslater1InvOld = slater1InvOld.getArrayPointer();
+        pslater2InvOld = slater2InvOld.getArrayPointer();
+
+        slater1InvNew = slater1InvOld;
+        slater2InvNew = slater2InvOld;
+        slater1New = slater1Old;
+        slater2New = slater2Old;
     }
     // Finished without error (hopefully).
     return true;
@@ -680,12 +752,22 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i)
     }
 }
 
+/** \brief Calculates the quantum force.
+ *
+ * The only uknown is the qForce variable. All other paramters must be correct.
+ * \param r Particle positions.
+ * \param rAbs Particle absolute positions.
+ * \param pslater1 Up slater matrix.
+ * \param pslater2 Down slater matrix.
+ * \param pslater1Inv Up inverse slater matrix.
+ * \param pslater2Inv Down inverse slater matrix.
+ */
 void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
-                                         double** qForce)
+                                         double** qForce, double** pslater1,
+                                         double** pslater2,
+                                         double** pslater1Inv,
+                                         double** pslater2Inv)
 {
-    cout << "Pos 2" << endl;
-    cout << r[0][0] << endl;
-    cout << rAbs[0] << endl;
     if (usingCorrelation)
     {
         /* double rkVec[nDimensions]; */
@@ -791,9 +873,6 @@ void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
 void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
                                    double factor)
 {
-    cout << "Pos 1" << endl;
-    cout << r[0][0] << endl;
-    cout << rAbs[0] << endl;
     double waveFunctionMinus;
     double waveFunctionPlus;
     double r0;
@@ -840,16 +919,42 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
     }
 }
 
-void VMCSolver::updateSlater(int i)
-{
-    for (int j = 0; j < nParticles / 2; j++)
-    {
-        if (i < nParticles / 2)
-            pslater1[i][j] = phi(j, prNew[i], rAbsNew[i]);
-        else
-            pslater2[i - nHalf][j] = phi(j, prNew[i], rAbsNew[i]);
-    }
-}
+/* void VMCSolver::updateSlater(int i, double* r, double rAbs, double** slater1,
+ */
+/*                              double** slater2) */
+/* { */
+/*     if (i < nHalf) */
+/*     { */
+/*         for (int j = 0; j < nParticles / 2; j++) */
+/*         { */
+/*             slater1[i][j] = phi(j, r, rAbs); */
+/*         } */
+/*     } */
+/*     else */
+/*     { */
+/*         for (int j = 0; j < nParticles / 2; j++) */
+/*         { */
+/*             slater2[i][j] = phi(j, r, rAbs); */
+/*         } */
+/*     } */
+/* } */
+
+/* void VMCSolver::updateSlaterInv(int i, double* r, double rAbs, double**
+ * slater1, */
+/*                                 double** slater2, double** slater1Inv, */
+/*                                 double** slater2Inv, double ratio) */
+/* { */
+/*     if (i < nHalf) */
+/*     { */
+/*         pMatOp::updateInverse(i, ratio, pslater1New, pslater1InvOld, nHalf);
+ */
+/*     } */
+/*     else */
+/*     { */
+/*         pMatOp::updateInverse(i - nHalf, ratio, pslater2, pslater2InvOld, */
+/*                               nHalf); */
+/*     } */
+/* } */
 
 Vector VMCSolver::getEnergyArray()
 {
@@ -919,10 +1024,14 @@ void VMCSolver::clear()
     recordingPositions = false;
 
     // Initialize all variables, they are mostly overwritten.
-    slater1 = Matrix();
-    slater1Inv = Matrix();
-    slater2 = Matrix();
-    slater2Inv = Matrix();
+    slater1Old = Matrix();
+    slater1New = Matrix();
+    slater2Old = Matrix();
+    slater2New = Matrix();
+    slater1InvOld = Matrix();
+    slater1InvNew = Matrix();
+    slater2InvOld = Matrix();
+    slater2InvNew = Matrix();
     qForceOld = Matrix();
     qForceNew = Matrix();
     rOld = Matrix();
@@ -931,10 +1040,14 @@ void VMCSolver::clear()
     density = Matrix();
     vS = Vector();
     energyArray = Vector();
-    pslater1 = slater1.getArrayPointer();
-    pslater1Inv = slater1Inv.getArrayPointer();
-    pslater2 = slater2.getArrayPointer();
-    pslater2Inv = slater2Inv.getArrayPointer();
+    pslater1Old = slater1Old.getArrayPointer();
+    pslater1New = slater1New.getArrayPointer();
+    pslater1InvOld = slater1InvOld.getArrayPointer();
+    pslater1InvNew = slater1InvNew.getArrayPointer();
+    pslater2Old = slater2Old.getArrayPointer();
+    pslater2New = slater2New.getArrayPointer();
+    pslater2InvOld = slater2InvOld.getArrayPointer();
+    pslater2InvNew = slater2InvNew.getArrayPointer();
     pqForceOld = qForceOld.getArrayPointer();
     pqForceNew = qForceNew.getArrayPointer();
     prOld = rOld.getArrayPointer();
@@ -958,9 +1071,9 @@ double VMCSolver::getLocalEnergySlaterNoCor(double** r, double* rAbs)
         for (int j = 0; j < nHalf; j++)
         {
             if (i < nHalf)
-                sum += phiDD(j, r[i], rAbs[i]) * pslater1Inv[j][i];
+                sum += phiDD(j, r[i], rAbs[i]) * pslater1InvOld[j][i];
             else
-                sum += phiDD(j, r[i], rAbs[i]) * pslater2Inv[j][i - nHalf];
+                sum += phiDD(j, r[i], rAbs[i]) * pslater2InvOld[j][i - nHalf];
         }
     }
 
@@ -987,9 +1100,9 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
         for (int j = 0; j < nHalf; j++)
         {
             if (i < nHalf)
-                DD += phiDD(j, r[i], rAbs[i]) * pslater1Inv[j][i];
+                DD += pslater1Old[i][j] * pslater1InvOld[j][i];
             else
-                DD += phiDD(j, r[i], rAbs[i]) * pslater2Inv[j][i - nHalf];
+                DD += pslater2Old[i - nHalf][j] * pslater2InvOld[j][i - nHalf];
         }
     }
 
@@ -1145,10 +1258,11 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             for (int j = 0; j < nHalf; j++)
             {
                 if (k < nHalf)
-                    rkGrad[x] += phiD(j, r[k], rAbs[k], x) * pslater1Inv[j][k];
-                else
                     rkGrad[x] +=
-                        phiD(j, r[k], rAbs[k], x) * pslater2Inv[j][k - nHalf];
+                        phiD(j, r[k], rAbs[k], x) * pslater1InvOld[j][k];
+                else
+                    rkGrad[x] += phiD(j, r[k], rAbs[k], x) *
+                                 pslater2InvOld[j][k - nHalf];
             }
         }
         // Calculate DC.
@@ -1158,8 +1272,8 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
         }
     }
 
-    DD = -0.5*DD;
-    CC = -0.5*CC;
+    DD = -0.5 * DD;
+    CC = -0.5 * CC;
     DC = -DC;
 
     return DD + CC + DC + potentialEnergy;

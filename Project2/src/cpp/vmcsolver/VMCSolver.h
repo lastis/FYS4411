@@ -30,8 +30,13 @@ private:
     void endOfCycle(int cycle);
     void updateQuantumForce(double** r, double* rAbs, double** qForce,
                             double factor);
-    void updateQuantumForceSlater(double** r, double* rAbs, double** qForce);
-    void updateSlater(int i);
+    void updateQuantumForceSlater(double** r, double* rAbs, double** qForce,
+                                  double** pslater1, double** pslater2,
+                                  double** pslater1Inv, double** pslater2Inv);
+    void updateSlater(int i, double** slater1New, double** slater1Old,
+                      double** slater2New, double** slater2Old,
+                      double** slater1InvNew, double** slater1InvOld,
+                      double** slater2InvNew, double** slater2InvOld);
 
 public:
     VMCSolver();
@@ -122,14 +127,22 @@ public:
     bool parallel;
 
     // Private variables
-    Matrix slater1;
-    Matrix slater1Inv;
-    Matrix slater2;
-    Matrix slater2Inv;
-    double** pslater1;
-    double** pslater1Inv;
-    double** pslater2;
-    double** pslater2Inv;
+    Matrix slater1Old;
+    Matrix slater1New;
+    Matrix slater1InvOld;
+    Matrix slater1InvNew;
+    Matrix slater2Old;
+    Matrix slater2New;
+    Matrix slater2InvOld;
+    Matrix slater2InvNew;
+    double** pslater1Old;
+    double** pslater1New;
+    double** pslater1InvOld;
+    double** pslater1InvNew;
+    double** pslater2Old;
+    double** pslater2New;
+    double** pslater2InvOld;
+    double** pslater2InvNew;
     Vector vS;
     double* S;
     Matrix qForceOld;
@@ -150,7 +163,6 @@ public:
     double** pDensity;
     Vector energyArray;
     double* pEnergyArray;
-
 };
 
 #endif  // VMCSOLVER_H

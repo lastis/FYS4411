@@ -168,6 +168,14 @@ void MatOp::decomposeLU(Matrix& mat, Matrix& L, Matrix& U){
     pMatOp::decomposeLU(a,l,u,n);
 }
 
+/** \brief Update the inverse matrix when only the i'th row has been changed.
+ *
+ * \param i The i'th row that has been changed.
+ * \param ratio The ratio between the new matrix and the old one. 
+ * \param mat The matrix to update the inverse for. 
+ * \param inv The old inverse matrix.
+ * \param N Size of the matrix.
+ */         
 void pMatOp::updateInverse(int i, double ratio, double** mat, double** inv, int N){
     // Update the inverse matrix for all columns except the i'th.
     for (int j = 0; j < N; j++) {

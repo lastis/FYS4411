@@ -52,7 +52,6 @@ int main(int argc, const char *argv[])
     double* DC = vDC.getArrayPointer();
     double* EPot = vEPot.getArrayPointer();
 
-
     int threads = 4;
     // Set the max number of threads that can be run.
     omp_set_num_threads(threads);
