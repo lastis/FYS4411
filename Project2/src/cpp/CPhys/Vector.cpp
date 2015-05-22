@@ -45,6 +45,23 @@ Vector&	Vector::operator=(double num){
 	return *this;
 }
 
+Vector	Vector::operator/(double num){
+    // Create a new vector and return it. 
+    Vector vec = Vector(*this);
+    double* pVec = vec.getArrayPointer();
+	for (int i = 0; i < mN; i++) {
+		pVec[i] /= num;
+	}
+	return vec;
+}
+
+Vector&	Vector::operator/=(double num){
+	for (int i = 0; i < mN; i++) {
+		mVec[i] /= num;
+	}
+	return *this;
+}
+
 Vector&	Vector::operator+=(double num){
 	for (int i = 0; i < mN; i++) {
 		mVec[i] += num;

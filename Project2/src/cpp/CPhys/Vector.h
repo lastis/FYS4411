@@ -12,6 +12,8 @@ public:
 	int	getLength();
 	double	linspace (double  start, double end);
 	double*	getArrayPointer();
+	Vector	operator/(double num);
+	Vector&	operator/=(double num);
 	Vector&	operator+=(double num);
 	Vector&	operator =(double num);
 	Vector& operator =(Vector other);
