@@ -157,29 +157,6 @@ namespace wave_functions{
         }
     }
 
-    /* static double berylliumPsiDD(double** r, double* rAbs) */
-    /* { */
-    /*     double tmp = 0; */
-    /*     double sum = 0; */
-    /*     tmp += phi2s(rAbs[1])*phi1sDD(rAbs[0]) - phi1s(rAbs[1])*phi2sDD(rAbs[0]); */
-    /*     tmp -= phi2s(rAbs[0])*phi1sDD(rAbs[1]) - phi1s(rAbs[0])*phi2sDD(rAbs[1]); */
-    /*     tmp += 2*(phi2s(rAbs[1])*phi1sD(rAbs[0]) */ 
-    /*             - phi1s(rAbs[1])*phi2sD(rAbs[0]))/rAbs[0]; */
-    /*     tmp -= 2*(phi2s(rAbs[0])*phi1sD(rAbs[1]) */ 
-    /*             - phi1s(rAbs[0])*phi2sD(rAbs[1]))/rAbs[1]; */
-    /*     sum += tmp/(phi1s(rAbs[0]) * phi2s(rAbs[1]) - phi2s(rAbs[0]) * phi1s(rAbs[1])); */
-
-    /*     tmp = 0; */
-    /*     tmp += phi2s(rAbs[3])*phi1sDD(rAbs[2]) - phi1s(rAbs[3])*phi2sDD(rAbs[2]); */
-    /*     tmp -= phi2s(rAbs[2])*phi1sDD(rAbs[3]) - phi1s(rAbs[2])*phi2sDD(rAbs[3]); */
-    /*     tmp += 2*(phi2s(rAbs[3])*phi1sD(rAbs[2]) */ 
-    /*             - phi1s(rAbs[3])*phi2sD(rAbs[2]))/rAbs[2]; */
-    /*     tmp -= 2*(phi2s(rAbs[2])*phi1sD(rAbs[3]) */ 
-    /*             - phi1s(rAbs[2])*phi2sD(rAbs[3]))/rAbs[3]; */
-    /*     sum += tmp/(phi1s(rAbs[2]) * phi2s(rAbs[3]) - phi2s(rAbs[2]) * phi1s(rAbs[3])); */
-    /*     return sum; */
-    /* } */
-
     static double getLocalEnergyGeneric(double** r, double* rAbs){
         double waveFunctionMinus = 0;
         double waveFunctionPlus = 0;

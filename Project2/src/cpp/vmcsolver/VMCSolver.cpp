@@ -115,10 +115,10 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
     greensFunction = 0;
     for (int j = 0; j < nDimensions; j++)
     {
-        greensFunction += (prNew[i][j] - prOld[i][j]) *
-                              (pqForceNew[i][j] + pqForceOld[i][j]) +
-                          D * timeStep * (pqForceNew[i][j] * pqForceNew[i][j] -
-                                          pqForceOld[i][j] * pqForceOld[i][j]);
+        greensFunction +=
+            0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) *
+            (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) -
+             prNew[i][j] + prOld[i][j]);
     }
     greensFunction = exp(greensFunction);
 
@@ -289,10 +289,14 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
     greensFunction = 0;
     for (int j = 0; j < nDimensions; j++)
     {
-        greensFunction += (prNew[i][j] - prOld[i][j]) *
-                              (pqForceNew[i][j] + pqForceOld[i][j]) +
-                          D * timeStep * (pqForceNew[i][j] * pqForceNew[i][j] -
-                                          pqForceOld[i][j] * pqForceOld[i][j]);
+        greensFunction +=
+            0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) *
+            (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) -
+             prNew[i][j] + prOld[i][j]);
+        /* greensFunction += (prNew[i][j] - prOld[i][j]) * */
+        /*                       (pqForceNew[i][j] + pqForceOld[i][j]) + */
+        /*                   D * timeStep * (pqForceNew[i][j] * pqForceNew[i][j] - */
+        /*                                   pqForceOld[i][j] * pqForceOld[i][j]); */
     }
     greensFunction = exp(greensFunction);
 
@@ -369,7 +373,7 @@ void VMCSolver::updateSlater(int i, double** slater1New, double** slater1Old,
 
 void VMCSolver::runSingleStepSlater(int i, int cycle)
 {
-    
+
     // New position to test
     rAbsNew[i] = 0;
     for (int j = 0; j < nDimensions; j++)

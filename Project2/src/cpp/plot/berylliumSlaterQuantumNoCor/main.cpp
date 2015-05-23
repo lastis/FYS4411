@@ -35,6 +35,7 @@ int main(int argc, const char *argv[])
     solver.useImportanceSampling(true);
     solver.timeStep = 0.001;
     solver.D = 0.5;
+    solver.useParallel(true);
 
     // Run simulation.
     auto start = chrono::high_resolution_clock::now();
@@ -44,8 +45,7 @@ int main(int argc, const char *argv[])
     /* cout << "Time = " << diff.count() << " seconds." << endl; */
     using microfortnights = std::chrono::duration<float, std::ratio<12096,10000>>;
     cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl;
-    cout << "Energy " << solver.getEnergy() << endl;
-    cout << "Acceptance Ratio : " << solver.getAcceptanceRatio() << endl;
+    /* cout << "Energy " << solver.getEnergy() << endl; */
 
     // Manipulate data. 
     Vector energyArray = solver.getEnergyArray();

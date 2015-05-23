@@ -35,6 +35,7 @@ int main(int argc, const char *argv[])
     solver.useImportanceSampling(true);
     solver.timeStep = 0.001;
     solver.D = 0.5;
+    solver.useParallel(true);
 
     // Run simulation.
     auto start = chrono::high_resolution_clock::now();
