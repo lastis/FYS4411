@@ -308,8 +308,9 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
         }
         rAbsOld[i] = rAbsNew[i];
         // Update the slater matrices.
-        updateSlater(i, pslater1Old, pslater1New, pslater1InvOld,
-                     pslater1InvOld);
+        updateSlater(i, pslater1Old, pslater1New, pslater2Old, pslater2New,
+                     pslater1InvOld, pslater1InvNew, pslater2InvOld,
+                     pslater2InvNew);
         accepts++;
     }
     else
@@ -321,15 +322,16 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
         }
         rAbsNew[i] = rAbsOld[i];
         // Update the slater matrices.
-        updateSlater(i, pslater2New, pslater2Old, pslater2InvNew,
+        updateSlater(i, pslater1New, pslater1Old, pslater2New, pslater2Old,
+                     pslater1InvNew, pslater1InvOld, pslater2InvNew,
                      pslater2InvOld);
         rejects++;
     }
     endOfSingleParticleStep(cycle, i);
 }
 
-/** \brief Copy the slated old variabes to the new variables in an effecient
- *way.
+/** \brief Copy the slater old variabes to the new variables in an effecient
+ * way.
  *
  * \param slaterNew Slater matrix that will be overwritten.
  * \param slaterOld Slater matrix that will be copied.
@@ -341,34 +343,33 @@ void VMCSolver::updateSlater(int i, double** slater1New, double** slater1Old,
                              double** slater1InvNew, double** slater1InvOld,
                              double** slater2InvNew, double** slater2InvOld)
 {
-    cout << "start " << endl;
-    if (i < nHalf) 
+    if (i < nHalf)
     {
-        for (int j = 0; j < nHalf; j++) 
+        for (int j = 0; j < nHalf; j++)
         {
             slater1New[i][j] = slater1Old[i][j];
-            for (int i = 0; i < nHalf; i++) 
+            for (int i = 0; i < nHalf; i++)
             {
                 slater1InvNew[i][j] = slater1InvOld[i][j];
             }
         }
     }
-    else 
+    else
     {
-        for (int j = 0; j < nHalf; j++) 
+        for (int j = 0; j < nHalf; j++)
         {
-            slater2New[i-nHalf][j] = slater2Old[i-nHalf][j];
-            for (int i = 0; i < nHalf; i++) 
+            slater2New[i - nHalf][j] = slater2Old[i - nHalf][j];
+            for (int i = 0; i < nHalf; i++)
             {
                 slater2InvNew[i][j] = slater2InvOld[i][j];
             }
         }
     }
-    cout << "finished " << endl;
 }
 
 void VMCSolver::runSingleStepSlater(int i, int cycle)
 {
+    
     // New position to test
     rAbsNew[i] = 0;
     for (int j = 0; j < nDimensions; j++)
@@ -404,7 +405,6 @@ void VMCSolver::runSingleStepSlater(int i, int cycle)
     // update position, if no, reset position)
     if (dist_uniform(gen) <= ratio)
     {
-        cout << "hello accept 1" << endl;
         for (int x = 0; x < nDimensions; x++)
         {
             prOld[i][x] = prNew[i][x];
@@ -422,24 +422,23 @@ void VMCSolver::runSingleStepSlater(int i, int cycle)
             pMatOp::updateInverse(i - nHalf, ratioTmp, pslater2New,
                                   pslater2InvNew, nHalf);
         }
-        updateSlater(i, pslater1Old, pslater1New, pslater1InvOld,
-                     pslater1InvOld);
+        updateSlater(i, pslater1Old, pslater1New, pslater2Old, pslater2New,
+                     pslater1InvOld, pslater1InvNew, pslater2InvOld,
+                     pslater2InvNew);
         accepts++;
-        cout << "hello accept 2" << endl;
     }
     else
     {
-        cout << "hello reject 1" << endl;
         for (int j = 0; j < nDimensions; j++)
         {
             prNew[i][j] = prOld[i][j];
         }
         rAbsNew[i] = rAbsOld[i];
         // Update the slater matrices.
-        updateSlater(i, pslater2New, pslater2Old, pslater2InvNew,
+        updateSlater(i, pslater1New, pslater1Old, pslater2New, pslater2Old,
+                     pslater1InvNew, pslater1InvOld, pslater2InvNew,
                      pslater2InvOld);
         rejects++;
-        cout << "hello reject 2" << endl;
     }
     endOfSingleParticleStep(cycle, i);
 }
@@ -666,10 +665,12 @@ bool VMCSolver::initRunVariables()
     {
         vS = Vector(nParticles / 2);
         S = vS.getArrayPointer();
+        // Create the arrays and assign the correct pointers.
         slater1Old = Matrix(nParticles / 2, nParticles / 2);
         slater2Old = Matrix(nParticles / 2, nParticles / 2);
         pslater1Old = slater1Old.getArrayPointer();
         pslater2Old = slater2Old.getArrayPointer();
+        // Fill the arrays.
         for (int i = 0; i < nParticles / 2; i++)
         {
             for (int j = 0; j < nParticles / 2; j++)
@@ -678,15 +679,22 @@ bool VMCSolver::initRunVariables()
                 pslater2Old[i][j] = phi(j, prNew[i + 2], rAbsNew[i + 2]);
             }
         }
+        // Calculate the inverse and assign the pointers.
         slater1InvOld = CPhys::MatOp::getInverse(slater1Old);
         slater2InvOld = CPhys::MatOp::getInverse(slater2Old);
         pslater1InvOld = slater1InvOld.getArrayPointer();
         pslater2InvOld = slater2InvOld.getArrayPointer();
 
+        // Copy old values to the new values.
         slater1InvNew = slater1InvOld;
         slater2InvNew = slater2InvOld;
         slater1New = slater1Old;
         slater2New = slater2Old;
+        // Assign the correct pointers.
+        pslater1InvNew = slater1InvNew.getArrayPointer();
+        pslater2InvNew = slater2InvNew.getArrayPointer();
+        pslater1New = slater1New.getArrayPointer();
+        pslater2New = slater2New.getArrayPointer();
     }
     // Finished without error (hopefully).
     return true;
@@ -1100,9 +1108,9 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
         for (int j = 0; j < nHalf; j++)
         {
             if (i < nHalf)
-                DD += pslater1Old[i][j] * pslater1InvOld[j][i];
+                DD += phiDD(j, r[i], rAbs[i]) * pslater1InvOld[j][i];
             else
-                DD += pslater2Old[i - nHalf][j] * pslater2InvOld[j][i - nHalf];
+                DD += phiDD(j, r[i], rAbs[i]) * pslater2InvOld[j][i - nHalf];
         }
     }
 
