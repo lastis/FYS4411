@@ -197,13 +197,15 @@ double VMCSolver::getCorrelationRatio(int i)
                 switch (spinK + spinJ)
                 {
                     case 0:
-                        a = 0.25;
+                        /* a = 0.25; */
+                        a = 0.5;
                         break;
                     case 1:
                         a = 0.5;
                         break;
                     case 2:
-                        a = 0.25;
+                        /* a = 0.25; */
+                        a = 0.5;
                         break;
                 }
                 double bkjOld = 1 / (1 + beta * rkjOld);
@@ -293,10 +295,6 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
             0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) *
             (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) -
              prNew[i][j] + prOld[i][j]);
-        /* greensFunction += (prNew[i][j] - prOld[i][j]) * */
-        /*                       (pqForceNew[i][j] + pqForceOld[i][j]) + */
-        /*                   D * timeStep * (pqForceNew[i][j] * pqForceNew[i][j] - */
-        /*                                   pqForceOld[i][j] * pqForceOld[i][j]); */
     }
     greensFunction = exp(greensFunction);
 
@@ -337,10 +335,14 @@ void VMCSolver::runSingleStepSlaterQuantum(int i, int cycle)
 /** \brief Copy the slater old variabes to the new variables in an effecient
  * way.
  *
- * \param slaterNew Slater matrix that will be overwritten.
- * \param slaterOld Slater matrix that will be copied.
- * \param slaterInvNew Slater matrix that will be overwritten.
- * \param slaterInvOld Slater matrix that will be copied.
+ * \param slater1New Slater matrix that will be overwritten.
+ * \param slater1Old Slater matrix that will be copied.
+ * \param slater2New Slater matrix that will be overwritten.
+ * \param slater2Old Slater matrix that will be copied.
+ * \param slater1InvNew Slater matrix that will be overwritten.
+ * \param slater1InvOld Slater matrix that will be copied.
+ * \param slater2InvNew Slater matrix that will be overwritten.
+ * \param slater2InvOld Slater matrix that will be copied.
  */
 void VMCSolver::updateSlater(int i, double** slater1New, double** slater1Old,
                              double** slater2New, double** slater2Old,
@@ -782,78 +784,82 @@ void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
 {
     if (usingCorrelation)
     {
-        /* double rkVec[nDimensions]; */
-        /* double rkjVec[nDimensions]; */
-        /* double rkjAbs; */
-        /* double rkGrad[nDimensions]; */
-        /* for (int k = 0; k < nParticles; k++) */
-        /* { */
-        /*     // Reset rkVec. */
-        /*     for (int x = 0; x < nDimensions; x++) */
-        /*     { */
-        /*         rkVec[x] = 0; */
-        /*     } */
-        /*     // Calculate rkVec. */
-        /*     for (int j = 0; j < nParticles; j++) */
-        /*     { */
-        /*         if (j == k) continue; */
-        /*         spinK = k / nHalf; */
-        /*         spinJ = j / nHalf; */
-        /*         switch (spinK + spinJ) */
-        /*         { */
-        /*             case 0: */
-        /*                 a1 = 0.25; */
-        /*                 break; */
-        /*             case 1: */
-        /*                 a1 = 0.5; */
-        /*                 break; */
-        /*             case 2: */
-        /*                 a1 = 0.25; */
-        /*                 break; */
-        /*         } */
-        /*         rkjAbs = 0; */
-        /*         for (int x = 0; x < nDimensions; x++) */
-        /*         { */
-        /*             rkjVec[x] = r[j][x] - r[k][x]; */
-        /*             rkjAbs += rkjVec[x] * rkjVec[x]; */
-        /*         } */
-        /*         rkjAbs = sqrt(rkjAbs); */
-        /*         bkj = 1 / (1 + beta * rkjAbs); */
-        /*         // Calculate the final vector, the gradient of the correction
-         */
-        /*         // function. */
-        /*         for (int x = 0; x < nDimensions; x++) */
-        /*         { */
-        /*             rkVec[x] -= rkjVec[x] * a1 * bkj * bkj / rkjAbs; */
-        /*         } */
-        /*     } */
-        /*     tmp = 0; */
-        /*     // Reset rkGrad. */
-        /*     for (int x = 0; x < nDimensions; x++) */
-        /*     { */
-        /*         rkGrad[x] = 0; */
-        /*     } */
-        /*     // Calculate rkGrad. */
-        /*     for (int x = 0; x < nDimensions; x++) */
-        /*     { */
-        /*         /1* rkGrad[x] = r[k][x]*tmp/rAbs[k]; *1/ */
-        /*         for (int j = 0; j < nHalf; j++) */
-        /*         { */
-        /*             if (k < nHalf) */
-        /*                 rkGrad[x] += phiD(j, r[k], rAbs[k], x) *
-         * pslater1Inv[j][k]; */
-        /*             else */
-        /*                 rkGrad[x] += */
-        /*                     phiD(j, r[k], rAbs[k], x) * pslater2Inv[j][k -
-         * nHalf]; */
-        /*         } */
-        /*     } */
-        /*     // Calculate DC. */
-        /*     for (int x = 0; x < nDimensions; x++) */
-        /*     { */
-        /*         DC += rkVec[x] * rkGrad[x]; */
-        /*     } */
-        /* } */
+        double rkVec[nDimensions];
+        double rkjVec[nDimensions];
+        double rkjAbs;
+        double rkGrad[nDimensions];
+        int spinK;
+        int spinJ;
+        double a1;
+        double bkj;
+        double tmp;
+        for (int k = 0; k < nParticles; k++)
+        {
+            // Reset rkVec.
+            for (int x = 0; x < nDimensions; x++)
+            {
+                rkVec[x] = 0;
+            }
+            // Calculate rkVec.
+            for (int j = 0; j < nParticles; j++)
+            {
+                if (j == k) continue;
+                spinK = k / nHalf;
+                spinJ = j / nHalf;
+                switch (spinK + spinJ)
+                {
+                    case 0:
+                        /* a1 = 0.25; */
+                        a1 = 0.5;
+                        break;
+                    case 1:
+                        a1 = 0.5;
+                        break;
+                    case 2:
+                        a1 = 0.5;
+                        /* a1 = 0.25; */
+                        break;
+                }
+                rkjAbs = 0;
+                for (int x = 0; x < nDimensions; x++)
+                {
+                    rkjVec[x] = r[j][x] - r[k][x];
+                    rkjAbs += rkjVec[x] * rkjVec[x];
+                }
+                rkjAbs = sqrt(rkjAbs);
+                bkj = 1 / (1 + beta * rkjAbs);
+                // Calculate the final vector, the gradient of the correction
+                // function.
+                for (int x = 0; x < nDimensions; x++)
+                {
+                    rkVec[x] -= rkjVec[x] * a1 * bkj * bkj / rkjAbs;
+                }
+            }
+            tmp = 0;
+            // Reset rkGrad.
+            for (int x = 0; x < nDimensions; x++)
+            {
+                rkGrad[x] = 0;
+            }
+            // Calculate rkGrad.
+            for (int x = 0; x < nDimensions; x++)
+            {
+                for (int j = 0; j < nHalf; j++)
+                {
+                    if (k < nHalf)
+                        rkGrad[x] +=
+                            phiD(j, r[k], rAbs[k], x) * pslater1Inv[j][k];
+                    else
+                        rkGrad[x] += phiD(j, r[k], rAbs[k], x) *
+                                     pslater2Inv[j][k - nHalf];
+                }
+            }
+            // Calculate DC.
+            for (int x = 0; x < nDimensions; x++)
+            {
+                DC += rkVec[x] * rkGrad[x];
+            }
+        }
     }
     // Not using correlation.
     else
@@ -930,43 +936,6 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
         }
     }
 }
-
-/* void VMCSolver::updateSlater(int i, double* r, double rAbs, double** slater1,
- */
-/*                              double** slater2) */
-/* { */
-/*     if (i < nHalf) */
-/*     { */
-/*         for (int j = 0; j < nParticles / 2; j++) */
-/*         { */
-/*             slater1[i][j] = phi(j, r, rAbs); */
-/*         } */
-/*     } */
-/*     else */
-/*     { */
-/*         for (int j = 0; j < nParticles / 2; j++) */
-/*         { */
-/*             slater2[i][j] = phi(j, r, rAbs); */
-/*         } */
-/*     } */
-/* } */
-
-/* void VMCSolver::updateSlaterInv(int i, double* r, double rAbs, double**
- * slater1, */
-/*                                 double** slater2, double** slater1Inv, */
-/*                                 double** slater2Inv, double ratio) */
-/* { */
-/*     if (i < nHalf) */
-/*     { */
-/*         pMatOp::updateInverse(i, ratio, pslater1New, pslater1InvOld, nHalf);
- */
-/*     } */
-/*     else */
-/*     { */
-/*         pMatOp::updateInverse(i - nHalf, ratio, pslater2, pslater2InvOld, */
-/*                               nHalf); */
-/*     } */
-/* } */
 
 Vector VMCSolver::getEnergyArray()
 {
@@ -1169,13 +1138,15 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             switch (spinK + spinJ)
             {
                 case 0:
-                    a1 = 0.25;
+                    /* a1 = 0.25; */
+                    a1 = 0.5;
                     break;
                 case 1:
                     a1 = 0.5;
                     break;
                 case 2:
-                    a1 = 0.25;
+                    /* a1 = 0.25; */
+                    a1 = 0.5;
                     break;
             }
             bkj = 1 / (1 + beta * rkj);
@@ -1199,13 +1170,15 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
                 switch (spinK + spinI)
                 {
                     case 0:
-                        a2 = 0.25;
+                        /* a2 = 0.25; */
+                        a2 = 0.5;
                         break;
                     case 1:
                         a2 = 0.5;
                         break;
                     case 2:
-                        a2 = 0.25;
+                        /* a2 = 0.25; */
+                        a2 = 0.5;
                         break;
                 }
                 CC += dot / (rki * rkj) * a1 * a2 * bki * bki * bkj * bkj;
@@ -1234,13 +1207,15 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             switch (spinK + spinJ)
             {
                 case 0:
-                    a1 = 0.25;
+                    /* a1 = 0.25; */
+                    a1 = 0.5;
                     break;
                 case 1:
                     a1 = 0.5;
                     break;
                 case 2:
-                    a1 = 0.25;
+                    /* a1 = 0.25; */
+                    a1 = 0.5;
                     break;
             }
             rkjAbs = 0;

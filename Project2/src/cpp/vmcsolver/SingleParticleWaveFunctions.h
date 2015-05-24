@@ -17,7 +17,6 @@ namespace wave_functions{
     static int nHalf;
     static double (*getWaveFuncVal)(double** r, double* rAbs);
 
-
     static double f(double r){
         return -0.5*alpha*r;
     }
@@ -245,16 +244,9 @@ namespace wave_functions{
         double r2Abs = rAbs[1];
         double r12 = 0;
         for(int j = 0; j < nDimensions; j++) {
-            /* temp = r1[j] * r1[j]; */
-            /* r1Abs += temp; */
-            /* temp = r2[j] * r2[j]; */
-            /* r2Abs += temp; */
-
             temp = (r2[j] - r1[j]) * (r2[j] - r1[j]);
             r12 += temp;
         }
-        /* r1Abs = sqrt(r1Abs); */
-        /* r2Abs = sqrt(r2Abs); */
         r12 = sqrt(r12);
         return exp(-(r1Abs + r2Abs)*alpha)*exp(r12/(2*(1+beta*r12)));
     }
