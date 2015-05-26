@@ -21,7 +21,7 @@ except OSError:
     pass
 
 beta = 1
-alphaArray = np.linspace(10,11,11)
+alphaArray = np.linspace(8,10.5,11)
 
 
 # Save the alpha values.

@@ -205,19 +205,18 @@ at some step $n$.
 
 \subsection{Importance Sampling}
 A random walker is the most efficient way to sample where the
-wave function is large. To increase this we can implement importance
-sampling wher the walk in space is effected by the trial wave function. 
+wave function is large. To increase this, we can implement importance
+sampling, wherr the walk in space is affected by the trial wave function. 
 
-The results are based on the Fokker-Planck equation and the Langevin 
+The results are based on the Fokker-Planck equation, and the Langevin 
 equation. This makes the step look similar to a diffusion process
-where the new position is given by,
+where the new position is given by
 \begin{align*}
 y = x + DF(x) \delta t + \xi \sqrt{\Delta t}.
 \end{align*}
 
-$\xi $ is a gaussian random variable and $\Delta t$ is a chosen timestep.
-For atomic units $D$ is $1/2$ and $\Delta t$ is a variable for the 
-simulation. In our plots $\Delta t = 0.01$. 
+where $\xi $ is a gaussian random variable, and $\Delta t$ is a chosen timestep.
+In atomic units, $D$ is $1/2$, and in our plots $\Delta t = 0.01$. 
 
 An important part of this result is that the walker is effected by $F(x)$
 which contains the trial wavefunction. This has been named the quantum 
@@ -228,7 +227,7 @@ force.
 \end{align*}
 
 This also has the result of changing the random number check in the 
-Metropolis algorthm from :
+Metropolis algorithm from:
 $q(y,x) = |\Psi_T(y)|^2/|\Psi_T(x)|^2$ to: 
 \[
 q(y,x) = \frac{G(x,y,\Delta t)|\Psi_T(y)|^2}{G(y,x,\Delta t)|\Psi_T(x)|^2}.
@@ -596,7 +595,7 @@ where $\vec r = r\unit r$.
   
 We define the functions
 \eq{
-  f_i &\equiv -\frac{\alpha \vec r_i}{2}\\
+  f_i &\equiv -\frac{\alpha r_i}{2}\\
   g_i &\equiv \exp(f_i)\\
   F_{ij} &\equiv \phi_{1s}(\vec r_i)\phi_{2s}(\vec r_j)
   -\phi_{1s}(\vec r_j)\phi_{2s}(\vec r_i)
@@ -609,15 +608,48 @@ of the Hydrogen-like wavefunctions in the following way
   \frac{\partial^2 \phi_{1s}^i}{\partial r_i^2} &= \alpha^2 g_i^2\\
   \phi_{2s}^i &= g_i(1+f_i)\\
   \frac{\partial \phi_{2s}^i}{\partial r_i} &= -\alpha g_i(1+f_i/2)\\
-  \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)\\
+  \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)
+  }
+  and for the $2p$ part we need to differentiate in cartesian coordinates,
+  since the Hydrogenic wave function is dependant on the
+  angles, thus
+  \eq{
   \phi_{2p_k}^i &= \alpha k_i g_i \text{ for } k_i = x_i,y_i,z_i\\
-  \frac{\partial\phi_{2p_k}^i}{\partial r_i} 
-    &= \left( \frac{1}{r_i} - \frac{\alpha}{2} \right) \alpha k_i g_i \\
-  \frac{\partial^2\phi_{2p_k}^i}{\partial r_i^2} 
-    &=\left(\left[ \frac{1}{r_i} - \frac{\alpha}{2} \right]^2 
-    -\frac{1}{r_i}\right) \alpha k_i g_i
+  \frac{\partial\phi_{2p_x}^i}{\partial x_i} 
+    &= \left(\alpha - \frac{\alpha^2 x_i^2}{2 r_i} \right)g_i\\
+  \frac{\partial\phi_{2p_x}^i}{\partial y_i} 
+    &=-\frac{\alpha^2 x_i y_i }{2 r_i} g_i\\ 
+  \frac{\partial\phi_{2p_x}^i}{\partial z_i} 
+    &=-\frac{\alpha^2 x_i z_i}{2 r_i} g_i
 }
-and then the terms required to calculate the Slater determinant
+
+which gives us a gradient on the form
+
+\eq{
+  \nabla \phi_{2p_x}^i = 
+  \left(
+  \alpha g_i - \frac{\alpha^2 x_i^2}{2 r_i}g_i,
+    -\frac{\alpha^2 x_i y_i }{2 r_i} g_i,
+    -\frac{\alpha^2 x_i z_i}{2 r_i} g_i
+  \right)
+}
+The expressions for $\phi_{2p_y}$ and $\phi_{2p_z}$ are similarly
+\eq{
+  \nabla \phi_{2p_y}^i &= 
+  \left(
+  \frac{\alpha^2 x_i y_i}{2 r_i}g_i,
+    \alpha g_i -\frac{\alpha^2 y_i^2 }{2 r_i} g_i,
+    -\frac{\alpha^2 y_i z_i}{2 r_i} g_i
+  \right)\\
+  \nabla \phi_{2p_z}^i &= 
+  \left(
+  -\frac{\alpha^2 x_i z_i}{2 r_i}g_i,
+    -\frac{\alpha^2 y_i z_i}{2 r_i} g_i,
+    \alpha g_i -\frac{\alpha^2 z_i^2}{2 r_i} g_i
+  \right)
+}
+
+Then the terms required to calculate the Slater determinant
 \eq{
   F_{ij} &= g_i^2 (1+f_j)g_j - g_j^2 (1+f_i)g_i\\
   \frac{\partial F_{ij}}{\partial r_i} 

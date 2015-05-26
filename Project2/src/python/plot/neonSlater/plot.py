@@ -50,6 +50,7 @@ plt.plot(alphaArray, meanEPot);
 plt.plot(alphaArray, meanDD);
 plt.plot(alphaArray, meanCC);
 plt.plot(alphaArray, meanDC);
+plt.legend(['Epot', 'DD', 'CC', 'DC'])
 plt.savefig('special.png')
 plt.show()
 plt.figure()
