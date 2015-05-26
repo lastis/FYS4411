@@ -31,6 +31,32 @@ namespace util {
      * \param adress Adress to file. Warning, from the location of this
      * function.
      * \param fileName Name of file. 
+     * \param mat Matrix to print. 
+     */         
+    void writeToFile(string adress, string fileName, Matrix mat){
+        ofstream myFile;
+        int N = mat.getN();
+        int M = mat.getM();
+        double** pMat = mat.getArrayPointer();
+        // Dump results to the end of the file. 
+        myFile.open((adress + fileName).c_str());
+        for (int i = 0; i < N; i++) 
+        {
+            for (int j = 0; j < M; j++) 
+            {
+                myFile << pMat[i][j] << " ";
+            }
+            myFile << endl;
+        }
+        myFile << endl;
+        myFile.close();
+    }
+
+    /** \brief Write vector to file. Will overwrite.
+     *
+     * \param adress Adress to file. Warning, from the location of this
+     * function.
+     * \param fileName Name of file. 
      * \param array Vector to print. 
      */         
     void writeToFile(string adress, string fileName, Vector array){
