@@ -21,6 +21,7 @@ int main(int argc, const char *argv[])
     double nCycles = 1e4;
     int binSize = nCycles;
     int idum = 1;
+    int threads = 4;
 
     string adress = "../../../../res/blocking/neon_prep/";
 
@@ -47,7 +48,6 @@ int main(int argc, const char *argv[])
     Vector vEnergyArray = Vector(nCycles);
     double* energyArray = vEnergyArray.getArrayPointer();
 
-    int threads = 4;
     // Set the max number of threads that can be run.
     omp_set_num_threads(threads);
 
@@ -78,8 +78,8 @@ int main(int argc, const char *argv[])
     Vector blocking = Vector();
     Vector blockingStd = Vector();
     util::blockingVar(1,vEnergyArray,blockingStd,blocking);
-    util::appendToFile(adress,"energies_blocking.txt",blocking);
-    util::appendToFile(adress,"energies_blocking_std.txt",blockingStd);
+    util::appendToFile(adress,"energies_bins.txt",blocking);
+    util::appendToFile(adress,"energies_std.txt",blockingStd);
 
     return 0;
 }

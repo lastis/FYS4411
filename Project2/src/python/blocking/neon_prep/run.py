@@ -18,8 +18,8 @@ try :
 except OSError:
     pass
 
-beta = 0.2
-alpha = 11.75
+beta = 0.21
+alpha = 11.00
 
 # Compile the code
 os.chdir(curDir)

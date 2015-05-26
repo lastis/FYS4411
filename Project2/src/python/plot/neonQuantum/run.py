@@ -20,8 +20,8 @@ try :
 except OSError:
     pass
 
-beta = 0.2
-alphaArray = np.linspace(9.5,12.5,5)
+beta = 0.21
+alphaArray = np.linspace(9.0,11.0,11)
 
 
 # Save the alpha values.

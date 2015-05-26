@@ -20,8 +20,9 @@ int main(int argc, const char *argv[])
     int nParticles = 10;
     double nCycles = 5e3;
     int threads = 4;
-    int trials = 20;
+    int trials = 4;
     int totalTrials = threads*trials;
+    int idum = 1000;
 
     string adress = "../../../../res/plot/neonQuantum/";
 
@@ -36,14 +37,12 @@ int main(int argc, const char *argv[])
     wrapper.h = 0.001;
     wrapper.hInv = 1000;
     wrapper.h2Inv = 1e+06;
-    wrapper.idum = 1;
+    wrapper.idum = idum;
     wrapper.useEfficientSlater(true);
     wrapper.useLocalEnergySlater();
     wrapper.useImportanceSampling(true);
     wrapper.timeStep = 0.001;
     wrapper.D = 0.5;
-
-    VMCSolver solver = wrapper.getInitializedSolver();
 
     Vector vEnergiesMean = Vector(totalTrials);
     double* energiesMean = vEnergiesMean.getArrayPointer();

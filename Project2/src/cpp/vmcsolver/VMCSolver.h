@@ -27,7 +27,7 @@ public:
 
 private:
     void endOfSingleParticleStep(int cycle, int i);
-    void endOfCycle(int cycle);
+    /* void endOfCycle(int cycle); */
     void updateQuantumForce(double** r, double* rAbs, double** qForce,
                             double factor);
     void updateQuantumForceSlater(double** r, double* rAbs, double** qForce,
@@ -49,17 +49,17 @@ public:
     double getEnergySquared();
     void supressOutput();
 
-    bool runIntegration();
+    /* bool runIntegration(); */
     bool initRunVariables();
 
     void startOfCycle();
     void startOfCycleQuantum();
     void startOfCycleSlaterQuantum();
 
-    void runStep(int cycle);
-    void runStepSlater(int cycle);
-    void runStepQuantum(int cycle);
-    void runStepSlaterQuantum(int cycle);
+    /* void runStep(int cycle); */
+    /* void runStepSlater(int cycle); */
+    /* void runStepQuantum(int cycle); */
+    /* void runStepSlaterQuantum(int cycle); */
 
     void runSingleStep(int i, int cycle);
     void runSingleStepSlater(int i, int cycle);
@@ -117,14 +117,14 @@ public:
     int nHalf;
 
     bool usingCorrelation;
-    bool outputSupressed;
-    bool recordingDensity;
-    bool recordingEnergyArray;
-    bool recordingR12Mean;
-    bool recordingPositions;
     bool importanceSampling;
     bool efficientSlater;
-    bool parallel;
+    /* bool outputSupressed; */
+    /* bool recordingDensity; */
+    /* bool recordingEnergyArray; */
+    /* bool recordingR12Mean; */
+    /* bool recordingPositions; */
+    /* bool parallel; */
 
     // Private variables
     Matrix slater1Old;

@@ -15,71 +15,71 @@ VMCSolver VMCWrapper::getInitializedSolver(){
     return solver;
 }
 
-void VMCWrapper::runIntegration(){
-    if (parallel) {
-        threads = 4;
-        // Set the max number of threads that can be run.
-        omp_set_num_threads(threads);
-        // We need to gather all the recordings of all the 
-        // parallel solvers. We do this by copying
-        // each solvers energy array into the following
-        // list of energy arrays.  
-        double energySum = 0;
-        double ratioSum = 0;
-        // A list of vectors. 
-        Vector* energyArrays = new Vector[threads]();
-        double** pEnergyArrays = new double*[threads];
-        // totalCycles might differ from nCycles if nCycles 
-        // is not a multiple of the number of threads.
-        int totalCycles = 0;
-        VMCSolver solver; 
-        #pragma omp parallel private(solver)
-        {
-            solver = VMCSolver();
-            initSolver(solver);
-            solver.nCycles = nCycles;
-            solver.setSeed(idum + omp_get_thread_num());
-            solver.runIntegration();
-            // Copy the energy array to the more easily handled energy
-            // array list we created before. 
-            energyArrays[omp_get_thread_num()] = solver.getEnergyArray();
-            totalCycles += solver.nCycles;
-            energySum += solver.getEnergy();
-            ratioSum += solver.getAcceptanceRatio();
-        }
-        // Get the pointers for every energy array.
-        for (int i = 0; i < threads; i++) {
-            pEnergyArrays[i] = energyArrays[i].getArrayPointer();
-        }
-        // Copy each solver's energy array to one longer
-        // energy array.
-        energyArray = Vector(totalCycles);
-        double* pEnergyArray = energyArray.getArrayPointer();
-        int cnt = 0;
-        for (int thread = 0; thread < threads; thread++) {
-            int N = energyArrays[thread].getLength();
-            for (int i = 0; i < N; i++) {
-                pEnergyArray[cnt] = pEnergyArrays[thread][i];
-                cnt++;
-            }
-        }
-        delete[] energyArrays;
-        delete[] pEnergyArrays;
-        energy = energySum/threads;
-        acceptanceRatio = ratioSum/threads;
-    }
-    else {
-        VMCSolver solver = VMCSolver();
-        initSolver(solver);
-        solver.runIntegration();
+/* void VMCWrapper::runIntegration(){ */
+/*     if (parallel) { */
+/*         threads = 4; */
+/*         // Set the max number of threads that can be run. */
+/*         omp_set_num_threads(threads); */
+/*         // We need to gather all the recordings of all the */ 
+/*         // parallel solvers. We do this by copying */
+/*         // each solvers energy array into the following */
+/*         // list of energy arrays. */  
+/*         double energySum = 0; */
+/*         double ratioSum = 0; */
+/*         // A list of vectors. */ 
+/*         Vector* energyArrays = new Vector[threads](); */
+/*         double** pEnergyArrays = new double*[threads]; */
+/*         // totalCycles might differ from nCycles if nCycles */ 
+/*         // is not a multiple of the number of threads. */
+/*         int totalCycles = 0; */
+/*         VMCSolver solver; */ 
+/*         #pragma omp parallel private(solver) */
+/*         { */
+/*             solver = VMCSolver(); */
+/*             initSolver(solver); */
+/*             solver.nCycles = nCycles; */
+/*             solver.setSeed(idum + omp_get_thread_num()); */
+/*             solver.runIntegration(); */
+/*             // Copy the energy array to the more easily handled energy */
+/*             // array list we created before. */ 
+/*             energyArrays[omp_get_thread_num()] = solver.getEnergyArray(); */
+/*             totalCycles += solver.nCycles; */
+/*             energySum += solver.getEnergy(); */
+/*             ratioSum += solver.getAcceptanceRatio(); */
+/*         } */
+/*         // Get the pointers for every energy array. */
+/*         for (int i = 0; i < threads; i++) { */
+/*             pEnergyArrays[i] = energyArrays[i].getArrayPointer(); */
+/*         } */
+/*         // Copy each solver's energy array to one longer */
+/*         // energy array. */
+/*         energyArray = Vector(totalCycles); */
+/*         double* pEnergyArray = energyArray.getArrayPointer(); */
+/*         int cnt = 0; */
+/*         for (int thread = 0; thread < threads; thread++) { */
+/*             int N = energyArrays[thread].getLength(); */
+/*             for (int i = 0; i < N; i++) { */
+/*                 pEnergyArray[cnt] = pEnergyArrays[thread][i]; */
+/*                 cnt++; */
+/*             } */
+/*         } */
+/*         delete[] energyArrays; */
+/*         delete[] pEnergyArrays; */
+/*         energy = energySum/threads; */
+/*         acceptanceRatio = ratioSum/threads; */
+/*     } */
+/*     else { */
+/*         VMCSolver solver = VMCSolver(); */
+/*         initSolver(solver); */
+/*         solver.runIntegration(); */
 
-        energyArray = solver.getEnergyArray();
-        mean = solver.getR12Mean();
-        energy = solver.getEnergy();
-        energySquared = solver.getEnergySquared();
-        acceptanceRatio = solver.getAcceptanceRatio();
-    }
-}
+/*         energyArray = solver.getEnergyArray(); */
+/*         mean = solver.getR12Mean(); */
+/*         energy = solver.getEnergy(); */
+/*         energySquared = solver.getEnergySquared(); */
+/*         acceptanceRatio = solver.getAcceptanceRatio(); */
+/*     } */
+/* } */
 
 bool VMCWrapper::initSolver(VMCSolver& solver){
     solver.alpha = alpha;
@@ -97,45 +97,46 @@ bool VMCWrapper::initSolver(VMCSolver& solver){
     solver.idum = idum;
     solver.timeStep = timeStep;
     solver.D = D;
-    solver.outputSupressed = outputSupressed;
-    solver.recordingDensity = recordingDensity;
-    solver.recordingEnergyArray = recordingEnergyArray;
-    solver.recordingR12Mean = recordingR12Mean;
-    solver.recordingPositions = recordingPositions;
+    /* solver.outputSupressed = outputSupressed; */
+    /* solver.recordingDensity = recordingDensity; */
+    /* solver.recordingEnergyArray = recordingEnergyArray; */
+    /* solver.recordingR12Mean = recordingR12Mean; */
+    /* solver.recordingPositions = recordingPositions; */
     solver.importanceSampling = importanceSampling;
     solver.efficientSlater = efficientSlater;
-    solver.parallel = parallel;
-    solver.bins = bins;
-    solver.rMax = rMax;
+    /* solver.parallel = parallel; */
+    /* solver.bins = bins; */
+    /* solver.rMax = rMax; */
+    return true;
 }
 
-void VMCWrapper::supressOutput(){
-    outputSupressed = true;
-}
+/* void VMCWrapper::supressOutput(){ */
+/*     outputSupressed = true; */
+/* } */
 
 void VMCWrapper::setStepLength(double stepLength){
     this->stepLength = stepLength;
 }
 
-double VMCWrapper::getStepLength(){
-    return stepLength;
-}
+/* double VMCWrapper::getStepLength(){ */
+/*     return stepLength; */
+/* } */
 
-double VMCWrapper::getEnergy(){
-    return energy;
-}
+/* double VMCWrapper::getEnergy(){ */
+/*     return energy; */
+/* } */
 
-Vector VMCWrapper::getEnergyArray(){
-    return energyArray;
-}
+/* Vector VMCWrapper::getEnergyArray(){ */
+/*     return energyArray; */
+/* } */
 
-double VMCWrapper::getEnergySquared(){
-    return energySquared;
-}
+/* double VMCWrapper::getEnergySquared(){ */
+/*     return energySquared; */
+/* } */
 
-double VMCWrapper::getR12Mean(){
-    return mean;
-}
+/* double VMCWrapper::getR12Mean(){ */
+/*     return mean; */
+/* } */
 
 bool VMCWrapper::initFromFile(std::string fName){
     ifstream myFile;
@@ -165,10 +166,6 @@ bool VMCWrapper::initFromFile(std::string fName){
     myFile >> paramName >> discard >> timeStep;
     myFile >> paramName >> discard >> D;
     myFile >> paramName >> discard >> importanceSampling;
-    myFile >> paramName >> discard >> recordingDensity;
-    myFile >> paramName >> discard >> recordingEnergyArray;
-    myFile >> paramName >> discard >> recordingR12Mean;
-    myFile >> paramName >> discard >> recordingPositions;
     myFile >> paramName >> discard >> efficientSlater;
 
     myFile.close();
@@ -204,28 +201,28 @@ void VMCWrapper::useImportanceSampling(bool param){
     importanceSampling = param;
 }
 
-void VMCWrapper::useParallel(bool param){
-    parallel = param;
-}
+/* void VMCWrapper::useParallel(bool param){ */
+/*     parallel = param; */
+/* } */
 
-void VMCWrapper::recordEnergyArray(bool param){
-    recordingEnergyArray = param;
-}
+/* void VMCWrapper::recordEnergyArray(bool param){ */
+/*     recordingEnergyArray = param; */
+/* } */
 
-void VMCWrapper::recordDensity(bool param, int bins, double maxPos){
-    // This is the only place where bins and rMax are set. But 
-    // this function is called on clear().
-    recordingDensity = param;
-    this->bins = bins;
-    rMax = maxPos;
-}
+/* void VMCWrapper::recordDensity(bool param, int bins, double maxPos){ */
+/*     // This is the only place where bins and rMax are set. But */ 
+/*     // this function is called on clear(). */
+/*     recordingDensity = param; */
+/*     this->bins = bins; */
+/*     rMax = maxPos; */
+/* } */
 
-void VMCWrapper::recordR12Mean(bool param){
-    recordingR12Mean = param;
-}
-void VMCWrapper::recordPositions(bool param){
-    recordingPositions = param;
-}
+/* void VMCWrapper::recordR12Mean(bool param){ */
+/*     recordingR12Mean = param; */
+/* } */
+/* void VMCWrapper::recordPositions(bool param){ */
+/*     recordingPositions = param; */
+/* } */
 
 void VMCWrapper::useLocalEnergyGeneric(){
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
@@ -268,25 +265,25 @@ void VMCWrapper::clear(){
     timeStep = 0;
     D = 0;
 
-    // Results from the solver
-    mean = 0;
-    energy = 0;
-    energySquared = 0;
-    acceptanceRatio = 0;
+    /* // Results from the solver */
+    /* mean = 0; */
+    /* energy = 0; */
+    /* energySquared = 0; */
+    /* acceptanceRatio = 0; */
 
-    outputSupressed = false;
+    /* outputSupressed = false; */
     useImportanceSampling(false);
     useEfficientSlater(false);
-    useParallel(false);
-    recordDensity(false);
-    recordEnergyArray(false);
-    recordR12Mean(false);
-    recordPositions(false);
+    /* useParallel(false); */
+    /* recordDensity(false); */
+    /* recordEnergyArray(false); */
+    /* recordR12Mean(false); */
+    /* recordPositions(false); */
 }
 
-double VMCWrapper::getAcceptanceRatio(){
-    return acceptanceRatio;
-}
+/* double VMCWrapper::getAcceptanceRatio(){ */
+/*     return acceptanceRatio; */
+/* } */
 
 bool VMCWrapper::validateParamters(){
     bool valid = true;
@@ -356,11 +353,11 @@ bool VMCWrapper::validateParamters(){
             << "for other than 4 particles." << endl;
         valid = false;
     }
-    if (recordingR12Mean && nParticles != 2) {
-        cout << "Cannot use record r12 mean   "
-            << "for other than 2 particles." << endl;
-        valid = false;
-    }
+    /* if (recordingR12Mean && nParticles != 2) { */
+    /*     cout << "Cannot use record r12 mean   " */
+    /*         << "for other than 2 particles." << endl; */
+    /*     valid = false; */
+    /* } */
 
     return valid;
 }
@@ -386,50 +383,50 @@ void VMCWrapper::exportParamters(std::string fName){
     myFile << "timeStep = " << timeStep << endl;
     myFile << "D = " << D << endl;
     myFile << "useImportanceSampling = " << importanceSampling << endl;
-    myFile << "recordDensity = " << recordingDensity <<  endl;
-    myFile << "recordEnergyArray = " << recordingEnergyArray <<  endl;
-    myFile << "recordR12Mean = " << recordingR12Mean <<  endl;
-    myFile << "recordPositions = " << recordingPositions <<  endl;
+    /* myFile << "recordDensity = " << recordingDensity <<  endl; */
+    /* myFile << "recordEnergyArray = " << recordingEnergyArray <<  endl; */
+    /* myFile << "recordR12Mean = " << recordingR12Mean <<  endl; */
+    /* myFile << "recordPositions = " << recordingPositions <<  endl; */
     myFile << "useEfficientSlater = " << efficientSlater <<  endl;
     myFile.close();
 }
 
-void VMCWrapper::exportDensity(std::string fName){
-    /* string adress = "../../../res/" + fName; */
-    /* ofstream myFile; */
-    /* cout << "Dumption densities to file : " << fName << endl; */
-    /* myFile.open(adress.c_str()); */
-    /* myFile << rMax << endl; */
-    /* for (int i = 0; i < nParticles; i++) { */
-	/* for (int j = 0; j < bins; j++) { */
-	    /* myFile << pDensity[i][j] << " "; */
-	/* } */
-	/* myFile << endl; */
-    /* } */
-    /* myFile.close(); */
-}
+/* void VMCWrapper::exportDensity(std::string fName){ */
+/*     /1* string adress = "../../../res/" + fName; *1/ */
+/*     /1* ofstream myFile; *1/ */
+/*     /1* cout << "Dumption densities to file : " << fName << endl; *1/ */
+/*     /1* myFile.open(adress.c_str()); *1/ */
+/*     /1* myFile << rMax << endl; *1/ */
+/*     /1* for (int i = 0; i < nParticles; i++) { *1/ */
+/* 	/1* for (int j = 0; j < bins; j++) { *1/ */
+/* 	    /1* myFile << pDensity[i][j] << " "; *1/ */
+/* 	/1* } *1/ */
+/* 	/1* myFile << endl; *1/ */
+/*     /1* } *1/ */
+/*     /1* myFile.close(); *1/ */
+/* } */
 
-void VMCWrapper::exportEnergyArray(std::string fName){
-    /* string adress = "../../../res/" + fName; */
-    /* ofstream myFile; */
-    /* cout << "Dumption energies to file : " << fName << endl; */
-    /* myFile.open(adress.c_str()); */
-    /* for (int i = 0; i < nCycles; i++) { */
-	/* myFile << pEnergyArray[i] << " "; */
-    /* } */
-    /* myFile.close(); */
-}
+/* void VMCWrapper::exportEnergyArray(std::string fName){ */
+/*     /1* string adress = "../../../res/" + fName; *1/ */
+/*     /1* ofstream myFile; *1/ */
+/*     /1* cout << "Dumption energies to file : " << fName << endl; *1/ */
+/*     /1* myFile.open(adress.c_str()); *1/ */
+/*     /1* for (int i = 0; i < nCycles; i++) { *1/ */
+/* 	/1* myFile << pEnergyArray[i] << " "; *1/ */
+/*     /1* } *1/ */
+/*     /1* myFile.close(); *1/ */
+/* } */
 
-void VMCWrapper::exportPositions(std::string fName){
-    /* string adress = "../../../res/" + fName; */
-    /* ofstream myFile; */
-    /* cout << "Dumption energies to file : " << fName << endl; */
-    /* myFile.open(adress.c_str()); */
-    /* for (int i = 0; i < nParticles; i++) { */
-    /* 	for (int j = 0; j < nCycles; j++) { */
-	    /* myFile << pPositions[i][j] << " "; */
-    /* 	} */
-	/* myFile << endl; */
-    /* } */
-    /* myFile.close(); */
-}
+/* void VMCWrapper::exportPositions(std::string fName){ */
+/*     /1* string adress = "../../../res/" + fName; *1/ */
+/*     /1* ofstream myFile; *1/ */
+/*     /1* cout << "Dumption energies to file : " << fName << endl; *1/ */
+/*     /1* myFile.open(adress.c_str()); *1/ */
+/*     /1* for (int i = 0; i < nParticles; i++) { *1/ */
+/*     /1* 	for (int j = 0; j < nCycles; j++) { *1/ */
+/* 	    /1* myFile << pPositions[i][j] << " "; *1/ */
+/*     /1* 	} *1/ */
+/* 	/1* myFile << endl; *1/ */
+/*     /1* } *1/ */
+/*     /1* myFile.close(); *1/ */
+/* } */

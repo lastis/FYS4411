@@ -8,8 +8,8 @@ curDir = os.getcwd();
 cppDir = "../../../cpp/blocking/neon_prep/"
 resDir = "../../../../res/blocking/neon_prep/";
 
-blockingFileName = "energies_blocking.txt"
-blockingStdFileName = "energies_blocking_std.txt"
+blockingFileName = "energies_bins.txt"
+blockingStdFileName = "energies_std.txt"
 
 # Load data.
 os.chdir(curDir)
