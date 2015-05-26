@@ -301,40 +301,60 @@ SUITE(CPhys)
 
 SUITE(Hydrogen)
 {
-    VMCWrapper solver = VMCWrapper();
+    VMCWrapper wrapper = VMCWrapper();
 
     TEST(Instantiate)
     {
-        solver.charge = 1;
-        solver.alpha = 1;
-        solver.beta = 0;
-        solver.nDimensions = 3;
-        solver.nParticles = 1;
-        solver.stepLength = 1.52;
-        solver.nCycles = 10000;
-        solver.h = 0.001;
-        solver.hInv = 1e3;
-        solver.h2Inv = 1e6;
-        solver.idum = 1;
+        wrapper.charge = 1;
+        wrapper.alpha = 1;
+        wrapper.beta = 0;
+        wrapper.nDimensions = 3;
+        wrapper.nParticles = 1;
+        wrapper.stepLength = 1.52;
+        wrapper.nCycles = 10000;
+        wrapper.h = 0.001;
+        wrapper.hInv = 1e3;
+        wrapper.h2Inv = 1e6;
+        wrapper.idum = 1;
     }
 
     TEST(GroundStateGenergic)
     {
-        solver.useWaveFunction1();
-        solver.useLocalEnergyGenericNoCor();
-        solver.supressOutput();
-        solver.runIntegration();
-        double energy = solver.getEnergy();
+        wrapper.useWaveFunction1();
+        wrapper.useLocalEnergyGenericNoCor();
+        wrapper.supressOutput();
+        double energy = 0;
+        VMCSolver solver = wrapper.getInitializedSolver();
+        // Run simulation.
+        for (int cycle = 0; cycle < wrapper.nCycles; cycle++) 
+        {
+            for (int i = 0; i < wrapper.nParticles; i++) 
+            {
+                solver.runSingleStepSlater(i,cycle);
+                energy += solver.deltaE;
+            }
+        }
+        energy /= (wrapper.nParticles*wrapper.nCycles);
         CHECK_CLOSE(-0.5, energy, 0.01);
     }
 
     TEST(GroundStateAnalytic)
     {
-        solver.waveFunction = solver.WAVE_FUNCTION_1;
-        solver.localEnergyFunction = solver.LOCAL_ENERGY_HYDROGEN;
-        solver.supressOutput();
-        solver.runIntegration();
-        double energy = solver.getEnergy();
+        wrapper.waveFunction = wrapper.WAVE_FUNCTION_1;
+        wrapper.localEnergyFunction = wrapper.LOCAL_ENERGY_HYDROGEN;
+        wrapper.supressOutput();
+        double energy = 0;
+        VMCSolver solver = wrapper.getInitializedSolver();
+        // Run simulation.
+        for (int cycle = 0; cycle < wrapper.nCycles; cycle++) 
+        {
+            for (int i = 0; i < wrapper.nParticles; i++) 
+            {
+                solver.runSingleStepSlater(i,cycle);
+                energy += solver.deltaE;
+            }
+        }
+        energy /= (wrapper.nParticles*wrapper.nCycles);
         CHECK_CLOSE(-0.5, energy, 0.01);
     }
 }
@@ -862,12 +882,8 @@ SUITE(Helium)
         solver.alpha = 2;
         solver.waveFunction = solver.WAVE_FUNCTION_1;
         solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR;
-        /* solver.runIntegration(); */
-        /* energy = solver.getEnergy(); */
         double energy = 0;
-
         VMCSolver solver1 = solver.getInitializedSolver();
-        // Give an unique seed to the solver.
         // Run simulation.
         for (int cycle = 0; cycle < solver.nCycles; cycle++) 
         {
