@@ -20,7 +20,7 @@ points = points.T
 values = f
 
 
-N = 500;
+N = 201;
 xMin = x[0];
 yMin = y[0];
 zMin = z[0];
@@ -31,9 +31,9 @@ xArr = np.linspace(xMin,xMax,N)
 yArr = np.linspace(yMin,yMax,N)
 zArr = np.linspace(zMin,zMax,N)
 
-xGrid,yGrid, zGrid = np.meshgrid(xArr,yArr,zArr)
+xGrid, yGrid, zGrid = np.meshgrid(xArr,yArr,zArr)
 
 F = griddata(points,values,(xGrid,yGrid, zGrid), method='nearest')
 
-contour3d(F,contours=8,opacity=.2)
+contour3d(F,contours=20,opacity=.2)
 show()

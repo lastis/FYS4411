@@ -21,12 +21,28 @@ int main(int argc, const char* argv[])
     int nParticles = 10;
     double nCycles = 5e3;
     int threads = 4;
-    int trials = 16;
+    int trials = 100;
     int totalTrials = threads * trials;
     int idum = 1000;
-    int X = 100;
-    int Y = 100;
-    int Z = 100;
+    int X = 101;
+    int Y = 101;
+    int Z = 101;
+    int R = 101;
+    int xBin;
+    int yBin;
+    int zBin;
+    int rBin;
+    double xMin = -1.0;
+    double yMin = -1.0;
+    double zMin = -1.0;
+    double xMax = -xMin;
+    double yMax = -yMin;
+    double zMax = -zMin;
+    double rMax = 2.5;
+    double dx = (xMax-xMin)/X;
+    double dy = (yMax-yMin)/Y;
+    double dz = (zMax-zMin)/Z;
+    double dr = rMax/R;
 
     string adress = "../../../../res/visualization/neon/";
 
@@ -51,22 +67,13 @@ int main(int argc, const char* argv[])
     // Density plot in 3D. Along the columns are x, y, z, density
     Matrix mDensity3D = Matrix(X * Y * Z, 4);
     double** density3D = mDensity3D.getArrayPointer();
+    Matrix mDensity1D = Matrix(R,2);
+    double** density1D = mDensity1D.getArrayPointer();
 
     // Set the max number of threads that can be run.
     omp_set_num_threads(threads);
 
-    int xBin;
-    int yBin;
-    int zBin;
-    double xMin = -2;
-    double yMin = -2;
-    double zMin = -2;
-    double xMax = -xMin;
-    double yMax = -yMin;
-    double zMax = -zMin;
-    double dx = (xMax-xMin)/X;
-    double dy = (yMax-yMin)/Y;
-    double dz = (zMax-zMin)/Z;
+
     auto start = chrono::high_resolution_clock::now();
     #pragma omp parallel
     {
@@ -84,9 +91,12 @@ int main(int argc, const char* argv[])
                 for (int i = 0; i < nParticles; i++)
                 {
                     solver.runSingleStepSlater(i, cycle);
+                    rBin = solver.rAbsOld[i]*R/rMax;
                     xBin = (solver.prOld[i][0] - xMin)*X / (xMax - xMin);
                     yBin = (solver.prOld[i][1] - yMin)*Y / (yMax - yMin);
                     zBin = (solver.prOld[i][2] - zMin)*Z / (zMax - zMin);
+                    if (rBin < 0 || rBin >= R) continue;
+                    density1D[rBin][1] += 1;
                     if (xBin < 0 || xBin >= X) continue;
                     if (yBin < 0 || yBin >= Y) continue;
                     if (zBin < 0 || zBin >= Z) continue;
@@ -100,6 +110,10 @@ int main(int argc, const char* argv[])
     cout << totalTrials << " trials completed." << endl;
     cout << "Time = " << diff.count() << " seconds." << endl;
 
+    for (int r = 0; r < R; r++) 
+    {
+        density1D[r][0] = r*dr;
+    }
     for (int x = 0; x < X; x++)
     {
         for (int y = 0; y < Y; y++)
@@ -113,6 +127,7 @@ int main(int argc, const char* argv[])
         }
     }
 
+    util::writeToFile(adress, "density1D.txt", mDensity1D);
     util::writeToFile(adress, "density3D.txt", mDensity3D);
 
     return 0;
