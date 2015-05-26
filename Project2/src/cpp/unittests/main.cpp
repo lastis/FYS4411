@@ -322,7 +322,6 @@ SUITE(Hydrogen)
     {
         wrapper.useWaveFunction1();
         wrapper.useLocalEnergyGenericNoCor();
-        wrapper.supressOutput();
         double energy = 0;
         VMCSolver solver = wrapper.getInitializedSolver();
         // Run simulation.
@@ -342,7 +341,6 @@ SUITE(Hydrogen)
     {
         wrapper.waveFunction = wrapper.WAVE_FUNCTION_1;
         wrapper.localEnergyFunction = wrapper.LOCAL_ENERGY_HYDROGEN;
-        wrapper.supressOutput();
         double energy = 0;
         VMCSolver solver = wrapper.getInitializedSolver();
         // Run simulation.

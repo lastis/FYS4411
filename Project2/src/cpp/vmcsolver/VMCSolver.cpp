@@ -12,85 +12,85 @@ VMCSolver::VMCSolver()
     clear();
 }
 
-bool VMCSolver::runIntegration()
-{
-    bool ready = false;
-    if (initRunVariables()) ready = true;
-    if (!ready)
-    {
-        cout << "Error: Solver not initialized properly, integration not "
-                "running." << endl;
-        return false;
-    }
-    // Main part of the code.
-    // Loop over Monte Carlo cycles.
-    // This implementation might look stupid, but everything breaks all
-    // the time and every tiny step requires rigorous testing.
-    if (importanceSampling == true && efficientSlater == false)
-    {
-        for (int cycle = 0; cycle < nCycles; cycle++)
-        {
-            runStepQuantum(cycle);
-        }
-    }
-    else if (importanceSampling == true && efficientSlater == true)
-    {
-        for (int cycle = 0; cycle < nCycles; cycle++)
-        {
-            runStepSlaterQuantum(cycle);
-        }
-    }
-    else if (importanceSampling == false && efficientSlater == true)
-    {
-        for (int cycle = 0; cycle < nCycles; cycle++)
-        {
-            runStepSlater(cycle);
-        }
-    }
-    else if (importanceSampling == false && efficientSlater == false)
-    {
-        for (int cycle = 0; cycle < nCycles; cycle++)
-        {
-            runStep(cycle);
-        }
-    }
+/* bool VMCSolver::runIntegration() */
+/* { */
+/*     bool ready = false; */
+/*     if (initRunVariables()) ready = true; */
+/*     if (!ready) */
+/*     { */
+/*         cout << "Error: Solver not initialized properly, integration not " */
+/*                 "running." << endl; */
+/*         return false; */
+/*     } */
+/*     // Main part of the code. */
+/*     // Loop over Monte Carlo cycles. */
+/*     // This implementation might look stupid, but everything breaks all */
+/*     // the time and every tiny step requires rigorous testing. */
+/*     if (importanceSampling == true && efficientSlater == false) */
+/*     { */
+/*         for (int cycle = 0; cycle < nCycles; cycle++) */
+/*         { */
+/*             runStepQuantum(cycle); */
+/*         } */
+/*     } */
+/*     else if (importanceSampling == true && efficientSlater == true) */
+/*     { */
+/*         for (int cycle = 0; cycle < nCycles; cycle++) */
+/*         { */
+/*             runStepSlaterQuantum(cycle); */
+/*         } */
+/*     } */
+/*     else if (importanceSampling == false && efficientSlater == true) */
+/*     { */
+/*         for (int cycle = 0; cycle < nCycles; cycle++) */
+/*         { */
+/*             runStepSlater(cycle); */
+/*         } */
+/*     } */
+/*     else if (importanceSampling == false && efficientSlater == false) */
+/*     { */
+/*         for (int cycle = 0; cycle < nCycles; cycle++) */
+/*         { */
+/*             runStep(cycle); */
+/*         } */
+/*     } */
 
-    // Calculate the density
-    if (recordingDensity)
-    {
-        for (int i = 0; i < nParticles; i++)
-        {
-            for (int j = 0; j < bins; j++)
-            {
-                pDensity[i][j] /= nCycles;
-            }
-        }
-    }
+/*     // Calculate the density */
+/*     if (recordingDensity) */
+/*     { */
+/*         for (int i = 0; i < nParticles; i++) */
+/*         { */
+/*             for (int j = 0; j < bins; j++) */
+/*             { */
+/*                 pDensity[i][j] /= nCycles; */
+/*             } */
+/*         } */
+/*     } */
 
-    // Calculate the mean distance r12 and energy
-    mean = rAbsSum / (nCycles);
-    energy = energySum / (nCycles * nParticles);
-    energySquared = energySquaredSum / (nCycles * nParticles);
-    if (recordingEnergyArray)
-    {
-        for (int i = 0; i < nCycles; i++)
-        {
-            pEnergyArray[i] /= nParticles;
-        }
-    }
-    return true;
-}
+/*     // Calculate the mean distance r12 and energy */
+/*     mean = rAbsSum / (nCycles); */
+/*     energy = energySum / (nCycles * nParticles); */
+/*     energySquared = energySquaredSum / (nCycles * nParticles); */
+/*     if (recordingEnergyArray) */
+/*     { */
+/*         for (int i = 0; i < nCycles; i++) */
+/*         { */
+/*             pEnergyArray[i] /= nParticles; */
+/*         } */
+/*     } */
+/*     return true; */
+/* } */
 
-void VMCSolver::runStepSlaterQuantum(int cycle)
-{
-    startOfCycleSlaterQuantum();
-    for (int i = 0; i < nParticles; i++)
-    {
-        runSingleStepSlaterQuantum(i, cycle);
-    }
-    // ALL PARTICLES MOVED ONE STEP AT THIS POINT.
-    endOfCycle(cycle);
-}
+/* void VMCSolver::runStepSlaterQuantum(int cycle) */
+/* { */
+/*     startOfCycleSlaterQuantum(); */
+/*     for (int i = 0; i < nParticles; i++) */
+/*     { */
+/*         runSingleStepSlaterQuantum(i, cycle); */
+/*     } */
+/*     // ALL PARTICLES MOVED ONE STEP AT THIS POINT. */
+/*     endOfCycle(cycle); */
+/* } */
 
 void VMCSolver::runSingleStepQuantum(int i, int cycle)
 {
@@ -151,16 +151,16 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
     endOfSingleParticleStep(cycle, i);
 }
 
-void VMCSolver::runStepQuantum(int cycle)
-{
-    startOfCycleQuantum();
-    // New position to test
-    for (int i = 0; i < nParticles; i++)
-    {
-        runSingleStepQuantum(i, cycle);
-    }
-    endOfCycle(cycle);
-}
+/* void VMCSolver::runStepQuantum(int cycle) */
+/* { */
+/*     startOfCycleQuantum(); */
+/*     // New position to test */
+/*     for (int i = 0; i < nParticles; i++) */
+/*     { */
+/*         runSingleStepQuantum(i, cycle); */
+/*     } */
+/*     endOfCycle(cycle); */
+/* } */
 
 void VMCSolver::setSeed(long seed)
 {
@@ -484,31 +484,31 @@ void VMCSolver::runSingleStep(int i, int cycle)
     endOfSingleParticleStep(cycle, i);
 }
 
-void VMCSolver::runStepSlater(int cycle)
-{
-    for (int i = 0; i < nParticles; i++)
-    {
-        runSingleStepSlater(i, cycle);
-    }
-    // ALL PARTICLES MOVED ONE STEP AT THIS POINT.
-    endOfCycle(cycle);
-}
+/* void VMCSolver::runStepSlater(int cycle) */
+/* { */
+/*     for (int i = 0; i < nParticles; i++) */
+/*     { */
+/*         runSingleStepSlater(i, cycle); */
+/*     } */
+/*     // ALL PARTICLES MOVED ONE STEP AT THIS POINT. */
+/*     endOfCycle(cycle); */
+/* } */
 
-void VMCSolver::runStep(int cycle)
-{
-    // New position to test
-    for (int i = 0; i < nParticles; i++)
-    {
-        runSingleStep(i, cycle);
-    }
-    // All particles moved one step at this point.
-    endOfCycle(cycle);
-}
+/* void VMCSolver::runStep(int cycle) */
+/* { */
+/*     // New position to test */
+/*     for (int i = 0; i < nParticles; i++) */
+/*     { */
+/*         runSingleStep(i, cycle); */
+/*     } */
+/*     // All particles moved one step at this point. */
+/*     endOfCycle(cycle); */
+/* } */
 
-void VMCSolver::supressOutput()
-{
-    outputSupressed = true;
-}
+/* void VMCSolver::supressOutput() */
+/* { */
+/*     outputSupressed = true; */
+/* } */
 
 bool VMCSolver::initRunVariables()
 {
@@ -591,25 +591,25 @@ bool VMCSolver::initRunVariables()
         usingCorrelation = true;
     }
 
-    // Initialize arrays
-    if (recordingPositions)
-    {
-        positions = Matrix(nParticles, nCycles);
-        positions.reset();
-        pPositions = positions.getArrayPointer();
-    }
-    if (recordingEnergyArray)
-    {
-        energyArray = Vector(nCycles);
-        energyArray.reset();
-        pEnergyArray = energyArray.getArrayPointer();
-    }
-    if (recordingDensity)
-    {
-        density = Matrix(nParticles, bins);
-        density.reset();
-        pDensity = density.getArrayPointer();
-    }
+    /* // Initialize arrays */
+    /* if (recordingPositions) */
+    /* { */
+    /*     positions = Matrix(nParticles, nCycles); */
+    /*     positions.reset(); */
+    /*     pPositions = positions.getArrayPointer(); */
+    /* } */
+    /* if (recordingEnergyArray) */
+    /* { */
+    /*     energyArray = Vector(nCycles); */
+    /*     energyArray.reset(); */
+    /*     pEnergyArray = energyArray.getArrayPointer(); */
+    /* } */
+    /* if (recordingDensity) */
+    /* { */
+    /*     density = Matrix(nParticles, bins); */
+    /*     density.reset(); */
+    /*     pDensity = density.getArrayPointer(); */
+    /* } */
     if (importanceSampling)
     {
         qForceOld = Matrix(nParticles, nDimensions);
@@ -704,20 +704,20 @@ bool VMCSolver::initRunVariables()
     return true;
 }
 
-void VMCSolver::endOfCycle(int cycle)
-{
-    if (!recordingR12Mean) return;
-    // Calculate the radius of the particle
-    double rAbs = 0;
-    double rsq = 0;
-    for (int j = 0; j < nDimensions; j++)
-    {
-        rsq += (prNew[1][j] - prNew[0][j]) * (prNew[1][j] - prNew[0][j]);
-    }
-    rAbs = sqrt(rsq);
-    // Add it to a sum so we can calculate the mean.
-    rAbsSum += rAbs;
-}
+/* void VMCSolver::endOfCycle(int cycle) */
+/* { */
+/*     if (!recordingR12Mean) return; */
+/*     // Calculate the radius of the particle */
+/*     double rAbs = 0; */
+/*     double rsq = 0; */
+/*     for (int j = 0; j < nDimensions; j++) */
+/*     { */
+/*         rsq += (prNew[1][j] - prNew[0][j]) * (prNew[1][j] - prNew[0][j]); */
+/*     } */
+/*     rAbs = sqrt(rsq); */
+/*     // Add it to a sum so we can calculate the mean. */
+/*     rAbsSum += rAbs; */
+/* } */
 
 void VMCSolver::endOfSingleParticleStep(int cycle, int i)
 {
@@ -728,40 +728,40 @@ void VMCSolver::endOfSingleParticleStep(int cycle, int i)
         deltaE = getLocalEnergySlaterNoCor(prOld, rAbsOld);
     else
         deltaE = getLocalEnergy(prOld, rAbsOld);
-    energySum += deltaE;
-    energySquaredSum += deltaE * deltaE;
+    /* energySum += deltaE; */
+    /* energySquaredSum += deltaE * deltaE; */
 
-    // Store data.
-    if (recordingEnergyArray)
-    {
-        pEnergyArray[cycle] += deltaE;
-    }
-    if (recordingPositions)
-    {
-        double rAbs = 0;
-        for (int j = 0; j < nDimensions; j++)
-        {
-            rAbs += prOld[i][j] * prOld[i][j];
-        }
-        rAbs = sqrt(rAbs);
-        pPositions[i][cycle] = rAbs;
-    }
-    // Calculate density
-    if (recordingDensity)
-    {
-        int bin;
-        double rsq = 0;
-        for (int j = 0; j < nDimensions; j++)
-        {
-            rsq += prOld[i][j] * prOld[i][j];
-        }
-        double rAbs = sqrt(rsq);
-        if (rAbs < rMax)
-        {
-            bin = rAbs / rMax * bins;
-            pDensity[i][bin] += 1;
-        }
-    }
+    /* // Store data. */
+    /* if (recordingEnergyArray) */
+    /* { */
+    /*     pEnergyArray[cycle] += deltaE; */
+    /* } */
+    /* if (recordingPositions) */
+    /* { */
+    /*     double rAbs = 0; */
+    /*     for (int j = 0; j < nDimensions; j++) */
+    /*     { */
+    /*         rAbs += prOld[i][j] * prOld[i][j]; */
+    /*     } */
+    /*     rAbs = sqrt(rAbs); */
+    /*     pPositions[i][cycle] = rAbs; */
+    /* } */
+    /* // Calculate density */
+    /* if (recordingDensity) */
+    /* { */
+    /*     int bin; */
+    /*     double rsq = 0; */
+    /*     for (int j = 0; j < nDimensions; j++) */
+    /*     { */
+    /*         rsq += prOld[i][j] * prOld[i][j]; */
+    /*     } */
+    /*     double rAbs = sqrt(rsq); */
+    /*     if (rAbs < rMax) */
+    /*     { */
+    /*         bin = rAbs / rMax * bins; */
+    /*         pDensity[i][bin] += 1; */
+    /*     } */
+    /* } */
 }
 
 /** \brief Calculates the quantum force.
@@ -991,14 +991,14 @@ void VMCSolver::clear()
     ratio = 0;
 
     usingCorrelation = false;
-    outputSupressed = false;
     importanceSampling = false;
     efficientSlater = false;
-    parallel = false;
-    recordingDensity = false;
-    recordingEnergyArray = false;
-    recordingR12Mean = false;
-    recordingPositions = false;
+    /* outputSupressed = false; */
+    /* parallel = false; */
+    /* recordingDensity = false; */
+    /* recordingEnergyArray = false; */
+    /* recordingR12Mean = false; */
+    /* recordingPositions = false; */
 
     // Initialize all variables, they are mostly overwritten.
     slater1Old = Matrix();

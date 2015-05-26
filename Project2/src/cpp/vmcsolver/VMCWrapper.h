@@ -29,13 +29,13 @@ public:
     static const int WAVE_FUNCTION_BERYLLIUM_2 =
         VMCSolver::WAVE_FUNCTION_BERYLLIUM_2;
 
-    void runIntegration();
     bool initSolver(VMCSolver& solver);
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
-    void exportDensity(std::string fName);
-    void exportEnergyArray(std::string fName);
-    void exportPositions(std::string fName);
+    /* void runIntegration(); */
+    /* void exportDensity(std::string fName); */
+    /* void exportEnergyArray(std::string fName); */
+    /* void exportPositions(std::string fName); */
     void useWaveFunction1();
     void useWaveFunction2();
     void useWaveFunctionBeryllium1();
@@ -47,22 +47,22 @@ public:
     void useLocalEnergyGenericNoCor();
     void useLocalEnergySlater();
     void useLocalEnergySlaterNoCor();
-    void recordDensity(bool param, int bins = 9, double maxPos = 2);
-    void recordEnergyArray(bool param);
-    void recordR12Mean(bool param);
-    void recordPositions(bool param);
+    /* void recordDensity(bool param, int bins = 9, double maxPos = 2); */
+    /* void recordEnergyArray(bool param); */
+    /* void recordR12Mean(bool param); */
+    /* void recordPositions(bool param); */
     void setStepLength(double stepLength);
-    void useParallel(bool param);
+    /* void useParallel(bool param); */
     void useImportanceSampling(bool param);
     void useEfficientSlater(bool param);
-    double getAcceptanceRatio();
-    double getStepLength();
-    double getR12Mean();
-    double getEnergy();
-    double getEnergySquared();
-    Vector getEnergyArray();
+    /* double getAcceptanceRatio(); */
+    /* double getStepLength(); */
+    /* double getR12Mean(); */
+    /* double getEnergy(); */
+    /* double getEnergySquared(); */
+    /* Vector getEnergyArray(); */
     void clear();
-    void supressOutput();
+    /* void supressOutput(); */
     bool validateParamters();
     VMCSolver getInitializedSolver();
 
@@ -85,23 +85,23 @@ public:
     long idum;
     double timeStep;
     double D;
-    int bins;
-    double rMax;
-    bool outputSupressed;
-    bool recordingDensity;
-    bool recordingEnergyArray;
-    bool recordingR12Mean;
-    bool recordingPositions;
+    /* int bins; */
+    /* double rMax; */
+    /* bool outputSupressed; */
+    /* bool recordingDensity; */
+    /* bool recordingEnergyArray; */
+    /* bool recordingR12Mean; */
+    /* bool recordingPositions; */
     bool importanceSampling;
     bool efficientSlater;
-    bool parallel;
+    /* bool parallel; */
 
-    // Results from the solver
-    Vector energyArray;
-    double mean;
-    double energy;
-    double energySquared;
-    double acceptanceRatio;
+    /* // Results from the solver */
+    /* Vector energyArray; */
+    /* double mean; */
+    /* double energy; */
+    /* double energySquared; */
+    /* double acceptanceRatio; */
 };
 
 #endif  // VMCSOLVER_H
