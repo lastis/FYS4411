@@ -16,7 +16,8 @@ os.chdir(curDir)
 os.chdir(resDir)
 
 x,y,z,f  = np.loadtxt(fileName,unpack=True)
-f = f/sum(f)
+
+f = f/f.max()
 points = np.asarray((x,y))
 points = points.T
 values = f
@@ -60,15 +61,14 @@ for i in range(0,N):
             cnt += 1
 
 
+Z = scipy.interpolate.griddata(points,values,(xGrid,yGrid), method='nearest')
 
-# zdata = scipy.interpolate.griddata(points,Z,(xGrid,yGrid), method='nearest')
+print Z.shape
 
 r = np.zeros(len(x))
-
+plt.plot(density)
 for i in range(len(x)):
     r[i] = np.sqrt(x[i]**2+y[i]**2+z[i]**2)
-
-plt.plot(r,y)
 
 fig, axs = plt.subplots(3, sharex=True, sharey=True)
 cs = axs[0].contourf(yi, zi, X)
@@ -77,6 +77,9 @@ fig.colorbar(cs, ax=axs[0], format="%.2f")
 cs = axs[1].contourf(xi, zi, Y)
 fig.colorbar(cs, ax=axs[1], format="%.2f")
 
-cs = axs[2].contourf(xi, yi, Z)
-fig.colorbar(cs, ax=axs[2], format="%.2f")
+# cs = axs[2].contourf(xi, yi, Z)
+# fig.colorbar(cs, ax=axs[2], format="%.2f")
+plt.show()
+
+plt.imshow(Z,interpolation='nearest')
 plt.show()
