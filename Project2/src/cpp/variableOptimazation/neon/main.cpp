@@ -18,12 +18,13 @@ int main(int argc, const char *argv[])
     double beta = atof(argv[2]);
 
     int nParticles = 10;
-    double nCycles = 1e4;
-    int binSize = nCycles;
-    int idum = 1;
+    double nCycles = 5e3;
     int threads = 4;
+    int trials = 10;
+    int totalTrials = threads*trials;
+    int idum = 1;
 
-    string adress = "../../../../res/blocking/neon_prep/";
+    string adress = "../../../../res/variableOptimazation/neon/";
 
     VMCWrapper wrapper = VMCWrapper();
     wrapper.alpha = alpha;
@@ -37,16 +38,16 @@ int main(int argc, const char *argv[])
     wrapper.hInv = 1000;
     wrapper.h2Inv = 1e+06;
     wrapper.idum = idum;
-    wrapper.useEfficientSlater(true);
-    wrapper.useLocalEnergySlater();
     wrapper.useImportanceSampling(true);
     wrapper.timeStep = 0.001;
     wrapper.D = 0.5;
+    wrapper.useEfficientSlater(true);
+    wrapper.useLocalEnergySlater();
 
     VMCSolver solver = wrapper.getInitializedSolver();
 
-    Vector vEnergyArray = Vector(nCycles);
-    double* energyArray = vEnergyArray.getArrayPointer();
+    Vector vEnergiesMean = Vector(totalTrials);
+    double* energiesMean = vEnergiesMean.getArrayPointer();
 
     // Set the max number of threads that can be run.
     omp_set_num_threads(threads);
@@ -54,32 +55,34 @@ int main(int argc, const char *argv[])
     auto start = chrono::high_resolution_clock::now();
     #pragma omp parallel 
     {
-        VMCSolver solver = wrapper.getInitializedSolver();
-        solver.setSeed(idum + omp_get_thread_num());
-
-        // Run simulation.
-        for (int cycle = 0; cycle < nCycles; cycle++) 
+        for (int trial = 0; trial < trials; trial++) 
         {
-            for (int i = 0; i < nParticles; i++) 
+            double energy = 0;
+
+            VMCSolver solver = wrapper.getInitializedSolver();
+            // Give an unique seed to the solver.
+            int thread = omp_get_thread_num();
+            solver.setSeed(wrapper.idum + trials*thread + trial);
+            // Run simulation.
+            for (int cycle = 0; cycle < nCycles; cycle++) 
             {
-                solver.runSingleStepSlater(i,cycle);
-                energyArray[cycle] += solver.deltaE;
+                for (int i = 0; i < nParticles; i++) 
+                {
+                    solver.runSingleStepSlater(i,cycle);
+                    energy += solver.deltaE;
+                }
             }
+            energy /= (nParticles*nCycles);
+            energiesMean[trials*thread + trial] = energy;
         }
     }
-    vEnergyArray /= (nParticles*threads);
 
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = end-start;
-    /* cout << "Time = " << microfortnights(diff).count() << " micro fortnights." << endl; */
+    cout << totalTrials << " trials completed." << endl;
     cout << "Time = " << diff.count() << " seconds." << endl;
 
-    // Manipulate data. 
-    Vector blocking = Vector();
-    Vector blockingStd = Vector();
-    util::blockingVar(1,vEnergyArray,blockingStd,blocking);
-    util::appendToFile(adress,"energies_bins.txt",blocking);
-    util::appendToFile(adress,"energies_std.txt",blockingStd);
+    util::writeToFile(adress,"energies_mean.txt",vEnergiesMean);
 
     return 0;
 }

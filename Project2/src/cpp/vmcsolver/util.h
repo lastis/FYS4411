@@ -26,6 +26,25 @@ namespace util {
         return meanArray;
     }
 
+    /** \brief Write vector to file. Will overwrite.
+     *
+     * \param adress Adress to file. Warning, from the location of this
+     * function.
+     * \param fileName Name of file. 
+     * \param array Vector to print. 
+     */         
+    void writeToFile(string adress, string fileName, Vector array){
+        ofstream myFile;
+        double* pArray = array.getArrayPointer();
+        // Dump results to the end of the file. 
+        myFile.open((adress + fileName).c_str());
+        for (int i = 0; i < array.getLength(); i++) {
+            myFile << pArray[i] << " ";
+        }
+        myFile << endl;
+        myFile.close();
+    }
+
     /** \brief Appends vector to file.
      *
      * \param adress Adress to file. Warning, from the location of this
