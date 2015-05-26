@@ -26,6 +26,24 @@ namespace util {
         return meanArray;
     }
 
+    /** \brief Normalize a vector
+     *
+     * \param vec Vector
+     */         
+    void normalize(Vector &vec){
+        int N = vec.getLength();
+        double* pvec = vec.getArrayPointer();
+        double sum = 0;
+        for (int i = 0; i < N; i++) 
+        {
+            sum += pvec[i];
+        }
+        for (int i = 0; i < N; i++) 
+        {
+            pvec[i] /= sum;
+        }
+    }
+
     /** \brief Write vector to file. Will overwrite.
      *
      * \param adress Adress to file. Warning, from the location of this
