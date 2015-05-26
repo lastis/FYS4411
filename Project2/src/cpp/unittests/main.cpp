@@ -574,8 +574,8 @@ SUITE(VMCWrapper)
         // Check that the ratios are the same for the normal step and the
         // efficient slater step.
         double energy1, energy2;
-        int cycles = 10;
-        int particles = 4;
+        int cycles = 1;
+        int particles = 1;
         for (int i = 0; i < cycles; i++)
         {
             solverUnique1.startOfCycle();
@@ -862,9 +862,22 @@ SUITE(Helium)
         solver.alpha = 2;
         solver.waveFunction = solver.WAVE_FUNCTION_1;
         solver.localEnergyFunction = solver.LOCAL_ENERGY_GENERIC_NOCOR;
-        solver.supressOutput();
-        solver.runIntegration();
-        energy = solver.getEnergy();
+        /* solver.runIntegration(); */
+        /* energy = solver.getEnergy(); */
+        double energy = 0;
+
+        VMCSolver solver1 = solver.getInitializedSolver();
+        // Give an unique seed to the solver.
+        // Run simulation.
+        for (int cycle = 0; cycle < solver.nCycles; cycle++) 
+        {
+            for (int i = 0; i < solver.nParticles; i++) 
+            {
+                solver1.runSingleStepSlater(i,cycle);
+                energy += solver1.deltaE;
+            }
+        }
+        energy /= (solver.nParticles*solver.nCycles);
         CHECK_CLOSE(-4, energy, 0.1);
     }
 

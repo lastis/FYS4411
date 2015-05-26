@@ -67,12 +67,10 @@ int main(int argc, const char *argv[])
                 for (int i = 0; i < nParticles; i++) 
                 {
                     solver.runSingleStepSlater(i,cycle);
-                    /* energy += solver.deltaE; */
+                    energy += solver.deltaE;
                 }
-                energy += solver.deltaE;
             }
-            /* energy /= (nParticles*nCycles); */
-            energy /= (nCycles);
+            energy /= (nParticles*nCycles);
             energiesMean[trials*thread + trial] = energy;
         }
     }

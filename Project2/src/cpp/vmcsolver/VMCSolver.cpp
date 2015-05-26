@@ -197,15 +197,13 @@ double VMCSolver::getCorrelationRatio(int i)
                 switch (spinK + spinJ)
                 {
                     case 0:
-                        /* a = 0.25; */
-                        a = 0.5;
+                        a = 0.25;
                         break;
                     case 1:
                         a = 0.5;
                         break;
                     case 2:
-                        /* a = 0.25; */
-                        a = 0.5;
+                        a = 0.25;
                         break;
                 }
                 double bkjOld = 1 / (1 + beta * rkjOld);
@@ -809,15 +807,13 @@ void VMCSolver::updateQuantumForceSlater(double** r, double* rAbs,
                 switch (spinK + spinJ)
                 {
                     case 0:
-                        /* a1 = 0.25; */
-                        a1 = 0.5;
+                        a1 = 0.25;
                         break;
                     case 1:
                         a1 = 0.5;
                         break;
                     case 2:
-                        a1 = 0.5;
-                        /* a1 = 0.25; */
+                        a1 = 0.25;
                         break;
                 }
                 rkjAbs = 0;
@@ -1138,15 +1134,13 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             switch (spinK + spinJ)
             {
                 case 0:
-                    /* a1 = 0.25; */
-                    a1 = 0.5;
+                    a1 = 0.25;
                     break;
                 case 1:
                     a1 = 0.5;
                     break;
                 case 2:
-                    /* a1 = 0.25; */
-                    a1 = 0.5;
+                    a1 = 0.25;
                     break;
             }
             bkj = 1 / (1 + beta * rkj);
@@ -1170,15 +1164,13 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
                 switch (spinK + spinI)
                 {
                     case 0:
-                        /* a2 = 0.25; */
-                        a2 = 0.5;
+                        a2 = 0.25;
                         break;
                     case 1:
                         a2 = 0.5;
                         break;
                     case 2:
-                        /* a2 = 0.25; */
-                        a2 = 0.5;
+                        a2 = 0.25;
                         break;
                 }
                 CC += dot / (rki * rkj) * a1 * a2 * bki * bki * bkj * bkj;
@@ -1207,15 +1199,13 @@ double VMCSolver::getLocalEnergySlater(double** r, double* rAbs)
             switch (spinK + spinJ)
             {
                 case 0:
-                    /* a1 = 0.25; */
-                    a1 = 0.5;
+                    a1 = 0.25;
                     break;
                 case 1:
                     a1 = 0.5;
                     break;
                 case 2:
-                    /* a1 = 0.25; */
-                    a1 = 0.5;
+                    a1 = 0.25;
                     break;
             }
             rkjAbs = 0;
