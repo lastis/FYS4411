@@ -16,7 +16,8 @@ os.chdir(curDir)
 os.chdir(resDir)
 
 x,y,z,f  = np.loadtxt(fileName,unpack=True)
-f = f/sum(f)
+
+f = f/f.max()
 points = np.asarray((x,y))
 points = points.T
 values = f
@@ -40,7 +41,7 @@ zArr = np.linspace(zMin,zMax,N)
 
 xi, yi, zi = np.linspace(x.min(), x.max(), N), np.linspace(y.min(), y.max(), N), np.linspace(z.min(), z.max(), N)
 
-xGrid, yGrid, zGrid = np.meshgrid(xi, yi, zi)
+xGrid, yGrid = np.meshgrid(xi, yi)
 
 X = np.zeros([N,N])
 Y = np.zeros([N,N])
@@ -60,15 +61,12 @@ for i in range(0,N):
             cnt += 1
 
 
-
-# zdata = scipy.interpolate.griddata(points,Z,(xGrid,yGrid), method='nearest')
+Z = scipy.interpolate.griddata(points,values,(xGrid,yGrid), method='nearest')
 
 r = np.zeros(len(x))
-
+plt.plot(density)
 for i in range(len(x)):
     r[i] = np.sqrt(x[i]**2+y[i]**2+z[i]**2)
-
-plt.plot(r,y)
 
 fig, axs = plt.subplots(3, sharex=True, sharey=True)
 cs = axs[0].contourf(yi, zi, X)
@@ -79,4 +77,8 @@ fig.colorbar(cs, ax=axs[1], format="%.2f")
 
 cs = axs[2].contourf(xi, yi, Z)
 fig.colorbar(cs, ax=axs[2], format="%.2f")
+plt.show()
+
+plt.imshow(X,interpolation = 'nearest')
+plt.colorbar(format="%.2f")
 plt.show()

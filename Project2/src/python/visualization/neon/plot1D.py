@@ -14,11 +14,12 @@ os.chdir(resDir)
 
 r,density  = np.loadtxt(fileName,unpack=True)
 
+density /= sum(density)
 
 N = 100;
 rMin = r[0];
 rMax = r[-1];
-r = r*0.53
+# r = r*0.53
 
 plt.plot(r,density)
 plt.savefig('density1d.png')
