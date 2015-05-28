@@ -41,7 +41,7 @@ zArr = np.linspace(zMin,zMax,N)
 
 xi, yi, zi = np.linspace(x.min(), x.max(), N), np.linspace(y.min(), y.max(), N), np.linspace(z.min(), z.max(), N)
 
-xGrid, yGrid, zGrid = np.meshgrid(xi, yi, zi)
+xGrid, yGrid = np.meshgrid(xi, yi)
 
 X = np.zeros([N,N])
 Y = np.zeros([N,N])
@@ -63,8 +63,6 @@ for i in range(0,N):
 
 Z = scipy.interpolate.griddata(points,values,(xGrid,yGrid), method='nearest')
 
-print Z.shape
-
 r = np.zeros(len(x))
 plt.plot(density)
 for i in range(len(x)):
@@ -77,9 +75,10 @@ fig.colorbar(cs, ax=axs[0], format="%.2f")
 cs = axs[1].contourf(xi, zi, Y)
 fig.colorbar(cs, ax=axs[1], format="%.2f")
 
-# cs = axs[2].contourf(xi, yi, Z)
-# fig.colorbar(cs, ax=axs[2], format="%.2f")
+cs = axs[2].contourf(xi, yi, Z)
+fig.colorbar(cs, ax=axs[2], format="%.2f")
 plt.show()
 
-plt.imshow(Z,interpolation='nearest')
+plt.imshow(X,interpolation = 'nearest')
+plt.colorbar(format="%.2f")
 plt.show()
