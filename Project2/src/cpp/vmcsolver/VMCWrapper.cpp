@@ -15,72 +15,6 @@ VMCSolver VMCWrapper::getInitializedSolver(){
     return solver;
 }
 
-/* void VMCWrapper::runIntegration(){ */
-/*     if (parallel) { */
-/*         threads = 4; */
-/*         // Set the max number of threads that can be run. */
-/*         omp_set_num_threads(threads); */
-/*         // We need to gather all the recordings of all the */ 
-/*         // parallel solvers. We do this by copying */
-/*         // each solvers energy array into the following */
-/*         // list of energy arrays. */  
-/*         double energySum = 0; */
-/*         double ratioSum = 0; */
-/*         // A list of vectors. */ 
-/*         Vector* energyArrays = new Vector[threads](); */
-/*         double** pEnergyArrays = new double*[threads]; */
-/*         // totalCycles might differ from nCycles if nCycles */ 
-/*         // is not a multiple of the number of threads. */
-/*         int totalCycles = 0; */
-/*         VMCSolver solver; */ 
-/*         #pragma omp parallel private(solver) */
-/*         { */
-/*             solver = VMCSolver(); */
-/*             initSolver(solver); */
-/*             solver.nCycles = nCycles; */
-/*             solver.setSeed(idum + omp_get_thread_num()); */
-/*             solver.runIntegration(); */
-/*             // Copy the energy array to the more easily handled energy */
-/*             // array list we created before. */ 
-/*             energyArrays[omp_get_thread_num()] = solver.getEnergyArray(); */
-/*             totalCycles += solver.nCycles; */
-/*             energySum += solver.getEnergy(); */
-/*             ratioSum += solver.getAcceptanceRatio(); */
-/*         } */
-/*         // Get the pointers for every energy array. */
-/*         for (int i = 0; i < threads; i++) { */
-/*             pEnergyArrays[i] = energyArrays[i].getArrayPointer(); */
-/*         } */
-/*         // Copy each solver's energy array to one longer */
-/*         // energy array. */
-/*         energyArray = Vector(totalCycles); */
-/*         double* pEnergyArray = energyArray.getArrayPointer(); */
-/*         int cnt = 0; */
-/*         for (int thread = 0; thread < threads; thread++) { */
-/*             int N = energyArrays[thread].getLength(); */
-/*             for (int i = 0; i < N; i++) { */
-/*                 pEnergyArray[cnt] = pEnergyArrays[thread][i]; */
-/*                 cnt++; */
-/*             } */
-/*         } */
-/*         delete[] energyArrays; */
-/*         delete[] pEnergyArrays; */
-/*         energy = energySum/threads; */
-/*         acceptanceRatio = ratioSum/threads; */
-/*     } */
-/*     else { */
-/*         VMCSolver solver = VMCSolver(); */
-/*         initSolver(solver); */
-/*         solver.runIntegration(); */
-
-/*         energyArray = solver.getEnergyArray(); */
-/*         mean = solver.getR12Mean(); */
-/*         energy = solver.getEnergy(); */
-/*         energySquared = solver.getEnergySquared(); */
-/*         acceptanceRatio = solver.getAcceptanceRatio(); */
-/*     } */
-/* } */
-
 bool VMCWrapper::initSolver(VMCSolver& solver){
     solver.alpha = alpha;
     solver.beta = beta;
@@ -97,46 +31,14 @@ bool VMCWrapper::initSolver(VMCSolver& solver){
     solver.idum = idum;
     solver.timeStep = timeStep;
     solver.D = D;
-    /* solver.outputSupressed = outputSupressed; */
-    /* solver.recordingDensity = recordingDensity; */
-    /* solver.recordingEnergyArray = recordingEnergyArray; */
-    /* solver.recordingR12Mean = recordingR12Mean; */
-    /* solver.recordingPositions = recordingPositions; */
     solver.importanceSampling = importanceSampling;
     solver.efficientSlater = efficientSlater;
-    /* solver.parallel = parallel; */
-    /* solver.bins = bins; */
-    /* solver.rMax = rMax; */
     return true;
 }
-
-/* void VMCWrapper::supressOutput(){ */
-/*     outputSupressed = true; */
-/* } */
 
 void VMCWrapper::setStepLength(double stepLength){
     this->stepLength = stepLength;
 }
-
-/* double VMCWrapper::getStepLength(){ */
-/*     return stepLength; */
-/* } */
-
-/* double VMCWrapper::getEnergy(){ */
-/*     return energy; */
-/* } */
-
-/* Vector VMCWrapper::getEnergyArray(){ */
-/*     return energyArray; */
-/* } */
-
-/* double VMCWrapper::getEnergySquared(){ */
-/*     return energySquared; */
-/* } */
-
-/* double VMCWrapper::getR12Mean(){ */
-/*     return mean; */
-/* } */
 
 bool VMCWrapper::initFromFile(std::string fName){
     ifstream myFile;
@@ -201,29 +103,6 @@ void VMCWrapper::useImportanceSampling(bool param){
     importanceSampling = param;
 }
 
-/* void VMCWrapper::useParallel(bool param){ */
-/*     parallel = param; */
-/* } */
-
-/* void VMCWrapper::recordEnergyArray(bool param){ */
-/*     recordingEnergyArray = param; */
-/* } */
-
-/* void VMCWrapper::recordDensity(bool param, int bins, double maxPos){ */
-/*     // This is the only place where bins and rMax are set. But */ 
-/*     // this function is called on clear(). */
-/*     recordingDensity = param; */
-/*     this->bins = bins; */
-/*     rMax = maxPos; */
-/* } */
-
-/* void VMCWrapper::recordR12Mean(bool param){ */
-/*     recordingR12Mean = param; */
-/* } */
-/* void VMCWrapper::recordPositions(bool param){ */
-/*     recordingPositions = param; */
-/* } */
-
 void VMCWrapper::useLocalEnergyGeneric(){
     localEnergyFunction = LOCAL_ENERGY_GENERIC;
 }
@@ -248,6 +127,10 @@ void VMCWrapper::useWaveFunctionBeryllium2(){
     waveFunction = WAVE_FUNCTION_BERYLLIUM_2;
 }
 
+void VMCWrapper::useWaveFunctionHeliumGTO(){
+    waveFunction = WAVE_FUNCTION_HELIUM_GTO;
+}
+
 void VMCWrapper::clear(){
     waveFunction = 0;
     localEnergyFunction = 0;
@@ -265,25 +148,9 @@ void VMCWrapper::clear(){
     timeStep = 0;
     D = 0;
 
-    /* // Results from the solver */
-    /* mean = 0; */
-    /* energy = 0; */
-    /* energySquared = 0; */
-    /* acceptanceRatio = 0; */
-
-    /* outputSupressed = false; */
     useImportanceSampling(false);
     useEfficientSlater(false);
-    /* useParallel(false); */
-    /* recordDensity(false); */
-    /* recordEnergyArray(false); */
-    /* recordR12Mean(false); */
-    /* recordPositions(false); */
 }
-
-/* double VMCWrapper::getAcceptanceRatio(){ */
-/*     return acceptanceRatio; */
-/* } */
 
 bool VMCWrapper::validateParamters(){
     bool valid = true;

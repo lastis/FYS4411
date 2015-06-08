@@ -9,6 +9,7 @@
 #include <random>
 #include "../CPhys/CPhys.h"
 #include "SingleParticleWaveFunctions.h"
+#include "WaveFunctionsGTO.h"
 
 class VMCSolver
 {
@@ -24,10 +25,10 @@ public:
     static const int WAVE_FUNCTION_2 = 9;
     static const int WAVE_FUNCTION_BERYLLIUM_1 = 10;
     static const int WAVE_FUNCTION_BERYLLIUM_2 = 11;
+    static const int WAVE_FUNCTION_HELIUM_GTO = 12;
 
 private:
     void endOfSingleParticleStep(int cycle, int i);
-    /* void endOfCycle(int cycle); */
     void updateQuantumForce(double** r, double* rAbs, double** qForce,
                             double factor);
     void updateQuantumForceSlater(double** r, double* rAbs, double** qForce,
@@ -49,17 +50,11 @@ public:
     double getEnergySquared();
     void supressOutput();
 
-    /* bool runIntegration(); */
     bool initRunVariables();
 
     void startOfCycle();
     void startOfCycleQuantum();
     void startOfCycleSlaterQuantum();
-
-    /* void runStep(int cycle); */
-    /* void runStepSlater(int cycle); */
-    /* void runStepQuantum(int cycle); */
-    /* void runStepSlaterQuantum(int cycle); */
 
     void runSingleStep(int i, int cycle);
     void runSingleStepSlater(int i, int cycle);

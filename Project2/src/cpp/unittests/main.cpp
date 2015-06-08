@@ -954,6 +954,25 @@ SUITE(Helium)
         energy /= (wrapper.nParticles*wrapper.nCycles);
         CHECK_CLOSE(-2.8, energy, 0.2);
     }
+
+    TEST(HeliumGTOLocalEnergyGeneric)
+    {
+        wrapper.useWaveFunctionHeliumGTO();
+        wrapper.useLocalEnergyGeneric();
+        double energy = 0;
+        VMCSolver solver = wrapper.getInitializedSolver();
+        // Run simulation.
+        for (int cycle = 0; cycle < wrapper.nCycles; cycle++) 
+        {
+            for (int i = 0; i < wrapper.nParticles; i++) 
+            {
+                solver.runSingleStep(i,cycle);
+                energy += solver.deltaE;
+            }
+        }
+        energy /= (wrapper.nParticles*wrapper.nCycles);
+        CHECK_CLOSE(-2.8, energy, 0.2);
+    }
 }
 
 SUITE(Beryllium)

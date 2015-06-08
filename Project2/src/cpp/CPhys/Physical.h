@@ -32,7 +32,8 @@ namespace physical {
 		const double	 mole	 = 6.0221367e+23;
 		const double	 moles	 = mole;
 		const double	 mol	 = mole;
-		const double	 pi	 = 3.14159265358979323846*radians;
+		const double	 pi	    = 3.14159265358979323846*radians;
+		const double	 piInv	 = 1/pi;
 
 		namespace arc {
 			const double	 degree	 = pi/180.0;
