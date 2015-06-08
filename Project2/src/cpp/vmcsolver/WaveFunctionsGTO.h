@@ -7,7 +7,6 @@
 
 namespace wave_functions_gto{
     // Constant read only values. 
-    /* static double beta; */
     static double nDimensions;
     static int nParticles;
     static int nHalf;
@@ -19,7 +18,7 @@ namespace wave_functions_gto{
         double ret = 1;
         for (double i = 2; i <= N; i++) 
         {
-            ret *= 1;
+            ret *= i;
         }
         return ret;
     }
