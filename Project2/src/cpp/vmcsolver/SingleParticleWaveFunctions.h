@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include "../CPhys/Physical.h"
 
 namespace wave_functions{
     // Constant read only values. 
@@ -16,6 +17,83 @@ namespace wave_functions{
     static int nParticles;
     static int nHalf;
     static double (*getWaveFuncVal)(double** r, double* rAbs);
+
+    using namespace physical::unit;
+    using namespace std;
+
+    static double factorial(int N){
+        double ret = 1;
+        for (double i = 2; i <= N; i += 1) 
+        {
+            ret *= i;
+        }
+        return ret;
+    }
+
+    static double xi(double x, double y, double z, int i, int j, int k, 
+            double alpha, double weight){ 
+        return weight*pow(2*alpha*piInv,0.75)
+            *sqrt(pow(8*alpha,i+j+k)*factorial(i)*factorial(j)*factorial(k)
+            /(factorial(2*i)*factorial(2*j)*factorial(2*k)))
+            * pow(x,i)*pow(y,j)*pow(z,k)*exp(-alpha*(x*x+y*y+z*z));
+    }
+
+    static double xiD(double q, int m, double x, double y, double z, 
+            int i, int j, int k, double alpha, double weight){ 
+        return weight*pow(2*alpha*piInv,0.75)
+            *sqrt(pow(8*alpha,i+j+k)*factorial(i)*factorial(j)*factorial(k)
+            /(factorial(2*i)*factorial(2*j)*factorial(2*k)))
+            * pow(x,i)*pow(y,j)*pow(z,k)*exp(-alpha*(x*x+y*y+z*z))
+            * (m/q - 2*alpha*q);
+    }
+
+    static double xiDD(double x, double y, double z, 
+            int i, int j, int k, double alpha, double weight){ 
+        return weight*pow(2*alpha*piInv,0.75)
+            *sqrt(pow(8*alpha,i+j+k)*factorial(i)*factorial(j)*factorial(k)
+            /(factorial(2*i)*factorial(2*j)*factorial(2*k)))
+            * pow(x,i-2)*pow(y,j-2)*pow(z,k-2)*exp(-alpha*(x*x+y*y+z*z))
+            * (z*z*(y*y*(i*i-i*(4*alpha*x*x+1)+2*alpha*x*x*(2*alpha
+                                * (x*x + y*y + z*z) - 3)) + 
+            j*j*x*x - j*x*x *(4*alpha*y*y + 1)) + k*k*x*x*y*y - 
+            k*x*x*y*y * (4*alpha*z*z + 1));
+    }
+    
+    static double heliumPhi1sGto(double* r){
+        double psi = 0;
+        double phi1 = 0;
+        double phi2 = 0;
+        // Last two numbers are from the basis set, turbmole file.
+        phi1 += xi(r[0],r[1],r[2],0,0,0,13.6267,0.17523);
+        phi1 += xi(r[0],r[1],r[2],0,0,0,1.99935,0.893483);
+        phi2 += xi(r[0],r[1],r[2],0,0,0,0.38299,1);
+        psi += phi1*0.4579 + phi2*0.6573;
+        return psi;
+    }
+
+    static double heliumPhi1sDGto(int x, double* r){
+        double psi = 0;
+        double phi1 = 0;
+        double phi2 = 0;
+        // Last two numbers are from the basis set, turbmole file.
+        phi1 += xiD(r[x],0,r[0],r[1],r[2],0,0,0,13.6267,0.17523);
+        phi1 += xiD(r[x],0,r[0],r[1],r[2],0,0,0,1.99935,0.893483);
+        phi2 += xiD(r[x],0,r[0],r[1],r[2],0,0,0,0.38299,1);
+        psi += phi1*0.4579 + phi2*0.6573;
+        return psi;
+    }
+
+    static double heliumPhi1sDDGto(double* r){
+        double psi = 0;
+        double phi1 = 0;
+        double phi2 = 0;
+        // Last two numbers are from the basis set, turbmole file.
+        phi1 += xiDD(r[0],r[1],r[2],0,0,0,13.6267,0.17523);
+        phi1 += xiDD(r[0],r[1],r[2],0,0,0,1.99935,0.893483);
+        phi2 += xiDD(r[0],r[1],r[2],0,0,0,0.38299,1);
+        psi += phi1*0.4579 + phi2*0.6573;
+        return psi;
+    }
 
     static double f(double r){
         return -0.5*alpha*r;
@@ -106,6 +184,7 @@ namespace wave_functions{
         switch (j) {
             case 0 :
                 return phi1s(rAbs);
+                /* return heliumPhi1sGto(r); */
             case 1 :
                 return phi2s(rAbs);
             case 2 :
@@ -124,6 +203,7 @@ namespace wave_functions{
         switch (j) {
             case 0 :
                 return phi1sD(r[x],rAbs); 
+                /* return heliumPhi1sDGto(x,r); */
             case 1 :
                 return phi2sD(r[x],rAbs);
             case 2 :
@@ -142,6 +222,7 @@ namespace wave_functions{
         switch (j) {
             case 0 :
                 return phi1sDD(rAbs); // Spherical coordinates.
+                /* return heliumPhi1sDDGto(r); */
             case 1 :
                 return phi2sDD(rAbs);
             case 2 :

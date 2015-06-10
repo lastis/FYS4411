@@ -976,9 +976,11 @@ SUITE(Helium)
         double energy = 0;
         VMCSolver solver = wrapper.getInitializedSolver();
         // Run simulation.
-        for (int cycle = 0; cycle < wrapper.nCycles; cycle++) 
+        int nCycles = 1;
+        int nParticles = 2;
+        for (int cycle = 0; cycle < nCycles; cycle++) 
         {
-            for (int i = 0; i < wrapper.nParticles; i++) 
+            for (int i = 0; i < nParticles; i++) 
             {
                 solver.runSingleStep(i,cycle);
                 energy += solver.deltaE;

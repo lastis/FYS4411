@@ -422,10 +422,10 @@ bool VMCSolver::initRunVariables()
     wave_functions::nParticles = nParticles;
     wave_functions::nHalf = nHalf;
 
-    wave_functions_gto::nDimensions = nDimensions;
-    wave_functions_gto::nParticles = nParticles;
-    wave_functions_gto::nHalf = nHalf;
-    wave_functions_gto::beta = beta;
+    /* wave_functions_gto::nDimensions = nDimensions; */
+    /* wave_functions_gto::nParticles = nParticles; */
+    /* wave_functions_gto::nHalf = nHalf; */
+    /* wave_functions_gto::beta = beta; */
 
     // Set the wave function as a function pointer
     if (waveFunction == WAVE_FUNCTION_1)
@@ -444,11 +444,6 @@ bool VMCSolver::initRunVariables()
     else if (waveFunction == WAVE_FUNCTION_BERYLLIUM_2)
     {
         getWaveFuncVal = wave_functions::getWaveBeryllium;
-        usingCorrelation = true;
-    }
-    else if (waveFunction == WAVE_FUNCTION_HELIUM_GTO)
-    {
-        getWaveFuncVal = wave_functions_gto::getWaveHelium;
         usingCorrelation = true;
     }
     wave_functions::getWaveFuncVal = getWaveFuncVal;
@@ -555,7 +550,7 @@ bool VMCSolver::initRunVariables()
             for (int j = 0; j < nParticles / 2; j++)
             {
                 pslater1Old[i][j] = phi(j, prNew[i], rAbsNew[i]);
-                pslater2Old[i][j] = phi(j, prNew[i + 2], rAbsNew[i + 2]);
+                pslater2Old[i][j] = phi(j, prNew[i + nHalf], rAbsNew[i + nHalf]);
             }
         }
         // Calculate the inverse and assign the pointers.
@@ -578,21 +573,6 @@ bool VMCSolver::initRunVariables()
     // Finished without error (hopefully).
     return true;
 }
-
-/* void VMCSolver::endOfCycle(int cycle) */
-/* { */
-/*     if (!recordingR12Mean) return; */
-/*     // Calculate the radius of the particle */
-/*     double rAbs = 0; */
-/*     double rsq = 0; */
-/*     for (int j = 0; j < nDimensions; j++) */
-/*     { */
-/*         rsq += (prNew[1][j] - prNew[0][j]) * (prNew[1][j] - prNew[0][j]); */
-/*     } */
-/*     rAbs = sqrt(rsq); */
-/*     // Add it to a sum so we can calculate the mean. */
-/*     rAbsSum += rAbs; */
-/* } */
 
 void VMCSolver::endOfSingleParticleStep(int cycle, int i)
 {

@@ -1,3 +1,5 @@
+#ifndef _PHYSICAL_H_INCLUDED
+#define _PHYSICAL_H_INCLUDED
 namespace physical {
 	namespace unit {	 // conversion factor
 		const double	 radian	 = 1.0;
@@ -831,3 +833,4 @@ namespace physical {
 	}
 	namespace constants = constant;
 }
+#endif
