@@ -3,6 +3,7 @@
 #include "../vmcsolver/VMCWrapper.h"
 #include <string.h>
 #include <stdio.h>
+#include "../vmcsolver/GtoGeneralFunctions.h"
 
 using namespace std;
 
@@ -18,11 +19,6 @@ static void initWaveFunctions(VMCSolver& solver)
     wave_functions::nParticles = solver.nParticles;
     wave_functions::nHalf = solver.nHalf;
     wave_functions::getWaveFuncVal = solver.getWaveFuncVal;
-
-    wave_functions_gto::nDimensions = solver.nDimensions;
-    wave_functions_gto::nParticles = solver.nParticles;
-    wave_functions_gto::nHalf = solver.nHalf;
-    wave_functions_gto::beta = solver.beta;
 }
 
 SUITE(CPhys)
@@ -837,9 +833,9 @@ SUITE(VMCWrapper)
     TEST(Factorial)
     {
         double res;
-        res = wave_functions_gto::factorial(2);
+        res = gto_general_functions::factorial(2);
         CHECK_CLOSE(2,res, 0.00001);
-        res = wave_functions_gto::factorial(3);
+        res = gto_general_functions::factorial(3);
         CHECK_CLOSE(6,res, 0.00001);
     }
 
