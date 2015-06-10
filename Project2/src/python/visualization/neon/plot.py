@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from mayavi.mlab import *
+# from mayavi.mlab import *
 from numpy.random import uniform, seed
 from scipy.interpolate import griddata
 
