@@ -15,10 +15,10 @@ int main(int argc, const char *argv[])
         return -1;
     }
     double beta = atof(argv[1]);
-    int nCycles = 1e4;
+    int nCycles = 1e5;
     int nParticles = 2;
     int threads = 4;
-    int trials = 4;
+    int trials = 10;
     int totalTrials = threads*trials;
     int idum = 1000;
     Vector vEnergiesMean = Vector(totalTrials);
@@ -26,6 +26,7 @@ int main(int argc, const char *argv[])
 
     string adress = "../../../../res/plot/heliumGTO/";
     VMCWrapper wrapper = VMCWrapper();
+    wrapper.alpha = 1.66;
     wrapper.beta = beta;
     wrapper.nDimensions = 3;
     wrapper.nParticles = nParticles;
@@ -36,8 +37,8 @@ int main(int argc, const char *argv[])
     wrapper.hInv = 1000;
     wrapper.h2Inv = 1e+06;
     wrapper.idum = idum;
-    wrapper.useWaveFunctionHeliumGTO();
-    wrapper.useLocalEnergyGeneric();
+    wrapper.useEfficientSlater(true);
+    wrapper.useLocalEnergySlater();
 
     // Set the max number of threads that can be run.
     omp_set_num_threads(threads);
@@ -56,7 +57,7 @@ int main(int argc, const char *argv[])
             {
                 for (int i = 0; i < nParticles; i++) 
                 {
-                    solver.runSingleStep(i,cycle);
+                    solver.runSingleStepSlater(i,cycle);
                     energy += solver.deltaE;
                 }
             }

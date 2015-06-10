@@ -9,7 +9,6 @@
 #include <random>
 #include "../CPhys/CPhys.h"
 #include "SingleParticleWaveFunctions.h"
-#include "WaveFunctionsGTO.h"
 
 class VMCSolver
 {

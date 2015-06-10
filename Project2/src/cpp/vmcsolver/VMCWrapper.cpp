@@ -154,6 +154,10 @@ void VMCWrapper::clear(){
 
 bool VMCWrapper::validateParamters(){
     bool valid = true;
+    if (alpha == 0) {
+        cout << "Error : Alpha value not set!" << endl;
+        valid = false;
+    }
     if (efficientSlater) {
         if (nParticles > 10) {
             cout << "Error : Slater determinant has not been implemented "
@@ -220,11 +224,6 @@ bool VMCWrapper::validateParamters(){
             << "for other than 4 particles." << endl;
         valid = false;
     }
-    /* if (recordingR12Mean && nParticles != 2) { */
-    /*     cout << "Cannot use record r12 mean   " */
-    /*         << "for other than 2 particles." << endl; */
-    /*     valid = false; */
-    /* } */
 
     return valid;
 }
