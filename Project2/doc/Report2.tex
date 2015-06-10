@@ -43,6 +43,9 @@
 \newcommand{\eq}[1]{{\small\begin{align*}#1\end{align*}}}
 \newcommand{\equ}[1]{{\small\begin{align}#1\end{align}}}
 \newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}}
+\newcommand{\pmat}[1]{\begin{pmatrix}#1\end{pmatrix}}
+\newcommand{\bmat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+\newcommand{\vmat}[1]{\begin{vmatrix}#1\end{vmatrix}}
 \renewcommand\vec[1]{\mathbf{#1}}
 \newcommand{\OP}[1]{\mathbf{\widehat{#1}}}
 \newcommand{\op}[1]{\hat{#1}}
@@ -218,7 +221,7 @@ y = x + DF(x) \delta t + \xi \sqrt{\Delta t}.
 where $\xi $ is a gaussian random variable, and $\Delta t$ is a chosen timestep.
 In atomic units, $D$ is $1/2$, and in our plots $\Delta t = 0.01$. 
 
-An important part of this result is that the walker is effected by $F(x)$
+An important part of this result is that the walker is affected by $F(x)$
 which contains the trial wavefunction. This has been named the quantum 
 force. 
 
@@ -576,6 +579,56 @@ We can then calculate the gradient and laplacian as
 }
 
 REMEMBER TO SAY SOMETHING ABOUT NUMBER OF OPERATIONS.
+
+\subsection{Introducing Gaussian-Type Orbitals}
+In this project, we have shown how one can use Hydrogen-like wave functions as the basis
+for the Slater determinant, and up until now, 
+we have used so-called \textit{Slater-Type Orbitals} (STOs).
+We will now replace the STOs with \textit{Gaussian-Type Orbitals} (GTOs).
+
+The spin-factorized Slater determinants (one for spin up and one for spin down),
+are given by
+\eq{\psi_{D_{spin}} = 
+  \vmat{\phi_1(\vec r_1)& \cdots & \phi_n(\vec r_1)\\
+  \vdots&\ddots&\vdots\\
+  \phi_1(\vec r_n)& \cdots & \phi_N(\vec r_n)}
+}
+
+where $n$ is equal to half the number of particles, 
+and  $\phi_j(\vec r_i)$ are one-particle wave functions 
+$\phi_{1s}$, $\phi_{2s}$ and $\phi_{2p(3)}$
+($(3)$ is short-hand notation for the $x$, $y$ and $z$ parts).
+These spin independent, one-particle wave functions are
+linear combinations of basis functions, and we will now use \textit{contracted} GTOs
+(CGTOs) for this purpose.
+
+The functions can then be written as
+\eq{\phi_j(\vec r_i) = \sum_p C_{pj} \varphi_p(\vec r_i)
+}
+
+The CGTOs are on the form
+\eq{
+  \varphi_p^{CGTO}(\vec r_i) = \sum_k N_k \varphi^{GTO}_k(\vec r_i)
+}
+with
+\eq{
+  \varphi^{GTO}_k = d_k x^m y^n z^o e^{-\alpha_k r^2}
+}
+which are called \textit{cartesian} GTOs. 
+The numerical coefficients $\alpha_k$ and $d_k$ are chosen to optimalize the
+basis functions, and we use values from the 
+\textit{Environmental Molecular Science Laboratory} (EMSL) 
+website\footnote{https://bse.pnl.gov/bse/portal}.
+
+The normalization factors are given as\footnote{Ab Initio, p. 280}
+\eq{
+  N_k = \left(\frac{2\alpha_k}{\pi}\right)^{3/4}
+  \sqrt{\frac{(4\alpha_k)^{m+n+o}}{(2m-1)!!(2n-1)!!(2o-1)!!}}
+}
+and since they are dependent on the total angular momentum,
+given by the quantum numbers $l = m+n+o$, we will write them as
+$N_k = N_{m,n,o}$.
+
 \section{Results}
 
 \appendix
