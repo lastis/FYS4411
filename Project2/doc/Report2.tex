@@ -1,4 +1,4 @@
-\documentclass[twocolumns,a4paper,11pt,fleqn]{extarticle}
+\documentclass[twocolumns, a4paper,11pt,fleqn]{extarticle}
 \usepackage[english]{babel} 
 \usepackage[latin1]{inputenc} 
 \usepackage{times}			% Default times font style
@@ -127,7 +127,7 @@ Hamiltonian of an atom as
   &=\sum_i (\op k_i + \op v_i)  + \sum_{i<j} \op v_{ij}\\
   &= -\sum_{i=1}^N\bigg[
     \frac{\op\nabla_i^2}{2} + \frac{Z}{r_i}\bigg] 
-  + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}} \numberthis\label{eq:ham}
+  + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}} \numberthis\label{ham}
 }
 Here $Z$ is the nuclear charge, 
 and we have another sum for all the electron/electron repulsions.
@@ -141,14 +141,14 @@ a \textit{diatomic molecule}, which gives us a Hamiltonian on the form
 }
 
 \subsection{Slater Determinants}
-The Hamiltonian (\ref{eq:ham}) introduced in the last section is invariant
+The Hamiltonian (\ref{ham}) introduced in the last section is invariant
 when you interchange two particles, and since electrons are \textit{fermions},
 it is required that the wave function is antisymmetric.
 
 In practice, this means that for a system of two particles, $1$ and $2$, described by the
 wave functions $\psi_a$ and $\psi_b$, we must have a total wave function on the form
 \equ{
-  \psi^{1,2} = \psi_a^1 \psi_b^2 - \psi_b^1 \psi_a^2\label{eq:wavfunc}
+  \psi^{1,2} = \psi_a^1 \psi_b^2 - \psi_b^1 \psi_a^2\label{wavfunc}
 }
 This is a result that follows from the fact that particles are indistinguishable,
 and the minus sign comes from the antisymmetry condition.
@@ -161,7 +161,7 @@ they do not obey the \textit{Pauli principle},
 stating that two particles can not occupy the same state, 
 which would imply $\psi^{1,2}=0$.
 
-If we rewrite equation (\ref{eq:wavfunc}), we see that this is actually a determinant
+If we rewrite equation (\ref{wavfunc}), we see that this is actually a determinant
 \eq{
   \psi^{1,2} = \vmat{\psi_a^1&\psi_b^1\\ \psi_a^2&\psi_b^2}
 }
@@ -170,7 +170,7 @@ that can be generallized to the $N$-particle case as
   \psi(\vec r_1, \dots, \vec r_N) 
   = \frac{1}{\sqrt{N!}}\vmat{\psi_1^1&\cdots&\psi_N^1\\ 
   \vdots & \ddots & \vdots \\ 
-  \psi_1^N& \cdots &\psi_N^N}\label{eq:slaterdet}
+  \psi_1^N& \cdots &\psi_N^N}\label{slaterdet}
 }
 These Slater determinants obey exchange operations, since switching
 two rows of the determinant changes the sign.
@@ -180,7 +180,7 @@ as the important part is proportionality, and we will see later that constants g
 In this project, we are studying spin-$\frac{1}{2}$ particles,
 and we must address this problem in the Slater determinants we will use.
 The electrons have either spin $\uparrow$ or $\downarrow$,
-so our determinant in (\ref{eq:slaterdet}) 
+so our determinant in (\ref{slaterdet}) 
 have elements labeled $\uparrow$ or $\downarrow$.
 However, we must also label them by their atomic orbitals,
 so an element of the determinant will have the form
@@ -255,12 +255,12 @@ wave functions we will use.
 The Variation Principle states that if we have a Hamiltonian
 $\OP H$ and a trial wavefunction $\psi_{T}$,
 an upper bound for the ground state energy $E_0$ is given by
-equation (\ref{eq:E0var}). 
+equation (\ref{E0var}). 
 \equ{
 	E_0 \leq
 	\langle H \rangle =
 	\frac{\Int{}{}{\vec R}{\psi_T^*(\vec R) \OP{H}(\vec R) \psi_T(\vec R)}}
-	{\Int{}{}{\vec R}{\psi_T^*(\vec R) \psi_T(\vec R)}}\label{eq:E0var}
+	{\Int{}{}{\vec R}{\psi_T^*(\vec R) \psi_T(\vec R)}}\label{E0var}
 }
 To find such a wave function, we expand it in the eigenstates of
 the Hamiltonian (since they form a complete set) as follows
@@ -271,7 +271,7 @@ and given that they are normalized, we get
 \eq{
   E_0 \leq
   \frac{\sum_{i,j}c_m^*c_n\Int{}{}{\vec R}{\psi_m^*(\vec R) \OP{H}(\vec R) \psi_n(\vec R)}}
-	{\sum_{m,n}c_m^*c_n\Int{}{}{\vec R}{\psi_m^*(\vec R) \psi_n(\vec R)}}\label{eq:E0var}
+	{\sum_{m,n}c_m^*c_n\Int{}{}{\vec R}{\psi_m^*(\vec R) \psi_n(\vec R)}}\label{E0var}
   = \frac{\sum_n \abs*{c_n}^2 E_n}{\sum_n \abs*{c_n}^2}
 }
 since $E_0 = E_0 \sum_n \abs*{c_n}^2 \leq \sum_n E_n \abs*{c_n}^2 $
@@ -286,20 +286,68 @@ Another (analytical) quantity that we want to calculate, is the \textit{local en
 \eq{
   E_L(\vec R, \vec \alpha) = \frac{1}{\psi_T(\vec R, \vec \alpha)} \OP H \psi_T(\vec R, \vec \alpha)
 }
-which together with (\ref{eq:E0var}) yields
-\eq{
+which together with (\ref{E0var}) yields
+
+\begin{equation}
   \langle H \rangle 
   = \frac{\Int{}{}{\vec R}{E_L \abs*{\psi_T}^2}}
-	{\Int{}{}{\vec R}{\abs*{\psi_T}^2}}
-}
-and if we define
+	{\Int{}{}{\vec R}{\abs*{\psi_T}^2}} \label{exp}
+\end{equation}
+
+
+\subsection{Variational Monte Carlo (VMC)}
+The integrals to be solved in the variational method,
+does not scale well with traditional integral methods when 
+increasing the number of particles and dimensions and using 
+more complex wave functions .
+Therefore, we introduce the \textit{brute-force Monte Carlo method}
+to solve the integrals.
+
+We define
 \eq{
   P(\vec R) \equiv \frac{\abs*{\psi_T}^2}{\Int{}{}{\vec R}{\abs*{\psi_T}^2}}
 }
-we can approximate the integral as follows
+and can then rewrite the integral in (\ref{exp}), and approximate it as
 \eq{
   \Int{}{}{\vec R}{E_L P(\vec R)} \approx \frac{1}{N}\sum_{i=1}^N E_L P(\vec R)
 }
+Here $N$ is the number of \textit{Monte Carlo samples}.
+An outline of the algorithm can be seen in Algorithm \ref{algo:vmc}.
+
+\begin{algorithm}
+	\caption{VMC Algorithm}\label{algo:vmc}
+  \begin{algorithmic}[1]
+    \Procedure{Initialization}{}
+      \State{Set a fixed number of MC steps.}
+      \State{Choose initial position $\vec R$ and variational
+            
+            parameters $\boldsymbol\alpha$.}
+      \State{Calculate $|\psi_T(\vec R)|^2$.}
+    \EndProcedure
+    \Procedure{Initialize energy and variance and start the MC calculation}{}
+      \State{Find the trial position $\vec R' =\vec R + \delta\times r $,
+      
+            where $r\in [0,1]$ is randomly selected.}
+      \State{Use the Metropolis algorithm to determine if the
+      
+            move $w =\frac{P(\vec R')}{P(\vec R)}$ is accepted or rejected.}
+      \State{Given that the move is accepted, set $\vec R = \vec R'$.}
+      \State{Update averages.}
+    \EndProcedure
+    \Procedure{Compute final averages}{}
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -321,39 +369,8 @@ we can approximate the integral as follows
 {\Huge Everything below this point is not revised, or will be removed.}
 
 
-%% Calculating the integral using VMC and Metropolis algo.
 
-\subsection{Variational Monte Carlo (VMC)}
-The integrals to be solved in the variational method,
-does not scale well with traditional integral methods when 
-increasing the number of particles and dimensions and using 
-more complex wave functions .
 
-Therefore, we introduce the brute-force Monte Carlo method
-to solve the integrals.
-
-\subsubsection{VMC Algorithm}
-
-\begin{itemize}
-    \item Initialization.
-    \begin{itemize}    
-        \item Set a fixed number of MC steps.
-        \item Choose initial position $\vec R$ and variational
-            parameters $\boldsymbol\alpha$.
-        \item Calculate $|\psi_T(\vec R)|^2$
-    \end{itemize}
-    \item Set energy and variance and start the MC calculation.
-    \begin{itemize}    
-        \item Find the trial position $\vec R' =\vec R + \delta\times r $,
-            where $r\in [0,1]$ is randomly selected.
-        \item Use the Metropolis algorithm to determine if the
-            move $w =\frac{P(\vec R')}{P(\vec R)}$ is accepted or rejected.
-        \item Given that the move is accepted, set $\vec R = \vec R'$.
-        \item Update averages.
-    \end{itemize}
-    \item Compute final averages.
-\end{itemize}
-%% End of the VMC section
 
 \subsection{The Metropolis Algorithm}
 The Metropolis algorithm samples a normalized probability distribution
