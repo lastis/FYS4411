@@ -1,4 +1,4 @@
-\documentclass[twocolumn,letterpaper,11pt,fleqn]{extarticle}
+\documentclass[twocolumns, a4paper,11pt,fleqn]{extarticle}
 \usepackage[english]{babel} 
 \usepackage[latin1]{inputenc} 
 \usepackage{times}			% Default times font style
@@ -13,7 +13,8 @@
 \usepackage{cuted}			% Adds the strip command, pagewidth text in a twocolumn
 							% environment.  
 \usepackage{hyperref}
-\usepackage[letterpaper, margin=0.6in]{geometry}
+\usepackage[a4paper, margin=0.6in]{geometry}
+
 
 % Alghorithm packages:
 \usepackage{algorithm}
@@ -46,12 +47,17 @@
 \newcommand{\pmat}[1]{\begin{pmatrix}#1\end{pmatrix}}
 \newcommand{\bmat}[1]{\begin{bmatrix}#1\end{bmatrix}}
 \newcommand{\vmat}[1]{\begin{vmatrix}#1\end{vmatrix}}
-\renewcommand\vec[1]{\mathbf{#1}}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle#1|}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+\newcommand{\Int}[4]{\int_{#1}^{#2} \! \mathrm{d}#3 \, #4}
+\renewcommand\vec[1]{\boldsymbol{\mathbf{#1}}}
 \newcommand{\OP}[1]{\mathbf{\widehat{#1}}}
 \newcommand{\op}[1]{\hat{#1}}
 \newcommand{\unit}[1]{\mathbf{\hat{#1}}}
-\renewcommand{\thesection}{\Roman{section}.}
+\renewcommand{\thesection}{\Roman{section}}
 \renewcommand{\thesubsection}{\Alph{subsection}.}
+\renewcommand{\thesubsubsection}{\roman{subsubsection}.}
 
 \title{}
 
@@ -70,8 +76,6 @@
  \\[3em] % some more space after the title part
 }]
 
-
-
 \section{Introduction}
 
 To evaluate the results of the numerical methods, we investigated the possibility
@@ -79,12 +83,12 @@ of finding a closed-form solution of the ground-state energy
 using the Variational Principle.
 
 \section{Methods}
-\subsection{Definitions}
+\subsection{The Quantum Mechanical System}
 The Helium atom consists of two electrons orbiting a nucleus,
 where the distance between electron 1 and the nucleus,
 and electron 2 and the nucleus are labeled as
 $r_1 = \sqrt{x_1^2 + y_1^2 + z_1^2}$ 
-and $r_2 = \sqrt{x_2^2 + y_2^2 + z_2^2}$.
+and $r_2 = \sqrt{x_2^2 + y_2^2 + z_2^2}$ in cartesian coordinates.
 
 The total potential energy of the system is modelled as
 {\small
@@ -94,68 +98,201 @@ The total potential energy of the system is modelled as
 where the interaction between each electron and the nucleus
 is given by the two first terms. 
 The mutual electron-electron repulsion is given by the last.
-The distance between the electrons is $r_{12}=|\vec r_1-\vec r_2|$.
+The distance between two electrons is $r_{ij}=|\vec r_j-\vec r_i|$.
 
-The Hamiltonian of the system is thusly, 
-{\small
+The \textit{Hamiltonian} of the system is thus
 \eq{
     \OP H = -\frac{\nabla_1 ^2}{2} -\frac{\nabla_2 ^2}{2}
     -\frac{2}{r_1}-\frac{2}{r_2}+\frac{1}{r_{12}}
-}}%
+}
+scaled to \textit{atomic units} (a.u.).
 
-%% Stating units / constants
-The radii \{$r_1$, $r_2$, $r_{12}$\} are scaled, and are dimensionless.
-
-%% The spherical nature of the wavefunction
-The Laplace operator of a function $f$ in three dimensions, $\nabla^2 f$,
-can be represented as
-{\small
+This is based on the simplified, analytically solvable, system for the 
+Hydrogen atom, where the Hamiltonian is
 \eq{
-  \bigg( \frac{\partial^2}{\partial r^2} 
-    + \frac{2}{r} \frac{\partial}{\partial r} \bigg) f
-    +\frac{1}{r^2 \sin\theta}\frac{\partial}{\partial \theta}
-    \bigg( \sin\theta \frac{\partial}{\partial \theta}  \bigg) f
-    +\frac{1}{r^2 \sin^2\theta}\frac{\partial^2}{\partial^2 \varphi} f
-}}%
+  \OP H = \OP K + \OP V = -\frac{\hbar^2}{2m_e}\op \nabla^2 - \frac{e^2}{4\pi \epsilon_0 r}
+}
+with $e$ as the electron charge and $m_e$ as the mass of the electron.
 
-in spherical coordinates, and as
-
-{\small
+This operator satisfies the \textit{time-independent Schr\"odinger Equation}
 \eq{
-	\bigg( 
-	\frac{\partial}{\partial x^2} +
-	\frac{\partial}{\partial y^2} +
-	\frac{\partial}{\partial z^2}
-	\bigg) f
-}}%
+  \OP H \ket{\psi} = E \ket{\psi}
+}
+where $E$ is the \textit{energy eigenvalue} and $\psi$ is the \textit{eigenstate} of the system.
 
-in cartesian coordinates.
+For a Hydrogen-like quantum mechanical system, we can model the general
+Hamiltonian of an atom as
+\eq{
+  \OP H
+  &=\sum_i (\op k_i + \op v_i)  + \sum_{i<j} \op v_{ij}\\
+  &= -\sum_{i=1}^N\bigg[
+    \frac{\op\nabla_i^2}{2} + \frac{Z}{r_i}\bigg] 
+  + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}} \numberthis\label{ham}
+}
+Here $Z$ is the nuclear charge, 
+and we have another sum for all the electron/electron repulsions.
 
-%% Calculating the integral using VMC and Metropolis algo.
+We can add to this model by setting up a system of two atoms,
+a \textit{diatomic molecule}, which gives us a Hamiltonian on the form
+\eq{
+  \OP H = -\sum_{i=1}^N\bigg[
+    \frac{\op\nabla_i^2}{2} + \frac{Z_1}{r_{ip1}} + \frac{Z_2}{r_{ip2}}\bigg] 
+    + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}} + \frac{Z_1 Z_2}{R}
+}
+
+\subsection{Slater Determinants}
+The Hamiltonian (\ref{ham}) introduced in the last section is invariant
+when you interchange two particles, and since electrons are \textit{fermions},
+it is required that the wave function is antisymmetric.
+
+In practice, this means that for a system of two particles, $1$ and $2$, described by the
+wave functions $\psi_a$ and $\psi_b$, we must have a total wave function on the form
+\equ{
+  \psi^{1,2} = \psi_a^1 \psi_b^2 - \psi_b^1 \psi_a^2\label{wavfunc}
+}
+This is a result that follows from the fact that particles are indistinguishable,
+and the minus sign comes from the antisymmetry condition.
+An exchange operator $\OP P$ acting on an antisymmetric wave function,
+will therefore change the sign, thus the wave function is an eigenfunction
+of $\OP P$ with eigenvalue $p=-1$.
+
+For bosons however, the sign is positive. This means that 
+they do not obey the \textit{Pauli principle},
+stating that two particles can not occupy the same state, 
+which would imply $\psi^{1,2}=0$.
+
+If we rewrite equation (\ref{wavfunc}), we see that this is actually a determinant
+\eq{
+  \psi^{1,2} = \vmat{\psi_a^1&\psi_b^1\\ \psi_a^2&\psi_b^2}
+}
+that can be generallized to the $N$-particle case as
+\equ{
+  \psi(\vec r_1, \dots, \vec r_N) 
+  = \frac{1}{\sqrt{N!}}\vmat{\psi_1^1&\cdots&\psi_N^1\\ 
+  \vdots & \ddots & \vdots \\ 
+  \psi_1^N& \cdots &\psi_N^N}\label{slaterdet}
+}
+These Slater determinants obey exchange operations, since switching
+two rows of the determinant changes the sign.
+In our project we will omit the factor in front of the determinant,
+as the important part is proportionality, and we will see later that constants get cancelled.
+
+In this project, we are studying spin-$\frac{1}{2}$ particles,
+and we must address this problem in the Slater determinants we will use.
+The electrons have either spin $\uparrow$ or $\downarrow$,
+so our determinant in (\ref{slaterdet}) 
+have elements labeled $\uparrow$ or $\downarrow$.
+However, we must also label them by their atomic orbitals,
+so an element of the determinant will have the form
+\eq{
+  \phi_{j\sigma}(\vec r_i) = \phi_{j\sigma}^i
+}
+where $j$ is the atomic orbital (1s, 2s, 2p in this project), $\sigma$ is the spin,
+and $i$ is the particle number.
+Determinants of matrices with elements like that for Helium, Beryllium and Neon, 
+are unfortunately zero, 
+since they are independent of spin
+(two and two columns would be equal).
+This can be bypassed by writing the determinant $\abs*{\op D}$ as a product of two smaller ones
+for each spin\footnote{Morten, 519-520}, since
+\eq{
+  \psi_D = \abs*{\op D} \propto \abs*{\op D}_{\uparrow} \abs*{\op D}_{\downarrow}
+}
+By doing this, the wave function
+will lose its antisymmetry when interchanging particles,
+but it doesn't affect the expectation values.
+
+For Helium,
+we write the wave function as a product of the (reduced) $1\times1$ matrices
+to simplify the function. Therefore
+\eq{
+  \psi_D^{He} = \phi_{1s}(\vec r_1) \phi_{1s}(\vec r_2)
+}
+
+For Beryllium (four electrons), the corresponding Slater determinant is
+\eq{
+  \psi_D^{Be} 
+    &=\vmat{
+    \phi_{1s\uparrow}^1&\phi_{1s\uparrow}^2
+      &\phi_{1s\uparrow}^3&\phi_{1s\uparrow}^4\\
+    \phi_{1s\downarrow}^1&\phi_{1s\downarrow}^2
+      &\phi_{1s\downarrow}^3&\phi_{1s\downarrow}^4\\
+    \phi_{2s\uparrow}^1&\phi_{2s\uparrow}^2
+      &\phi_{2s\uparrow}^3&\phi_{2s\uparrow}^4\\
+    \phi_{2s\downarrow}^1&\phi_{2s\downarrow}^3
+      &\phi_{2s\downarrow}^2&\phi_{2s\downarrow}^4
+    }\\
+    &=\vmat{
+    \phi_{1s\uparrow}^1&\phi_{1s\uparrow}^2\\
+    \phi_{2s\uparrow}^1&\phi_{2s\uparrow}^2\\
+    }
+    \vmat{
+    \phi_{1s\downarrow}^3&\phi_{1s\downarrow}^4\\
+    \phi_{2s\downarrow}^3&\phi_{2s\downarrow}^4\\
+    }
+}
+and finally for Neon (ten electrons), 
+the spin $\uparrow$ part (and similarly for $\downarrow$)
+\eq{
+  \abs*{\op D}_{\uparrow}^{Ne} 
+    &=\vmat{
+    \phi_{1s\uparrow}^1&\phi_{1s\uparrow}^2
+      &\phi_{1s\uparrow}^3&\phi_{1s\uparrow}^4&\phi_{1s\uparrow}^5\\
+    \phi_{2s\uparrow}^1&\phi_{2s\uparrow}^2
+      &\phi_{2s\uparrow}^3&\phi_{2s\uparrow}^4&\phi_{2s\uparrow}^5\\
+    \phi_{2p_x\uparrow}^1&\phi_{2p_x\uparrow}^2
+      &\phi_{2p_x\uparrow}^3&\phi_{2p_x\uparrow}^4&\phi_{2p_x\uparrow}^5\\
+    \phi_{2p_y\uparrow}^1&\phi_{2p_y\uparrow}^2
+      &\phi_{2p_y\uparrow}^3&\phi_{2p_y\uparrow}^4&\phi_{2p_y\uparrow}^5\\
+    \phi_{2p_z\uparrow}^1&\phi_{2p_z\uparrow}^2
+      &\phi_{2p_z\uparrow}^3&\phi_{2p_z\uparrow}^4&\phi_{2p_z\uparrow}^5
+    }
+}
+Here we have used equality instead of proportionality, since these are the actual
+wave functions we will use.
+
 \subsection{The Variational Principle}
 The Variation Principle states that if we have a Hamiltonian
 $\OP H$ and a trial wavefunction $\psi_{T}$,
-an upper bound for the ground state energy is given by
-equation (\ref{eq:E0var}). 
-
-The principle is that the given integral is a
-value of the energy of a given wave function and when the wave function
-is variated, the according values of the energy is the output. If we then
-record the lowest energy, the ground state, we also have the wave function
-of the ground state. 
-\begin{strip}
-{
+an upper bound for the ground state energy $E_0$ is given by
+equation (\ref{E0var}). 
 \equ{
-	&E_0 \leq
+	E_0 \leq
 	\langle H \rangle =
-	\frac{\int d{\bf r_1}d{\bf r_2}\psi^{\ast}_{Ti}({\bf r_1},{\bf r_2}, 
-	{\bf r_{12}})
-	\OP{H}({\bf r_1},{\bf r_2}, {\bf r_{12}})
-	\psi_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})}
-	{\int d{\bf r_1}d{\bf r_2}\psi^{\ast}_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})
-	\psi_{Ti}({\bf r_1},{\bf r_2}, {\bf r_{12}})}\label{eq:E0var}
-}}%
-\end{strip}
+	\frac{\Int{}{}{\vec R}{\psi_T^*(\vec R) \OP{H}(\vec R) \psi_T(\vec R)}}
+	{\Int{}{}{\vec R}{\psi_T^*(\vec R) \psi_T(\vec R)}}\label{E0var}
+}
+To find such a wave function, we expand it in the eigenstates of
+the Hamiltonian (since they form a complete set) as follows
+\eq{
+  \psi_T(\vec R) = \sum_i c_i \psi_i(\vec R)
+}
+and given that they are normalized, we get
+\eq{
+  E_0 \leq
+  \frac{\sum_{i,j}c_m^*c_n\Int{}{}{\vec R}{\psi_m^*(\vec R) \OP{H}(\vec R) \psi_n(\vec R)}}
+	{\sum_{m,n}c_m^*c_n\Int{}{}{\vec R}{\psi_m^*(\vec R) \psi_n(\vec R)}}\label{E0var}
+  = \frac{\sum_n \abs*{c_n}^2 E_n}{\sum_n \abs*{c_n}^2}
+}
+since $E_0 = E_0 \sum_n \abs*{c_n}^2 \leq \sum_n E_n \abs*{c_n}^2 $
+
+The key to the variational principle is to find suitable trial wave functions
+that live in the same Hilbert space as the Hamiltonian.
+Given a trial wave function, we can then vary som parameters 
+$\vec \alpha = (\alpha,\,\beta,\,\dots)$ to optimalize the function,
+and the energy value $E_T$.
+
+Another (analytical) quantity that we want to calculate, is the \textit{local energy}
+\eq{
+  E_L(\vec R, \vec \alpha) = \frac{1}{\psi_T(\vec R, \vec \alpha)} \OP H \psi_T(\vec R, \vec \alpha)
+}
+which together with (\ref{E0var}) yields
+
+\begin{equation}
+  \langle H \rangle 
+  = \frac{\Int{}{}{\vec R}{E_L \abs*{\psi_T}^2}}
+	{\Int{}{}{\vec R}{\abs*{\psi_T}^2}} \label{exp}
+\end{equation}
 
 
 \subsection{Variational Monte Carlo (VMC)}
@@ -163,32 +300,77 @@ The integrals to be solved in the variational method,
 does not scale well with traditional integral methods when 
 increasing the number of particles and dimensions and using 
 more complex wave functions .
-
-Therefore, we introduce the brute-force Monte Carlo method
+Therefore, we introduce the \textit{brute-force Monte Carlo method}
 to solve the integrals.
 
-\subsubsection{VMC Algorithm}
+We define
+\eq{
+  P(\vec R) \equiv \frac{\abs*{\psi_T}^2}{\Int{}{}{\vec R}{\abs*{\psi_T}^2}}
+}
+and can then rewrite the integral in (\ref{exp}), and approximate it as
+\eq{
+  \Int{}{}{\vec R}{E_L P(\vec R)} \approx \frac{1}{N}\sum_{i=1}^N E_L P(\vec R)
+}
+Here $N$ is the number of \textit{Monte Carlo samples}.
+An outline of the algorithm can be seen in Algorithm \ref{algo:vmc}.
 
-\begin{itemize}
-    \item Initialization.
-    \begin{itemize}    
-        \item Set a fixed number of MC steps.
-        \item Choose initial position $\vec R$ and variational
-            parameters $\boldsymbol\alpha$.
-        \item Calculate $|\psi_T(\vec R)|^2$
-    \end{itemize}
-    \item Set energy and variance and start the MC calculation.
-    \begin{itemize}    
-        \item Find the trial position $\vec R' =\vec R + \delta\times r $,
-            where $r\in [0,1]$ is randomly selected.
-        \item Use the Metropolis algorithm to determine if the
-            move $w =\frac{P(\vec R')}{P(\vec R)}$ is accepted or rejected.
-        \item Given that the move is accepted, set $\vec R = \vec R'$.
-        \item Update averages.
-    \end{itemize}
-    \item Compute final averages.
-\end{itemize}
-%% End of the VMC section
+\begin{algorithm}
+	\caption{VMC Algorithm}\label{algo:vmc}
+  \begin{algorithmic}[1]
+    \Procedure{Initialization}{}
+      \State{Set a fixed number of MC steps.}
+      \State{Choose initial position $\vec R$ and variational
+            
+            parameters $\boldsymbol\alpha$.}
+      \State{Calculate $|\psi_T(\vec R)|^2$.}
+    \EndProcedure
+    \Procedure{Initialize energy and variance and start the MC calculation}{}
+      \State{Find the trial position $\vec R' =\vec R + \delta\times r $,
+      
+            where $r\in [0,1]$ is randomly selected.}
+      \State{Use the Metropolis algorithm to determine if the
+      
+            move $w =\frac{P(\vec R')}{P(\vec R)}$ is accepted or rejected.}
+      \State{Given that the move is accepted, set $\vec R = \vec R'$.}
+      \State{Update averages.}
+    \EndProcedure
+    \Procedure{Compute final averages}{}
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\clearpage
+{\Huge Everything below this point is not revised, or will be removed.}
+
+
+
+
 
 \subsection{The Metropolis Algorithm}
 The Metropolis algorithm samples a normalized probability distribution
@@ -418,9 +600,6 @@ All plot data are generated by individual programs using the mentioned solver.
 Plots are generated using python. 
 
 
-
-
-
 \subsection{Trial Wavefunctions}
 
 The trial wavefunction of Beryllium can be written as a product of a Slater determinant
@@ -634,7 +813,32 @@ $N_k = N_{m,n,o}$.
 \appendix
 \renewcommand{\thesubsection}{Appendix \Alph{subsection}:}
 \renewcommand{\thesubsubsection}{\arabic{subsubsection}.}
+
 \subsection{Mathematical Derivations}
+%% The spherical nature of the wavefunction
+The Laplace operator of a function $f$ in three dimensions, $\nabla^2 f$,
+can be represented as
+{\small
+\eq{
+  \bigg( \frac{\partial^2}{\partial r^2} 
+    + \frac{2}{r} \frac{\partial}{\partial r} \bigg) f
+    +\frac{1}{r^2 \sin\theta}\frac{\partial}{\partial \theta}
+    \bigg( \sin\theta \frac{\partial}{\partial \theta}  \bigg) f
+    +\frac{1}{r^2 \sin^2\theta}\frac{\partial^2}{\partial^2 \varphi} f
+}}%
+
+in spherical coordinates, and as
+
+{\small
+\eq{
+	\bigg( 
+	\frac{\partial}{\partial x^2} +
+	\frac{\partial}{\partial y^2} +
+	\frac{\partial}{\partial z^2}
+	\bigg) f
+}}%
+
+in cartesian coordinates.
 \subsubsection{The wavefunction of Beryllium}
 We start by finding the first and second derivative of the determinant part,
 which are only dependent on the radii of the particles. This means that the gradient can be written 
@@ -957,4 +1161,5 @@ If we now sum up for all dimensions, we get
     \sum_{i,j\neq k}\frac{(\vec r_k-\vec r_i)(\vec r_k-\vec r_j)}{r_{ik} r_{jk}} 
     f_{ik}' f_{jk}'
 }
+
 \end{document}
