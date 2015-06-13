@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include "../CPhys/Physical.h"
+#include "GtoHelium.h"
 
 namespace wave_functions{
     // Constant read only values. 
@@ -184,7 +185,6 @@ namespace wave_functions{
         switch (j) {
             case 0 :
                 return phi1s(rAbs);
-                /* return heliumPhi1sGto(r); */
             case 1 :
                 return phi2s(rAbs);
             case 2 :
@@ -203,7 +203,6 @@ namespace wave_functions{
         switch (j) {
             case 0 :
                 return phi1sD(r[x],rAbs); 
-                /* return heliumPhi1sDGto(x,r); */
             case 1 :
                 return phi2sD(r[x],rAbs);
             case 2 :
@@ -222,7 +221,6 @@ namespace wave_functions{
         switch (j) {
             case 0 :
                 return phi1sDD(rAbs); // Spherical coordinates.
-                /* return heliumPhi1sDDGto(r); */
             case 1 :
                 return phi2sDD(rAbs);
             case 2 :

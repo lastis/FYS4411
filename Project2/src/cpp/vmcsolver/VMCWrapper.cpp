@@ -15,6 +15,28 @@ VMCSolver VMCWrapper::getInitializedSolver(){
     return solver;
 }
 
+VMCSolverGto VMCWrapper::getInitializedSolverGto(){
+    validateParamtersGto();
+    VMCSolverGto solver = VMCSolverGto();
+    initSolverGto(solver);
+    solver.initRunVariables();
+    return solver;
+}
+
+bool VMCWrapper::initSolverGto(VMCSolverGto& solver){
+    solver.waveFunction = waveFunction;
+    solver.beta = beta;
+    solver.charge = charge;
+    solver.nDimensions = nDimensions;
+    solver.nParticles = nParticles;
+    solver.stepLength = stepLength;
+    solver.h = h;
+    solver.hInv = hInv;
+    solver.h2Inv = h2Inv;
+    solver.idum = idum;
+    return true;
+}
+
 bool VMCWrapper::initSolver(VMCSolver& solver){
     solver.alpha = alpha;
     solver.beta = beta;
@@ -131,6 +153,14 @@ void VMCWrapper::useWaveFunctionHeliumGTO(){
     waveFunction = WAVE_FUNCTION_HELIUM_GTO;
 }
 
+void VMCWrapper::useWaveFunctionBerylliumGTO(){
+    waveFunction = WAVE_FUNCTION_BERYLLIUM_GTO;
+}
+
+void VMCWrapper::useWaveFunctionNeonGTO(){
+    waveFunction = WAVE_FUNCTION_NEON_GTO;
+}
+
 void VMCWrapper::clear(){
     waveFunction = 0;
     localEnergyFunction = 0;
@@ -150,6 +180,11 @@ void VMCWrapper::clear(){
 
     useImportanceSampling(false);
     useEfficientSlater(false);
+}
+
+bool VMCWrapper::validateParamtersGto(){
+    bool valid = true;
+    return valid;
 }
 
 bool VMCWrapper::validateParamters(){

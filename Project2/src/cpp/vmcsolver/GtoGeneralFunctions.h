@@ -26,6 +26,11 @@ namespace gto_general_functions{
             * pow(x,i)*pow(y,j)*pow(z,k)*exp(-alpha*(x*x+y*y+z*z));
     }
 
+    /** \brief 
+     *
+     * \param q Value of x, y, z of which to differentiate. 
+     * \param m Value of i, j, k of which to differentiate. 
+     */         
     inline double xiD(double q, int m, double x, double y, double z, 
             int i, int j, int k, double alpha, double weight){ 
         return weight*pow(2*alpha*piInv,0.75)

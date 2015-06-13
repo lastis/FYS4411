@@ -7,6 +7,7 @@
 #include "GtoGeneralFunctions.h"
 
 using namespace gto_general_functions;
+using namespace std;
 
 namespace gto_helium{
     inline double phi1s(double* r, double rAbs){
@@ -44,5 +45,18 @@ namespace gto_helium{
         psi += phi1*0.4579 + phi2*0.6573;
         return psi;
     }
+
+    inline double phi(int i, int j, double** r, double* rAbs){
+        return phi1s(r[i], rAbs[i]);
+    }
+
+    inline double phiD(int i, int j, double** r, double* rAbs, int x){
+        return phi1sD(x, r[i], rAbs[i]);
+    }
+
+    inline double phiDD(int i, int j, double** r, double* rAbs){
+        return phi1sDD(r[i], rAbs[i]);
+    }
+
 }
 #endif

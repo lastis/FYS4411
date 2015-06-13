@@ -964,27 +964,6 @@ SUITE(Helium)
         energy /= (wrapper.nParticles*wrapper.nCycles);
         CHECK_CLOSE(-2.8, energy, 0.2);
     }
-
-    TEST(HeliumGTOLocalEnergyGeneric)
-    {
-        wrapper.useWaveFunctionHeliumGTO();
-        wrapper.useLocalEnergyGeneric();
-        double energy = 0;
-        VMCSolver solver = wrapper.getInitializedSolver();
-        // Run simulation.
-        int nCycles = 1;
-        int nParticles = 2;
-        for (int cycle = 0; cycle < nCycles; cycle++) 
-        {
-            for (int i = 0; i < nParticles; i++) 
-            {
-                solver.runSingleStep(i,cycle);
-                energy += solver.deltaE;
-            }
-        }
-        energy /= (wrapper.nParticles*wrapper.nCycles);
-        CHECK_CLOSE(-2.8, energy, 0.2);
-    }
 }
 
 SUITE(Beryllium)
@@ -1061,6 +1040,39 @@ SUITE(Beryllium)
         }
         energy /= (wrapper.nParticles*wrapper.nCycles);
         CHECK_CLOSE(-14.3, energy, 0.5);
+    }
+}
+
+SUITE(VMCSolverGto){
+    TEST(Helium)
+    {
+        VMCWrapper wrapper = VMCWrapper();
+        int nCycles = 3;
+        wrapper.charge = 2;
+        wrapper.beta = 0.8;
+        wrapper.nDimensions = 3;
+        wrapper.nParticles = 2;
+        wrapper.stepLength = 1.52;
+        wrapper.h = 0.001;
+        wrapper.hInv = 1e3;
+        wrapper.h2Inv = 1e6;
+        wrapper.idum = 1;
+        wrapper.useWaveFunctionHeliumGTO();
+
+        VMCSolverGto solver = wrapper.getInitializedSolverGto();
+
+        double energy = 0;
+        // Run simulation.
+        for (int cycle = 0; cycle < nCycles; cycle++) 
+        {
+            for (int i = 0; i < wrapper.nParticles; i++) 
+            {
+                solver.runSingleStep(i);
+                energy += solver.deltaE;
+            }
+        }
+        energy /= (wrapper.nParticles*nCycles);
+        CHECK_CLOSE(-2.8, energy, 0.5);
     }
 }
 

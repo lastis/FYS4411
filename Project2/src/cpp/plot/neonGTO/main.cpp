@@ -15,8 +15,8 @@ int main(int argc, const char *argv[])
         return -1;
     }
     double beta = atof(argv[1]);
-    int nCycles = 1e5;
-    int nParticles = 2;
+    int nCycles = 1e3;
+    int nParticles = 10;
     int threads = 4;
     int trials = 1;
     int totalTrials = threads*trials;
@@ -24,19 +24,19 @@ int main(int argc, const char *argv[])
     Vector vEnergiesMean = Vector(totalTrials);
     double* energiesMean = vEnergiesMean.getArrayPointer();
 
-    string adress = "../../../../res/plot/heliumGTO/";
+    string adress = "../../../../res/plot/neonGTO/";
 
     VMCWrapper wrapper = VMCWrapper();
-    wrapper.charge = 2;
+    wrapper.charge = nParticles;
     wrapper.beta = beta;
     wrapper.nDimensions = 3;
-    wrapper.nParticles = 2;
+    wrapper.nParticles = nParticles;
     wrapper.stepLength = 1.52;
     wrapper.h = 0.001;
     wrapper.hInv = 1e3;
     wrapper.h2Inv = 1e6;
     wrapper.idum = 1;
-    wrapper.useWaveFunctionHeliumGTO();
+    wrapper.useWaveFunctionNeonGTO();
 
     // Set the max number of threads that can be run.
     omp_set_num_threads(threads);
