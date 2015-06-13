@@ -5,8 +5,8 @@ import numpy as np
 
 curDir = os.getcwd();
 # Adress to target directories from this directory. 
-cppDir = "../../../cpp/plot/heliumGTO/"
-resDir = "../../../../res/plot/heliumGTO/";
+cppDir = "../../../cpp/plot/berylliumGTO/"
+resDir = "../../../../res/plot/berylliumGTO/";
 
 betaFile = "beta_array.txt"
 
@@ -20,7 +20,7 @@ try :
 except OSError:
     pass
 
-betaArray = np.linspace(0.6,1,21)
+betaArray = np.linspace(0.1,4,101)
 
 # Save the beta values.
 np.savetxt(betaFile,betaArray)

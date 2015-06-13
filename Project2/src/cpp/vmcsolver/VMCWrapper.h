@@ -7,31 +7,30 @@
 #include <string>
 #include <omp.h>
 #include "VMCSolver.h"
+#include "VMCSolverGto.h"
 #include "../CPhys/CPhys.h"
 
 class VMCWrapper
 {
 public:
     VMCWrapper();
-    static const int LOCAL_ENERGY_GENERIC = VMCSolver::LOCAL_ENERGY_GENERIC;
-    static const int LOCAL_ENERGY_HELIUM_1 = VMCSolver::LOCAL_ENERGY_HELIUM_1;
-    static const int LOCAL_ENERGY_HELIUM_2 = VMCSolver::LOCAL_ENERGY_HELIUM_2;
-    static const int LOCAL_ENERGY_HYDROGEN = VMCSolver::LOCAL_ENERGY_HYDROGEN;
-    static const int LOCAL_ENERGY_GENERIC_NOCOR =
-        VMCSolver::LOCAL_ENERGY_GENERIC_NOCOR;
-    static const int LOCAL_ENERGY_SLATER = VMCSolver::LOCAL_ENERGY_SLATER;
-    static const int LOCAL_ENERGY_SLATER_NOCOR =
-        VMCSolver::LOCAL_ENERGY_SLATER_NOCOR;
-    static const int WAVE_FUNCTION_1 = VMCSolver::WAVE_FUNCTION_1;
-    static const int WAVE_FUNCTION_2 = VMCSolver::WAVE_FUNCTION_2;
-    static const int WAVE_FUNCTION_BERYLLIUM_1 =
-        VMCSolver::WAVE_FUNCTION_BERYLLIUM_1;
-    static const int WAVE_FUNCTION_BERYLLIUM_2 =
-        VMCSolver::WAVE_FUNCTION_BERYLLIUM_2;
-    static const int WAVE_FUNCTION_HELIUM_GTO =
-        VMCSolver::WAVE_FUNCTION_HELIUM_GTO;
+    static const int LOCAL_ENERGY_GENERIC = 1;
+    static const int LOCAL_ENERGY_GENERIC_NOCOR = 5;
+    static const int LOCAL_ENERGY_HELIUM_1 = 2;
+    static const int LOCAL_ENERGY_HELIUM_2 = 4;
+    static const int LOCAL_ENERGY_HYDROGEN = 3;
+    static const int LOCAL_ENERGY_SLATER = 6;
+    static const int LOCAL_ENERGY_SLATER_NOCOR = 7;
+    static const int WAVE_FUNCTION_1 = 8;
+    static const int WAVE_FUNCTION_2 = 9;
+    static const int WAVE_FUNCTION_BERYLLIUM_1 = 10;
+    static const int WAVE_FUNCTION_BERYLLIUM_2 = 11;
+    static const int WAVE_FUNCTION_HELIUM_GTO = 12;
+    static const int WAVE_FUNCTION_BERYLLIUM_GTO = 13;
+    static const int WAVE_FUNCTION_NEON_GTO = 14;
 
     bool initSolver(VMCSolver& solver);
+    bool initSolverGto(VMCSolverGto& solver);
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
     void useWaveFunction1();
@@ -39,6 +38,8 @@ public:
     void useWaveFunctionBeryllium1();
     void useWaveFunctionBeryllium2();
     void useWaveFunctionHeliumGTO();
+    void useWaveFunctionBerylliumGTO();
+    void useWaveFunctionNeonGTO();
     void useLocalEnergyHelium1();
     void useLocalEnergyHelium2();
     void useLocalEnergyHydrogen();
@@ -51,7 +52,9 @@ public:
     void useEfficientSlater(bool param);
     void clear();
     bool validateParamters();
+    bool validateParamtersGto();
     VMCSolver getInitializedSolver();
+    VMCSolverGto getInitializedSolverGto();
 
     int threads;
     // Paramters to the solver.

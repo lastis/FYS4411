@@ -20,7 +20,7 @@ try :
 except OSError:
     pass
 
-beta = 1
+beta = 0.8
 alphaArray = np.linspace(3,5,11)
 
 

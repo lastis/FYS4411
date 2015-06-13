@@ -3,6 +3,7 @@ compile:
     main.cpp                    \
     ../vmcsolver/VMCWrapper.cpp \
     ../vmcsolver/VMCSolver.cpp  \
+    ../vmcsolver/VMCSolverGto.cpp  \
     ../CPhys/CPhys.cpp          \
     ../CPhys/Vector.cpp         \
     ../CPhys/Matrix.cpp         \
