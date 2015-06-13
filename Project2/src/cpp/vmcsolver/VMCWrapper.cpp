@@ -18,12 +18,37 @@ VMCSolver VMCWrapper::getInitializedSolver(){
 VMCSolverGto VMCWrapper::getInitializedSolverGto(){
     validateParamtersGto();
     VMCSolverGto solver = VMCSolverGto();
-    initSolverGto(solver);
+    initSolver(solver);
     solver.initRunVariables();
     return solver;
 }
 
-bool VMCWrapper::initSolverGto(VMCSolverGto& solver){
+VMCSolverGtoI VMCWrapper::getInitializedSolverGtoI(){
+    validateParamtersGtoI();
+    VMCSolverGtoI solver = VMCSolverGtoI();
+    initSolver(solver);
+    solver.initRunVariables();
+    return solver;
+}
+
+bool VMCWrapper::initSolver(VMCSolverGtoI& solver){
+    solver.waveFunction = waveFunction;
+    solver.beta = beta;
+    solver.charge = charge;
+    solver.nDimensions = nDimensions;
+    solver.nParticles = nParticles;
+    solver.stepLength = stepLength;
+    solver.h = h;
+    solver.hInv = hInv;
+    solver.h2Inv = h2Inv;
+    solver.idum = idum;
+
+    solver.timeStep = timeStep;
+    solver.D = D;
+    return true;
+}
+
+bool VMCWrapper::initSolver(VMCSolverGto& solver){
     solver.waveFunction = waveFunction;
     solver.beta = beta;
     solver.charge = charge;
@@ -180,6 +205,11 @@ void VMCWrapper::clear(){
 
     useImportanceSampling(false);
     useEfficientSlater(false);
+}
+
+bool VMCWrapper::validateParamtersGtoI(){
+    bool valid = true;
+    return valid;
 }
 
 bool VMCWrapper::validateParamtersGto(){

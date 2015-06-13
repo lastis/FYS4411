@@ -1,5 +1,5 @@
-#ifndef _VMCSOLVER_H_INCLUDED
-#define _VMCSOLVER_H_INCLUDED
+#ifndef _VMCSOLVER_GTO_I_H_INCLUDED
+#define _VMCSOLVER_GTO_I_H_INCLUDED
 
 #include <math.h>
 #include <iostream>
@@ -9,8 +9,11 @@
 #include <random>
 #include "../CPhys/CPhys.h"
 #include "SingleParticleWaveFunctions.h"
+#include "GtoHelium.h"
+#include "GtoBeryllium.h"
+#include "GtoNeon.h"
 
-class VMCSolver
+class VMCSolverGtoI
 {
 public:
     static const int LOCAL_ENERGY_GENERIC = 1;
@@ -25,57 +28,37 @@ public:
     static const int WAVE_FUNCTION_BERYLLIUM_1 = 10;
     static const int WAVE_FUNCTION_BERYLLIUM_2 = 11;
     static const int WAVE_FUNCTION_HELIUM_GTO = 12;
+    static const int WAVE_FUNCTION_BERYLLIUM_GTO = 13;
+    static const int WAVE_FUNCTION_NEON_GTO = 14;
 
 private:
-    void endOfSingleParticleStep(int cycle, int i);
-    void updateQuantumForce(double** r, double* rAbs, double** qForce,
-                            double factor);
-    void updateQuantumForceSlater(double** r, double* rAbs, double** qForce,
-                                  double** pslater1, double** pslater2,
-                                  double** pslater1Inv, double** pslater2Inv);
+    double (*phi)(int i, int j, double** r, double* rAbs);
+    double (*phiD)(int i, int j, double** r, double* rAbs, int x);
+    double (*phiDD)(int i, int j, double** r, double* rAbs);
     void updateSlater(int i, double** slater1New, double** slater1Old,
                       double** slater2New, double** slater2Old,
                       double** slater1InvNew, double** slater1InvOld,
                       double** slater2InvNew, double** slater2InvOld);
+    void updateQuantumForceSlater(double** r, double* rAbs, double** qForce,
+                                  double** pslater1, double** pslater2,
+                                  double** pslater1Inv, double** pslater2Inv);
 
 public:
-    VMCSolver();
+    VMCSolverGtoI();
 
     void clear();
-    double getAcceptanceRatio();
-    double getStepLength();
-    double getR12Mean();
-    double getEnergy();
-    double getEnergySquared();
-    void supressOutput();
-
     bool initRunVariables();
-
     void startOfCycle();
-    void startOfCycleQuantum();
-    void startOfCycleSlaterQuantum();
-
-    void runSingleStep(int i, int cycle);
-    void runSingleStepSlater(int i, int cycle);
-    void runSingleStepQuantum(int i, int cycle);
-    void runSingleStepSlaterQuantum(int i, int cycle);
-
-    double (*getWaveFuncVal)(double** r, double* rAbs);
-    double (*getLocalEnergy)(double** r, double* rAbs);
+    void runSingleStep(int i);
     double getLocalEnergySlater(double** r, double* rAbs);
-    double getLocalEnergySlaterNoCor(double** r, double* rAbs);
     double getCorrelationRatio(int i);
-
     void setSeed(long seed);
-    double alpha;
-    double beta;
+
+    // Initialization variables
     int waveFunction;
-    int localEnergyFunction;
-    int accepts;
-    int rejects;
+    double beta;
     int charge;
     int nDimensions;
-    int nCycles;
     int nParticles;
     double stepLength;
     double h;
@@ -85,14 +68,15 @@ public:
     double timeStep;
     double D;
 
+    // Other
     std::mt19937 gen;
     std::uniform_real_distribution<double> dist_uniform;
     std::normal_distribution<double> dist_gauss;
 
+    // State variables
+    int accepts;
+    int rejects;
     double deltaE;
-    double waveFuncValOld;
-    double waveFuncValNew;
-    double greensFunction;
     double ratio;
     double potentialEnergy;
     double DD;
@@ -100,11 +84,6 @@ public:
     double DC;
     int nHalf;
 
-    bool usingCorrelation;
-    bool importanceSampling;
-    bool efficientSlater;
-
-    // Private variables
     Matrix slater1Old;
     Matrix slater1New;
     Matrix slater1InvOld;
@@ -121,12 +100,6 @@ public:
     double** pslater2New;
     double** pslater2InvOld;
     double** pslater2InvNew;
-    Vector vS;
-    double* S;
-    Matrix qForceOld;
-    Matrix qForceNew;
-    double** pqForceOld;
-    double** pqForceNew;
     Matrix rOld;
     Matrix rNew;
     double** prOld;
@@ -135,6 +108,15 @@ public:
     Vector rAbsNewVec;
     double* rAbsOld;
     double* rAbsNew;
+
+    // Variables used with importance sampling
+    Vector vS;
+    double* S;
+    Matrix qForceOld;
+    Matrix qForceNew;
+    double** pqForceOld;
+    double** pqForceNew;
+    double greensFunction;
 };
 
 #endif  // VMCSOLVER_H

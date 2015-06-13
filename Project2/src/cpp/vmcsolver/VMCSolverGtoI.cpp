@@ -1,21 +1,22 @@
-#include "VMCSolverGto.h"
+#include "VMCSolverGtoI.h"
 
 using namespace CPhys;
 using namespace std;
 
-VMCSolverGto::VMCSolverGto()
+VMCSolverGtoI::VMCSolverGtoI()
 {
     // Initialize the random generators.
     dist_uniform = std::uniform_real_distribution<double>(0.0, 1.0);
+    dist_gauss = std::normal_distribution<double>(0.0, sqrt(2));
     clear();
 }
 
-void VMCSolverGto::setSeed(long seed)
+void VMCSolverGtoI::setSeed(long seed)
 {
     gen.seed(seed);
 }
 
-inline double VMCSolverGto::getCorrelationRatio(int i)
+inline double VMCSolverGtoI::getCorrelationRatio(int i)
 {
     double a;
     double rkjNew = 0;
@@ -64,6 +65,104 @@ inline double VMCSolverGto::getCorrelationRatio(int i)
     return exp(valNew - valOld);
 }
 
+void VMCSolverGtoI::startOfCycle()
+{
+    updateQuantumForceSlater(prOld, rAbsOld, pqForceOld, pslater1Old,
+                             pslater2Old, pslater1InvOld, pslater2InvOld);
+}
+
+/** \brief Calculates the quantum force.
+ *
+ * The only uknown is the qForce variable. All other paramters must be correct.
+ * \param r Particle positions.
+ * \param rAbs Particle absolute positions.
+ * \param pslater1 Up slater matrix.
+ * \param pslater2 Down slater matrix.
+ * \param pslater1Inv Up inverse slater matrix.
+ * \param pslater2Inv Down inverse slater matrix.
+ */
+inline void VMCSolverGtoI::updateQuantumForceSlater(double** r, double* rAbs,
+                                         double** qForce, double** pslater1,
+                                         double** pslater2,
+                                         double** pslater1Inv,
+                                         double** pslater2Inv)
+{
+    double rkVec[nDimensions];
+    double rkjVec[nDimensions];
+    double rkjAbs;
+    double rkGrad[nDimensions];
+    int spinK;
+    int spinJ;
+    double a1;
+    double bkj;
+    double tmp;
+    for (int k = 0; k < nParticles; k++)
+    {
+        // Reset rkVec.
+        for (int x = 0; x < nDimensions; x++)
+        {
+            rkVec[x] = 0;
+        }
+        // Calculate rkVec.
+        for (int j = 0; j < nParticles; j++)
+        {
+            if (j == k) continue;
+            spinK = k / nHalf;
+            spinJ = j / nHalf;
+            switch (spinK + spinJ)
+            {
+                case 0:
+                    a1 = 0.25;
+                    break;
+                case 1:
+                    a1 = 0.5;
+                    break;
+                case 2:
+                    a1 = 0.25;
+                    break;
+            }
+            rkjAbs = 0;
+            for (int x = 0; x < nDimensions; x++)
+            {
+                rkjVec[x] = r[j][x] - r[k][x];
+                rkjAbs += rkjVec[x] * rkjVec[x];
+            }
+            rkjAbs = sqrt(rkjAbs);
+            bkj = 1 / (1 + beta * rkjAbs);
+            // Calculate the final vector, the gradient of the correction
+            // function.
+            for (int x = 0; x < nDimensions; x++)
+            {
+                rkVec[x] -= rkjVec[x] * a1 * bkj * bkj / rkjAbs;
+            }
+        }
+        tmp = 0;
+        // Reset rkGrad.
+        for (int x = 0; x < nDimensions; x++)
+        {
+            rkGrad[x] = 0;
+        }
+        // Calculate rkGrad.
+        for (int x = 0; x < nDimensions; x++)
+        {
+            for (int j = 0; j < nHalf; j++)
+            {
+                if (k < nHalf)
+                    rkGrad[x] +=
+                        phiD(k, j, r, rAbs, x) * pslater1Inv[j][k];
+                else
+                    rkGrad[x] += phiD(k, j, r, rAbs, x) *
+                                 pslater2Inv[j][k - nHalf];
+            }
+        }
+        // Calculate DC.
+        for (int x = 0; x < nDimensions; x++)
+        {
+            DC += rkVec[x] * rkGrad[x];
+        }
+    }
+}
+
 /** \brief Copy the slater old variabes to the new variables in an effecient
  * way.
  *
@@ -76,7 +175,7 @@ inline double VMCSolverGto::getCorrelationRatio(int i)
  * \param slater2InvNew Slater matrix that will be overwritten.
  * \param slater2InvOld Slater matrix that will be copied.
  */
-inline void VMCSolverGto::updateSlater(int i, double** slater1New, double** slater1Old,
+inline void VMCSolverGtoI::updateSlater(int i, double** slater1New, double** slater1Old,
                              double** slater2New, double** slater2Old,
                              double** slater1InvNew, double** slater1InvOld,
                              double** slater2InvNew, double** slater2InvOld)
@@ -105,17 +204,18 @@ inline void VMCSolverGto::updateSlater(int i, double** slater1New, double** slat
     }
 }
 
-void VMCSolverGto::runSingleStep(int i)
+void VMCSolverGtoI::runSingleStep(int i)
 {
-
     // New position to test
     rAbsNew[i] = 0;
     for (int j = 0; j < nDimensions; j++)
     {
-        prNew[i][j] = prOld[i][j] + stepLength * (dist_uniform(gen) - 0.5);
+        prNew[i][j] = prOld[i][j] + dist_gauss(gen) * sqrt(timeStep) +
+                      2 * pqForceOld[i][j] * timeStep * D;
         rAbsNew[i] += prNew[i][j] * prNew[i][j];
     }
     rAbsNew[i] = sqrt(rAbsNew[i]);
+
     // Update the slater matrix and calculate the ratio.
     double ratioTmp = 0;
     for (int j = 0; j < nHalf; j++)
@@ -132,29 +232,47 @@ void VMCSolverGto::runSingleStep(int i)
                 pslater2New[i - nHalf][j] * pslater2InvOld[j][i - nHalf];
         }
     }
+
     ratio = ratioTmp * getCorrelationRatio(i);
     ratio = ratio * ratio;
+
+    // Update the inverse slater matrix for the new particle.
+    if (i < nHalf)
+    {
+        pMatOp::updateInverse(i, ratioTmp, pslater1New, pslater1InvNew, nHalf);
+    }
+    else
+    {
+        pMatOp::updateInverse(i - nHalf, ratioTmp, pslater2New, pslater2InvNew,
+                              nHalf);
+    }
+    // Update the quantum force.
+    updateQuantumForceSlater(prNew, rAbsNew, pqForceNew, pslater1New,
+                             pslater2New, pslater1InvNew, pslater2InvNew);
+    // Compute the log ratio of the greens functions to be used in the
+    // Metropolis-Hastings algorithm.
+    greensFunction = 0;
+    for (int j = 0; j < nDimensions; j++)
+    {
+        greensFunction +=
+            0.5 * (pqForceOld[i][j] + pqForceNew[i][j]) *
+            (D * timeStep * 0.5 * (pqForceOld[i][j] - pqForceNew[i][j]) -
+             prNew[i][j] + prOld[i][j]);
+    }
+    greensFunction = exp(greensFunction);
+
     // Check for step acceptance (if yes,
     // update position, if no, reset position)
-    if (dist_uniform(gen) <= ratio)
+    // The metropolis test is performed by moving one particle at the time.
+    if (dist_uniform(gen) <= greensFunction * ratio)
     {
         for (int x = 0; x < nDimensions; x++)
         {
             prOld[i][x] = prNew[i][x];
+            pqForceOld[i][x] = pqForceNew[i][x];
         }
         rAbsOld[i] = rAbsNew[i];
-        // Calculate the new inverse function.
         // Update the slater matrices.
-        if (i < nHalf)
-        {
-            pMatOp::updateInverse(i, ratioTmp, pslater1New, pslater1InvNew,
-                                  nHalf);
-        }
-        else
-        {
-            pMatOp::updateInverse(i - nHalf, ratioTmp, pslater2New,
-                                  pslater2InvNew, nHalf);
-        }
         updateSlater(i, pslater1Old, pslater1New, pslater2Old, pslater2New,
                      pslater1InvOld, pslater1InvNew, pslater2InvOld,
                      pslater2InvNew);
@@ -165,6 +283,7 @@ void VMCSolverGto::runSingleStep(int i)
         for (int j = 0; j < nDimensions; j++)
         {
             prNew[i][j] = prOld[i][j];
+            pqForceNew[i][j] = pqForceOld[i][j];
         }
         rAbsNew[i] = rAbsOld[i];
         // Update the slater matrices.
@@ -178,29 +297,13 @@ void VMCSolverGto::runSingleStep(int i)
 }
 
 
-bool VMCSolverGto::initRunVariables()
+bool VMCSolverGtoI::initRunVariables()
 {
     accepts = 0;
     rejects = 0;
     deltaE = 0;
     nHalf = nParticles / 2;
 
-    rOld = Matrix(nParticles, nDimensions);
-    rNew = Matrix(nParticles, nDimensions);
-    prNew = rNew.getArrayPointer();
-    prOld = rOld.getArrayPointer();
-    // initial trial positions
-    for (int i = 0; i < nParticles; i++)
-    {
-        for (int j = 0; j < nDimensions; j++)
-        {
-            prOld[i][j] = stepLength * (dist_uniform(gen) - 0.5);
-        }
-    }
-    rNew = rOld;
-    // This is important to get the correct pointer to the new matrix.
-    prNew = rNew.getArrayPointer();
-    prOld = rOld.getArrayPointer();
 
     if (waveFunction == WAVE_FUNCTION_HELIUM_GTO){
         phi = gto_helium::phi;
@@ -217,6 +320,30 @@ bool VMCSolverGto::initRunVariables()
         phiD = gto_neon::phiD;
         phiDD = gto_neon::phiDD;
     } 
+
+    // Initialize arrays that are used in importance sampling.
+    qForceOld = Matrix(nParticles, nDimensions);
+    qForceNew = Matrix(nParticles, nDimensions);
+    pqForceOld = qForceOld.getArrayPointer();
+    pqForceNew = qForceNew.getArrayPointer();
+
+    // Initialize position arrays.
+    rOld = Matrix(nParticles, nDimensions);
+    rNew = Matrix(nParticles, nDimensions);
+    prNew = rNew.getArrayPointer();
+    prOld = rOld.getArrayPointer();
+    // Initial trial positions (different with importance sampling).
+    for (int i = 0; i < nParticles; i++)
+    {
+        for (int j = 0; j < nDimensions; j++)
+        {
+            prOld[i][j] = dist_gauss(gen) * sqrt(timeStep);
+        }
+    }
+    rNew = rOld;
+    // This is important to get the correct pointer to the new matrix.
+    prNew = rNew.getArrayPointer();
+    prOld = rOld.getArrayPointer();
 
     // Initialize the absolute positions.
     rAbsOldVec = Vector(nParticles);
@@ -271,7 +398,7 @@ bool VMCSolverGto::initRunVariables()
     return true;
 }
 
-void VMCSolverGto::clear()
+void VMCSolverGtoI::clear()
 {
     waveFunction = 0;
     nDimensions = 0;
@@ -308,9 +435,16 @@ void VMCSolverGto::clear()
     pslater2InvNew = slater2InvNew.getArrayPointer();
     prOld = rOld.getArrayPointer();
     prNew = rNew.getArrayPointer();
+
+    qForceOld = Matrix();
+    qForceNew = Matrix();
+    pqForceOld = qForceOld.getArrayPointer();
+    pqForceNew = qForceNew.getArrayPointer();
+    vS = Vector();
+    S = vS.getArrayPointer();
 }
 
-inline double VMCSolverGto::getLocalEnergySlater(double** r, double* rAbs)
+inline double VMCSolverGtoI::getLocalEnergySlater(double** r, double* rAbs)
 {
     DD = 0;
     for (int i = 0; i < nParticles; i++)
