@@ -58,7 +58,6 @@
 \renewcommand{\thesection}{\Roman{section}}
 \renewcommand{\thesubsection}{\Alph{subsection}.}
 \renewcommand{\thesubsubsection}{\roman{subsubsection}.}
-\newcommand{\Var}[1]{\mathrm{Var}(#1)}
 
 \title{}
 
@@ -387,36 +386,66 @@ See Algorithm \ref{algo:metro} for an outline of the Metropolis algorithm.
   \end{algorithmic}
 \end{algorithm}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\clearpage
+{\Huge Everything below this point is not revised, or will be removed.}
+
+\subsection{The Metropolis Algorithm}
+The Metropolis algorithm samples a normalized probability distribution
+by a stochastic process. In other words, it is a method for simultaing
+random walks, which we can use to do brute-force Monte Carlo computations.
+
+Define $P^{(n)}_i$ as the probability for finding the system in state $i$
+at some step $n$.
+
+\begin{itemize}
+	\item Sample a possible new state $j$ with a probability $T_{i\rightarrow j}$.
+	\item With probability $A_{i\rightarrow j}$, accept $j$ as a new state.
+	Set it as the new sample. The move is rejected with probability $1-A_{i\rightarrow j}$.
+	set $i$ as the sample again.
+\end{itemize}
+
+
 \subsection{Importance Sampling}
 A random walker is the most efficient way to sample where the
-wave function is large. To further increase the efficiency, we can implement importance
-sampling, where the walk in space is governed by the trial wave function.
-The idea is to try and drive the walker in to an area with a higher probability
-density.
+wave function is large. To increase this, we can implement importance
+sampling, where the walk in space is affected by the trial wave function. 
 
-In the brute force method, one tries a new position
-\eq{
-  y = x + \xi \sqrt{\Delta t}
-}
-where $\xi$ a \textit{gaussian random variable} centered on $x$.
-With importance sampling, we add a term that takes into consideration
-where the probability density is higher.
-
-The results are based on the 
-\textit{Fokker-Planck equation} and the \textit{Langevin 
-equation}. This makes the step look similar to a diffusion process,
+The results are based on the Fokker-Planck equation, and the Langevin 
+equation. This makes the step look similar to a diffusion process
 where the new position is given by
 \begin{align*}
 y = x + DF(x) \delta t + \xi \sqrt{\Delta t}.
 \end{align*}
 
-In this equation, $\xi $ is a gaussian random variable 
-and $\Delta t$ is a chosen time step.
+where $\xi $ is a gaussian random variable, and $\Delta t$ is a chosen timestep.
 In atomic units, $D$ is $1/2$, and in our plots $\Delta t = 0.01$. 
 
 An important part of this result is that the walker is affected by $F(x)$
-which contains the trial wavefunction. This force has been named 
-the \textit{quantum force}, given by
+which contains the trial wavefunction. This has been named the \textit{quantum 
+force}. 
+
 \begin{align*}
 \vec F = 2\frac{1}{\Psi_T}\nabla \Psi_T. 
 \end{align*}
@@ -428,111 +457,11 @@ $q(y,x) = |\Psi_T(y)|^2/|\Psi_T(x)|^2$ to:
 q(y,x) = \frac{G(x,y,\Delta t)|\Psi_T(y)|^2}{G(y,x,\Delta t)|\Psi_T(x)|^2}.
 \]
 
-Where G is the Green function given by
+Where G is the Green function given by,
+
 \eq{
   G(y,x,\Delta t) =  \frac{1}{(4\pi D\Delta t)^{3N/2}}\\ \cdot \exp{\left(-(y-x-D\Delta t F(x))^2/4D\Delta t\right)}.
 }
-This has its basis in our change of center for the gaussian distribution.
-
-\subsection{Gradient / Newton's Method}
-{\bfseries\Large This section needs CONTENT!}
-
-\subsection{Statistical Analysis}
-The MC calculations are a set of computational \textit{experiments} 
-with statistical errors. In these experiments, we are interested in the mean
-value of the ground energies and the density distribution. The 
-individual samples are not as interesting to us, and we would rather like
-to look at the variance of the mean values. 
-The variance of the mean value is closely connected with the correlation
-in the individual samples. 
-
-%This can be shown mathematically, but the result
-%is this
-%\eq{
-%  \sigma^2(m) &= \frac{1}{n^2}\sum_{i,j=1}^{n} \mathrm{Cov}(x_i,x_j)
-%}
-
-Both our random walker with and without importance sampling, gives correlated
-samples. In our case, we use \textit{blocking}\footnote{Ab Initio p. 60-61}
-as a technique to find out have many steps
-the walker has to do to be as uncorrelated as possible in comparison with its first step.
-This means that for a set of random samples $A$, one sample $A_i$ will be correlated
-to some other sample $A_{i+n}$.
-
-If we we group our data ($N$ samples) in blocks of size $n_b$,
-then the number of blocks is $m = N/n_b$.
-The average of one block $i$ (the average of all samples
-between $i n_b + 1$ and $(i+1)n_b$), is given by 
-\eq{
-\langle A \rangle_i = \frac{1}{n_b}\sum_{j=in_b+1}^{(i+1)n_b} A_j
-}
-
-We can then calculate the average of all the blocks as
-\eq{
-  \langle A \rangle = 
-  \frac{1}{m}\sum_{i=1}^m \left(
-    \frac{1}{n_b}\sum_{j=in_b+1}^{(i+1)n_b} A_j \right)
-  \equiv \frac{1}{m}\sum_{i=1}^m \langle A \rangle_i
-}
-and the variance as
-\eq{
-  \Var{A}=
-  \frac{1}{m}\sum_{i=1}^m \langle A \rangle_i^2
-  -\left(\frac{1}{m}\sum_{i=1}^m \langle A \rangle_i\right)^2
-}
-
-By plotting the variance of the mean as a function of block size we 
-will see that it reaches a plateau.
-This plateau means that increasing the sample length will no longer
-change the variance in the mean significantly. 
-This happens at some block size $n_b > K_0$, 
-where $K_0$ is called the \textit{correlation length}. 
-This makes us able to more easily calculate variance in the mean because we know how small block sizes we can use. 
-This is used to make the standard deviation interval around our density plots. 
-
-\begin{algorithm}[H]
-	\caption{Blocking Implementation}\label{algo:block}
-  \begin{algorithmic}[1]
-    \Procedure{Metropolis test}{}
-      \State Compute MC calculation, store samples in array.
-      \State Loop over a set of block sizes $n_b$.
-      \State For each $n_b$, calculate the mean of the block,
-      
-        and store these values in a new array.
-      \State Take the mean and variance of this array.
-      \State Store results.
-    \EndProcedure
-  \end{algorithmic}
-\end{algorithm}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\section{Implementation}
-\section{Results}
-\section{Conclusion}
-\clearpage
-{\Huge Everything below this point is not revised, or will be removed.}
-
 
 \subsection{Statistical Analysis}
 The MC calculation are a set of computational \textit{experiments}, 
