@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <omp.h>
+#include <stdio.h>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ int main(int argc, const char *argv[])
     int nCycles = 1e5;
     int nParticles = 2;
     int threads = 4;
-    int trials = 2;
+    int trials = 4;
     int totalTrials = threads*trials;
     int idum = 1000;
 
@@ -46,11 +47,11 @@ int main(int argc, const char *argv[])
     // Set the max number of threads that can be run.
     omp_set_num_threads(threads);
 
-    /* // Create the vector to contain the trial avrages. */
-    /* Vector vEnergiesMean = Vector(totalTrials); */
-    /* double* energiesMean = vEnergiesMean.getArrayPointer(); */
-
     double energy = 0;
+    double dE_dAlpha = 0;
+    double dE_dBeta = 0;
+    double factored1 = 0;
+    double factored2 = 0;
     auto start = chrono::high_resolution_clock::now();
     #pragma omp parallel 
     {
@@ -69,17 +70,34 @@ int main(int argc, const char *argv[])
                 for (int i = 0; i < nParticles; i++) 
                 {
                     solver.runSingleStepSlaterQuantum(i,cycle);
+                    solver.calc_dE_dAlpha();
+                    solver.calc_dE_dBeta();
+                    dE_dAlpha += solver.dE_dAlpha;
+                    dE_dBeta += solver.dE_dBeta;
                     energy += solver.deltaE;
+                    factored1 += solver.dE_dAlpha*solver.deltaE;
+                    factored2 += solver.dE_dBeta*solver.deltaE;
                 }
             }
         }
     }
     energy /= (nParticles*nCycles*totalTrials);
+    dE_dAlpha /= (nParticles*nCycles*totalTrials);
+    dE_dBeta /= (nParticles*nCycles*totalTrials);
+    factored1 /= (nParticles*nCycles*totalTrials);
+    factored2 /= (nParticles*nCycles*totalTrials);
+
+    double retAlpha = 2*(factored1 - dE_dAlpha*energy);
+    double retBeta = 2*(factored2 - dE_dBeta*energy);
+
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> diff = end-start;
     cout << totalTrials << " trials completed." << endl;
     cout << "Time = " << diff.count() << " seconds." << endl;
-    cout << "Energy = " << energy << endl;
+    cout << "Energy = " << energy 
+        << " dE_dAlpha = " << retAlpha 
+        << " dE_dBeta = " << retBeta  << endl;
+    printf("%f %f %f", energy, retAlpha, retBeta);
 
     return 0;
 }

@@ -60,6 +60,9 @@ public:
     void runSingleStepQuantum(int i, int cycle);
     void runSingleStepSlaterQuantum(int i, int cycle);
 
+    double calc_dE_dAlpha();
+    double calc_dE_dBeta();
+
     double (*getWaveFuncVal)(double** r, double* rAbs);
     double (*getLocalEnergy)(double** r, double* rAbs);
     double getLocalEnergySlater(double** r, double* rAbs);
@@ -98,6 +101,8 @@ public:
     double DD;
     double CC;
     double DC;
+    double dE_dAlpha;
+    double dE_dBeta;
     int nHalf;
 
     bool usingCorrelation;

@@ -24,21 +24,33 @@ bhInv = 100
 
 def f(x,*args):
     alpha, beta = x
+    if (beta < 0):
+        beta = -beta
     # Run the cpp code
     p = Popen(["./a.out", str(alpha), str(beta)], stdin=PIPE,stdout=PIPE, stderr=PIPE)
     output, err = p.communicate(b"input data is passed to subprocess' stin")
     rc = p.returncode
     print "Beta:", beta, " Alpha: ", alpha
     print output
-    # Get the last word of the output which is the energy.
-    energy = float(output.rsplit(None,1)[-1])
+    # Get the third last word of the output which is the energy.
+    energy = float(output.split()[-3])
     return energy
 
 def gradf(x,*args):
     alpha, beta = x
-    galpha = (f((alpha+ah,beta),0) - f((alpha-ah,beta),0)) * 0.5*ahInv
-    gbeta = (f((alpha,beta+bh),0) - f((alpha,beta-bh),0)) * 0.5*bhInv
-    return np.asarray((galpha,gbeta))
+    if (beta < 0):
+        beta = -beta
+    # Run the cpp code
+    p = Popen(["./a.out", str(alpha), str(beta)], stdin=PIPE,stdout=PIPE, stderr=PIPE)
+    output, err = p.communicate(b"input data is passed to subprocess' stin")
+    rc = p.returncode
+    print "Beta:", beta, " Alpha: ", alpha
+    print output
+    # Get the two last word of the output which is the the gradient
+    output = output.split()
+    dE_dAlpha = float(output[-2])
+    dE_dBeta = float(output[-1])
+    return np.asarray((dE_dAlpha,dE_dBeta))
 
 # START OF PROGRAM
 
@@ -59,7 +71,7 @@ call(["make"])
 
 
 # Set the initial values for the minimization function.
-x0 = np.asarray((2.0,1.0))
+x0 = np.asarray((1.69,0.35))
 # Run the minimization code. 
 
 res = optimize.fmin_cg(f,x0,fprime=gradf,disp=True)

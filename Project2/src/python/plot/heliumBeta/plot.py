@@ -5,8 +5,8 @@ import numpy as np
 
 curDir = os.getcwd();
 # Adress to target directories from this directory. 
-cppDir = "../../../cpp/plot/heliumGTO/"
-resDir = "../../../../res/plot/heliumGTO/";
+cppDir = "../../../cpp/plot/heliumBeta/"
+resDir = "../../../../res/plot/heliumBeta/";
 
 betaFileName = "beta_array.txt"
 fileName = "energies_mean.txt"
@@ -24,7 +24,7 @@ betaFile.close()
 meanFile.close()
 
 mean = np.mean(meanArray,axis=1)
-meanVar = np.std(meanArray,axis=1)
+meanVar = np.var(meanArray,axis=1)
 
 plt.plot(betaArray, mean)
 plt.plot(betaArray, mean+meanVar)

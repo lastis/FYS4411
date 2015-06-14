@@ -50,6 +50,7 @@ public:
     bool initRunVariables();
     void startOfCycle();
     void runSingleStep(int i);
+    double calc_dE_dBeta();
     double getLocalEnergySlater(double** r, double* rAbs);
     double getCorrelationRatio(int i);
     void setSeed(long seed);
@@ -83,6 +84,7 @@ public:
     double CC;
     double DC;
     int nHalf;
+    double dE_dBeta;
 
     Matrix slater1Old;
     Matrix slater1New;

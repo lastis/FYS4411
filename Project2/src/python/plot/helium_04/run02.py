@@ -5,25 +5,24 @@ import numpy as np
 
 curDir = os.getcwd();
 # Adress to target directories from this directory. 
-cppDir = "../../../cpp/blocking/neon_prep/"
-resDir = "../../../../res/blocking/neon_prep/";
+cppDir = "../../../cpp/plot/helium_04/"
+resDir = "../../../../res/plot/helium_04/";
 
-# Delete the exsiting .txt files
+# Delete files that have the matching number as this program.
 os.chdir(curDir)
 os.chdir(resDir)
-fileList = [f for f in os.listdir(".") if f.endswith(".txt")]
+fileList = [f for f in os.listdir(".") if "02" in f]
 try :
     for f in fileList:
         os.remove(f)
 except OSError:
     pass
 
-beta = 0.21
-alpha = 11.00
+beta = 0.3
 
 # Compile the code
 os.chdir(curDir)
 os.chdir(cppDir)
-call(["make","cpp_file=main.cpp"])
+call(["make","cpp_file=main_02.cpp"])
 # Run the cpp code
-call(["./a.out", str(alpha), str(beta)])
+call(["./a.out", str(beta)])

@@ -164,9 +164,10 @@ namespace util {
         }
         // This method of finding the maximum number of 
         // block sizes has left us with a lot of zeroes. 
-        // This next code reduces that.
-        Vector newStdArray = Vector(nBins-zeroes);
-        Vector newBlockSizes = Vector(nBins-zeroes);
+        // This next code reduces that. (Added -1 at the end of
+        // the array length because the last element always became zero).
+        Vector newStdArray = Vector(nBins-zeroes-1);
+        Vector newBlockSizes = Vector(nBins-zeroes-1);
         double* ptr1 = newStdArray.getArrayPointer();
         double* ptr2 = newBlockSizes.getArrayPointer();
         int cnt = 0;

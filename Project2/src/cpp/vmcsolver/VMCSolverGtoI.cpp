@@ -65,6 +65,46 @@ inline double VMCSolverGtoI::getCorrelationRatio(int i)
     return exp(valNew - valOld);
 }
 
+double VMCSolverGtoI::calc_dE_dBeta(){
+    double rkjVec[nDimensions];
+    double rkjAbs;
+    dE_dBeta = 0;
+    for (int k = 0; k < nParticles; k++)
+    {
+        for (int j = 0; j < nParticles; j++)
+        {
+            // Run the code if j > k.
+            if (j <= k) continue;
+            int spinK = k / nHalf;
+            int spinJ = j / nHalf;
+            double a1;
+            switch (spinK + spinJ)
+            {
+                case 0:
+                    a1 = 0.25;
+                    break;
+                case 1:
+                    a1 = 0.5;
+                    break;
+                case 2:
+                    a1 = 0.25;
+                    break;
+            }
+            rkjAbs = 0;
+            for (int x = 0; x < nDimensions; x++)
+            {
+                rkjVec[x] = prOld[j][x] - prOld[k][x];
+                rkjAbs += rkjVec[x] * rkjVec[x];
+            }
+            rkjAbs = sqrt(rkjAbs);
+            double bkj = 1 / (1 + beta * rkjAbs);
+
+            /* dE_dBeta -= a1 * bkj * bkj * rkjAbs * exp(a1*rkjAbs*bkj); */
+            dE_dBeta -= a1 * bkj * bkj * rkjAbs;
+        }
+    }
+}
+
 void VMCSolverGtoI::startOfCycle()
 {
     updateQuantumForceSlater(prOld, rAbsOld, pqForceOld, pslater1Old,

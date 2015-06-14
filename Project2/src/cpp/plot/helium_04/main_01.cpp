@@ -17,13 +17,12 @@ int main(int argc, const char *argv[])
     double alpha = atof(argv[1]);
     double beta = atof(argv[2]);
 
-    int nParticles = 10;
+    int nParticles = 2;
     double nCycles = 1e4;
-    int binSize = nCycles;
     int idum = 1;
     int threads = 4;
 
-    string adress = "../../../../res/blocking/neon_prep/";
+    string adress = "../../../../res/plot/helium_04/";
 
     VMCWrapper wrapper = VMCWrapper();
     wrapper.alpha = alpha;
@@ -37,13 +36,11 @@ int main(int argc, const char *argv[])
     wrapper.hInv = 1000;
     wrapper.h2Inv = 1e+06;
     wrapper.idum = idum;
-    wrapper.useEfficientSlater(true);
-    wrapper.useLocalEnergySlater();
+    wrapper.useWaveFunction2();
+    wrapper.useLocalEnergyHelium2();
     wrapper.useImportanceSampling(true);
     wrapper.timeStep = 0.001;
     wrapper.D = 0.5;
-
-    VMCSolver solver = wrapper.getInitializedSolver();
 
     Vector vEnergyArray = Vector(nCycles);
     double* energyArray = vEnergyArray.getArrayPointer();
@@ -60,9 +57,10 @@ int main(int argc, const char *argv[])
         // Run simulation.
         for (int cycle = 0; cycle < nCycles; cycle++) 
         {
+            solver.startOfCycleQuantum();
             for (int i = 0; i < nParticles; i++) 
             {
-                solver.runSingleStepSlater(i,cycle);
+                solver.runSingleStepQuantum(i,cycle);
                 energyArray[cycle] += solver.deltaE;
             }
         }
@@ -74,11 +72,11 @@ int main(int argc, const char *argv[])
     cout << "Time = " << diff.count() << " seconds." << endl;
 
     // Manipulate data. 
-    Vector blocking = Vector();
-    Vector blockingStd = Vector();
-    util::blockingVar(1,vEnergyArray,blockingStd,blocking);
-    util::appendToFile(adress,"energies_bins.txt",blocking);
-    util::appendToFile(adress,"energies_std.txt",blockingStd);
+    Vector binSizes = Vector();
+    Vector energyVariance = Vector();
+    util::blockingVar(1,vEnergyArray,energyVariance,binSizes);
+    util::appendToFile(adress,"bins_01.txt",binSizes);
+    util::appendToFile(adress,"energy_variance_01.txt",energyVariance);
 
     return 0;
 }

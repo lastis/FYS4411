@@ -71,6 +71,60 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
     endOfSingleParticleStep(cycle, i);
 }
 
+double VMCSolver::calc_dE_dAlpha(){
+    dE_dAlpha = 0;
+    for (int i = 0; i < nParticles; i++)
+    {
+        for (int j = 0; j < nHalf; j++)
+        {
+            if (i < nHalf)
+                dE_dAlpha += phiDAlpha(j, prOld[i], rAbsOld[i]) * pslater1InvOld[j][i];
+            else
+                dE_dAlpha += phiDAlpha(j, prOld[i], rAbsOld[i]) * pslater2InvOld[j][i - nHalf];
+        }
+    }
+}
+
+double VMCSolver::calc_dE_dBeta(){
+    double rkjVec[nDimensions];
+    double rkjAbs;
+    dE_dBeta = 0;
+    for (int k = 0; k < nParticles; k++)
+    {
+        for (int j = 0; j < nParticles; j++)
+        {
+            // Run the code if j > k.
+            if (j <= k) continue;
+            int spinK = k / nHalf;
+            int spinJ = j / nHalf;
+            double a1;
+            switch (spinK + spinJ)
+            {
+                case 0:
+                    a1 = 0.25;
+                    break;
+                case 1:
+                    a1 = 0.5;
+                    break;
+                case 2:
+                    a1 = 0.25;
+                    break;
+            }
+            rkjAbs = 0;
+            for (int x = 0; x < nDimensions; x++)
+            {
+                rkjVec[x] = prOld[j][x] - prOld[k][x];
+                rkjAbs += rkjVec[x] * rkjVec[x];
+            }
+            rkjAbs = sqrt(rkjAbs);
+            double bkj = 1 / (1 + beta * rkjAbs);
+
+            /* dE_dBeta -= a1 * bkj * bkj * rkjAbs * exp(a1*rkjAbs*bkj); */
+            dE_dBeta -= a1 * bkj * bkj * rkjAbs;
+        }
+    }
+}
+
 void VMCSolver::setSeed(long seed)
 {
     gen.seed(seed);
