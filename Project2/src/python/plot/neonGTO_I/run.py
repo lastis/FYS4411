@@ -20,7 +20,7 @@ try :
 except OSError:
     pass
 
-betaArray = np.linspace(0.1,4,11)
+betaArray = np.linspace(0.1,10,101)
 
 # Save the beta values.
 np.savetxt(betaFile,betaArray)
