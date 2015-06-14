@@ -78,7 +78,6 @@
 }]
 
 \section{Introduction}
-
 To evaluate the results of the numerical methods, we investigated the possibility
 of finding a closed-form solution of the ground-state energy 
 using the Variational Principle.
@@ -110,14 +109,16 @@ scaled to \textit{atomic units} (a.u.).
 
 This is based on the simplified, analytically solvable, system for the 
 Hydrogen atom, where the Hamiltonian is
-\eq{
-  \OP H = \OP K + \OP V = -\frac{\hbar^2}{2m_e}\op \nabla^2 - \frac{e^2}{4\pi \epsilon_0 r}
+\equ{
+  \OP H = \OP K + \OP V = -\frac{\hbar^2}{2m_e}\op \nabla^2 
+  - \frac{e^2}{4\pi \epsilon_0 r} \label{eq:hydro}
 }
-with $e$ as the electron charge and $m_e$ as the mass of the electron.
+with $e$ as the electron charge, $r$ is the radius from the proton to the electron
+and $m_e$ as the mass of the electron.
 
 This operator satisfies the \textit{time-independent Schr\"odinger Equation}
-\eq{
-  \OP H \ket{\psi} = E \ket{\psi}
+\equ{
+  \OP H \ket{\psi} = E \ket{\psi}\label{eq:schrod}
 }
 where $E$ is the \textit{energy eigenvalue} and $\psi$ is the \textit{eigenstate} of the system.
 
@@ -131,7 +132,7 @@ Hamiltonian of an atom as
   + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}} \numberthis\label{ham}
 }
 Here $Z$ is the nuclear charge, 
-and we have another sum for all the electron/electron repulsions.
+and we have another sum for all the electron-electron repulsions.
 
 We can add to this model by setting up a system of two atoms,
 a \textit{diatomic molecule}, which gives us a Hamiltonian on the form
@@ -140,6 +141,42 @@ a \textit{diatomic molecule}, which gives us a Hamiltonian on the form
     \frac{\op\nabla_i^2}{2} + \frac{Z_1}{r_{ip1}} + \frac{Z_2}{r_{ip2}}\bigg] 
     + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}} + \frac{Z_1 Z_2}{R}
 }
+
+We now want to look at the form of the wave function for the Hydrogen atom.
+The Hamiltonian (\ref{eq:hydro}) in atomic units is
+\eq{
+  \OP H = -\frac{\op \nabla^2}{2}- \frac{1}{r}
+}
+
+and the energy eigenvalues in (\ref{eq:schrod}) are given by
+\eq{
+  E_n = -\frac{1}{2n^2}
+}
+
+Solving the Schr\"odinger equation is done by separation of variables in
+spherical coordinates
+\equ{
+  \psi_{nlm}(r,\theta,\varphi) = R_{nl}(r) Y_l^{m}(\theta,\varphi)\label{eq:psi}
+}
+
+where $n$, $l$ and $m$ are quantum numbers 
+(principal, azimuthal and magnetic respectively).
+The solution is separated into a radial part $R_{nl}$ and an angular part $Y_l^{m}$
+called the spherical harmonics.
+A large part of this project is using the solutions of the \textit{Hydrogen-like}
+wave functions as basis for the wave function for Helium, Beryllium and Neon.
+
+The solutions of the first few \textit{atomic orbitals} (and the ones we will use), 
+are on the form
+\eq{
+  \psi_{100} &= \phi_{1s} =  e^{-\alpha r}\\
+  \psi_{200} &= \phi_{2s} =  \left(1-\frac{\alpha r}{2}\right)e^{-\alpha r/2} \\
+  \psi_{211} &= \phi_{2p_x} = x e^{-\alpha r/2}\\
+  \psi_{210} &= \phi_{2p_y} = y e^{-\alpha r/2}\\
+  \psi_{21-1}&= \phi_{2p_z} = z e^{-\alpha r/2}
+}
+where $x$, $y$ and $z$ are the cartesian coordinate positions of the electron,
+and $\alpha$ is some charge.
 
 \subsection{Slater Determinants}
 The Hamiltonian (\ref{ham}) introduced in the last section is invariant
@@ -196,8 +233,9 @@ since they are independent of spin
 (two and two columns would be equal).
 This can be bypassed by writing the determinant $\abs*{\op D}$ as a product of two smaller ones
 for each spin\footnote{Morten, 519-520}, since
-\eq{
+\equ{
   \psi_D = \abs*{\op D} \propto \abs*{\op D}_{\uparrow} \abs*{\op D}_{\downarrow}
+  \label{eq:det}
 }
 By doing this, the wave function
 will lose its antisymmetry when interchanging particles,
@@ -211,7 +249,7 @@ to simplify the function. Therefore
 }
 
 For Beryllium (four electrons), the corresponding Slater determinant is
-\eq{
+\equ{
   \psi_D^{Be} 
     &=\vmat{
     \phi_{1s\uparrow}^1&\phi_{1s\uparrow}^2
@@ -230,11 +268,11 @@ For Beryllium (four electrons), the corresponding Slater determinant is
     \vmat{
     \phi_{1s\downarrow}^3&\phi_{1s\downarrow}^4\\
     \phi_{2s\downarrow}^3&\phi_{2s\downarrow}^4\\
-    }
+    }\label{eq:bespin}
 }
 and finally for Neon (ten electrons), 
-the spin $\uparrow$ part (and similarly for $\downarrow$)
-\eq{
+the spin $\uparrow$ part
+\equ{
   \abs*{\op D}_{\uparrow}^{Ne} 
     &=\vmat{
     \phi_{1s\uparrow}^1&\phi_{1s\uparrow}^2
@@ -247,8 +285,25 @@ the spin $\uparrow$ part (and similarly for $\downarrow$)
       &\phi_{2p_y\uparrow}^3&\phi_{2p_y\uparrow}^4&\phi_{2p_y\uparrow}^5\\
     \phi_{2p_z\uparrow}^1&\phi_{2p_z\uparrow}^2
       &\phi_{2p_z\uparrow}^3&\phi_{2p_z\uparrow}^4&\phi_{2p_z\uparrow}^5
-    }
+    }\label{eq:nespinup}
 }
+and similarly for $\downarrow$
+\equ{
+  \abs*{\op D}_{\downarrow}^{Ne} 
+    &=\vmat{
+    \phi_{1s\uparrow}^6&\phi_{1s\downarrow}^7
+      &\phi_{1s\downarrow}^8&\phi_{1s\downarrow}^9&\phi_{1s\downarrow}^{10}\\
+    \phi_{2s\downarrow}^6&\phi_{2s\downarrow}^7
+      &\phi_{2s\downarrow}^8&\phi_{2s\downarrow}^9&\phi_{2s\downarrow}^{10}\\
+    \phi_{2p_x\downarrow}^6&\phi_{2p_x\downarrow}^7
+      &\phi_{2p_x\downarrow}^8&\phi_{2p_x\downarrow}^9&\phi_{2p_x\downarrow}^{10}\\
+    \phi_{2p_y\downarrow}^6&\phi_{2p_y\downarrow}^7
+      &\phi_{2p_y\downarrow}^8&\phi_{2p_y\downarrow}^9&\phi_{2p_y\downarrow}^{10}\\
+    \phi_{2p_z\downarrow}^6&\phi_{2p_z\downarrow}^7
+      &\phi_{2p_z\downarrow}^8&\phi_{2p_z\downarrow}^9&\phi_{2p_z\downarrow}^{10}
+    }\label{eq:nespindown}
+}
+
 Here we have used equality instead of proportionality, since these are the actual
 wave functions we will use.
 
@@ -284,17 +339,15 @@ $\vec \alpha = (\alpha,\,\beta,\,\dots)$ to optimalize the function,
 and the energy value $E_T$.
 
 Another (analytical) quantity that we want to calculate, is the \textit{local energy}
-\eq{
-  E_L(\vec R, \vec \alpha) = \frac{1}{\psi_T(\vec R, \vec \alpha)} \OP H \psi_T(\vec R, \vec \alpha)
-}
+\begin{equation}
+  E_L(\vec R, \vec \alpha) = \frac{1}{\psi_T(\vec R, \vec \alpha)} \OP H \psi_T(\vec R, \vec \alpha)\label{eq:local}
+\end{equation}
 which together with (\ref{E0var}) yields
-
 \begin{equation}
   \langle H \rangle 
   = \frac{\Int{}{}{\vec R}{E_L \abs*{\psi_T}^2}}
 	{\Int{}{}{\vec R}{\abs*{\psi_T}^2}} \label{exp}
 \end{equation}
-
 
 \subsection{Variational Monte Carlo (VMC)}
 The integrals to be solved in the variational method,
@@ -418,14 +471,14 @@ An important part of this result is that the walker is affected by $F(x)$
 which contains the trial wavefunction. This force has been named 
 the \textit{quantum force}, given by
 \begin{align*}
-\vec F = 2\frac{1}{\Psi_T}\nabla \Psi_T. 
+\vec F = 2\frac{1}{\psi_T}\nabla \psi_T. 
 \end{align*}
 
 This also has the result of changing the random number check in the 
 Metropolis algorithm from:
-$q(y,x) = |\Psi_T(y)|^2/|\Psi_T(x)|^2$ to: 
+$q(y,x) = |\psi_T(y)|^2/|\psi_T(x)|^2$ to: 
 \[
-q(y,x) = \frac{G(x,y,\Delta t)|\Psi_T(y)|^2}{G(y,x,\Delta t)|\Psi_T(x)|^2}.
+q(y,x) = \frac{G(x,y,\Delta t)|\psi_T(y)|^2}{G(y,x,\Delta t)|\psi_T(x)|^2}.
 \]
 
 Where G is the Green function given by
@@ -491,9 +544,9 @@ This makes us able to more easily calculate variance in the mean because we know
 This is used to make the standard deviation interval around our density plots. 
 
 \begin{algorithm}[H]
-	\caption{Blocking Implementation}\label{algo:block}
+	\caption{Blocking Method}\label{algo:block}
   \begin{algorithmic}[1]
-    \Procedure{Metropolis test}{}
+    \Procedure{Compute variance of mean}{}
       \State Compute MC calculation, store samples in array.
       \State Loop over a set of block sizes $n_b$.
       \State For each $n_b$, calculate the mean of the block,
@@ -505,213 +558,127 @@ This is used to make the standard deviation interval around our density plots.
   \end{algorithmic}
 \end{algorithm}
 
+\subsection{The Hydrogen-Like Trial Wave Functions}
+The arguably most important part of the project is to find good
+trial wave functions. In the following, we will present
+the wave functions we have used in this project.
+In this section, we show the functions which are based on
+the solutions of (\ref{eq:psi}).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\section{Implementation}
-\section{Results}
-\section{Conclusion}
-\clearpage
-{\Huge Everything below this point is not revised, or will be removed.}
-
-
-\subsection{Statistical Analysis}
-The MC calculation are a set of computational \textit{experiments}, 
-with statistical errors. In the experiments we are interested in the mean
-value of the ground energies and the density distribution. The 
-individual samples are not as interesting to us and we would rather like
-to look in the variance of the mean value. 
-
-	The variance of the mean value is closely connected with the correlation
-in the individual samples. This can be shown mathematically, but the result
-is this:
+Our trial wave function is a product of the Slater determinant $\psi_D$ and
+a correlation part $\psi_C$ that considers the electron-electron repulsion.
+The second part is also called the \textit{Jastrow factor}\footnote{Ab Initio p. 280}.
+The the general trial wave function is
 \eq{
-\sigma^2(m) &= \frac{1}{n^2}\sum_{i,j=1}^{n} \mathrm{Cov}(x_i,x_j)
+  \psi_T = \psi_D \psi_C
 }
-
-Both our random walker and walking with importance sampling gives correlated
-samples. In our case, blocking is the technique of finding out have many steps
-the walker has to go to be as uncorrelated as possible with it's first step.
-If we then plot the variance in mean as a function of block size we 
-will see that the variance reaches a plateau. 
-
-This plateau means that increasing the sample length will no longer
-change the variance in the mean significantly. This makes us able to more easily calculate 
-variance in the mean because we know how short block sizes we can use. 
-This is used to make the standard deviation interval around our densities. 
-
-
-\subsubsection{Blocking Implementation}
-
-\begin{itemize}
-    \item Compute MC calculation, store samples in array.
-    \item Loop over a set of block sizes $n_b$.
-    \item For each $n_b$, calculate the mean of the block
-        and store these values in a new array.
-    \item Take the mean and variance of this array.
-    \item Store results.
-\end{itemize}
-
-\subsection{The Trial Wavefunctions for Helium}
-
-To conclude if the computational methods are implemented correctly,
-we should check that the results are reasonable. We do this by
-finding a mathematical approximation of the closed form expression.
-
-%% The closed-form expression.
-Given the trial wavefunction $\psi_T (\vec R, \boldsymbol\alpha)$, 
-we define a new quantity
-{\small
+The trial wave functions are always dependent on the coordinates of every
+electron in some way.
+The Jastrow factor is generally written as
 \eq{
-  E_L = \frac{1}{\psi_T}\OP H \psi_T
-}}%
-where $\boldsymbol\alpha$ is a set of variational parameters.
-$E_{L1}$ is called the local energy
+  \psi_C = \prod_{i<j}^{n}\exp{\left(\frac{a r_{ij}}{1+\beta r_{ij}}\right)}
+}
+where $a$ is a factor that takes into account the spin of electron $i$ and $j$,
+the \textit{electron-electron cusp conditions}.
+When the particles have equal spin we have $a=\sfrac{1}{4}$,
+and when they are different $a=\sfrac{1}{2}$ (for example the ground state of Helium).
+For Beryllium and Neon, we set the spin of the first $\sfrac{n}{2}$ particles to
+$\uparrow$ and the last half to spin $\downarrow$.
+The Slater determinant part is given by (\ref{eq:det}).
 
-\subsubsection{The first trial wavefunction}
+We also want to determine the local energy $E_L$ to approximate
+the ground state energy of the atom.
+The general expression for the local energy is
+\eq{
+  E_L = \frac{1}{\psi_T (\vec R)}\OP H \psi_T (\vec R) 
+}
+and the Hamiltonian can generally be described as in (\ref{ham}).
+
+From this expression, it's clear that $\OP K$ is the only operator that changes the
+trial wavefunction when we calculate the local energy. Therefore, we must calculate the
+following quantities
+\eq{
+  \frac{1}{\psi_T}\op k_i \psi_T = -\frac{1}{2}\frac{\op\nabla_i^2 \psi_T}{\psi_T}
+}
+The product rule of differentiation gives us
+\eq{
+  \frac{\op\nabla^2 \psi_T}{\psi_T} = 
+  \frac{\op\nabla^2 \psi_D}{\psi_D}
+    +2 \frac{\op\nabla \psi_D}{\psi_D}\cdot\frac{\op\nabla \psi_C}{\psi_C}
+    +\frac{\op\nabla^2 \psi_C}{\psi_C}
+}
+So we need to calculate the four quantities
+\eq{\mat{
+  \frac{\op\nabla^2 \psi_D}{\psi_D}&
+    \frac{\op\nabla \psi_D}{\psi_D}&
+    \frac{\op\nabla \psi_C}{\psi_C}&
+    \frac{\op\nabla^2 \psi_C}{\psi_C}
+}}
+They are derived in the appendix, and they are not only useful when calculating the
+local energy.
+
+\subsubsection{The First Trial Wave Function of Helium}
 We first model the variational solution with a trial function of one
-variation parameter $\alpha$. It has the form
-{\small
+variation parameter $\alpha$ 
+(corresponding to the $\alpha$ in Hydrogen solution(\ref{eq:psi})).
+It has the form
 \eq{
-\psi_{T1}({\bf r_1},{\bf r_2}) = 
+\psi_{T1}^{He}({\bf r_1},{\bf r_2}) = 
    \exp{\left(-\alpha(r_1+r_2)\right)}
-}}%
+}
+which is the Slater-determinant part of the wave function.
 
-The only part of the operator $\OP H$ that affects the wavefunction
+We now proceed to find the local energy, given by (\ref{eq:local}).
+The only part of the operator $\OP H$ from (\ref{ham}) that affects the wave function
 are the Laplace operators.
-
-Since $\psi_{T1}$ is only spatially dependent on $r_1$ and $r_2$,
-the Laplaces of $\psi_{T1}$ reduces to
-{\small
+Since $\psi_{T1}$ is only spatially dependent on $r_1$ and $r_2$, we have
 \eq{
-  \nabla_i^2 \psi_{T1} = \bigg( \frac{\partial^2}{\partial r_i^2} 
-    + \frac{2}{r_i} \frac{\partial}{\partial r_i} \bigg) \psi_{T1}
-    = \bigg( \alpha^2 -\alpha\frac{2}{r_i}  \bigg)\psi_{T1}
-}}%
+  \nabla_i^2 \psi_{T1}^{He} = \bigg( \frac{\partial^2}{\partial r_i^2} 
+    + \frac{2}{r_i} \frac{\partial}{\partial r_i} \bigg) \psi_{T1}^{He}
+    = \bigg( \alpha^2 -\alpha\frac{2}{r_i}  \bigg)\psi_{T1}^{He}
+}
 for $i = 1,\;2$, since
-{\small
+
 \eq{
   \frac{\partial}{\partial r_i} e^{-\alpha (r_1+r_2)}
     &= -\alpha e^{-\alpha (r_1+r_2)}\\
 \frac{\partial^2}{\partial r_i^2} e^{-\alpha (r_1+r_2)}
     &= \alpha^2 e^{-\alpha (r_1+r_2)}
-}}%
+}
 This gives us the following trial energy
-{\small
+
 \eq{
-  E_{L1}&=\frac{1}{\psi_{T1}}\bigg( -\alpha^2 
-  +\alpha\bigg( \frac{1}{r_1}+\frac{1}{r_1}  \bigg)
-    -\frac{2}{r_1}-\frac{2}{r_2} + \frac{1}{r_{12}}
-    \bigg)\psi_{T1}\\
+  E_{L1}^{He}
   &=(\alpha-2)\bigg( \frac{1}{r_1}+\frac{1}{r_2} \bigg)
     +\frac{1}{r_{12}}-\alpha^2
-}}%
-The $2$ in the $\alpha-2$ term is the number of protons, Z.
+}
+The $2$ in the $\alpha-2$ term is the number of protons, $Z$.
 
 \subsubsection{The second trial wavefunction}
 To approximate the closed-form solution even better,
-we assume another trial wavefunction based on $\psi_{T1}$, namely
-{\small
+we assume another trial wavefunction based on the fact that
+the two electrons interact, namely
 \eq{
-  \psi_{T2} ({\bf r_1},{\bf r_2}, {\bf r_{12}})
+  \psi_{T2}^{He} (\vec r_1,\vec r_2)
     =\exp{\left(-\alpha(r_1+r_2)\right)}
     \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}
-}}%
-The second part is dependent on the distance between the
-electrons, and is called the correlation part,
-which accounts for the effect between the electrons.
+}
 
 One can then in the same way as for $\psi_{T1}$ calculate
 the local energy. The correlations part will give us some trouble
 when we try to calculate the Laplacian. This is due to
 the distance between $\vec r_1$ and $\vec r_2$, since this quantity
 is dependent on the angles $\varphi$ and $\theta$.
-It has the form
-{\small
+The local energy now has the form
 \eq{
-	E_{L2} = E_{L1}+\frac{1}{2(1+\beta r_{12})^2}
+	E_{L2}^{He} = E_{L1}^{He}&+\frac{1}{2(1+\beta r_{12})^2}
 	\bigg(\frac{\alpha(r_1+r_2)}{r_{12}}(1-
 	\frac{\mathbf{r}_1^T\mathbf{r}_2}{r_1r_2})\\
-	-\frac{1}{2(1+\beta r_{12})^2}-\frac{2}{r_{12}}+
+	&-\frac{1}{2(1+\beta r_{12})^2}-\frac{2}{r_{12}}+
 	\frac{2\beta}{1+\beta r_{12}}\bigg)
-}}%
+}
 
-\subsection{The Trial Wavefunction for Beryllium}
-We can use a trial wavefunction on the same form as for
-Hydrogen and Helium
-
-{\small
-\eq{
-	\psi_{T}({\bf r_1},{\bf r_2}, {\bf r_3}, {\bf r_4}) &= 
- 	Det\left(\phi_{1}({\bf r_1}),\phi_{2}({\bf r_2}),
-	\phi_{3}({\bf r_3}),\phi_{4}({\bf r_4})\right)\\ &\cdot
-   	\prod_{i<j}^{4}\exp{\left(\frac{r_{ij}}{2(1+\beta r_{ij})}\right)}
-}}%
-
-where we approximate the Slater determinant \textit{Det} as
-{\small
-\eq{
-	\psi_{T}({\bf r_1},{\bf r_2}, {\bf r_3}, {\bf r_4})&\propto 
-	\left(\phi_{1s}({\bf r_1})\phi_{2s}({\bf r_2})-\phi_{1s}({\bf r_2})
-	\phi_{2s}({\bf r_1})\right)\\
-	&\cdot\left(\phi_{1s}({\bf r_3})\phi_{2s}({\bf r_4})
-	-\phi_{1s}({\bf r_4})\phi_{2s}({\bf r_3})\right)
-}}%
-where the hydrogenic wavefunctions for the two spin orbitals
-are given by
-{\small\eq{
-\phi_{1s}({\bf r_i}) = e^{-\alpha r_i}
-}} and
-{\small\eq{
-\phi_{2s}({\bf r_i}) = \left(1-\alpha r_i/2\right)e^{-\alpha r_i/2}
-}}
-
-\subsection{Onebody Density and Charge Density}
-The one-body density is computed from the form 
-{\small
-\eq{
-	\rho(\vec R) = |\psi(\vec R)|^2
-}}%
-
-This is implemented as NOTE: ... in our program. 
-
-\subsection{Implementation}
-The methods described above are implemented in an object oriented C++ program
-which is simple to use, and does not have any dependencies. 
-
-Most of the code is contained in the class VMCSolver.cpp and VMCSolver.h. 
-These were created to contain the full system and parameters for a single run. 
-
-To start a simulation one must instantiate the solver and 
-initialize the system, either by file and/or manually. After this
-the integration can be run and all data will be contained in the solver object.
-The last step is to collect data from the solver. 
-
-All plot data are generated by individual programs using the mentioned solver. 
-Plots are generated using python. 
-
-
-\subsection{Trial Wavefunctions}
-
+\subsubsection{Beryllium}
 The trial wavefunction of Beryllium can be written as a product of a Slater determinant
 part and a correlation part on the form
 \equ{
@@ -744,40 +711,69 @@ The relative distance between two particles is
 }
 and obviously $r_{ij}=r_{ji}$.
 
-We want to determine the local energy $E_L$ to approximate
-the ground state energy of the atom.
-The general expression for the local energy is
-\eq{
-  E_L = \frac{1}{\psi_T (\vec R)}\OP H \psi_T (\vec R) 
-}
-and the Hamiltonian can generally be described as a sum of the contributions
-to the potential energy by the electron-electron repulsion and the nucleus-electron interaction, as well as the kinetic energy. This gives us a Hamiltonian
-for $N$ particles on the form
-\eq{
-  \OP H &= \OP K + \OP V \\
-  &=\sum_i (\op k_i + \op v_i)  + \sum_{i<j} \op v_{ij}\\
-  &= -\sum_{i=1}^N\bigg[
-    \frac{\op\nabla_i^2}{2} + \frac{Z}{r_i}\bigg] 
-  + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}}
-}
-Where $Z$ is the atomic number.
+\subsubsection{Neon}
+For Neon, in addition to $$ $$ we need three more hydrogenic wavefunctions for the $2p$ orbital, given by
+$2p_x$, $2p_y$ and $2p_z$. These are given by
 
-From this expression, it's clear that $\OP K$ is the only operator that changes the
-trial wavefunction when we calculate the local energy. Therefore, we must calculate the
-following quantities
 \eq{
-  \frac{1}{\psi_T}\op k_i \psi_T = -\frac{1}{2}\frac{\op\nabla_i^2 \psi_T}{\psi_T}
+  \phi_{2p_k}(\vec r_i) &= \alpha k_i g_i \text{ for } k_i = x_i,y_i,z_i
 }
-For Beryllium, the trial wavefunction is a product of the Slater determinant part 
-and the correlation part, namely $\psi_T = \psi_D\psi_C$.
+so the wave function is
+\eq{
+  \psi_T^{Ne} = |\op D|\uparrow|\op D|\downarrow
+  \prod_{i<j}^{10}\exp{\left(\frac{a r_{ij}}{1+\beta r_{ij}}\right)}
+}
+where the two Slater determinants are given in (\ref{eq:nespinup})
+and (\ref{eq:nespindown}).
 
-The product rule of differentiation gives us
-\eq{
-  \frac{\op\nabla^2 \psi_T}{\psi_T} = 
-  \frac{\op\nabla^2 \psi_D}{\psi_D}
-    +2 \frac{\op\nabla \psi_D}{\psi_D}\cdot\frac{\op\nabla \psi_C}{\psi_C}
-    +\frac{\op\nabla^2 \psi_C}{\psi_C}
+\subsection{Introducing Gaussian-Type Orbitals}
+In this project, we have shown how one can use Hydrogen-like wave functions as the basis
+for the Slater determinant, and up until now, 
+we have used so-called \textit{Slater-Type Orbitals} (STOs).
+We will now replace the STOs with \textit{Gaussian-Type Orbitals} (GTOs).
+
+The spin-factorized Slater determinants (one for spin up and one for spin down),
+are given by
+\eq{\psi_{D_{spin}} = 
+  \vmat{\phi_1(\vec r_1)& \cdots & \phi_1(\vec r_n)\\
+  \vdots&\ddots&\vdots\\
+  \phi_n(\vec r_1)& \cdots & \phi_n(\vec r_n)}
 }
+
+where $n$ is equal to half the number of particles, 
+and  $\phi_j(\vec r_i)$ are one-particle wave functions 
+$\phi_{1s}$, $\phi_{2s}$ and $\phi_{2p(3)}$
+($(3)$ is short-hand notation for the $x$, $y$ and $z$ parts).
+These spin independent, one-particle wave functions are
+linear combinations of basis functions, and we will now use \textit{contracted} GTOs
+(CGTOs) for this purpose.
+
+The functions can then be written as
+\eq{\phi_j(\vec r_i) = \sum_p C_{pj} \varphi_p(\vec r_i)
+}
+
+The CGTOs are on the form
+\eq{
+  \varphi_p^{CGTO}(\vec r_i) = \sum_k N_k \varphi^{GTO}_k(\vec r_i)
+}
+with
+\eq{
+  \varphi^{GTO}_k = d_k x^m y^n z^o e^{-\alpha_k r^2}
+}
+which are called \textit{cartesian} GTOs. 
+The numerical coefficients $\alpha_k$ and $d_k$ are chosen to optimalize the
+basis functions, and we use values from the 
+\textit{Environmental Molecular Science Laboratory} (EMSL) 
+website\footnote{https://bse.pnl.gov/bse/portal}.
+
+The normalization factors are given as\footnote{Ab Initio, p. 280}
+\eq{
+  N_k = \left(\frac{2\alpha_k}{\pi}\right)^{3/4}
+  \sqrt{\frac{(4\alpha_k)^{m+n+o}}{(2m-1)!!(2n-1)!!(2o-1)!!}}
+}
+and since they are dependent on the total angular momentum,
+given by the quantum numbers $l = m+n+o$, we will write them as
+$N_k = N_{m,n,o}$.
 
 \subsection{Efficient Computation of the Slater Determinant}
 
@@ -869,57 +865,87 @@ We can then calculate the gradient and laplacian as
 
 REMEMBER TO SAY SOMETHING ABOUT NUMBER OF OPERATIONS.
 
-\subsection{Introducing Gaussian-Type Orbitals}
-In this project, we have shown how one can use Hydrogen-like wave functions as the basis
-for the Slater determinant, and up until now, 
-we have used so-called \textit{Slater-Type Orbitals} (STOs).
-We will now replace the STOs with \textit{Gaussian-Type Orbitals} (GTOs).
+\subsection{Conjugate Gradient Method}
 
-The spin-factorized Slater determinants (one for spin up and one for spin down),
-are given by
-\eq{\psi_{D_{spin}} = 
-  \vmat{\phi_1(\vec r_1)& \cdots & \phi_n(\vec r_1)\\
-  \vdots&\ddots&\vdots\\
-  \phi_1(\vec r_n)& \cdots & \phi_N(\vec r_n)}
-}
+\subsection{Differentiation of the Energy}
 
-where $n$ is equal to half the number of particles, 
-and  $\phi_j(\vec r_i)$ are one-particle wave functions 
-$\phi_{1s}$, $\phi_{2s}$ and $\phi_{2p(3)}$
-($(3)$ is short-hand notation for the $x$, $y$ and $z$ parts).
-These spin independent, one-particle wave functions are
-linear combinations of basis functions, and we will now use \textit{contracted} GTOs
-(CGTOs) for this purpose.
-
-The functions can then be written as
-\eq{\phi_j(\vec r_i) = \sum_p C_{pj} \varphi_p(\vec r_i)
-}
-
-The CGTOs are on the form
+To optimize the conjugate gradient method, we need analytical expressions
+for the derivatives of the energy with respect to the variational paramaters
+$\vec \alpha$.
 \eq{
-  \varphi_p^{CGTO}(\vec r_i) = \sum_k N_k \varphi^{GTO}_k(\vec r_i)
+  2 \left(
+  \left\langle  
+  E_L\frac{\frac{1}{\psi_T} \partial \psi_T}{\partial \alpha}
+  \right\rangle
+  - E_L \left\langle  
+  \frac{1}{\psi_T}\frac{\partial \psi_T}{\partial \alpha}
+  \right\rangle
+  \right)
 }
-with
-\eq{
-  \varphi^{GTO}_k = d_k x^m y^n z^o e^{-\alpha_k r^2}
-}
-which are called \textit{cartesian} GTOs. 
-The numerical coefficients $\alpha_k$ and $d_k$ are chosen to optimalize the
-basis functions, and we use values from the 
-\textit{Environmental Molecular Science Laboratory} (EMSL) 
-website\footnote{https://bse.pnl.gov/bse/portal}.
+\footnote{}
 
-The normalization factors are given as\footnote{Ab Initio, p. 280}
+\subsection{Onebody Density and Charge Density}
+The one-body density is computed from the form 
+{\small
 \eq{
-  N_k = \left(\frac{2\alpha_k}{\pi}\right)^{3/4}
-  \sqrt{\frac{(4\alpha_k)^{m+n+o}}{(2m-1)!!(2n-1)!!(2o-1)!!}}
-}
-and since they are dependent on the total angular momentum,
-given by the quantum numbers $l = m+n+o$, we will write them as
-$N_k = N_{m,n,o}$.
+	\rho(\vec R) = |\psi(\vec R)|^2
+}}%
+
+This is implemented as NOTE: ... in our program. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+\clearpage
+
+
+
+
+
+
+
+
+{\Huge Everything below this point is not revised, or will be removed.}
+
+\section{Implementation}
+The methods described above are implemented in an object oriented C++ program
+which is simple to use, and does not have any dependencies. 
+
+Most of the code is contained in the class VMCSolver.cpp and VMCSolver.h. 
+These were created to contain the full system and parameters for a single run. 
+
+To start a simulation one must instantiate the solver and 
+initialize the system, either by file and/or manually. After this
+the integration can be run and all data will be contained in the solver object.
+The last step is to collect data from the solver. 
+
+All plot data are generated by individual programs using the mentioned solver. 
+Plots are generated using python. 
 
 \section{Results}
+\section{Conclusion}
+\section{Results}
 
+
+
+
+
+
+
+
+
+
+
+\twocolumn[{%
 \appendix
 \renewcommand{\thesubsection}{Appendix \Alph{subsection}:}
 \renewcommand{\thesubsubsection}{\arabic{subsubsection}.}
@@ -949,6 +975,9 @@ in spherical coordinates, and as
 }}%
 
 in cartesian coordinates.
+}]
+
+\twocolumn[{%
 \subsubsection{The wavefunction of Beryllium}
 We start by finding the first and second derivative of the determinant part,
 which are only dependent on the radii of the particles. This means that the gradient can be written 
@@ -978,7 +1007,7 @@ of the Hydrogen-like wavefunctions in the following way
   \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)
   }
   and for the $2p$ part we need to differentiate in cartesian coordinates,
-  since the Hydrogenic wave function is dependant on the
+  since the Hydrogenic wave function is dependent on the
   angles, thus
   \eq{
   \phi_{2p_k}^i &= \alpha k_i g_i \text{ for } k_i = x_i,y_i,z_i\\
@@ -1015,7 +1044,9 @@ The expressions for $\phi_{2p_y}$ and $\phi_{2p_z}$ are similarly
     \alpha g_i -\frac{\alpha^2 z_i^2}{2 r_i} g_i
   \right)
 }
+}]
 
+\twocolumn[{%
 Then the terms required to calculate the Slater determinant
 \eq{
   F_{ij} &= g_i^2 (1+f_j)g_j - g_j^2 (1+f_i)g_i\\
@@ -1093,6 +1124,9 @@ divided by the wavefunction, for particle $k$ in the $x$-direction is then
   \left[\frac{\op\nabla_k\psi_C}{\psi_C}\right]_x 
   =\frac{1}{\psi_C}\frac{\partial\psi_C}{\partial x_k}
 }
+}]
+
+\twocolumn[{%
 If we look at the first derivative in the $x$-direction, 
 we see that the parts of the wavefunction that is not dependent on $k$, 
 will remain unaffected by the 
@@ -1154,7 +1188,9 @@ Thus
     - \sum_{i=k+1}^{N}\frac{\vec r_{ki}}{r_{ki}}\frac{a}{(1+\beta r_{ki})^2}\\
     &=\sum_{i\neq k}\frac{\vec r_{ik}}{r_{ik}}\frac{a}{(1+\beta r_{ik})^2} 
 }
+}]
 
+\twocolumn[{%
 From (\ref{DpsiC}), we can gather that the double derivative part is described by
 \eq{
   \left[\frac{\mathbf{\op\nabla}^2 \psi_C}{\psi_C}\right]_x
@@ -1271,5 +1307,5 @@ If we now sum up for all dimensions, we get
     \sum_{i,j\neq k}\frac{(\vec r_k-\vec r_i)(\vec r_k-\vec r_j)}{r_{ik} r_{jk}} 
     f_{ik}' f_{jk}'
 }
-
+}]
 \end{document}
