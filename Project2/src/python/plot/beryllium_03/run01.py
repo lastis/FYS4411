@@ -5,8 +5,8 @@ import numpy as np
 
 curDir = os.getcwd();
 # Adress to target directories from this directory. 
-cppDir = "../../../cpp/plot/helium_03/"
-resDir = "../../../../res/plot/helium_03/";
+cppDir = "../../../cpp/plot/beryllium_03/"
+resDir = "../../../../res/plot/beryllium_03/";
 
 
 # Delete the exsiting .txt files
