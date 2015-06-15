@@ -21,7 +21,7 @@ except OSError:
 
 
 alpha = 3.9190
-betaArray = np.linspace(0.0001,0.2001,21)
+betaArray = np.linspace(0.001,0.301,21)
 
 # Save the beta values.
 betaFile = "beta_array_01.txt"

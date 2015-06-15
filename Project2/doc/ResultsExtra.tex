@@ -12,7 +12,7 @@
 \usepackage{tabularx}		% Adds adjustable width on tabulars
 \usepackage{cuted}			% Adds the \strip command, pagewidth text in a twocolumn
 							% environment. 
-\usepackage{hyperref}
+\usepackage{hyperref}		% Adds the function \url{website}. 
 							% Color library. The options allows using names of colors.
 \usepackage[usenames,dvipsnames,svgnames]{xcolor}			
 \usepackage{geometry}		% Change paper properties such as size. 
@@ -200,7 +200,7 @@ is then push out from the nucleus as can be seen in figure(\ref{fig:helium_03}).
 \begin{tabular}{| l a c a c |}
 	\hline
 		& Exact & $E_0$ & $\alpha$ & $\beta$\\
-		Hydrogen like & -14.6664(3 &  -14.3795& 3.9190 & 0.01101 \\
+		Hydrogen like & -14.6664(3 &  -14.3795& 3.9190 & 0.1101 \\
 		GTO 3-21G& -14.6664(3)& & - & 0.9925\\
 	\hline
 \end{tabular}	
@@ -211,14 +211,12 @@ The variance of the mean of $E_0$ makes it difficult to find optimal paramters.
 The result is very dependent on how many cycles and how many trials are ryn.
 For hydrogen like wave function the results were found to be:
 \begin{align*}
-	E_0 = -14.3795 && \alpha = 3.9190 && \beta = 0.110 && n_b = \text{1e5}&&\text{Trials} = 4 
+	E_0 = -14.3795 && \alpha = 3.919 && \beta = 0.110 && n_b = \text{1e5}&&\text{Trials} = 4\\
+	E_0 = -13.0830 && \alpha = 3.919 && \beta = 0.090 && n_b = \text{1e4}&&\text{Trials} = 4\\
+	E_0 = -13.0559 && \alpha = 3.919 && \beta = 0.100 && n_b = \text{1e4}&&\text{Trials} = 160
 \end{align*}
-
-With adjusted paramters $E_0$ is lower using GTOs rather than hydrogen like 
-wave functions. 
-
-
-
+The GTO gave a lower energy of $E_0 = XXX$, but requires longer runtimes to give 
+stable results. Our suggested runtime variables are at least $n_b > \:$1e5 Trials $>$ 10.
 \begin{figure}
 	\includegraphics[width=\columnwidth]{../res/plot/beryllium_01/beryllium_01.png}
 	\caption{Beryllium, 1 standard deviation. 
@@ -226,7 +224,26 @@ wave functions.
 	\label{fig:helium_03}
 \end{figure}
 
+\subsubsection{Charge Density}
+Using hydrogen like wave functions, the charge density shape coincide with extern 
+sources\footnote{\url{http://2012books.lardbucket.org/books/principles-of-general-chemistry-v1.0/section_10/4858a5e15319821597514881b601833b.jpg}} as can be seen in figure
+(\ref{fig:beryllium_03}). The addition of the Jastrow factor again makes the
+density function more pushed out. 
 
+Using GTOs the density does not look as expected, but rather
+looks more like a one with only a single shell, figure(??). This gives further suggestion that 
+the implementation of GTO is flawed. An alternative explanation is that using
+GTOs does not give correct densities, but rather only correct ground state energy, $E_0$.
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{../res/plot/beryllium_03/beryllium_03.png}
+	\caption{Beryllium, 1 standard deviation. 
+	Points = 20. Trials = 4.	$n_b = \:$1e5.}
+	\label{fig:beyllium_03}
+\end{figure}
+
+\subsection{Neon}
+\subsubsection{Optimal Paramters}
 
 
 
