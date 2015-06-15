@@ -26,7 +26,8 @@ blocks2  = np.loadtxt(fileNameBins2)
 std2   = np.loadtxt(fileNameVariance2)
 # std2 = np.sqrt(std2)
 
+
 plt.plot(blocks1, std1)
 plt.plot(blocks2, std2)
-plt.savefig('helium_04.png')
+plt.savefig('helium_02.png')
 plt.show()

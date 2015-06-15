@@ -27,6 +27,35 @@ rMax = 3.0
 bins1 = np.linspace(0,rMax,len(densityMean1))
 bins2 = np.linspace(0,rMax,len(densityMean2))
 
+
+
+
+font = {'family' : 'serif',
+        'size'   : 15}
+
+plt.rc('font',**font)
+
+fig, ax = plt.subplots()
+
+ax.plot(bins1, densityMean1,'r',label='With Jastrow factor')
+ax.fill_between(bins1, densityMean1-densityStd1, densityMean1+densityStd1, color='r', alpha=0.2)
+ax.plot(bins2, densityMean2,'b',label='Without Jastrow factor')
+ax.fill_between(bins2, densityMean2-densityStd2, densityMean2+densityStd2, color='b', alpha=0.2)
+
+ax.set_ylabel(r'Density')
+ax.set_xlabel(r'Radius')
+ax.legend(loc='best',fontsize=15)
+
+ax.grid('on')
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+plt.savefig('helium_03_pretty.png')
+plt.show()
+
+
+
+
+
 plt.plot(bins1, densityMean1)
 
 plt.plot(bins2, densityMean2)

@@ -1,4 +1,4 @@
-\documentclass[twocolumns, a4paper,10pt,fleqn]{extarticle}
+\documentclass[twocolumns, a4paper,11pt,fleqn]{extarticle}
 \usepackage[english]{babel} 
 \usepackage[latin1]{inputenc} 
 \usepackage{times}			% Default times font style
@@ -14,7 +14,9 @@
 							% environment.  
 \usepackage{hyperref}
 \usepackage[a4paper, margin=0.6in]{geometry}
-
+\usepackage[usenames,dvipsnames,svgnames]{xcolor}
+\usepackage{colortbl}
+\usepackage[justification=centering]{caption}
 
 % Alghorithm packages:
 \usepackage{algorithm}
@@ -36,9 +38,23 @@
 % End custom \abs \norm 
 
 \usepackage{titlesec}
+
 \titleformat{\section}[block]{\bfseries\filcenter}{\thesection}{1em}{\uppercase}
+
 \titleformat{\subsection}[hang]{\bfseries\filcenter}{\thesubsection}{1em}{}
+
 \titleformat{\subsubsection}[hang]{\bfseries\filcenter}{\thesubsubsection}{1em}{}
+
+% Change section formatting. 
+\titleformat{\section}
+{\color{MediumBlue}\normalfont\bfseries}	% Properties of the title.
+{\color{black}\thesection}{1em}{\uppercase} 			% Properties of the number.
+\titleformat{\subsection}
+{\color{MediumBlue}\normalfont\bfseries}	% Properties of the title.
+{\color{black}\thesubsection}{1em}{} 			% Properties of the number.
+\titleformat{\subsubsection}
+{\color{MediumBlue}\normalfont\bfseries}	% Properties of the title.
+{\color{black}\thesubsubsection}{1em}{} 			% Properties of the number.
 
 % TODO: Put comments on this section.
 \newcommand{\eq}[1]{{\small\begin{align*}#1\end{align*}}}
@@ -57,28 +73,32 @@
 \newcommand{\unit}[1]{\mathbf{\hat{#1}}}
 \renewcommand{\thesection}{\Roman{section}}
 \renewcommand{\thesubsection}{\Alph{subsection}.}
-\renewcommand{\thesubsubsection}{\roman{subsubsection}.}
+\renewcommand{\thesubsubsection}{\color{black}\roman{subsubsection}.}
 \newcommand{\Var}[1]{\mathrm{Var}(#1)}
+
+\newcolumntype{a}{>{\columncolor{LightCyan}}c}
 
 \title{}
 
 \begin{document}
 
 \twocolumn[{%
- \centering
- {\bfseries\large Variational Monte-Carlo Simulations of Atomic Systems}
+
+ {\bfseries\huge\color{MediumBlue} Variational Monte-Carlo Simulations of Atomic Systems}
  \\[1em]
- \normalsize Daniel Marelius Bj\o rnstad and Alexander Fleischer
- \\
- \small\url{https://github.com/lastis/FYS4411}
-  \begin{abstract}
+ {\normalsize Daniel Marelius Bj\o rnstad$^1$ and Alexander Fleischer$^1$}\\[0.1em]
+	{\small $^1$Department of Physics, University in Oslo, Norway}\\
+ {\small\url{https://github.com/lastis/FYS4411}}\\[1em]
+ Delivered: June 15 2015
+
+  \begin{abstract}{\center}
     This project aims to find good approximations to the ground state energies
     of the atoms Helium, Beryllium and Neon, and the di-molecules $H_2$ and $Be_2$
     This was achieved by implementing the Variational Monte Carlo method of
     Metropolis-Hastings.
     The trial wave function of the 
     The variational parameters of the method was optimized using
-    Nonlinear Conjugate Gradient method.
+    nonlinear conjugate gradient method.
     To evaluate the results of the numerical methods, we investigated the possibility
     of finding a closed-form solution of the ground-state energy 
     using the Variational Principle.
@@ -116,11 +136,6 @@ Some challenges with the implementation are also discussed.
 We list our results in section IV, and discussions on the physical aspects of these.
 The report ends with a conclusion section where we express our concluding thoughts
 on the project.
-
-\begin{figure}[h!]
-	\includegraphics[width=\columnwidth]{../res/plot/helium_01/helium_01_pretty.png}
-	\caption{}\label{fig:1}
-\end{figure}
 
 \section{Methods}
 \subsection{The Quantum Mechanical System}
@@ -177,8 +192,8 @@ and we have another sum for all the electron-electron repulsions.
 We can add to this model by setting up a system of two atoms,
 a \textit{diatomic molecule}, which gives us a Hamiltonian on the form
 \eq{
-  \OP H = -\sum_{i=1}^N\bigg[
-    \frac{\op\nabla_i^2}{2} + \frac{Z_1}{r_{ip1}} + \frac{Z_2}{r_{ip2}}\bigg] 
+  \OP H &= -\sum_{i=1}^N\bigg[
+    \frac{\op\nabla_i^2}{2}\\ &+ \frac{Z_1}{r_{ip1}} + \frac{Z_2}{r_{ip2}}\bigg] 
     + \sum_{i=1}^{N-1}\sum_{j=i+1}^N\frac{1}{r_{ij}} + \frac{Z_1 Z_2}{R}
 }
 
@@ -365,10 +380,10 @@ the Hamiltonian (since they form a complete set) as follows
 }
 and given that they are normalized, we get
 \eq{
-  E_0 \leq
+  E_0 &\leq
   \frac{\sum_{i,j}c_m^*c_n\Int{}{}{\vec R}{\psi_m^*(\vec R) \OP{H}(\vec R) \psi_n(\vec R)}}
-	{\sum_{m,n}c_m^*c_n\Int{}{}{\vec R}{\psi_m^*(\vec R) \psi_n(\vec R)}}\label{E0var}
-  = \frac{\sum_n \abs*{c_n}^2 E_n}{\sum_n \abs*{c_n}^2}
+	{\sum_{m,n}c_m^*c_n\Int{}{}{\vec R}{\psi_m^*(\vec R) \psi_n(\vec R)}}\label{E0var}\\
+  &= \frac{\sum_n \abs*{c_n}^2 E_n}{\sum_n \abs*{c_n}^2}
 }
 since $E_0 = E_0 \sum_n \abs*{c_n}^2 \leq \sum_n E_n \abs*{c_n}^2 $
 
@@ -393,7 +408,7 @@ which together with (\ref{E0var}) yields
 The integrals to be solved in the variational method,
 does not scale well with traditional integral methods when 
 increasing the number of particles and dimensions and using 
-more complex wave functions .
+more complex wave functions.
 Therefore, we introduce the \textit{brute-force Monte Carlo method}
 to solve the integrals.
 
@@ -435,11 +450,11 @@ An outline of the algorithm can be seen in Algorithm \ref{algo:vmc}.
 
 \subsection{The Metropolis Algorithm}
 In the VMC algorithm (Algorithm \ref{algo:vmc}),
-one of the steps is to perform the Metropolis algorithm to determine wheter or not
+one of the steps is to perform the Metropolis algorithm to determine whether or not
 a step is rejected or accepted.
 
 The Metropolis algorithm samples a normalized probability distribution
-by a stochastic process. In other words, it is a method for simultaing
+by a stochastic process. In other words, it is a method for simulating
 random walks, which we can use to do brute-force Monte Carlo computations.
 The algorithm uses \textit{Markov chains}, where each state $i$,
 has some probability of going to another state $j$.
@@ -450,7 +465,7 @@ at some step $n$. This probability is given by the sum of the probability of
 previously being in a state $j$, transitioning to $i$, $T_{j\rightarrow i}$,
 and the probability of rejecting the transition to another state $j$,
 $1-A_{i\rightarrow j}$.
-Where $A$ is the acceptance ratio
+Where $A$ is the acceptance ratio.
 
 This results in
 \eq{
@@ -500,7 +515,7 @@ The results are based on the
 equation}. This makes the step look similar to a diffusion process,
 where the new position is given by
 \begin{align*}
-y = x + DF(x) \delta t + \xi \sqrt{\Delta t}.
+y = x + DF(x) \delta t + \xi \sqrt{\Delta t}
 \end{align*}
 
 In this equation, $\xi $ is a gaussian random variable 
@@ -509,21 +524,21 @@ In atomic units, $D$ is $1/2$, and in our plots $\Delta t = 0.01$.
 
 An important part of this result is that the walker is affected by $F(x)$
 which contains the trial wavefunction. This force has been named 
-the \textit{quantum force}, given by
+the \textit{quantum force}\footnote{Ref. [1], p. 488}, given by
 \begin{align*}
-\vec F = 2\frac{1}{\psi_T}\nabla \psi_T. 
+\vec F = 2\frac{1}{\psi_T}\nabla \psi_T
 \end{align*}
 
 This also has the result of changing the random number check in the 
 Metropolis algorithm from:
 $q(y,x) = |\psi_T(y)|^2/|\psi_T(x)|^2$ to: 
 \[
-q(y,x) = \frac{G(x,y,\Delta t)|\psi_T(y)|^2}{G(y,x,\Delta t)|\psi_T(x)|^2}.
+q(y,x) = \frac{G(x,y,\Delta t)|\psi_T(y)|^2}{G(y,x,\Delta t)|\psi_T(x)|^2}
 \]
 
 Where G is the Green function given by
 \eq{
-  G(y,x,\Delta t) =  \frac{1}{(4\pi D\Delta t)^{3N/2}}\\ \cdot \exp{\left(-(y-x-D\Delta t F(x))^2/4D\Delta t\right)}.
+  G(y,x,\Delta t) =  \frac{1}{(4\pi D\Delta t)^{3N/2}}\\ \times \exp{\left(-(y-x-D\Delta t F(x))^2/4D\Delta t\right)}
 }
 This has its basis in our change of center for the gaussian distribution.
 
@@ -652,8 +667,9 @@ So we need to calculate the four quantities
     \frac{\op\nabla \psi_C}{\psi_C}&
     \frac{\op\nabla^2 \psi_C}{\psi_C}
 }}
-They are derived in the appendix, and they are not only useful when calculating the
-local energy, which we will see in the implementation section.
+They are derived in the appendix.
+
+The following wave functions are the ones we used in the implementation.
 
 \subsubsection{The First Trial Wave Function of Helium}
 We first model the variational solution with a trial function of one
@@ -737,7 +753,7 @@ we let $r_1 \rightarrow 0$. Then the local energy is
   - \frac{Z}{r_1}\right)\psi_T^{r}(r_1)
 }\footnote{f.t. here stands for \textit{finite terms}}
 The second derivative does not diverge due to the finiteness condition.
-FOr $l=0$, we then have differential equation
+For $l=0$, we then have differential equation
 \eq{
   \frac{1}{\psi_T^{r}(r_1)}\frac{\mathrm d \psi_T^{r}(r_1)}{\mathrm d r_1}
   = -Z
@@ -796,8 +812,8 @@ The relative distance between two particles is
 and obviously $r_{ij}=r_{ji}$.
 
 \subsubsection{Neon}
-For Neon, in addition to $$ $$ we need three more hydrogenic wavefunctions for the $2p$ orbital, given by
-$2p_x$, $2p_y$ and $2p_z$. These are given by
+For Neon, in addition to $1s$ and $2s$ we need three more hydrogenic wavefunctions for the $2p$ orbital, the
+$2p_x$, $2p_y$ and $2p_z$ levels. These are given by
 
 \eq{
   \phi_{2p_k}(\vec r_i) &= \alpha k_i g_i \text{ for } k_i = x_i,y_i,z_i
@@ -809,6 +825,7 @@ so the wave function is
 }
 where the two Slater determinants are given in (\ref{eq:nespinup})
 and (\ref{eq:nespindown}).
+
 
 \subsection{Introducing Gaussian-Type Orbitals}
 In this project, we have shown how one can use Hydrogen-like wave functions as the basis
@@ -930,24 +947,7 @@ Choose the new interval and continue until minimum is found (for some tolerance)
 
 \clearpage
 
-
-
-
 \section{Implementation}
-The methods described above are implemented in an object oriented C++ program
-which is simple to use, and does not have any dependencies. 
-
-Most of the code is contained in the class VMCSolver.cpp and VMCSolver.h. 
-These were created to contain the full system and parameters for a single run. 
-
-To start a simulation one must instantiate the solver and 
-initialize the system, either by file and/or manually. After this
-the integration can be run and all data will be contained in the solver object.
-The last step is to collect data from the solver. 
-
-All plot data are generated by individual programs using the mentioned solver. 
-Plots are generated using python. 
-
 \subsection{Efficient Computation of the Slater Determinant}
 
 For larger atoms, the evaluation of the gradient and the Laplacian of the Slater
@@ -1042,7 +1042,6 @@ number of operations go from the already undesirable $\mathcal O(N^3)$ to
 $\mathcal O(d\times N^4)$, since there are $d\times N$ independent coordinates.
 Using the method above, the total calculation scales as
 $\mathcal O(d\times N^2)$.
-
 
 \subsection{Derivatives of the Trial Wave Functions}
 In many of our calculations we need the Laplacian of the trial wave function,
@@ -1148,13 +1147,17 @@ goes away due to the logarithm, and we have
 }
 
 \subsection{Onebody Density and Charge Density}
-The one-body density is computed from the form 
+The one-body density is computed from the form
 {\small
 \eq{
 	\rho(\vec R) = |\psi(\vec R)|^2
 }}%
 
-This is implemented as NOTE: ... in our program. 
+In our implementation, 
+we have plotted the one-\\dimensional
+density plots against the radii for the different atoms.
+This shows the atomic orbitals at work, and where the electrons appear to be located
+around the nucleus.
 
 \subsection{Using GTOs}
 The GTOs are on the form of (\ref{eq:gto}).
@@ -1167,9 +1170,354 @@ in the Slater determinant, but each $\phi_j(\vec r_i)$ is now a linear combinati
 of basis functions. Thus, we need a set of coefficients $C_{pj}$.
 The ones we implemented are shown in the appendix.
 
+\subsection{Implementation in C++}
+\subsubsection{VMCSolver.cpp}
+Simulations run on \verb!C++! objects called VMCSolver. There are 3 VMCSolvers
+implemented in the code.\\
+"VMCSolver" - Contains the simulation environment for the hydrogen-like wave
+function simulator.\\
+"VMCSolverGto" - Contains the simulation environment for the GTOs, can only run
+without importance sampling.\\
+"VMCSolverGtoI" -Contains the simulation environment for the GTOs, can only run
+with importance sampling.\\
+
+The reason for splitting the solvers was that code gradually became too complex
+to run in the same object. All solvers has a method which is called
+runSingleParticleStep. This method is not run by the solver but must be called
+by the user for every particle and for every cycle in the simulation. 
+This makes the simulation run directly in the code of the user and not 
+as an run simulation method in the in the object. The runSingleParticleStep method
+takes the particle number $i$ as an parameter. This is the main difference between
+this program and conventional simulatiors. 
+
+This difference has the following major effects: 
+{\color{MediumBlue}\bf1.} The user is responsible to run the code with the
+correct particle $i$ over the total number of particles. If not, the code will
+do an array out of bounds segmentation fault or do a wrong integration.
+ {\color{MediumBlue}\bf2.} The user
+can easily change the simulation while running, if desired. 
+{\color{MediumBlue}\bf3.}
+All state variables of the solver are current and not saved in any way. This moves
+all helper functions outside of the solver object.
+Helper functions such as gathering energies in vectors or matrices, 
+or doing position histograms. This is a major change that makes seperating the solver
+with the extraction of data very easy. 
+
+\subsubsection{Parallelization}
+Parallelization was done by simply increasing the number of trials. For every program
+that was run, the program would split into 4 threads and run 1 solver each in parallel.
+
+Further parallelization of parts of the code could be possible, but 
+would be unessecary because a high number of trials gives better data
+(further discussion can be found under "Number of Solvers vs. Block Size $n_b$"). 
+
+\subsubsection{Parameter Optimization}
+Paramter optimization can be done using different methods, such as conjugate gradient, 
+steepest cecent, newtons method, bisection methods or other. For all these methods
+it is important to have a good evaluation function of the value and the gradient of the
+scalar function, $E_0(\alpha,\beta)$. In the program we implemented an conjugate gradient
+method using python and an evaluation function with c++. 
+
+Parameter optimization was done using 1e6 cycles for Helium , 
+1e5 cycles for Beryllium and 1e4 cycles for Neon, all with 4 trials. More on this
+subject can be found under the Problems Encountered section and the Improvements section.
+
+\subsubsection{Blocking}
+Applying blocking on a vector of sample energies can easily be done by simply making
+one mean value of a range of samples equal to the block size. 
+
+All variance from results are obtained by use of blocking with 4 threads. 
+The combination of threads and blocks are what we refer to as \textit{trials}. 
+To get the total number of samples on one thread,
+one should divide by 4.
+
+Second to the data integration, making the complete blocking plot was the 
+most CPU intensive operation in the program.
+Blocking was done in an easy way to get all possible divisions of the full sample length
+into blocks via a brute force method\footnote{\url{https://github.com/lastis/FYS4411/blob/master/Project2/src/cpp/vmcsolver/util.h}}.
+
+\subsubsection{Imrovements}
+The implementation had some flaws, of the biggest were implementing GTOs 
+and optimizing the code. 
+
+{\bf GTOs:} GTOs seemed to give correct ground state energies, $E_0$, 
+at high number of MC samples (above 1e5 for Beryllium, and unknown for Neon, but at least
+above 10e6). 
+The problem with GTOs, is that they 
+{\color{MediumBlue}\bf1.} require a large amount
+of CPU time, 10x the one of the Hydrogen-like wave function. {\color{MediumBlue}\bf2.}
+They are also hard to varify as the simulation is quite robust to human error. If 
+the implementation of them are missing a factor, or the calculation is somehow not
+correct, the code will often run fine and still give an $E_0$ which can seem reasonable. 
+
+The reason for stating GTOs as a problem, was because they did not give the
+density plots we expected from Beryllium and Neon.
+
+{\bf Optimization:}
+The speed of the code can be improved. This was not a big focus of the project, but
+it is very useful for getting results in a timely fashion. The biggest way this
+can be improved is by using an external analyzation tool for \verb!C++! code. 
+
+A consequence of slow runtime was the convergence of 
+the conjugate gradient method for Beryllium and Neon. 
+Our parameters were 1e5 samples for Beryllium and 1e4 samples for Neon, with 4 trials
+on both. We think both of these variables should be at least 10x higher to give
+stable $\alpha$, $\beta$ values with more than 2 significant numbers.
+
+\subsection{Problems Encountered}
+\subsubsection{Thermalization}
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/helium_04/helium_04_pretty.png}
+	\caption[caption]{$E_0$ vs. sample number. 
+	 	Trials: 4000. $\alpha = 1.79$. 
+	$\beta = 0.4125$}
+	\label{fig:helium_04}
+\end{figure}
+A problem that was encountered 
+for all simulations was that the first samples of every 
+trial were not valid samples for the ground state. This problem is not a problem for
+Helium as the walkers quickly converges to a stage where they give correct
+estimations of the ground state energy
+as can be seen in figure (\ref{fig:helium_04}). 
+
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/beryllium_04/beryllium_04_pretty.png}
+	\caption{Trials: 4000}
+	\label{fig:beryllium_04}
+\end{figure}
+
+When increasing particle number and/or using GTOs, this becomes an increasing problem
+in addition with the increase in CPU time used for every sample. In the 
+simulations of Beryllium and Neon, the rate of which the samples begin to give
+valid numbers for the ground state was increased to about 500 samples. At 
+Figure (\ref{fig:beryllium_04}) show the slow increase in the energy per sample number. 
+
+\subsubsection{Trial by Trial Variation}
+In addition to what we called \textit{thermalization}, 
+there is the additional problem of getting 
+enough sample points to calculate the variance. Increasing the number of new solvers 
+was found to be the
+the main factor to get a function to be smooth over the parameter space.
+In principle this should be the same as increasing the number of samples,
+but this was found to be true. The reason for this might be the effects of
+the thermalization.
+This is therefore
+important when using a minimization algorithm, such as NCG, \textit{steepest descent}
+or other methods. If too few trials are run with an optimization method, the 
+algorithm will be misguided by the variable results.
+
+\subsubsection{Number of Solvers vs. Block Size $n_b$}
+A large variability was found when calculating $E_0$ for Beryllium and Neon when 
+varying the number of samples and the number of solvers. One would expect
+when doing the thermalization analysis, that by skipping a number of samples in
+an order of about 500 should be sufficient to start sampling good values for $E_0$. 
+However this is not the case as increasing the block size 
+(here this means the number of MC samples) to $> \:$ 
+1e5 must be done to find
+values that look similar to the exact values of $E_0$.
+
+For Hydrogen-like wave function the results were found to be
+%\begin{align*}
+	%E_0 = -14.3795 && \alpha = 3.919 && \beta = 0.110 && n_b = \text{1e5}&&
+	%\text{Trials} = 4\\
+	%E_0 = -13.0830 && \alpha = 3.919 && \beta = 0.090 && n_b = 
+	%\text{1e4}&&\text{Trials} = 4\\
+	%E_0 = -13.0559 && \alpha = 3.919 && \beta = 0.100 && n_b = \text{1e4}&&
+	%\text{Trials} = %160
+%\end{align*}
 
 
-\section{Results}
+  \begin{table}[H]\centering
+	\begin{tabular}{| l a c a c |}
+	\hline
+	  $E_0$ & $\alpha$ & $\beta$ & $n_b$ & Trials\\
+    -14.3795 & 3.919 & 0.110 & 1e5 & 4\\
+    -13.0830 & 3.919 & 0.090 & 1e4 & 4\\
+    -13.0559 & 3.919 & 0.100 & 1e4 & 160\\
+	\hline
+	\end{tabular}\caption{Varying the number of solvers 
+	and block size gives different results.
+	Increasing the number of MC cycles
+	gives a much better approximation than increasing the number of solvers.
+	}
+	\end{table}
+
+
+These findings suggests that even if the thermalization looks like it
+reaches a plateau at around 500 cycles, this is probably not the case, and may continue
+to increase to at least 1e4. This applied to all simulations except for Helium. 
+
+
+\section{Results and Discussion}
+Our implementation of the Helium, Beryllium and Neon atoms, without correlating factors,
+showed that the mean energy and $\alpha$ values were given as in Table (\ref{tab:nocor}).
+These values are the exact same as the analytical, no correlation,
+solutions, and we see that $\alpha$ values match the charge of the respective atom.
+Therefore, we could use this to test the program before adding more complicated factors.
+
+  \begin{table}[H]\centering
+	\begin{tabular}{| l a c |}
+	\hline
+		& $E_0$ & $\alpha$\\
+		Helium & -4.0 & 2.0 \\
+		Beryllium & -20.0 & 4.0\\
+		Neon & -200.0 & 10.0\\
+	\hline
+	\end{tabular}\caption{Minimum ground-state energies and $\alpha$ values obtained
+	without electron-electron interaction. There are no variance in the
+	energies at these $\alpha$ values.}\label{tab:helium}
+	\end{table}\label{tab:nocor}
+
+\subsection{Helium}
+\subsubsection{Optimal Parameters}
+We see from Table (\ref{tab:helium}) that the value of $\alpha$
+is smaller than the charge of Helium. This indicates that
+the electrons disturb each others attraction to the proton.
+The mean distances from the nucelus for Helium with and without
+the Jastrow factor, were \textbf{1.43} [a.u.] and \textbf{1.29} [a.u.] respectively.
+Thus, the Jastrow factor pushes the electrons away from the nucleus.
+This is due to disturbance of the charge that we mentioned above.
+
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/helium_01/helium_01_pretty.png}
+	\caption{Helium Hydrogen-like wave function, one standard deviation. 
+	Points = 20. Trials = 80.	$n_b = \:$1e5. $\alpha = 1.79$}
+	\label{fig:helium_01}
+\end{figure}
+
+  \begin{table}[H]\centering
+	\begin{tabular}{| l a c a c |}
+	\hline
+		& Exact & $E_0$ & $\alpha$ & $\beta$\\
+		HL with IS& -2.90324 &  -2.8907& 1.79 & 0.412 \\
+		HL without IS & -2.90324& -2.8886& 1.79 & 0.486 \\
+		3-21G& -2.90324& -2.8519 & - & 0.992\\
+	\hline
+	\end{tabular}\caption{Ground-state energies and optimal parameters
+	for Hydrogen-like (HL) wave functions with and without importance sampling (IS),
+	and GTO 3-21G with importance sampling.}\label{tab:helium}
+	\end{table}
+
+
+\noindent{\bf Importance Sampling:}
+
+Importance sampling (IS) gave a lower estimation of the ground energy than
+the simulations without it. Figure (\ref{fig:helium_01}) shows the difference between
+running with and without importance sampling, by varying the $\beta$ value. 
+$\alpha$ is held constant at 1.79. 
+The $\alpha$ was chosen to give the lowest energy of the simulation with 
+importance sampling and the reason for doing this is that the evaluation of $E_0$ using
+importance sampling is considered more correct.
+The optimal values for Helium with Hydrogen-like wave functions (HL) was found to be 
+similar, but not the same, with and without importance sampling.
+
+From this point on all simulations will be done \textit{with} importance sampling.\\
+
+\noindent{\bf GTO Basis 3-21G:}
+
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/helium_05/helium_05_pretty.png}
+	\caption{Helium GTO importance sampling one standard deviation. 
+	Points = 20. Trials = 40.	$n_b = \:$1e5.}
+	\label{fig:helium_05}
+\end{figure}
+Figure (\ref{fig:helium_05}) shows the energy as a function of $\beta$. 
+The lowest energy is $E_0 = -2.8519$. 
+The variance is roughly the same as for Hydrogen-like wave functions 
+with importance sampling,
+but $E_0$ has not decreased as one would expect. Because lower energies were
+not discovered, even with more cycles, 
+the implementation of the GTOs must be seen as flawed.
+
+\subsubsection*{Charge Density}
+\noindent{\bf Jastrow Factor:}
+
+The Jastrow factor, which is a function of $\beta$, decides the interaction between
+the electrons. Without this factor, the electrons does not "see" the other electrons
+in the system. This makes the electrons repulse each other, and the charge density
+is then "pushed" out from the nucleus as can be seen in figure(\ref{fig:helium_03}).
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/helium_03/helium_03_pretty.png}
+	\caption{Helium hydrogen-like wave function, one standard deviation. 
+	Points = 100. Trials = 40.	$n_b = \:$1e5.}
+	\label{fig:helium_03}
+\end{figure}
+
+\subsection{Beryllium}
+\subsubsection{Optimal Parameters}
+
+  \begin{table}[H]\centering
+  \begin{tabular}{| l a c a c |}
+	\hline
+		& Exact & $E_0$ & $\alpha$ & $\beta$\\
+		HL & -14.6664(3) & -14.3795& 3.9190 & 0.1101 \\
+		3-21G& -14.6664(3)& -14.3574 & - & 0.9925\\
+	\hline
+  \end{tabular}\caption{Optimal parameters for the ground-state energy of Beryllium.}
+	\end{table}
+
+\noindent 
+
+The GTO gave a similar energy of $E_0 = -14.3574$, 
+but requires longer runtimes to give 
+stable results. Our suggested runtime variables are at least $n_b > \:$1e5 Trials $>$ 10.
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/beryllium_01/beryllium_01_pretty.png}
+	\caption{Beryllium, one standard deviation. 
+	Points = 20. Trials = 8.	$n_b = \:$1e5.}
+	\label{fig:beryllium_01}
+\end{figure}
+
+From these values, we see that the $\beta$ value is much smaller for Beryllium
+than for Helium. This suggests that the Jastrow factor is stronger for
+Beryllium. 
+
+\subsubsection{Charge Density}
+Using Hydrogen-like wave functions, the charge density shape coincide with external 
+sources\footnote{\url{http://2012books.lardbucket.org/books/principles-of-general-chemistry-v1.0/section_10/4858a5e15319821597514881b601833b.jpg}} as can be seen in figure
+(\ref{fig:beryllium_03}). The addition of the Jastrow factor again makes the
+density function more "pushed" out. 
+
+Using GTOs, the density does not look as expected, but rather
+looks more like a $1s$ with only a single orbital. See Figure (\ref{fig:}). 
+This gives further suggestion that 
+the implementation of GTO is flawed. An alternative explanation is that using
+GTOs does not give correct densities, but rather only correct ground state energy, $E_0$.
+
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/beryllium_03/beryllium_03_pretty.png}
+	\caption{Beryllium, one standard deviation. 
+	Points = 20. Trials = 4.	$n_b = \:$1e5.}
+	\label{fig:beryllium_03}
+\end{figure}
+
+\subsection{Neon}
+\subsubsection{Optimal Paramters}
+For Neon, the $\beta$ value is almost the same as for Beryllium, see
+Table \ref{table:}. This could indicate that the Jastrow factor is determined
+by how many atomic shells the atom has.
+
+\begin{table}\centering
+\begin{tabular}{| l a c a c |}
+	\hline
+		& Exact & $E_0$ & $\alpha$ & $\beta$\\
+		HL & -128.884(4) &  -127.936& 10.2592 & 0.1101 \\
+		3-21G& -128.884(4) & -110.619 & - & 0.1\\
+	\hline
+\end{tabular}	
+\end{table}
+
+The optimal parameters can be seen in the table. One can note the similar $\beta$ value
+to Beryllium. Unfortunately, our $\beta$ value for the GTO doesn't converge to a stable
+value for the number of runs we did.
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{../res/plot/neon_03/neon_03_pretty.png}
+	\caption{Neon, one standard deviation. 
+	Points = 100. Trials = 4.	$n_b = \:$1e5.}
+	\label{fig:neon_03}
+\end{figure}
+
 \section{Conclusion}
 
 \twocolumn[{%
@@ -1178,8 +1526,6 @@ The ones we implemented are shown in the appendix.
 \renewcommand{\thesubsubsection}{\arabic{subsubsection}.}
 
 \subsection{Mathematical Derivations}
-
-
 
 \subsubsection{The wavefunction of Beryllium}
 We start by finding the first and second derivative of the determinant part,
