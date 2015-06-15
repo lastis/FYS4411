@@ -158,7 +158,12 @@ subject can be found under the Problems Encountered section and the Improvements
 Applying blocking on a vector of sample energies can easily be done by simply making
 one mean value of a range of samples equal to the block size. 
 
-Though, second to the data integration, making the complete blocking plot was the 
+All variance from results are obtained by use of blocking with 4 threads. 
+The combination of threads and blocks are what we refer to as samples, so to get the
+total number of samples on one thread, one should divide the number of samples by 4. 
+
+
+Second to the data integration, making the complete blocking plot was the 
 most CPU intensive operation in the program.
 Blocking was done in an easy way to get all possible divisions of the full sample length
 into blocks via a brute force method\footnote{\url{https://github.com/lastis/FYS4411/blob/master/Project2/src/cpp/vmcsolver/util.h}}.
