@@ -22,78 +22,42 @@ namespace wave_functions{
     using namespace physical::unit;
     using namespace std;
 
-    static double factorial(int N){
-        double ret = 1;
-        for (double i = 2; i <= N; i += 1) 
-        {
-            ret *= i;
-        }
-        return ret;
+    static double phi1sDAlpha(double r){
+        return -r*exp(-alpha*r);
     }
 
-    static double xi(double x, double y, double z, int i, int j, int k, 
-            double alpha, double weight){ 
-        return weight*pow(2*alpha*piInv,0.75)
-            *sqrt(pow(8*alpha,i+j+k)*factorial(i)*factorial(j)*factorial(k)
-            /(factorial(2*i)*factorial(2*j)*factorial(2*k)))
-            * pow(x,i)*pow(y,j)*pow(z,k)*exp(-alpha*(x*x+y*y+z*z));
+    static double phi2sDAlpha(double r){
+        return (r*r*0.25 - r)*exp(-alpha*r*0.5);
     }
 
-    static double xiD(double q, int m, double x, double y, double z, 
-            int i, int j, int k, double alpha, double weight){ 
-        return weight*pow(2*alpha*piInv,0.75)
-            *sqrt(pow(8*alpha,i+j+k)*factorial(i)*factorial(j)*factorial(k)
-            /(factorial(2*i)*factorial(2*j)*factorial(2*k)))
-            * pow(x,i)*pow(y,j)*pow(z,k)*exp(-alpha*(x*x+y*y+z*z))
-            * (m/q - 2*alpha*q);
-    }
-
-    static double xiDD(double x, double y, double z, 
-            int i, int j, int k, double alpha, double weight){ 
-        return weight*pow(2*alpha*piInv,0.75)
-            *sqrt(pow(8*alpha,i+j+k)*factorial(i)*factorial(j)*factorial(k)
-            /(factorial(2*i)*factorial(2*j)*factorial(2*k)))
-            * pow(x,i-2)*pow(y,j-2)*pow(z,k-2)*exp(-alpha*(x*x+y*y+z*z))
-            * (z*z*(y*y*(i*i-i*(4*alpha*x*x+1)+2*alpha*x*x*(2*alpha
-                                * (x*x + y*y + z*z) - 3)) + 
-            j*j*x*x - j*x*x *(4*alpha*y*y + 1)) + k*k*x*x*y*y - 
-            k*x*x*y*y * (4*alpha*z*z + 1));
+    static double phi2pxDAlpha(double x, double r){
+        return -x*r*0.5*exp(-alpha*r*0.5);
     }
     
-    static double heliumPhi1sGto(double* r){
-        double psi = 0;
-        double phi1 = 0;
-        double phi2 = 0;
-        // Last two numbers are from the basis set, turbmole file.
-        phi1 += xi(r[0],r[1],r[2],0,0,0,13.6267,0.17523);
-        phi1 += xi(r[0],r[1],r[2],0,0,0,1.99935,0.893483);
-        phi2 += xi(r[0],r[1],r[2],0,0,0,0.38299,1);
-        psi += phi1*0.4579 + phi2*0.6573;
-        return psi;
+    static double phi2pyDAlpha(double y, double r){
+        return -y*r*0.5*exp(-alpha*r*0.5);
     }
 
-    static double heliumPhi1sDGto(int x, double* r){
-        double psi = 0;
-        double phi1 = 0;
-        double phi2 = 0;
-        // Last two numbers are from the basis set, turbmole file.
-        phi1 += xiD(r[x],0,r[0],r[1],r[2],0,0,0,13.6267,0.17523);
-        phi1 += xiD(r[x],0,r[0],r[1],r[2],0,0,0,1.99935,0.893483);
-        phi2 += xiD(r[x],0,r[0],r[1],r[2],0,0,0,0.38299,1);
-        psi += phi1*0.4579 + phi2*0.6573;
-        return psi;
+    static double phi2pzDAlpha(double z, double r){
+        return -z*r*0.5*exp(-alpha*r*0.5);
     }
 
-    static double heliumPhi1sDDGto(double* r){
-        double psi = 0;
-        double phi1 = 0;
-        double phi2 = 0;
-        // Last two numbers are from the basis set, turbmole file.
-        phi1 += xiDD(r[0],r[1],r[2],0,0,0,13.6267,0.17523);
-        phi1 += xiDD(r[0],r[1],r[2],0,0,0,1.99935,0.893483);
-        phi2 += xiDD(r[0],r[1],r[2],0,0,0,0.38299,1);
-        psi += phi1*0.4579 + phi2*0.6573;
-        return psi;
+    static double phiDAlpha(int j, double* r, double rAbs){
+        switch (j) {
+            case 0 :
+                return phi1sDAlpha(rAbs);
+            case 1 :
+                return phi2sDAlpha(rAbs);
+            case 2 :
+                return phi2pxDAlpha(r[0],rAbs);
+            case 3 : 
+                return phi2pyDAlpha(r[1],rAbs);
+            case 4 : 
+                return phi2pzDAlpha(r[2],rAbs);
+            default:
+                std::cout << "Index out of bounds in phi()!!!" << std::endl;
+                return 0;
+        }
     }
 
     static double f(double r){

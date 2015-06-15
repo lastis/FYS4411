@@ -593,8 +593,8 @@ SUITE(VMCWrapper)
         // Check that the ratios are the same for the normal step and the
         // efficient slater step.
         double energy1, energy2;
-        int cycles = 1;
-        int particles = 1;
+        int cycles = 20;
+        int particles = 4;
         for (int i = 0; i < cycles; i++)
         {
             solverUnique1.startOfCycle();

@@ -8,6 +8,7 @@
 #include <omp.h>
 #include "VMCSolver.h"
 #include "VMCSolverGto.h"
+#include "VMCSolverGtoI.h"
 #include "../CPhys/CPhys.h"
 
 class VMCWrapper
@@ -30,7 +31,8 @@ public:
     static const int WAVE_FUNCTION_NEON_GTO = 14;
 
     bool initSolver(VMCSolver& solver);
-    bool initSolverGto(VMCSolverGto& solver);
+    bool initSolver(VMCSolverGto& solver);
+    bool initSolver(VMCSolverGtoI& solver);
     bool initFromFile(std::string fName);
     void exportParamters(std::string fName);
     void useWaveFunction1();
@@ -53,8 +55,10 @@ public:
     void clear();
     bool validateParamters();
     bool validateParamtersGto();
+    bool validateParamtersGtoI();
     VMCSolver getInitializedSolver();
     VMCSolverGto getInitializedSolverGto();
+    VMCSolverGtoI getInitializedSolverGtoI();
 
     int threads;
     // Paramters to the solver.

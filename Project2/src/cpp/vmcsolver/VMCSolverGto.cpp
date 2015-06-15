@@ -15,7 +15,7 @@ void VMCSolverGto::setSeed(long seed)
     gen.seed(seed);
 }
 
-double VMCSolverGto::getCorrelationRatio(int i)
+inline double VMCSolverGto::getCorrelationRatio(int i)
 {
     double a;
     double rkjNew = 0;

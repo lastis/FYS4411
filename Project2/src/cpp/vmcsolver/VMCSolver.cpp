@@ -71,6 +71,60 @@ void VMCSolver::runSingleStepQuantum(int i, int cycle)
     endOfSingleParticleStep(cycle, i);
 }
 
+double VMCSolver::calc_dE_dAlpha(){
+    dE_dAlpha = 0;
+    for (int i = 0; i < nParticles; i++)
+    {
+        for (int j = 0; j < nHalf; j++)
+        {
+            if (i < nHalf)
+                dE_dAlpha += phiDAlpha(j, prOld[i], rAbsOld[i]) * pslater1InvOld[j][i];
+            else
+                dE_dAlpha += phiDAlpha(j, prOld[i], rAbsOld[i]) * pslater2InvOld[j][i - nHalf];
+        }
+    }
+}
+
+double VMCSolver::calc_dE_dBeta(){
+    double rkjVec[nDimensions];
+    double rkjAbs;
+    dE_dBeta = 0;
+    for (int k = 0; k < nParticles; k++)
+    {
+        for (int j = 0; j < nParticles; j++)
+        {
+            // Run the code if j > k.
+            if (j <= k) continue;
+            int spinK = k / nHalf;
+            int spinJ = j / nHalf;
+            double a1;
+            switch (spinK + spinJ)
+            {
+                case 0:
+                    a1 = 0.25;
+                    break;
+                case 1:
+                    a1 = 0.5;
+                    break;
+                case 2:
+                    a1 = 0.25;
+                    break;
+            }
+            rkjAbs = 0;
+            for (int x = 0; x < nDimensions; x++)
+            {
+                rkjVec[x] = prOld[j][x] - prOld[k][x];
+                rkjAbs += rkjVec[x] * rkjVec[x];
+            }
+            rkjAbs = sqrt(rkjAbs);
+            double bkj = 1 / (1 + beta * rkjAbs);
+
+            /* dE_dBeta -= a1 * bkj * bkj * rkjAbs * exp(a1*rkjAbs*bkj); */
+            dE_dBeta -= a1 * bkj * bkj * rkjAbs;
+        }
+    }
+}
+
 void VMCSolver::setSeed(long seed)
 {
     gen.seed(seed);
@@ -397,15 +451,8 @@ void VMCSolver::runSingleStep(int i, int cycle)
 bool VMCSolver::initRunVariables()
 {
     // Member variables
-    mean = 0;
     accepts = 0;
     rejects = 0;
-
-    energy = 0;
-    energySquared = 0;
-
-    energySum = 0;
-    energySquaredSum = 0;
 
     deltaE = 0;
     waveFuncValOld = 0;
@@ -421,11 +468,6 @@ bool VMCSolver::initRunVariables()
     wave_functions::charge = charge;
     wave_functions::nParticles = nParticles;
     wave_functions::nHalf = nHalf;
-
-    /* wave_functions_gto::nDimensions = nDimensions; */
-    /* wave_functions_gto::nParticles = nParticles; */
-    /* wave_functions_gto::nHalf = nHalf; */
-    /* wave_functions_gto::beta = beta; */
 
     // Set the wave function as a function pointer
     if (waveFunction == WAVE_FUNCTION_1)
@@ -754,31 +796,6 @@ void VMCSolver::updateQuantumForce(double** r, double* rAbs, double** qForce,
     }
 }
 
-Vector VMCSolver::getEnergyArray()
-{
-    return energyArray;
-}
-
-double VMCSolver::getStepLength()
-{
-    return stepLength;
-}
-
-double VMCSolver::getEnergy()
-{
-    return energy;
-}
-
-double VMCSolver::getEnergySquared()
-{
-    return energySquared;
-}
-
-double VMCSolver::getR12Mean()
-{
-    return mean;
-}
-
 void VMCSolver::clear()
 {
     waveFunction = 0;
@@ -797,15 +814,6 @@ void VMCSolver::clear()
     timeStep = 0;
     D = 0;
 
-    rMax = 0;
-    bins = 1;
-
-    mean = 0;
-    energy = 0;
-    energySquared = 0;
-    energySum = 0;
-    energySquaredSum = 0;
-    rAbsSum = 0;
     deltaE = 0;
     waveFuncValOld = 0;
     waveFuncValNew = 0;
@@ -824,14 +832,12 @@ void VMCSolver::clear()
     slater1InvNew = Matrix();
     slater2InvOld = Matrix();
     slater2InvNew = Matrix();
-    qForceOld = Matrix();
-    qForceNew = Matrix();
     rOld = Matrix();
     rNew = Matrix();
-    positions = Matrix();
-    density = Matrix();
-    vS = Vector();
-    energyArray = Vector();
+
+    prOld = rOld.getArrayPointer();
+    prNew = rNew.getArrayPointer();
+
     pslater1Old = slater1Old.getArrayPointer();
     pslater1New = slater1New.getArrayPointer();
     pslater1InvOld = slater1InvOld.getArrayPointer();
@@ -840,14 +846,13 @@ void VMCSolver::clear()
     pslater2New = slater2New.getArrayPointer();
     pslater2InvOld = slater2InvOld.getArrayPointer();
     pslater2InvNew = slater2InvNew.getArrayPointer();
+
+    qForceOld = Matrix();
+    qForceNew = Matrix();
     pqForceOld = qForceOld.getArrayPointer();
     pqForceNew = qForceNew.getArrayPointer();
-    prOld = rOld.getArrayPointer();
-    prNew = rNew.getArrayPointer();
-    pPositions = positions.getArrayPointer();
-    pDensity = density.getArrayPointer();
+    vS = Vector();
     S = vS.getArrayPointer();
-    pEnergyArray = energyArray.getArrayPointer();
 }
 
 double VMCSolver::getAcceptanceRatio()

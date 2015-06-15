@@ -45,7 +45,6 @@ public:
 
     void clear();
     bool initRunVariables();
-    void startOfCycle();
     void runSingleStep(int i);
     double getLocalEnergySlater(double** r, double* rAbs);
     double getCorrelationRatio(int i);

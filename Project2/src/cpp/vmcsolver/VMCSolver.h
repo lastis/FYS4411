@@ -60,13 +60,14 @@ public:
     void runSingleStepQuantum(int i, int cycle);
     void runSingleStepSlaterQuantum(int i, int cycle);
 
+    double calc_dE_dAlpha();
+    double calc_dE_dBeta();
+
     double (*getWaveFuncVal)(double** r, double* rAbs);
     double (*getLocalEnergy)(double** r, double* rAbs);
     double getLocalEnergySlater(double** r, double* rAbs);
     double getLocalEnergySlaterNoCor(double** r, double* rAbs);
     double getCorrelationRatio(int i);
-
-    Vector getEnergyArray();
 
     void setSeed(long seed);
     double alpha;
@@ -86,19 +87,11 @@ public:
     long idum;
     double timeStep;
     double D;
-    double rMax;
-    int bins;
 
     std::mt19937 gen;
     std::uniform_real_distribution<double> dist_uniform;
     std::normal_distribution<double> dist_gauss;
 
-    double mean;
-    double energy;
-    double energySquared;
-    double energySum;
-    double energySquaredSum;
-    double rAbsSum;
     double deltaE;
     double waveFuncValOld;
     double waveFuncValNew;
@@ -108,17 +101,13 @@ public:
     double DD;
     double CC;
     double DC;
+    double dE_dAlpha;
+    double dE_dBeta;
     int nHalf;
 
     bool usingCorrelation;
     bool importanceSampling;
     bool efficientSlater;
-    /* bool outputSupressed; */
-    /* bool recordingDensity; */
-    /* bool recordingEnergyArray; */
-    /* bool recordingR12Mean; */
-    /* bool recordingPositions; */
-    /* bool parallel; */
 
     // Private variables
     Matrix slater1Old;
@@ -151,12 +140,6 @@ public:
     Vector rAbsNewVec;
     double* rAbsOld;
     double* rAbsNew;
-    Matrix positions;
-    double** pPositions;
-    Matrix density;
-    double** pDensity;
-    Vector energyArray;
-    double* pEnergyArray;
 };
 
 #endif  // VMCSOLVER_H
