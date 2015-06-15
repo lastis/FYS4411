@@ -10,21 +10,21 @@ int main(int argc, const char *argv[])
 {
 
     int nParticles = 10;
-    double nCycles = 1e4;
+    double nCycles = 1e5;
     int threads = 4;
-    int trials = 1;
+    int trials = 8;
     int totalTrials = threads*trials;
     int idum = 1000;
     int bins = 100;
-    double rMax = 5.0;
-    int skipps = 500;
+    double rMax = 3.0;
+    int skipps = 1000;
 
     string adress = "../../../../res/plot/neon_03/";
     string fileNameDensity = "density_02.txt";
 
     VMCWrapper wrapper = VMCWrapper();
-    wrapper.alpha = 4.0;
-    wrapper.beta = 0.01;
+    wrapper.alpha = 10.2592;
+    wrapper.beta = 0.1100;
     wrapper.nDimensions = 3;
     wrapper.nParticles = nParticles;
     wrapper.charge = nParticles;
@@ -34,7 +34,8 @@ int main(int argc, const char *argv[])
     wrapper.hInv = 1000;
     wrapper.h2Inv = 1e+06;
     wrapper.idum = idum;
-    wrapper.useWaveFunctionNeonGTO();
+    wrapper.useEfficientSlater(true);
+    wrapper.useLocalEnergySlaterNoCor();
     wrapper.useImportanceSampling(true);
     wrapper.timeStep = 0.001;
     wrapper.D = 0.5;
@@ -53,7 +54,7 @@ int main(int argc, const char *argv[])
         for (int trial = 0; trial < trials; trial++) 
         {
             double energy = 0;
-            VMCSolverGtoI solver = wrapper.getInitializedSolverGtoI();
+            VMCSolver solver = wrapper.getInitializedSolver();
             // Give an unique seed to the solver.
             int thread = omp_get_thread_num();
             int uniqueID = trials*thread + trial;
@@ -61,10 +62,9 @@ int main(int argc, const char *argv[])
             // Run simulation.
             for (int cycle = 0; cycle < nCycles; cycle++) 
             {
-                solver.startOfCycle();
                 for (int i = 0; i < nParticles; i++) 
                 {
-                    solver.runSingleStep(i);
+                    solver.runSingleStepSlater(i,cycle);
                     if (cycle < skipps) continue;
                     int rBin = solver.rAbsOld[i]*bins/rMax;
                     if (rBin < 0 || rBin >= bins) continue;

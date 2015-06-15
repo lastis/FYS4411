@@ -5,14 +5,14 @@ import numpy as np
 
 curDir = os.getcwd();
 # Adress to target directories from this directory. 
-cppDir = "../../../cpp/plot/neon_01/"
-resDir = "../../../../res/plot/neon_01/";
+cppDir = "../../../cpp/ground_state/neon_01/"
+resDir = "../../../../res/ground_state/neon_01/";
 
 
 # Delete the exsiting .txt files
 os.chdir(curDir)
 os.chdir(resDir)
-fileList = [f for f in os.listdir(".") if "02" in f]
+fileList = [f for f in os.listdir(".") if "energies_01" in f]
 try :
     for f in fileList:
         os.remove(f)
@@ -20,20 +20,12 @@ except OSError:
     pass
 
 
-alpha = 10.2591
-betaArray = np.linspace(0.011,0.031,21)
-
-# Save the beta values.
-betaFile = "beta_array_02.txt"
-np.savetxt(betaFile,betaArray)
-
 # Compile the code
 os.chdir(curDir)
 os.chdir(cppDir)
-call(["make", "cpp_file = main_02.cpp"])
+call(["make", "cpp_file = main_01.cpp"])
 
 # Run the cpp code for helium with hydrogenlike wavefunctions
 os.chdir(curDir)
 os.chdir(cppDir)
-for beta in betaArray:
-    call(["./a.out", str(alpha), str(beta)])
+call(["./a.out"])

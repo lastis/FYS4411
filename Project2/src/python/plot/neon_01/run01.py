@@ -20,8 +20,8 @@ except OSError:
     pass
 
 
-alpha = 10.0
-betaArray = np.linspace(0.0001,0.03,21)
+alpha = 10.2591
+betaArray = np.linspace(0.011,0.031,21)
 
 # Save the beta values.
 betaFile = "beta_array_01.txt"

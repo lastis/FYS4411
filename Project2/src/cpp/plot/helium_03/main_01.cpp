@@ -49,6 +49,7 @@ int main(int argc, const char *argv[])
     omp_set_num_threads(threads);
 
     auto start = chrono::high_resolution_clock::now();
+    double r12 = 0;
     #pragma omp parallel 
     {
         for (int trial = 0; trial < trials; trial++) 
@@ -70,9 +71,18 @@ int main(int argc, const char *argv[])
                     if (rBin < 0 || rBin >= bins) continue;
                     density1D[uniqueID][rBin] += 1;
                 }
+                double tmp = 0;
+                for (int i = 0; i < 3; i++) 
+                {
+                    tmp += (solver.prOld[1][i] - solver.prOld[0][i])
+                        *(solver.prOld[1][i] - solver.prOld[0][i]);
+                }
+                r12 += sqrt(tmp);
             }
         }
     }
+    r12 /= trials*nCycles*threads;
+    cout << r12 << endl;
 
     // Normalize the histograms.
     for (int i = 0; i < totalTrials; i++) 

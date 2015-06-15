@@ -23,7 +23,7 @@ densityMat2   = np.loadtxt(fileName2)
 densityMean2 = np.mean(densityMat2,axis=0)
 densityStd2 = np.std(densityMat2,axis=0)
 
-rMax = 5
+rMax = 7
 bins1 = np.linspace(0,rMax,len(densityMean1))
 bins2 = np.linspace(0,rMax,len(densityMean2))
 

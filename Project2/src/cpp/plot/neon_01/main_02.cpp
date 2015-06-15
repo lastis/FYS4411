@@ -6,20 +6,20 @@
 
 using namespace std;
 
-using microfortnights = std::chrono::duration<float, std::ratio<12096,10000>>;
 int main(int argc, const char *argv[])
 {
     // Take alpha and beta from command line. 
-    if (argc != 2) {
+    if (argc != 3) {
         cout << "Not enough arguments." << endl;
         return -1;
     }
-    double beta = atof(argv[1]);
+    double alpha = atof(argv[1]);
+    double beta = atof(argv[2]);
 
     int nParticles = 10;
-    double nCycles = 1e3;
+    double nCycles = 1e4;
     int threads = 4;
-    int trials = 1;
+    int trials = 8;
     int totalTrials = threads*trials;
     int idum = 1000;
     int skipps = 500;
@@ -28,6 +28,7 @@ int main(int argc, const char *argv[])
     string energyFileName = "energies_02.txt";
 
     VMCWrapper wrapper = VMCWrapper();
+    wrapper.alpha = alpha;
     wrapper.beta = beta;
     wrapper.nDimensions = 3;
     wrapper.nParticles = nParticles;
@@ -38,7 +39,8 @@ int main(int argc, const char *argv[])
     wrapper.hInv = 1000;
     wrapper.h2Inv = 1e+06;
     wrapper.idum = idum;
-    wrapper.useWaveFunctionNeonGTO();
+    wrapper.useEfficientSlater(true);
+    wrapper.useLocalEnergySlater();
     wrapper.useImportanceSampling(true);
     wrapper.timeStep = 0.001;
     wrapper.D = 0.5;
@@ -55,17 +57,17 @@ int main(int argc, const char *argv[])
         for (int trial = 0; trial < trials; trial++) 
         {
             double energy = 0;
-            VMCSolverGtoI solver = wrapper.getInitializedSolverGtoI();
+            VMCSolver solver = wrapper.getInitializedSolver();
             // Give an unique seed to the solver.
             int thread = omp_get_thread_num();
             solver.setSeed(wrapper.idum + trials*thread + trial);
             // Run simulation.
             for (int cycle = 0; cycle < nCycles; cycle++) 
             {
-                solver.startOfCycle();
+                solver.startOfCycleSlaterQuantum();
                 for (int i = 0; i < nParticles; i++) 
                 {
-                    solver.runSingleStep(i);
+                    solver.runSingleStepSlaterQuantum(i,cycle);
                     if (cycle < skipps) continue;
                     energy += solver.deltaE;
                 }

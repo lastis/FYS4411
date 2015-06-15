@@ -5,8 +5,8 @@ import numpy as np
 
 curDir = os.getcwd();
 # Adress to target directories from this directory. 
-cppDir = "../../../cpp/plot/neon_01/"
-resDir = "../../../../res/plot/neon_01/";
+cppDir = "../../../cpp/plot/beryllium_01/"
+resDir = "../../../../res/plot/beryllium_01/";
 
 
 # Delete the exsiting .txt files
@@ -19,9 +19,7 @@ try :
 except OSError:
     pass
 
-
-alpha = 10.2591
-betaArray = np.linspace(0.011,0.031,21)
+betaArray = np.linspace(0.001,0.301,21)
 
 # Save the beta values.
 betaFile = "beta_array_02.txt"
@@ -32,8 +30,8 @@ os.chdir(curDir)
 os.chdir(cppDir)
 call(["make", "cpp_file = main_02.cpp"])
 
-# Run the cpp code for helium with hydrogenlike wavefunctions
+# Run the cpp code for helium with gto wave functions. 
 os.chdir(curDir)
 os.chdir(cppDir)
 for beta in betaArray:
-    call(["./a.out", str(alpha), str(beta)])
+    call(["./a.out", str(beta)])
