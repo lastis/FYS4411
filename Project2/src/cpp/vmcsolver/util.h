@@ -1,6 +1,7 @@
 #include <cmath>
 #include "../CPhys/CPhys.h"
 #include <iostream>
+#include <fstream>
 #include <string>
 using namespace std;
 
@@ -42,6 +43,31 @@ namespace util {
         {
             pvec[i] /= sum;
         }
+    }
+
+    /** \brief Load matrix from txt file. Warning, the matrix dimensions
+     * must be correct.
+     *
+     * \param adress Adress to file. Warning, from the location of this
+     * function.
+     * \param fileName Name of file. 
+     * \param mat Matrix to load into. 
+     */         
+    void loadFromFile(string adress, string fileName, Matrix& mat){
+        int N = mat.getN();
+        int M = mat.getM();
+        double** pMat = mat.getArrayPointer();
+        fstream myFile ((adress + fileName).c_str(), ios::in);
+        double number;
+        for (int i = 0; i < N; i++) 
+        {
+            for (int j = 0; j < M; j++) 
+            {
+                myFile >> number;
+                pMat[i][j] = number;
+            }
+        }
+        myFile.close();
     }
 
     /** \brief Write vector to file. Will overwrite.

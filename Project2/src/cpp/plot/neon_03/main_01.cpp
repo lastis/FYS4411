@@ -17,6 +17,7 @@ int main(int argc, const char *argv[])
     int idum = 1000;
     int bins = 100;
     double rMax = 5.0;
+    int skipps = 500;
 
     string adress = "../../../../res/plot/neon_03/";
     string fileNameDensity = "density_01.txt";
@@ -65,6 +66,7 @@ int main(int argc, const char *argv[])
                 for (int i = 0; i < nParticles; i++) 
                 {
                     solver.runSingleStepSlaterQuantum(i,cycle);
+                    if (cycle < skipps) continue;
                     int rBin = solver.rAbsOld[i]*bins/rMax;
                     if (rBin < 0 || rBin >= bins) continue;
                     density1D[uniqueID][rBin] += 1;
