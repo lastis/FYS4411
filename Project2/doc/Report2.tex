@@ -575,8 +575,9 @@ The the general trial wave function is
 The trial wave functions are always dependent on the coordinates of every
 electron in some way.
 The Jastrow factor is generally written as
-\eq{
+\equ{
   \psi_C = \prod_{i<j}^{n}\exp{\left(\frac{a r_{ij}}{1+\beta r_{ij}}\right)}
+  \label{eq:psicor}
 }
 where $a$ is a factor that takes into account the spin of electron $i$ and $j$,
 the \textit{electron-electron cusp conditions}.
@@ -677,6 +678,8 @@ The local energy now has the form
 	&-\frac{1}{2(1+\beta r_{12})^2}-\frac{2}{r_{12}}+
 	\frac{2\beta}{1+\beta r_{12}}\bigg)
 }
+
+ADD CUSP CONDITIONS HERE!
 
 \subsubsection{Beryllium}
 The trial wavefunction of Beryllium can be written as a product of a Slater determinant
@@ -865,24 +868,126 @@ We can then calculate the gradient and laplacian as
 
 REMEMBER TO SAY SOMETHING ABOUT NUMBER OF OPERATIONS.
 
-\subsection{Conjugate Gradient Method}
+\subsection{Nonlinear Conjugate Gradient Method}
+Our aim is to calculate the lowest mean of the ground state energy $E_0$,
+but it depends on some variational parameters $\vec \alpha$.
+Therefore we need to find the global minimum with respect to these parameters,
+where
+\eq{
+  \frac{\partial E}{\partial \alpha_i} = 0
+}
+where $\alpha_i$ can take the values $\alpha$ and $\beta$.
+
+For a function $f$ that we wish to minimize, with
+\eq{
+  f(x) = \frac{1}{2}x^T Ax + b^Tx + c
+}
+we use the \textit{nonlinear conjugate gradient method} 
+(NGC)\footnote{J. Nocedal, Numerical Optimization, 2006, Springer Science, ch. 5}
+to do it, see Algorithm \ref{algo:ngc}.
+We proceed one step, decided by $x_{k+1}=x_k + ad_k$, where $a$
+is the step. This step is decided by \textit{line search method},
+for example the \textit{bisection method} (outlined in Algorithm \ref{algo:bisec}).
+The search is guided by the direction $d_k$.
+
+
+\begin{algorithm}[H]
+	\caption{NCG method}\label{algo:ngc}
+  \begin{algorithmic}[1]
+    \Procedure{Initialize}{}
+      \State{Let $k=0$ and $x_k=x_0$ be our initial guess.}
+      \State{Compute $d_k=d_0=-\nabla f(x_0)$.}
+    \EndProcedure
+    \Procedure{Find the best step size}{}
+      \State{Compute $a$ to minimize $f(x_k+ a d_k)$
+      
+      by a line search in the direction $d_k$.}
+    \EndProcedure
+    \Procedure{Update current guess}{}
+      \State{Let $x_{k+1}=x_k + ad_k$.}
+    \EndProcedure
+    \Procedure{Update the seacrh direction}{}
+      \State{Let $d_{k+1} = -\nabla f(x_{k+1} + \beta_k d_k)$ where 
+      \eq{\beta_k = \frac{\nabla f(x_{k+1}^T)(\nabla f(x_{k+1}-\nabla f(x_{k}))}
+      {d_k^T(\nabla f(x_{k+1})-\nabla f(x_{k}))}}}
+    \EndProcedure
+    \Procedure{Iterate}{}
+      \State{Repeat procedures 2 to 4 until we have looked in all 
+      
+      directions ($\dim x$).}
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+Given a function $g(x)$ and an interval $[a,b]$, where $g(a)$ and $g(b)$
+has opposite signs (at least one zero crossing),
+we want to find the minimum.
+Calculate $f(c)$ for $c = \sfrac{(a+b)}{2}$, if $f(c)$ has opposite
+sign of $f(a)$ ($f(b)$) then the minimum is in $[a,c]$ ($[c,b]$).
+Choose the new interval and continue until minimum is found (for some tolerance).
+
+\begin{algorithm}[H]
+	\caption{Bisection method}\label{algo:bisec}
+  \begin{algorithmic}[1]
+    \Procedure{Iteration}{}
+      \While{$n<N_{max}$}
+        \State{Compute $c$ and $f(c)$.}
+        \State{If minimum is found, return $c$. Success.}
+        \State{If not: choose new interval $[a,c]$ or $[c,b]$.}
+      \EndWhile
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
 
 \subsection{Differentiation of the Energy}
 
 To optimize the conjugate gradient method, we need analytical expressions
 for the derivatives of the energy with respect to the variational paramaters
 $\vec \alpha$.
-\eq{
+We can calculate the derivative of the energy with respect
+to variational parameters in the following way\footnote{Morten ch. 16}
+\equ{
+  \frac{\partial E}{\partial \alpha_i} =
   2 \left(
   \left\langle  
-  E_L\frac{\frac{1}{\psi_T} \partial \psi_T}{\partial \alpha}
+  E_L\frac{1}{\psi_T}\frac{\partial \psi_T}{\partial \alpha}
   \right\rangle
   - E_L \left\langle  
   \frac{1}{\psi_T}\frac{\partial \psi_T}{\partial \alpha}
   \right\rangle
-  \right)
+  \right)\label{eq:Eder}
 }
-\footnote{}
+
+Since $(\ln u)' = \sfrac{u'}{u}$, we can simplify the calculations of the derivatives
+in (\ref{eq:Eder}) as
+
+\eq{
+  \frac{\partial \psi_T}{\partial \alpha_i}
+  =\frac{\partial |\op D|_{\uparrow}}{\partial \alpha_i}
+  +\frac{\partial |\op D|_{\downarrow}}{\partial \alpha_i}
+  +\frac{\partial \psi_C}{\partial \alpha_i}
+}
+
+For $\alpha_i = \alpha$, the correlation part is vanishes,
+and for the correlation part, the determinant parts vanish.
+
+For $\alpha$, we can calculate the derivatives of the determinants 
+using the efficient Slater method.
+We then get
+\eq{
+  \frac{\partial|\op D|}{\partial \alpha}
+  =\sum_{i=1}^N \sum_{j=1}^N  d_{ji}^{-1}\frac{\partial d_{ij}}{\partial \alpha}
+}
+for each spin part.
+
+For $\beta$, the exponential in (\ref{eq:psicor}) 
+goes away due to the logarithm, and we have
+\eq{
+  \frac{\partial \ln \psi_C}{\partial \beta}
+  &=\frac{\partial}{\partial \beta}\sum_{i<j}^n
+    \frac{a r_{ij}}{1+\beta r+{ij}}\\
+    &= \sum_{i=1}^n \sum_{j=i+1}^n \frac{-a r_{ij}^2}{(1+\beta r_{ij})^2}
+}
 
 \subsection{Onebody Density and Charge Density}
 The one-body density is computed from the form 
@@ -893,28 +998,7 @@ The one-body density is computed from the form
 
 This is implemented as NOTE: ... in our program. 
 
-
-
-
-
-
-
-
-
-
-
-
-
 \clearpage
-
-
-
-
-
-
-
-
-{\Huge Everything below this point is not revised, or will be removed.}
 
 \section{Implementation}
 The methods described above are implemented in an object oriented C++ program
@@ -934,16 +1018,6 @@ Plots are generated using python.
 \section{Results}
 \section{Conclusion}
 \section{Results}
-
-
-
-
-
-
-
-
-
-
 
 \twocolumn[{%
 \appendix
