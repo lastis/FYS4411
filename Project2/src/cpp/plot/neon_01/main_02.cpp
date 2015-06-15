@@ -22,6 +22,7 @@ int main(int argc, const char *argv[])
     int trials = 1;
     int totalTrials = threads*trials;
     int idum = 1000;
+    int skipps = 500;
 
     string adress = "../../../../res/plot/neon_01/";
     string energyFileName = "energies_02.txt";
@@ -65,6 +66,7 @@ int main(int argc, const char *argv[])
                 for (int i = 0; i < nParticles; i++) 
                 {
                     solver.runSingleStep(i);
+                    if (cycle < skipps) continue;
                     energy += solver.deltaE;
                 }
             }

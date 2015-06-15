@@ -18,12 +18,13 @@ int main(int argc, const char *argv[])
     double alpha = atof(argv[1]);
     double beta = atof(argv[2]);
 
-    int nCycles = 1e4;
+    int nCycles = 1e5;
     int nParticles = 2;
     int threads = 4;
-    int trials = 10;
+    int trials = 1;
     int totalTrials = threads*trials;
     int idum = 1000;
+    int skipps = 200;
 
     string adress = "../../../../res/parameter_optimization/helium_01/";
 
@@ -70,6 +71,7 @@ int main(int argc, const char *argv[])
                 for (int i = 0; i < nParticles; i++) 
                 {
                     solver.runSingleStepSlaterQuantum(i,cycle);
+                    if (cycle < skipps) continue;
                     solver.calc_dE_dAlpha();
                     solver.calc_dE_dBeta();
                     dE_dAlpha += solver.dE_dAlpha;
