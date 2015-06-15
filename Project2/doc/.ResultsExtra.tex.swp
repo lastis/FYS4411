@@ -102,7 +102,36 @@
 \clearpage
 
 \section{Implementation}
-\subsection{Thermalization}
+\subsection{Implementation in C++}
+\subsubsection{VMCSolver.cpp}
+Simulations run on c++ objects called VMCSolver. There are 3 VMCSolvers
+implemented in the code.\\
+"VMCSolver" - Contains the simulation environment for the hydrogen-like wave
+function simulator.\\
+"VMCSolverGto" - Contains the simulation environment for the GTOs, can only run
+without importance sampling.\\
+"VMCSolverGtoI" -Contains the simulation environment for the GTOs, can only run
+with importance sampling.\\
+
+The reason for splitting the solvers was that code gradually became too complex
+to run in the same object. All solver use has a method which is called
+runSingleParticleStep. This method is not run by the solver but must be called
+by the user for every particle and for every cycle the simulation should run. 
+This actually makes the simulation run directly in the code of the user and not 
+as an run simulation method in the in the object. The runSingleParticleStep method
+takes the particle number $i$ as an parameter. 
+
+This is a major difference between this program and other simulators. 1. The user is responsible to run the code with the
+correct particle $i$ over the total number of particles. If not, the code will
+do an array out of bounds segmentation fault or do a wrong integration. 2. The user
+can easily effect the program while running, if desired. 
+3. All variables areThis makes reading state variables from
+the solver easy, as no other "gather" functions need to be implemented in the code. 
+
+\subsubsection{Imrovements}
+
+\subsection{Problems Encountered}
+\subsubsection{Thermalization}
 \begin{figure}
 	\includegraphics[width=\columnwidth]{../res/plot/helium_04/helium_04.png}
 	\caption[caption]{$E_0$ vs. cycle number. 
@@ -127,7 +156,30 @@ simulations of Beryllium and Neon the rate of which the samples begin to give
 valid number for the ground state was increased to about 500 cycles. At 
 Figure (\ref{fig:beryllium_04}) show the slow increase in the energy over cycle number. 
 
-\subsection{Trial by Trial Variation}
+\subsubsection{Trial by Trial Variation}
+In addition to what we called thermalization, there is the additional problem of getting 
+enough sample points to calculate the variance. Increasing the number of trials is often
+the main factor to get a function to be smooth over the parameter space. This is thus 
+important when using a minimization algorithm, such as Conjugate Gradient, steepest descent
+or other methods. If too few trials are run with an optimization method, the 
+algorithm will be misguided by the variable results.
+
+\subsubsection{Trials vs. Blocks Size, $n_b$}
+A large variability was found when calculating $E_0$ for Beryllium and Neon when 
+varying the number of cycles and the number of trials. One would expect
+when doing the thermalization anlysis that by skipping a number of cycles in
+an order of about 500 should be sufficient to start sampling good values for $E_0$. 
+However this is not the case as increasing $n_b > \:$ 1e5 must be used to find
+values that look similar to the exact values of $E_0$. 
+For hydrogen like wave function the results were found to be:
+\begin{align*}
+	E_0 = -14.3795 && \alpha = 3.919 && \beta = 0.110 && n_b = \text{1e5}&&\text{Trials} = 4\\
+	E_0 = -13.0830 && \alpha = 3.919 && \beta = 0.090 && n_b = \text{1e4}&&\text{Trials} = 4\\
+	E_0 = -13.0559 && \alpha = 3.919 && \beta = 0.100 && n_b = \text{1e4}&&\text{Trials} = 160
+\end{align*}
+These findings suggests that even if the thermalization looks like it
+reaches at a platoue at around 500 cycles, this is probably not the case and may continue
+to increase to at least 1e4. This applied to all simulations except helium. 
 
 
 \clearpage
@@ -207,21 +259,14 @@ is then push out from the nucleus as can be seen in figure(\ref{fig:helium_03}).
 \end{center}
 
 \noindent 
-The variance of the mean of $E_0$ makes it difficult to find optimal paramters.
-The result is very dependent on how many cycles and how many trials are ryn.
-For hydrogen like wave function the results were found to be:
-\begin{align*}
-	E_0 = -14.3795 && \alpha = 3.919 && \beta = 0.110 && n_b = \text{1e5}&&\text{Trials} = 4\\
-	E_0 = -13.0830 && \alpha = 3.919 && \beta = 0.090 && n_b = \text{1e4}&&\text{Trials} = 4\\
-	E_0 = -13.0559 && \alpha = 3.919 && \beta = 0.100 && n_b = \text{1e4}&&\text{Trials} = 160
-\end{align*}
-The GTO gave a lower energy of $E_0 = XXX$, but requires longer runtimes to give 
+
+The GTO gave a very similar energy of $E_0 = -14.3574$, but requires longer runtimes to give 
 stable results. Our suggested runtime variables are at least $n_b > \:$1e5 Trials $>$ 10.
 \begin{figure}
 	\includegraphics[width=\columnwidth]{../res/plot/beryllium_01/beryllium_01.png}
 	\caption{Beryllium, 1 standard deviation. 
 	Points = 20. Trials = 4.	$n_b = \:$1e5.}
-	\label{fig:helium_03}
+	\label{fig:beryllium_01}
 \end{figure}
 
 \subsubsection{Charge Density}
