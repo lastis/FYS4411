@@ -16,9 +16,9 @@ int main(int argc, const char *argv[])
     double beta = atof(argv[1]);
 
     int nParticles = 2;
-    double nCycles = 1e6;
+    double nCycles = 1e5;
     int threads = 4;
-    int trials = 1;
+    int trials = 10;
     int totalTrials = threads*trials;
     int idum = 1000;
     int skipps = 500;

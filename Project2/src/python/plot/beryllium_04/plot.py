@@ -15,17 +15,17 @@ fileName2 = "energies_02.txt";
 os.chdir(curDir)
 os.chdir(resDir)
 
-energyArray1   = np.loadtxt(fileName1)
-mean1 = np.mean(energyArray1,axis=0)
-meanVar1 = np.std(energyArray1,axis=0)
+# energyArray1   = np.loadtxt(fileName1)
+# mean1 = np.mean(energyArray1,axis=0)
+# meanVar1 = np.std(energyArray1,axis=0)
 
 energyArray2   = np.loadtxt(fileName2)
 mean2 = np.mean(energyArray2,axis=0)
 meanVar2 = np.std(energyArray2,axis=0)
 
-plt.plot(mean1)
-plt.plot(mean1+meanVar1)
-plt.plot(mean1-meanVar1)
+# plt.plot(mean1)
+# plt.plot(mean1+meanVar1)
+# plt.plot(mean1-meanVar1)
 
 plt.plot(mean2)
 plt.plot(mean2+meanVar2)

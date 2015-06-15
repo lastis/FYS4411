@@ -12,7 +12,7 @@ resDir = "../../../../res/plot/beryllium_01/";
 # Delete the exsiting .txt files
 os.chdir(curDir)
 os.chdir(resDir)
-fileList = [f for f in os.listdir(".") if "01" in f]
+fileList = [f for f in os.listdir(".") if "energies_01" in f]
 try :
     for f in fileList:
         os.remove(f)
@@ -20,8 +20,8 @@ except OSError:
     pass
 
 
-alpha = 4.0
-betaArray = np.linspace(0.0001,0.03,21)
+alpha = 3.9190
+betaArray = np.linspace(0.0001,0.2001,21)
 
 # Save the beta values.
 betaFile = "beta_array_01.txt"

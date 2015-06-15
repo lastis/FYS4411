@@ -18,7 +18,7 @@ int main(int argc, const char *argv[])
     double alpha = atof(argv[1]);
     double beta = atof(argv[2]);
 
-    int nCycles = 1e4;
+    int nCycles = 1e5;
     int nParticles = 4;
     int threads = 4;
     int trials = 10;

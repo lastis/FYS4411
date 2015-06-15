@@ -67,7 +67,7 @@ call(["make"])
 
 
 # Set the initial values for the minimization function.
-x0 = np.asarray((4.0,1.0))
+x0 = np.asarray((3.9,0.15))
 # Run the minimization code. 
 
 res = optimize.fmin_cg(f,x0,fprime=gradf,disp=True)

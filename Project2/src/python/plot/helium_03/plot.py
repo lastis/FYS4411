@@ -23,15 +23,20 @@ densityMat2   = np.loadtxt(fileName2)
 densityMean2 = np.mean(densityMat2,axis=0)
 densityStd2 = np.std(densityMat2,axis=0)
 
-rMax = 2.5
+rMax = 3.0
 bins1 = np.linspace(0,rMax,len(densityMean1))
 bins2 = np.linspace(0,rMax,len(densityMean2))
 
 plt.plot(bins1, densityMean1)
+
+plt.plot(bins2, densityMean2)
+
 plt.plot(bins1, densityMean1+densityStd1)
 plt.plot(bins1, densityMean1-densityStd1)
-plt.plot(bins2, densityMean2)
+
 plt.plot(bins2, densityMean2+densityStd2)
 plt.plot(bins2, densityMean2-densityStd2)
-plt.savefig('helium_05.png')
+
+plt.legend(["Jastrow factor", "w/o Jastrow factor"])
+plt.savefig('helium_03.png')
 plt.show()

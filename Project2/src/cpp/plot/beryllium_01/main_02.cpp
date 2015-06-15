@@ -19,9 +19,9 @@ int main(int argc, const char *argv[])
     int nParticles = 4;
     double nCycles = 1e4;
     int threads = 4;
-    int trials = 1;
+    int trials = 10;
     int totalTrials = threads*trials;
-    int idum = 1000;
+    int idum = 500;
 
     string adress = "../../../../res/plot/beryllium_01/";
     string energyFileName = "energies_02.txt";

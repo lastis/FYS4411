@@ -20,6 +20,8 @@ meanArray1   = np.loadtxt(fileName1)
 mean1 = np.mean(meanArray1,axis=1)
 meanVar1 = np.std(meanArray1,axis=1)
 
+print "Minimum 1: ", mean1.min() , " Value: ", betaArray1[mean1.argmin()]
+
 plt.plot(betaArray1, mean1)
 plt.plot(betaArray1, mean1+meanVar1)
 plt.plot(betaArray1, mean1-meanVar1)

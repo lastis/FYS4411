@@ -8,7 +8,7 @@ curDir = os.getcwd();
 cppDir = "../../../cpp/plot/helium_01/"
 resDir = "../../../../res/plot/helium_01/";
 
-betaFileName1 = "beta_array_02.txt"
+betaFileName1 = "beta_array_01.txt"
 fileName1 = "energies_01.txt";
 betaFileName2 = "beta_array_02.txt"
 fileName2 = "energies_02.txt";
@@ -26,6 +26,9 @@ betaArray2  = np.loadtxt(betaFileName2)
 meanArray2   = np.loadtxt(fileName2)
 mean2 = np.mean(meanArray2,axis=1)
 meanVar2 = np.std(meanArray2,axis=1)
+
+print "Minimum 1: ", mean1.min() , " Value: ", betaArray1[mean1.argmin()]
+print "Minimum 2: ", mean2.min() , " Value: ", betaArray2[mean2.argmin()]
 
 plt.plot(betaArray1, mean1)
 plt.plot(betaArray1, mean1+meanVar1)

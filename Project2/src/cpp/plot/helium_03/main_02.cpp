@@ -17,7 +17,7 @@ int main(int argc, const char *argv[])
     int totalTrials = threads*trials;
     int idum = 1000;
     int bins = 100;
-    double rMax = 2.5;
+    double rMax = 3.0;
 
     string adress = "../../../../res/plot/helium_03/";
     string fileNameDensity = "density_02.txt";

@@ -18,11 +18,12 @@ int main(int argc, const char *argv[])
     double beta = atof(argv[2]);
 
     int nParticles = 4;
-    double nCycles = 1e4;
+    double nCycles = 1e5;
     int threads = 4;
     int trials = 1;
     int totalTrials = threads*trials;
     int idum = 1000;
+    int skipps = 1000;
 
     string adress = "../../../../res/plot/beryllium_01/";
     string energyFileName = "energies_01.txt";
@@ -68,6 +69,7 @@ int main(int argc, const char *argv[])
                 for (int i = 0; i < nParticles; i++) 
                 {
                     solver.runSingleStepSlaterQuantum(i,cycle);
+                    if (cycle < skipps) continue;
                     energy += solver.deltaE;
                 }
             }

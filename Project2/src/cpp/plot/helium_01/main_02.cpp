@@ -17,9 +17,9 @@ int main(int argc, const char *argv[])
     double beta = atof(argv[2]);
 
     int nParticles = 2;
-    int nCycles = 1e4;
+    int nCycles = 1e6;
     int threads = 4;
-    int trials = 10;
+    int trials = 1;
     int totalTrials = threads*trials;
     int idum = 1000;
 
@@ -38,11 +38,11 @@ int main(int argc, const char *argv[])
     wrapper.hInv = 1000;
     wrapper.h2Inv = 1e+06;
     wrapper.idum = idum;
-    wrapper.useWaveFunction1();
-    wrapper.useLocalEnergyHelium1();
-    wrapper.useImportanceSampling(true);
-    wrapper.timeStep = 0.001;
-    wrapper.D = 0.5;
+    wrapper.useWaveFunction2();
+    wrapper.useLocalEnergyHelium2();
+    /* wrapper.useImportanceSampling(true); */
+    /* wrapper.timeStep = 0.001; */
+    /* wrapper.D = 0.5; */
 
     Vector vEnergiesMean = Vector(totalTrials);
     double* energiesMean = vEnergiesMean.getArrayPointer();
@@ -63,10 +63,9 @@ int main(int argc, const char *argv[])
             // Run simulation.
             for (int cycle = 0; cycle < nCycles; cycle++) 
             {
-                solver.startOfCycleQuantum();
                 for (int i = 0; i < nParticles; i++) 
                 {
-                    solver.runSingleStepQuantum(i,cycle);
+                    solver.runSingleStep(i,cycle);
                     energy += solver.deltaE;
                 }
             }
@@ -79,6 +78,7 @@ int main(int argc, const char *argv[])
     chrono::duration<double> diff = end-start;
     cout << totalTrials << " trials completed." << endl;
     cout << "Time = " << diff.count() << " seconds." << endl;
+    Vector energiesBlocked = util::getMeanArray(500,vEnergiesMean);
     util::appendToFile(adress,energyFileName,vEnergiesMean);
     return 0;
 }

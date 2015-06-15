@@ -20,8 +20,8 @@ except OSError:
     pass
 
 
-alpha = 1.66
-beta = 0.75
+alpha = 1.79
+beta = 0.4125
 
 # Compile the code
 os.chdir(curDir)

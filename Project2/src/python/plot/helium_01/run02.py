@@ -20,7 +20,7 @@ except OSError:
     pass
 
 
-alpha = 1.85
+alpha = 1.78
 betaArray = np.linspace(0.05,1.5,21)
 
 # Save the beta values.
