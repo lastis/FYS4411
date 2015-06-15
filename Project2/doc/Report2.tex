@@ -1,4 +1,4 @@
-\documentclass[twocolumns, a4paper,11pt,fleqn]{extarticle}
+\documentclass[twocolumns, a4paper,10pt,fleqn]{extarticle}
 \usepackage[english]{babel} 
 \usepackage[latin1]{inputenc} 
 \usepackage{times}			% Default times font style
@@ -116,6 +116,11 @@ Some challenges with the implementation are also discussed.
 We list our results in section IV, and discussions on the physical aspects of these.
 The report ends with a conclusion section where we express our concluding thoughts
 on the project.
+
+\begin{figure}[h!]
+	\includegraphics[width=\columnwidth]{../res/plot/helium_01/helium_01_pretty.png}
+	\caption{}\label{fig:1}
+\end{figure}
 
 \section{Methods}
 \subsection{The Quantum Mechanical System}
@@ -1156,7 +1161,7 @@ The GTOs are on the form of (\ref{eq:gto}).
 We implemented the GTOs with the 3-21G basis set as discussed in the
 methods section, and we use $\alpha_k$ and $d_k$ values from the 
 \textit{Environmental Molecular Science Laboratory} (EMSL) 
-website\footnote{https://bse.pnl.gov/bse/portal}. The wave functions were used as
+website\footnote{\url{https://bse.pnl.gov/bse/portal}}. The wave functions were used as
 we did with the Hydrogen-like ones
 in the Slater determinant, but each $\phi_j(\vec r_i)$ is now a linear combination
 of basis functions. Thus, we need a set of coefficients $C_{pj}$.
