@@ -114,21 +114,81 @@ without importance sampling.\\
 with importance sampling.\\
 
 The reason for splitting the solvers was that code gradually became too complex
-to run in the same object. All solver use has a method which is called
+to run in the same object. All solvers has a method which is called
 runSingleParticleStep. This method is not run by the solver but must be called
-by the user for every particle and for every cycle the simulation should run. 
-This actually makes the simulation run directly in the code of the user and not 
+by the user for every particle and for every cycle in the simulation. 
+This makes the simulation run directly in the code of the user and not 
 as an run simulation method in the in the object. The runSingleParticleStep method
-takes the particle number $i$ as an parameter. 
+takes the particle number $i$ as an parameter. This is the main difference between
+this program and conventional simulatiors. 
 
-This is a major difference between this program and other simulators. 1. The user is responsible to run the code with the
+This difference has the following major effects: 
+{\color{MediumBlue}\bf1.} The user is responsible to run the code with the
 correct particle $i$ over the total number of particles. If not, the code will
-do an array out of bounds segmentation fault or do a wrong integration. 2. The user
-can easily effect the program while running, if desired. 
-3. All variables areThis makes reading state variables from
-the solver easy, as no other "gather" functions need to be implemented in the code. 
+do an array out of bounds segmentation fault or do a wrong integration.
+ {\color{MediumBlue}\bf2.} The user
+can easily change the simulation while running, if desired. 
+{\color{MediumBlue}\bf3.}
+All state variables of the solver are current and not saved in any way. This moves
+all helper functions outside of the solver object.
+Helper functions such as gathering energies in vectors or matrices, 
+or doing position histograms. This is a major change that makes seperating the solver
+with the extraction of data very easy. 
+
+\subsubsection{Parallelization}
+Parallelization was done by simply increasing the number of trials. For every program
+that was run, the program would split into 4 threads and run 1 solver each in parallel.
+
+Further parallelization of parts of the code could be possible, but 
+would be unessecary because a high number of trials gives better data
+(further discussion can be found under Trials vs. BlockSize). 
+
+\subsubsection{Parameter Optimization}
+Paramter optimization can be done using different methods, such as conjugate gradient, 
+steepest cecent, newtons method, bisection methods or other. For all these methods
+it is important to have a good evaluation function of the value and the gradient of the
+scalar function, $E_0(\alpha,\beta)$. In the program we implemented an conjugate gradient
+method using python and an evaluation function with c++. 
+
+Parameter optimization was done using 1e6 cycles for Helium , 
+1e5 cycles for Beryllium and 1e4 cycles for Neon, all with 4 trials. More on this
+subject can be found under the Problems Encountered section and the Improvements section.
+
+\subsubsection{Blocking}
+Applying blocking on a vector of sample energies can easily be done by simply making
+one mean value of a range of samples equal to the block size. 
+
+Though, second to the data integration, making the complete blocking plot was the 
+most CPU intensive operation in the program.
+Blocking was done in an easy way to get all possible divisions of the full sample length
+into blocks via a brute force method\footnote{\url{https://github.com/lastis/FYS4411/blob/master/Project2/src/cpp/vmcsolver/util.h}}.
 
 \subsubsection{Imrovements}
+The implementation had some flaws, of the biggest were implementing GTOs and optimizing the
+code. 
+
+{\bf GTOs:} GTOs seemed to give correct ground state energies, $E_0$, at high number of cycles
+(above 1e5 for Beryllium and Neon). The problem with GTOs, is that they 
+{\color{MediumBlue}\bf1.} require a large amount
+of CPU time, 10x the one of the hydrogen-like wave function. {\color{MediumBlue}\bf2.}
+They are also hard to varify as the simulation is quite robust to human error. If 
+the implementation of them are missing a factor or the calculation is somehow not
+correct, the code will often run fine and still give an $E_0$ which can seem reasonable. 
+
+The reason for stating GTOs as a problem, was because they did not give the
+density plots we expected from Beryllium and Neon.
+
+{\bf Optimization:}
+The speed of the code can be improved. This was not a big focus of the project, but
+it is very useful for getting results in a timely fashion. The biggest way this
+can be improved is by using an external analyzation tool for c++ code. 
+
+A consequence of slow runtime was the convergence of 
+the conjugate gradient method for Beryllium and Neon. 
+Our parameters were 1e5 cycles for Beryllium and 1e4 cycles for Neon, with 4 trials
+on both. We think both of these variables should be at least 10x higher to give
+stable $\alpha$, $\beta$ values with more than 2 significant numbers.
+
 
 \subsection{Problems Encountered}
 \subsubsection{Thermalization}
