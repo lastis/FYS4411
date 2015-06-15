@@ -1,5 +1,3 @@
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
 import os
 from subprocess import call
 import matplotlib.pyplot as plt
@@ -10,27 +8,21 @@ curDir = os.getcwd();
 cppDir = "../../../cpp/plot/beryllium_05/"
 resDir = "../../../../res/plot/beryllium_05/";
 
+fileName1 = "density_01.txt";
+
 # Load data.
 os.chdir(curDir)
 os.chdir(resDir)
 
-alphaFileName1 = "alpha_array_01.txt"
-alphaArray1  = np.loadtxt(alphaFileName1)
+densityMat1   = np.loadtxt(fileName1)
+densityMean1 = np.mean(densityMat1,axis=0)
+densityStd1 = np.std(densityMat1,axis=0)
 
-betaFileName1 = "beta_array_01.txt"
-betaArray1  = np.loadtxt(betaFileName1)
+rMax = 5
+bins1 = np.linspace(0,rMax,len(densityMean1))
 
-energyFileName1 = "energy_array_01.txt";
-energyArray1  = np.loadtxt(energyFileName1)
-
-X, Y = np.meshgrid(alphaArray1, betaArray1)
-Z = energyArray1.T
-
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-surf = ax.plot_surface(X,Y,Z,rstride=1,cstride=1,cmap=cm.coolwarm)
-# ax.set_zlim(-3,0)
-
-
+plt.plot(bins1, densityMean1)
+plt.plot(bins1, densityMean1+densityStd1)
+plt.plot(bins1, densityMean1-densityStd1)
 plt.savefig('beryllium_05.png')
 plt.show()

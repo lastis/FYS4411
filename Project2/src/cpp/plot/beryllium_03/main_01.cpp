@@ -13,7 +13,7 @@ int main(int argc, const char *argv[])
     int nParticles = 4;
     double nCycles = 1e5;
     int threads = 4;
-    int trials = 1;
+    int trials = 10;
     int totalTrials = threads*trials;
     int idum = 1000;
     int bins = 100;
@@ -23,8 +23,8 @@ int main(int argc, const char *argv[])
     string fileNameDensity = "density_01.txt";
 
     VMCWrapper wrapper = VMCWrapper();
-    wrapper.alpha = 4.0;
-    wrapper.beta = 0.01;
+    wrapper.alpha = 3.9190;
+    wrapper.beta = 0.1101;
     wrapper.nDimensions = 3;
     wrapper.nParticles = nParticles;
     wrapper.charge = nParticles;
