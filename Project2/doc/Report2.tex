@@ -72,15 +72,50 @@
  \\
  \small\url{https://github.com/lastis/FYS4411}
   \begin{abstract}
-    This is where the abstract goes. Write something smrt here.
+    This project aims to find good approximations to the ground state energies
+    of the atoms Helium, Beryllium and Neon, and the di-molecules $H_2$ and $Be_2$
+    This was achieved by implementing the Variational Monte Carlo method of
+    Metropolis-Hastings.
+    The trial wave function of the 
+    The variational parameters of the method was optimized using
+    Nonlinear Conjugate Gradient method.
+    To evaluate the results of the numerical methods, we investigated the possibility
+    of finding a closed-form solution of the ground-state energy 
+    using the Variational Principle.
+    We also applied the statistical method of blocking to evaluate
+    the variance in our results.
   \end{abstract}
  \\[3em] % some more space after the title part
 }]
 
-\section{Introduction}
-To evaluate the results of the numerical methods, we investigated the possibility
-of finding a closed-form solution of the ground-state energy 
-using the Variational Principle.
+\section{Introduction} 
+The aim of the project is to estimate the ground state energies of the
+atoms (Hydrogen, Helium, Beryllium and Neon) and some simple molecules ($H_2$ and $Be_2$).
+
+In the method and theory section (II), 
+we first discuss some elements of the quantum mechanical system 
+of the atoms and molecules.
+We then outline the methods used to produce the results --
+the Monte Carlo method with the Metropolis test, how the trial wave functions
+of the variational principle may be found, and what kind of functions we have used.
+The main part of the project focuses on the Hydrogen-like wave functions,
+but we also use wave functions of Gaussian-type orbitals (GTOs).
+We discuss the Slater determinant part and the addition of a
+correlation part called the Pad\'e-Jastrow factor.
+For the GTO functions, we use a 3-21G basis set, which is
+a split-valence basis set (Pople basis set).
+We use a nonlinear conjugate gradient method (NGC) to try to optimize the
+variational parameters of the trial wave function.
+
+In the implementation section (III), we show how we efficiently calculate the
+Slater determinant part and the Jastrow factor part of the wave function,
+as well as how we optimized the energy using the NGC method.
+We also discuss the effectiveness of our method, and what could have been done better.
+Some challenges with the implementation are also discussed.
+
+We list our results in section IV, and discussions on the physical aspects of these.
+The report ends with a conclusion section where we express our concluding thoughts
+on the project.
 
 \section{Methods}
 \subsection{The Quantum Mechanical System}
@@ -232,7 +267,7 @@ are unfortunately zero,
 since they are independent of spin
 (two and two columns would be equal).
 This can be bypassed by writing the determinant $\abs*{\op D}$ as a product of two smaller ones
-for each spin\footnote{Morten, 519-520}, since
+for each spin\footnote{Ref. [1], p. 519-520}, since
 \equ{
   \psi_D = \abs*{\op D} \propto \abs*{\op D}_{\uparrow} \abs*{\op D}_{\downarrow}
   \label{eq:det}
@@ -487,9 +522,6 @@ Where G is the Green function given by
 }
 This has its basis in our change of center for the gaussian distribution.
 
-\subsection{Gradient / Newton's Method}
-{\bfseries\Large This section needs CONTENT!}
-
 \subsection{Statistical Analysis}
 The MC calculations are a set of computational \textit{experiments} 
 with statistical errors. In these experiments, we are interested in the mean
@@ -506,7 +538,7 @@ in the individual samples.
 %}
 
 Both our random walker with and without importance sampling, gives correlated
-samples. In our case, we use \textit{blocking}\footnote{Ab Initio p. 60-61}
+samples. In our case, we use \textit{blocking}\footnote{Ref. [2], p. 60-61}
 as a technique to find out have many steps
 the walker has to do to be as uncorrelated as possible in comparison with its first step.
 This means that for a set of random samples $A$, one sample $A_i$ will be correlated
@@ -567,7 +599,7 @@ the solutions of (\ref{eq:psi}).
 
 Our trial wave function is a product of the Slater determinant $\psi_D$ and
 a correlation part $\psi_C$ that considers the electron-electron repulsion.
-The second part is also called the \textit{Jastrow factor}\footnote{Ab Initio p. 280}.
+The second part is also called the \textit{Jastrow factor}\footnote{Ref. [2], p. 280}.
 The the general trial wave function is
 \eq{
   \psi_T = \psi_D \psi_C
@@ -616,7 +648,7 @@ So we need to calculate the four quantities
     \frac{\op\nabla^2 \psi_C}{\psi_C}
 }}
 They are derived in the appendix, and they are not only useful when calculating the
-local energy.
+local energy, which we will see in the implementation section.
 
 \subsubsection{The First Trial Wave Function of Helium}
 We first model the variational solution with a trial function of one
@@ -679,7 +711,50 @@ The local energy now has the form
 	\frac{2\beta}{1+\beta r_{12}}\bigg)
 }
 
-ADD CUSP CONDITIONS HERE!
+\subsubsection{Cusp Conditions}
+As mentioned earlier, our trial wave function should behave as much
+as the exact wave function as possible.
+This means that there are some criteria that must be fulfilled.
+One of these is that the wave function and its derivative
+should be well defined at the origin,
+so that $\psi_T(\vec R = 0)\neq 0$.
+For Helium, we have a radial symmetry, so the angular terms go away.
+Then we have $\psi_T = \psi_T^r$ where the $r$ stands for \textit{radial}.
+
+Assuming that the two electrons are far apart, and $r_2 \neq 0$,
+we let $r_1 \rightarrow 0$. Then the local energy is
+\eq{E_L &=
+  \frac{1}{\psi_T^{r}}\left( -\frac{1}{2}\frac{\mathrm d^2}{\mathrm d r_1^2}
+  - \frac{1}{r_1}\frac{\mathrm d}{\mathrm d r_1} - \frac{Z}{r_1} + \text{f.t.}
+  \right)\psi_T^{r}\\
+  \lim_{r_1\rightarrow 0} E_L &=\frac{1}{\psi_T^{r}(r_1)}
+  \left(- \frac{1}{r_1}\frac{\mathrm d}{\mathrm d r_1} 
+  - \frac{Z}{r_1}\right)\psi_T^{r}(r_1)
+}\footnote{f.t. here stands for \textit{finite terms}}
+The second derivative does not diverge due to the finiteness condition.
+FOr $l=0$, we then have differential equation
+\eq{
+  \frac{1}{\psi_T^{r}(r_1)}\frac{\mathrm d \psi_T^{r}(r_1)}{\mathrm d r_1}
+  = -Z
+}
+with solution $\psi_T^{r}(r_1) \propto \exp(-Zr_1)$, and similarly for $r_2$.
+For $l>0$, the $-Z$ turns into $\sfrac{-Z}{(l+1)}$.\footnote{Ref. [1], p. 477-478}
+
+When the two electrons approavh each other, we have $r_{12}\rightarrow 0$.
+The radial equation is the same in this case, with the attraction
+switched with the electron-electron repulsion, and the kinetic energy is twice as large.
+We get
+\eq{
+  \lim_{r_{12}\rightarrow 0} E_L &=\frac{1}{\psi_T^{r}(r_{12})}
+  \left(
+  \frac{4}{r_{12}}\frac{\mathrm d}{\mathrm d r_1} + \frac{2}{r_{12}}
+  \right)\psi_T^{r}(r_{12})
+}
+The solution for the differential equation when $l=0$
+\eq{
+  \frac{1}{\psi_T^{r}(r_{12})}\frac{\mathrm d \psi_T^r(r_{12})}{\mathrm d r_1} = -2
+}
+is $\psi_T^r(r_{12}) \propto \exp(-r_{12}/2)$.
 
 \subsubsection{Beryllium}
 The trial wavefunction of Beryllium can be written as a product of a Slater determinant
@@ -710,7 +785,8 @@ the $1s$ and $2s$ orbital parts
 which are dependent on the cartesian positions $\vec r_i = (x_i,y_i,z_i)$. 
 The relative distance between two particles is
 \eq{
-  r_{ij} = \abs{\vec r_j - \vec r_i} = \sqrt{(x_j-x_i)^2+(y_j-y_i)^2+(z_j-z_i)^2}
+  r_{ij} &= \abs{\vec r_j - \vec r_i} 
+  \\&= \sqrt{(x_j-x_i)^2+(y_j-y_i)^2+(z_j-z_i)^2}
 }
 and obviously $r_{ij}=r_{ji}$.
 
@@ -752,7 +828,7 @@ linear combinations of basis functions, and we will now use \textit{contracted} 
 (CGTOs) for this purpose.
 
 The functions can then be written as
-\eq{\phi_j(\vec r_i) = \sum_p C_{pj} \varphi_p(\vec r_i)
+\equ{\phi_j(\vec r_i) = \sum_p C_{pj} \varphi_p(\vec r_i)\label{eq:gto}
 }
 
 The CGTOs are on the form
@@ -765,11 +841,9 @@ with
 }
 which are called \textit{cartesian} GTOs. 
 The numerical coefficients $\alpha_k$ and $d_k$ are chosen to optimalize the
-basis functions, and we use values from the 
-\textit{Environmental Molecular Science Laboratory} (EMSL) 
-website\footnote{https://bse.pnl.gov/bse/portal}.
+basis functions.
 
-The normalization factors are given as\footnote{Ab Initio, p. 280}
+The normalization factors are given as\footnote{Ref. [2], p. 280}
 \eq{
   N_k = \left(\frac{2\alpha_k}{\pi}\right)^{3/4}
   \sqrt{\frac{(4\alpha_k)^{m+n+o}}{(2m-1)!!(2n-1)!!(2o-1)!!}}
@@ -777,6 +851,97 @@ The normalization factors are given as\footnote{Ab Initio, p. 280}
 and since they are dependent on the total angular momentum,
 given by the quantum numbers $l = m+n+o$, we will write them as
 $N_k = N_{m,n,o}$.
+
+\subsection{Nonlinear Conjugate Gradient Method}
+Our aim is to calculate the lowest mean of the ground state energy $E_0$,
+but it depends on some variational parameters $\vec \alpha$.
+Therefore we need to find the global minimum with respect to these parameters,
+where
+\eq{
+  \frac{\partial E}{\partial \alpha_i} = 0
+}
+where $\alpha_i$ can take the values $\alpha$ and $\beta$.
+
+For a function $f$ that we wish to minimize, with
+\eq{
+  f(x) = \frac{1}{2}x^T Ax + b^Tx + c
+}
+we use the \textit{nonlinear conjugate gradient method} 
+(NGC)\footnote{Ref. [5] p. 120-122}
+to do it, see Algorithm \ref{algo:ngc}.
+We proceed one step, decided by $x_{k+1}=x_k + ad_k$, where $a$
+is the step. This step is decided by \textit{line search method},
+for example the \textit{bisection method} (outlined in Algorithm \ref{algo:bisec}).
+The search is guided by the direction $d_k$.
+
+
+\begin{algorithm}[H]
+	\caption{NCG method}\label{algo:ngc}
+  \begin{algorithmic}[1]
+    \Procedure{Initialize}{}
+      \State{Let $k=0$ and $x_k=x_0$ be our initial guess.}
+      \State{Compute $d_k=d_0=-\nabla f(x_0)$.}
+    \EndProcedure
+    \Procedure{Find the best step size}{}
+      \State{Compute $a$ to minimize $f(x_k+ a d_k)$
+      
+      by a line search in the direction $d_k$.}
+    \EndProcedure
+    \Procedure{Update current guess}{}
+      \State{Let $x_{k+1}=x_k + ad_k$.}
+    \EndProcedure
+    \Procedure{Update the seacrh direction}{}
+      \State{Let $d_{k+1} = -\nabla f(x_{k+1} + \beta_k d_k)$ where 
+      \eq{\beta_k = \frac{\nabla f(x_{k+1}^T)(\nabla f(x_{k+1}-\nabla f(x_{k}))}
+      {d_k^T(\nabla f(x_{k+1})-\nabla f(x_{k}))}}}
+    \EndProcedure
+    \Procedure{Iterate}{}
+      \State{Repeat procedures 2 to 4 until we have looked in all 
+      
+      directions ($\dim x$).}
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+Given a function $g(x)$ and an interval $[a,b]$, where $g(a)$ and $g(b)$
+has opposite signs (at least one zero crossing),
+we want to find the minimum.
+Calculate $f(c)$ for $c = \sfrac{(a+b)}{2}$, if $f(c)$ has opposite
+sign of $f(a)$ ($f(b)$) then the minimum is in $[a,c]$ ($[c,b]$).
+Choose the new interval and continue until minimum is found (for some tolerance).
+
+\begin{algorithm}[H]
+	\caption{Bisection method}\label{algo:bisec}
+  \begin{algorithmic}[1]
+    \Procedure{Iteration}{}
+      \While{$n<N_{max}$}
+        \State{Compute $c$ and $f(c)$.}
+        \State{If minimum is found, return $c$. Success.}
+        \State{If not: choose new interval $[a,c]$ or $[c,b]$.}
+      \EndWhile
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\clearpage
+
+
+
+
+\section{Implementation}
+The methods described above are implemented in an object oriented C++ program
+which is simple to use, and does not have any dependencies. 
+
+Most of the code is contained in the class VMCSolver.cpp and VMCSolver.h. 
+These were created to contain the full system and parameters for a single run. 
+
+To start a simulation one must instantiate the solver and 
+initialize the system, either by file and/or manually. After this
+the integration can be run and all data will be contained in the solver object.
+The last step is to collect data from the solver. 
+
+All plot data are generated by individual programs using the mentioned solver. 
+Plots are generated using python. 
 
 \subsection{Efficient Computation of the Slater Determinant}
 
@@ -866,78 +1031,56 @@ We can then calculate the gradient and laplacian as
     = \sum_{j=1}^N \nabla_k^2 \phi_j(\vec r_i^{new})\ d_{ji}^{-1} (\vec r_i^{old})
 }
 
-REMEMBER TO SAY SOMETHING ABOUT NUMBER OF OPERATIONS.
+The time consuming part of the computation of the Slater determinant,
+is calculating the Laplacian and gradient. This makes the
+number of operations go from the already undesirable $\mathcal O(N^3)$ to
+$\mathcal O(d\times N^4)$, since there are $d\times N$ independent coordinates.
+Using the method above, the total calculation scales as
+$\mathcal O(d\times N^2)$.
 
-\subsection{Nonlinear Conjugate Gradient Method}
-Our aim is to calculate the lowest mean of the ground state energy $E_0$,
-but it depends on some variational parameters $\vec \alpha$.
-Therefore we need to find the global minimum with respect to these parameters,
+
+\subsection{Derivatives of the Trial Wave Functions}
+In many of our calculations we need the Laplacian of the trial wave function,
+divided by the wave function, or the gradients of the trial wave function.
+In Appendix A, we have listed and (derived some of) these quantities,
+but the implementation of the derivatives of
+the Jastrow factor in the efficient Slater method, needs to be mentioned.
+
+The Jastrow factor is given by
+\equ{
+  \psi_C = \prod_{i<j}^{n}\exp{\left(\frac{a r_{ij}}{1+\beta r_{ij}}\right)}
+  \label{eq:psicor}
+}
+the gradient is
+\eq{
+  \frac{\op\nabla_k\psi_C}{\psi_C} =\sum_{i\neq k}\frac{\vec r_{ik}}{r_{ik}}\frac{a}{(1+\beta r_{ik})^2} 
+}
+and the Laplacian
+{\tiny\begin{equation*}
+  \frac{\op\nabla_k^2 \psi_C}{\psi_C}
+    =\sum_{i\neq k}
+    \left[f_{ik}''+ \frac{2}{r_{ik}}f_{ik}'\right]
+    +
+    \sum_{i,j\neq k}\frac{(\vec r_k-\vec r_i)(\vec r_k-\vec r_j)}{r_{ik} r_{jk}} 
+    f_{ik}' f_{jk}'
+\end{equation*}}%
 where
 \eq{
-  \frac{\partial E}{\partial \alpha_i} = 0
+  f_{ij} \equiv \frac{ar_{ij}}{1+\beta r_{ij}}
 }
-where $\alpha_i$ can take the values $\alpha$ and $\beta$.
-
-For a function $f$ that we wish to minimize, with
+with the corresponding derivatives (with respect to $r_{ij}$)
 \eq{
-  f(x) = \frac{1}{2}x^T Ax + b^Tx + c
+  f_{ij}' &= \frac{a}{(1+\beta r_{ij})^2}\\
+  f_{ij}'' &= \frac{-2a\beta}{(1+\beta r_{ij})^3}
 }
-we use the \textit{nonlinear conjugate gradient method} 
-(NGC)\footnote{J. Nocedal, Numerical Optimization, 2006, Springer Science, ch. 5}
-to do it, see Algorithm \ref{algo:ngc}.
-We proceed one step, decided by $x_{k+1}=x_k + ad_k$, where $a$
-is the step. This step is decided by \textit{line search method},
-for example the \textit{bisection method} (outlined in Algorithm \ref{algo:bisec}).
-The search is guided by the direction $d_k$.
+These are derived in the appendix.
 
-
-\begin{algorithm}[H]
-	\caption{NCG method}\label{algo:ngc}
-  \begin{algorithmic}[1]
-    \Procedure{Initialize}{}
-      \State{Let $k=0$ and $x_k=x_0$ be our initial guess.}
-      \State{Compute $d_k=d_0=-\nabla f(x_0)$.}
-    \EndProcedure
-    \Procedure{Find the best step size}{}
-      \State{Compute $a$ to minimize $f(x_k+ a d_k)$
-      
-      by a line search in the direction $d_k$.}
-    \EndProcedure
-    \Procedure{Update current guess}{}
-      \State{Let $x_{k+1}=x_k + ad_k$.}
-    \EndProcedure
-    \Procedure{Update the seacrh direction}{}
-      \State{Let $d_{k+1} = -\nabla f(x_{k+1} + \beta_k d_k)$ where 
-      \eq{\beta_k = \frac{\nabla f(x_{k+1}^T)(\nabla f(x_{k+1}-\nabla f(x_{k}))}
-      {d_k^T(\nabla f(x_{k+1})-\nabla f(x_{k}))}}}
-    \EndProcedure
-    \Procedure{Iterate}{}
-      \State{Repeat procedures 2 to 4 until we have looked in all 
-      
-      directions ($\dim x$).}
-    \EndProcedure
-  \end{algorithmic}
-\end{algorithm}
-
-Given a function $g(x)$ and an interval $[a,b]$, where $g(a)$ and $g(b)$
-has opposite signs (at least one zero crossing),
-we want to find the minimum.
-Calculate $f(c)$ for $c = \sfrac{(a+b)}{2}$, if $f(c)$ has opposite
-sign of $f(a)$ ($f(b)$) then the minimum is in $[a,c]$ ($[c,b]$).
-Choose the new interval and continue until minimum is found (for some tolerance).
-
-\begin{algorithm}[H]
-	\caption{Bisection method}\label{algo:bisec}
-  \begin{algorithmic}[1]
-    \Procedure{Iteration}{}
-      \While{$n<N_{max}$}
-        \State{Compute $c$ and $f(c)$.}
-        \State{If minimum is found, return $c$. Success.}
-        \State{If not: choose new interval $[a,c]$ or $[c,b]$.}
-      \EndWhile
-    \EndProcedure
-  \end{algorithmic}
-\end{algorithm}
+The gradient of the wavefunction, 
+divided by the wavefunction, for particle $k$ in the $x$-direction is then
+\eq{
+  \left[\frac{\op\nabla_k\psi_C}{\psi_C}\right]_x 
+  =\frac{1}{\psi_C}\frac{\partial\psi_C}{\partial x_k}
+}
 
 \subsection{Differentiation of the Energy}
 
@@ -945,7 +1088,7 @@ To optimize the conjugate gradient method, we need analytical expressions
 for the derivatives of the energy with respect to the variational paramaters
 $\vec \alpha$.
 We can calculate the derivative of the energy with respect
-to variational parameters in the following way\footnote{Morten ch. 16}
+to variational parameters in the following way\footnote{Ref. [1], ch. 16}
 \equ{
   \frac{\partial E}{\partial \alpha_i} =
   2 \left(
@@ -979,6 +1122,16 @@ We then get
   =\sum_{i=1}^N \sum_{j=1}^N  d_{ji}^{-1}\frac{\partial d_{ij}}{\partial \alpha}
 }
 for each spin part.
+The derivatives of the orbitals are
+\eq{
+  \frac{\partial \phi_{1s}^i}{\partial \alpha} &= -r_i e^{-\alpha r_i}\\
+  \frac{\partial \phi_{2s}^i}{\partial \alpha} &= 
+  \left(
+    \frac{r_i^2\alpha}{4}-r_i
+  \right)-r_i e^{-\alpha r_i/2}\\
+  \frac{\partial \phi_{2p_k}^i}{\partial \alpha} &= \frac{k_i r_i}{2}e^{-\alpha r_i/2}
+}
+for $k_i=x_i,\,y_i,\,z_i$.
 
 For $\beta$, the exponential in (\ref{eq:psicor}) 
 goes away due to the logarithm, and we have
@@ -998,26 +1151,21 @@ The one-body density is computed from the form
 
 This is implemented as NOTE: ... in our program. 
 
-\clearpage
+\subsection{Using GTOs}
+The GTOs are on the form of (\ref{eq:gto}).
+We implemented the GTOs with the 3-21G basis set as discussed in the
+methods section, and we use $\alpha_k$ and $d_k$ values from the 
+\textit{Environmental Molecular Science Laboratory} (EMSL) 
+website\footnote{https://bse.pnl.gov/bse/portal}. The wave functions were used as
+we did with the Hydrogen-like ones
+in the Slater determinant, but each $\phi_j(\vec r_i)$ is now a linear combination
+of basis functions. Thus, we need a set of coefficients $C_{pj}$.
+The ones we implemented are shown in the appendix.
 
-\section{Implementation}
-The methods described above are implemented in an object oriented C++ program
-which is simple to use, and does not have any dependencies. 
 
-Most of the code is contained in the class VMCSolver.cpp and VMCSolver.h. 
-These were created to contain the full system and parameters for a single run. 
-
-To start a simulation one must instantiate the solver and 
-initialize the system, either by file and/or manually. After this
-the integration can be run and all data will be contained in the solver object.
-The last step is to collect data from the solver. 
-
-All plot data are generated by individual programs using the mentioned solver. 
-Plots are generated using python. 
 
 \section{Results}
 \section{Conclusion}
-\section{Results}
 
 \twocolumn[{%
 \appendix
@@ -1025,33 +1173,9 @@ Plots are generated using python.
 \renewcommand{\thesubsubsection}{\arabic{subsubsection}.}
 
 \subsection{Mathematical Derivations}
-%% The spherical nature of the wavefunction
-The Laplace operator of a function $f$ in three dimensions, $\nabla^2 f$,
-can be represented as
-{\small
-\eq{
-  \bigg( \frac{\partial^2}{\partial r^2} 
-    + \frac{2}{r} \frac{\partial}{\partial r} \bigg) f
-    +\frac{1}{r^2 \sin\theta}\frac{\partial}{\partial \theta}
-    \bigg( \sin\theta \frac{\partial}{\partial \theta}  \bigg) f
-    +\frac{1}{r^2 \sin^2\theta}\frac{\partial^2}{\partial^2 \varphi} f
-}}%
 
-in spherical coordinates, and as
 
-{\small
-\eq{
-	\bigg( 
-	\frac{\partial}{\partial x^2} +
-	\frac{\partial}{\partial y^2} +
-	\frac{\partial}{\partial z^2}
-	\bigg) f
-}}%
 
-in cartesian coordinates.
-}]
-
-\twocolumn[{%
 \subsubsection{The wavefunction of Beryllium}
 We start by finding the first and second derivative of the determinant part,
 which are only dependent on the radii of the particles. This means that the gradient can be written 
@@ -1080,44 +1204,6 @@ of the Hydrogen-like wavefunctions in the following way
   \frac{\partial \phi_{2s}^i}{\partial r_i} &= -\alpha g_i(1+f_i/2)\\
   \frac{\partial^2 \phi_{2s}^i}{\partial r_i^2} &= \frac{3\alpha^2}{4} g_i(1+f_i/3)
   }
-  and for the $2p$ part we need to differentiate in cartesian coordinates,
-  since the Hydrogenic wave function is dependent on the
-  angles, thus
-  \eq{
-  \phi_{2p_k}^i &= \alpha k_i g_i \text{ for } k_i = x_i,y_i,z_i\\
-  \frac{\partial\phi_{2p_x}^i}{\partial x_i} 
-    &= \left(\alpha - \frac{\alpha^2 x_i^2}{2 r_i} \right)g_i\\
-  \frac{\partial\phi_{2p_x}^i}{\partial y_i} 
-    &=-\frac{\alpha^2 x_i y_i }{2 r_i} g_i\\ 
-  \frac{\partial\phi_{2p_x}^i}{\partial z_i} 
-    &=-\frac{\alpha^2 x_i z_i}{2 r_i} g_i
-}
-
-which gives us a gradient on the form
-
-\eq{
-  \nabla \phi_{2p_x}^i = 
-  \left(
-  \alpha g_i - \frac{\alpha^2 x_i^2}{2 r_i}g_i,
-    -\frac{\alpha^2 x_i y_i }{2 r_i} g_i,
-    -\frac{\alpha^2 x_i z_i}{2 r_i} g_i
-  \right)
-}
-The expressions for $\phi_{2p_y}$ and $\phi_{2p_z}$ are similarly
-\eq{
-  \nabla \phi_{2p_y}^i &= 
-  \left(
-  \frac{\alpha^2 x_i y_i}{2 r_i}g_i,
-    \alpha g_i -\frac{\alpha^2 y_i^2 }{2 r_i} g_i,
-    -\frac{\alpha^2 y_i z_i}{2 r_i} g_i
-  \right)\\
-  \nabla \phi_{2p_z}^i &= 
-  \left(
-  -\frac{\alpha^2 x_i z_i}{2 r_i}g_i,
-    -\frac{\alpha^2 y_i z_i}{2 r_i} g_i,
-    \alpha g_i -\frac{\alpha^2 z_i^2}{2 r_i} g_i
-  \right)
-}
 }]
 
 \twocolumn[{%
@@ -1179,6 +1265,54 @@ For the second derivative part, we have
   \end{cases}
 }
 with the same conditions as above.
+}]
+
+\twocolumn[{%
+\subsection{Derivatives of the $2p$ Slater Parts}
+For the $2p$ part we want to differentiate in cartesian coordinates,
+since the Hydrogenic wave function is dependent on the
+angles, thus
+\eq{
+  \phi_{2p_k}^i &= \alpha k_i g_i \text{ for } k_i = x_i,y_i,z_i\\
+  \frac{\partial\phi_{2p_x}^i}{\partial x_i} 
+    &= \left(\alpha - \frac{\alpha^2 x_i^2}{2 r_i} \right)g_i\\
+  \frac{\partial\phi_{2p_x}^i}{\partial y_i} 
+    &=-\frac{\alpha^2 x_i y_i }{2 r_i} g_i\\ 
+  \frac{\partial\phi_{2p_x}^i}{\partial z_i} 
+    &=-\frac{\alpha^2 x_i z_i}{2 r_i} g_i
+}
+
+which gives us a gradient on the form
+
+\eq{
+  \nabla \phi_{2p_x}^i = 
+  \left(
+  \alpha g_i - \frac{\alpha^2 x_i^2}{2 r_i}g_i,
+    -\frac{\alpha^2 x_i y_i }{2 r_i} g_i,
+    -\frac{\alpha^2 x_i z_i}{2 r_i} g_i
+  \right)
+}
+The expressions for $\phi_{2p_y}$ and $\phi_{2p_z}$ are similarly
+\eq{
+  \nabla \phi_{2p_y}^i &= 
+  \left(
+  \frac{\alpha^2 x_i y_i}{2 r_i}g_i,
+    \alpha g_i -\frac{\alpha^2 y_i^2 }{2 r_i} g_i,
+    -\frac{\alpha^2 y_i z_i}{2 r_i} g_i
+  \right)\\
+  \nabla \phi_{2p_z}^i &= 
+  \left(
+  -\frac{\alpha^2 x_i z_i}{2 r_i}g_i,
+    -\frac{\alpha^2 y_i z_i}{2 r_i} g_i,
+    \alpha g_i -\frac{\alpha^2 z_i^2}{2 r_i} g_i
+  \right)
+}
+and the Laplacian 
+\eq{
+  \nabla^2_i\phi_{2p_k}^i
+  =\frac{\alpha^2 k_i g_i (\alpha r_i - 8)}{4r_i}
+}
+\subsection{Derivatives of the Jastrow Factor}
 Now we move on to the calculation of the correlation parts,
 given by the function in (\ref{psiC}). 
 
@@ -1381,5 +1515,79 @@ If we now sum up for all dimensions, we get
     \sum_{i,j\neq k}\frac{(\vec r_k-\vec r_i)(\vec r_k-\vec r_j)}{r_{ik} r_{jk}} 
     f_{ik}' f_{jk}'
 }
+}]
+
+\twocolumn[{%
+\subsection{Numerical Coefficients $C_{pj}$ for the GTOs}
+The $\alpha_i$ and $d_i$ values are from the 3-21G basis set found at the EMSL
+website.
+
+\subsubsection{Helium}
+
+\begin{equation*}\mat{
+0.4579\\
+0.6573
+}\end{equation*}
+
+\subsubsection{Beryllium}
+
+\begin{equation*}\mat{
+-9.9281e-01 &-2.1571e-01\\
+-7.6425e-02 &2.2934e-01\\
+2.8727e-02 &8.2235e-01\\
+1.2898e-16 &5.1721e-16\\
+-2.3257e-19 &4.5670e-18\\
+5.6097e-19 &-1.1040e-17\\
+1.2016e-16 &8.5306e-16\\
+-4.6874e-19 &7.0721e-18\\
+1.1319e-18 &-1.7060e-17
+}\end{equation*}
+
+\subsubsection{Neon}
+\begin{equation*}\mat{
+-9.8077e-01 &-2.6062e-01& 1.1596e-16& -8.3716e-18& -1.9554e-17\\
+
+-9.3714e-02& 2.5858e-01& -2.0106e-16& -9.7173e-17& -7.3738e-17\\
+
+2.2863e-02& 8.1619e-01& -3.2361e-16& 1.3237e-16& 1.5789e-16\\
+
+-9.9519e-19& -5.6186e-18& 2.7155e-02& -4.0320e-01& 3.9171e-01\\
+
+-1.2125e-18& -2.8615e-16& -5.6207e-01& -2.5833e-02& 1.2375e-02\\
+
+-4.1800e-19& 4.6199e-17& 9.1139e-03& -3.9180e-01& -4.0392e-01\\
+
+-1.6696e-19& -4.2405e-18& 2.8890e-02& -4.2895e-01& 4.1673e-01\\
+
+1.2125e-18& -2.9426e-16& -5.9797e-01& -2.7482e-02& 1.3166e-02\\
+
+3.8779e-19& 5.0519e-17& 9.6959e-03 &-4.1683e-01 &-4.2972e-01
+}\end{equation*}
+
+}]
+
+\clearpage
+\twocolumn[{%
+\section*{References}
+[1] Hjorth-Jensen, M. (2013). \textit{Computational Physics Lecture Notes},
+ch. 14-16
+
+[2] Hammond, B.L., Lester, W.A. and Reynolds, P.J. (1994). 
+\textit{Monte Carlo Methods in Ab Initio Quantum Chemistry}
+
+[3] Lewars E., (2010). \textit{Computational Chemistry: Introduction to the Theory and Applications of Molecular and Quantum Mechanics}. Ch. 5
+
+[4] Alexander, S.A., and Coldwell, R.L., Int. Journal of Quantum Chemistry, 63 (1997) 1001
+
+[5] Nocedal, J. (2006), \textit{Numerical Optimization}. Ch. 5
+
+[6] Sandsdalen, H. (2010). \textit{Variational Monte Carlo Studies of Atoms}
+(Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/10964}
+
+[7] Mobarhan, M.H. (2014). \textit{Ab Initio Molecular Dynamics: A Virtual Laboratory}
+(Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/41844}
+
+
+
 }]
 \end{document}
