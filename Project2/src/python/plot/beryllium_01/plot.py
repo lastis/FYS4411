@@ -37,8 +37,8 @@ plt.rc('font',**font)
 
 fig, ax = plt.subplots()
 
-ax.plot(betaArray1, mean1,'r',label='')
-ax.fill_between(betaArray1, mean1-meanVar1, mean1+meanVar1, color='r', alpha=0.2)
+ax.plot(betaArray1, mean1,'b',label='HL')
+ax.fill_between(betaArray1, mean1-meanVar1, mean1+meanVar1, color='b', alpha=0.2)
 
 ax.set_ylabel(r'$E_0$ [a.u.]')
 ax.set_xlabel(r'$\beta$')

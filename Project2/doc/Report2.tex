@@ -135,7 +135,7 @@ Some challenges with the implementation are also discussed.
 
 We list our results in section IV, and discussions on the physical aspects of these.
 The report ends with a conclusion section where we express our concluding thoughts
-on the project.
+on the project.\vspace{5em}
 
 \section{Methods}
 \subsection{The Quantum Mechanical System}
@@ -1203,6 +1203,33 @@ Helper functions such as gathering energies in vectors or matrices,
 or doing position histograms. This is a major change that makes seperating the solver
 with the extraction of data very easy. 
 
+\subsection{Unit Testing}
+Rigorous unit testing was implemented. 
+Tests were implemented to find the
+ground-state energy without electron-electron interaction (Jastrow factor)
+of Hydrogen, Helium, Beryllium and Neon.\newpage
+
+\noindent{\bf Ground state energies:}
+
+\noindent Several tests were implemented to ensure reasonable values of the ground energy of Helium 
+and Beryllium with a (relativly high) threshold of 0.5. A comment on these tests was
+that they were largely useless. When we had errounous calculation in the code, these tests often passed
+because the simulation gave reasonable values within this threshold. And the reason for keeping the threshold
+high was because we were not sure about the accuracy and precision of the simulation. Another comment 
+is that a good test to check for bugs in the code is by looking at the shape of the ground state, $E_0$, 
+over the parameter space. Bugs are more easy to detect there.\\
+
+\noindent{\bf Efficient-Slater calculation tests:}
+
+\noindent Efficient-Slater calculation with and without importance sampling
+should be exactly the same as the one without efficient-Slater calculation. These tests were very helpful
+in finding bugs in the code and are highly recommended. The difficulty of doing these tests is that they have
+to be done cycle by cycle and particle step by particle step, to be truly rigorous. This was possible because
+of the way the simulator was built, and allows for "on-the-fly" readout from the simulation. 
+
+Several other tests were included to check the computational methods of random number generaton,
+matrix inversion, and tests of the single particle wave functions.
+
 \subsubsection{Parallelization}
 Parallelization was done by simply increasing the number of trials. For every program
 that was run, the program would split into 4 threads and run 1 solver each in parallel.
@@ -1236,11 +1263,26 @@ most CPU intensive operation in the program.
 Blocking was done in an easy way to get all possible divisions of the full sample length
 into blocks via a brute force method\footnote{\url{https://github.com/lastis/FYS4411/blob/master/Project2/src/cpp/vmcsolver/util.h}}.
 
+Figure \ref{fig:beryllium_02} tells us that we need a block size
+of at least 500-1000 samples to calculate the variuance using the blocking technique.
+This however does not mean that this gives enough total number of samples
+in a single run.
+
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/beryllium_02/beryllium_02_pretty.png}
+	\caption{Blocking for Hydrogen-like wave function of Beryllium.
+	The plot shows that the variance reaches a plateau after a number of
+	samples per block.}
+	\label{fig:beryllium_02}
+\end{figure}
+
 \subsubsection{Imrovements}
 The implementation had some flaws, of the biggest were implementing GTOs 
-and optimizing the code. 
+and optimizing the code.\\
 
-{\bf GTOs:} GTOs seemed to give correct ground state energies, $E_0$, 
+\noindent{\bf GTOs:} 
+
+\noindent GTOs seemed to give correct ground state energies, $E_0$, 
 at high number of MC samples (above 1e5 for Beryllium, and unknown for Neon, but at least
 above 10e6). 
 The problem with GTOs, is that they 
@@ -1251,10 +1293,12 @@ the implementation of them are missing a factor, or the calculation is somehow n
 correct, the code will often run fine and still give an $E_0$ which can seem reasonable. 
 
 The reason for stating GTOs as a problem, was because they did not give the
-density plots we expected from Beryllium and Neon.
+density plots we expected from Beryllium and Neon.\\
 
-{\bf Optimization:}
-The speed of the code can be improved. This was not a big focus of the project, but
+\noindent{\bf Optimization:}
+
+\noindent The speed of the code can be improved. 
+This was not a big focus of the project, but
 it is very useful for getting results in a timely fashion. The biggest way this
 can be improved is by using an external analyzation tool for \verb!C++! code. 
 
@@ -1268,7 +1312,7 @@ stable $\alpha$, $\beta$ values with more than 2 significant numbers.
 \subsubsection{Thermalization}
 \begin{figure}[H]
 	\includegraphics[width=\columnwidth]{../res/plot/helium_04/helium_04_pretty.png}
-	\caption[caption]{$E_0$ vs. sample number. 
+	\caption[caption]{Helium. $E_0$ vs. sample number. 
 	 	Trials: 4000. $\alpha = 1.79$. 
 	$\beta = 0.4125$}
 	\label{fig:helium_04}
@@ -1278,7 +1322,7 @@ for all simulations was that the first samples of every
 trial were not valid samples for the ground state. This problem is not a problem for
 Helium as the walkers quickly converges to a stage where they give correct
 estimations of the ground state energy
-as can be seen in figure (\ref{fig:helium_04}). 
+as can be seen in figure \ref{fig:helium_04}. 
 
 \begin{figure}[H]
 	\includegraphics[width=\columnwidth]{../res/plot/beryllium_04/beryllium_04_pretty.png}
@@ -1290,7 +1334,7 @@ When increasing particle number and/or using GTOs, this becomes an increasing pr
 in addition with the increase in CPU time used for every sample. In the 
 simulations of Beryllium and Neon, the rate of which the samples begin to give
 valid numbers for the ground state was increased to about 500 samples. At 
-Figure (\ref{fig:beryllium_04}) show the slow increase in the energy per sample number. 
+Figure \ref{fig:beryllium_04} show the slow increase in the energy per sample number. 
 
 \subsubsection{Trial by Trial Variation}
 In addition to what we called \textit{thermalization}, 
@@ -1342,7 +1386,6 @@ For Hydrogen-like wave function the results were found to be
 	}
 	\end{table}
 
-
 These findings suggests that even if the thermalization looks like it
 reaches a plateau at around 500 cycles, this is probably not the case, and may continue
 to increase to at least 1e4. This applied to all simulations except for Helium. 
@@ -1350,7 +1393,7 @@ to increase to at least 1e4. This applied to all simulations except for Helium.
 
 \section{Results and Discussion}
 Our implementation of the Helium, Beryllium and Neon atoms, without correlating factors,
-showed that the mean energy and $\alpha$ values were given as in Table (\ref{tab:nocor}).
+showed that the mean energy and $\alpha$ values were given as in Table \ref{tab:nocor}.
 These values are the exact same as the analytical, no correlation,
 solutions, and we see that $\alpha$ values match the charge of the respective atom.
 Therefore, we could use this to test the program before adding more complicated factors.
@@ -1370,7 +1413,7 @@ Therefore, we could use this to test the program before adding more complicated 
 
 \subsection{Helium}
 \subsubsection{Optimal Parameters}
-We see from Table (\ref{tab:helium}) that the value of $\alpha$
+We see from Table \ref{tab:helium} that the value of $\alpha$
 is smaller than the charge of Helium. This indicates that
 the electrons disturb each others attraction to the proton.
 The mean distances from the nucelus for Helium with and without
@@ -1398,11 +1441,10 @@ This is due to disturbance of the charge that we mentioned above.
 	and GTO 3-21G with importance sampling.}\label{tab:helium}
 	\end{table}
 
-
 \noindent{\bf Importance Sampling:}
 
-Importance sampling (IS) gave a lower estimation of the ground energy than
-the simulations without it. Figure (\ref{fig:helium_01}) shows the difference between
+\noindent Importance sampling (IS) gave a lower estimation of the ground energy than
+the simulations without it. Figure \ref{fig:helium_01} shows the difference between
 running with and without importance sampling, by varying the $\beta$ value. 
 $\alpha$ is held constant at 1.79. 
 The $\alpha$ was chosen to give the lowest energy of the simulation with 
@@ -1414,14 +1456,7 @@ similar, but not the same, with and without importance sampling.
 From this point on all simulations will be done \textit{with} importance sampling.\\
 
 \noindent{\bf GTO Basis 3-21G:}
-
-\begin{figure}[H]
-	\includegraphics[width=\columnwidth]{../res/plot/helium_05/helium_05_pretty.png}
-	\caption{Helium GTO importance sampling one standard deviation. 
-	Points = 20. Trials = 40.	$n_b = \:$1e5.}
-	\label{fig:helium_05}
-\end{figure}
-Figure (\ref{fig:helium_05}) shows the energy as a function of $\beta$. 
+\noindent Figure \ref{fig:helium_05} shows the energy as a function of $\beta$. 
 The lowest energy is $E_0 = -2.8519$. 
 The variance is roughly the same as for Hydrogen-like wave functions 
 with importance sampling,
@@ -1429,13 +1464,20 @@ but $E_0$ has not decreased as one would expect. Because lower energies were
 not discovered, even with more cycles, 
 the implementation of the GTOs must be seen as flawed.
 
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/helium_05/helium_05_pretty.png}
+	\caption{Helium GTO importance sampling one standard deviation. 
+	Points = 20. Trials = 40.	$n_b = \:$1e5.}
+	\label{fig:helium_05}
+\end{figure}
+
 \subsubsection*{Charge Density}
 \noindent{\bf Jastrow Factor:}
 
-The Jastrow factor, which is a function of $\beta$, decides the interaction between
+\noindent The Jastrow factor, which is a function of $\beta$, decides the interaction between
 the electrons. Without this factor, the electrons does not "see" the other electrons
 in the system. This makes the electrons repulse each other, and the charge density
-is then "pushed" out from the nucleus as can be seen in figure(\ref{fig:helium_03}).
+is then "pushed" out from the nucleus as can be seen in figure \ref{fig:helium_03}.
 \begin{figure}[H]
 	\includegraphics[width=\columnwidth]{../res/plot/helium_03/helium_03_pretty.png}
 	\caption{Helium hydrogen-like wave function, one standard deviation. 
@@ -1450,8 +1492,8 @@ is then "pushed" out from the nucleus as can be seen in figure(\ref{fig:helium_0
   \begin{tabular}{| l a c a c |}
 	\hline
 		& Exact & $E_0$ & $\alpha$ & $\beta$\\
-		HL & -14.6664(3) & -14.3795& 3.9190 & 0.1101 \\
-		3-21G& -14.6664(3)& -14.3574 & - & 0.9925\\
+		HL & -14.6664(3) & -14.4872& 3.9190 & 0.1101 \\
+		3-21G& -14.6664(3)& -14.0546 & - & 0.9925\\
 	\hline
   \end{tabular}\caption{Optimal parameters for the ground-state energy of Beryllium.}
 	\end{table}
@@ -1470,55 +1512,86 @@ stable results. Our suggested runtime variables are at least $n_b > \:$1e5 Trial
 
 From these values, we see that the $\beta$ value is much smaller for Beryllium
 than for Helium. This suggests that the Jastrow factor is stronger for
-Beryllium. 
+Beryllium. The variance of the HL and the GTO were $\sigma_{HL}^2 = 0.59$ 
+and $\sigma_{GTO}^2 = 0.94$ for 1e6 samples.
 
 \subsubsection{Charge Density}
 Using Hydrogen-like wave functions, the charge density shape coincide with external 
 sources\footnote{\url{http://2012books.lardbucket.org/books/principles-of-general-chemistry-v1.0/section_10/4858a5e15319821597514881b601833b.jpg}} as can be seen in figure
-(\ref{fig:beryllium_03}). The addition of the Jastrow factor again makes the
+\ref{fig:beryllium_03}. The addition of the Jastrow factor again makes the
 density function more "pushed" out. 
 
 Using GTOs, the density does not look as expected, but rather
-looks more like a $1s$ with only a single orbital. See Figure (\ref{fig:}). 
+looks more like a $1s$ with only a single orbital. See Figure \ref{fig:beryllium_03}. 
 This gives further suggestion that 
 the implementation of GTO is flawed. An alternative explanation is that using
 GTOs does not give correct densities, but rather only correct ground state energy, $E_0$.
 
 \begin{figure}[H]
 	\includegraphics[width=\columnwidth]{../res/plot/beryllium_03/beryllium_03_pretty.png}
-	\caption{Beryllium, one standard deviation. 
-	Points = 20. Trials = 4.	$n_b = \:$1e5.}
-	\label{fig:beryllium_03}
+	\caption{Beryllium, one standard deviation.\label{fig:beryllium_03}
+	Points = 100. Trials = 4.	$n_b = \:$1e5.}	
 \end{figure}
 
 \subsection{Neon}
 \subsubsection{Optimal Paramters}
 For Neon, the $\beta$ value is almost the same as for Beryllium, see
-Table \ref{table:}. This could indicate that the Jastrow factor is determined
+Table \ref{tab:neon}. This could indicate that the Jastrow factor is determined
 by how many atomic shells the atom has.
 
-\begin{table}\centering
+\begin{table}[H]\centering
 \begin{tabular}{| l a c a c |}
 	\hline
 		& Exact & $E_0$ & $\alpha$ & $\beta$\\
 		HL & -128.884(4) &  -127.936& 10.2592 & 0.1101 \\
 		3-21G& -128.884(4) & -110.619 & - & 0.1\\
 	\hline
-\end{tabular}	
+\end{tabular}\caption{The best values of the ground-state energy of Neon,
+with appropriate variational parameters for HL and GTO.}\label{tab:neon}
 \end{table}
 
-The optimal parameters can be seen in the table. One can note the similar $\beta$ value
+The optimal parameters can be seen in the table.
+These simulations were run for 1e6 sameples.
+The variance of the HL and the GTO were $\sigma_{HL}^2 = 4.159$ 
+and $\sigma_{GTO}^2 = 11.91$.
+One can note the similar $\beta$ value
 to Beryllium. Unfortunately, our $\beta$ value for the GTO doesn't converge to a stable
 value for the number of runs we did.
 
-\begin{figure}
+\begin{figure}[H]
 	\includegraphics[width=\columnwidth]{../res/plot/neon_03/neon_03_pretty.png}
 	\caption{Neon, one standard deviation. 
 	Points = 100. Trials = 4.	$n_b = \:$1e5.}
 	\label{fig:neon_03}
 \end{figure}
 
+\vspace{5em}
+
 \section{Conclusion}
+The theory applied is the same as a professional
+simulation.
+This project has teached us a lot about the algorithms, implementations and challenges
+of making a Monte-Carlo simulation of quantum mechanical systems. 
+It has been challenging to manage such a large code,
+and we would have done many things quite differently if we
+would start over.
+
+We have found that the Jastrow factor has a big impact on how the system behaves and how
+this can be varied to find the physical, ground-state energy of a quantum mechanical system. 
+
+The way we implemented the GTOs seemed to be flawed for some unknown reason.
+The implementation of the wave functions are quiet robust,
+because they were implemented in a very similar fashion to the Hydrogen-like
+wave functions. This suggests that the error is in the implementation
+of the coefficients for each orbital.
+
+If we had more time, we would have implemented methods for computing the
+ground-state energies of small molecules such as $H_2$ and $Be_2$, and
+visualized them properly. We would also try to improve the NCG method
+to better find the best values of $\alpha$ and $\beta$.
+
+In conclusion, the project has given us a lot of new knowledge,
+both theoretical and practical, but also at times many frustrations.
 
 \twocolumn[{%
 \appendix
@@ -1916,7 +1989,27 @@ website.
 }\end{equation*}
 
 }]
+\twocolumn[{%
+\subsection{Folder structure (Plots)}
+Plots can be found in the plot folder in res and subfolders of src. 
+They are named simply by
+number so their meaning is appended here. 
 
+Helium_01: $E_0$ vs $\beta$, Hydrogen like wave function with and without
+importance sampling. \\
+Helium_02: Blocking plot, two graphs. Importance sampling vs. not.\\
+Helium_03: Density plot, hydrogen like wave functions, with and without jastrow.\\
+Helium_04: $E_0$ vs sample number. \\
+Helium_05: $E_0$ vs $\beta$ for GTO. \\
+Beryllium_01: $E_0$ vs $\beta$. With and without GTOs.\\
+Beryllium_02: Blocking with and without GTOs.\\
+Beryllium_03: Density plot, with and without Jastrow.\\
+Beryllium_04: $E_0$ vs sample number. With and without GTOs.\\
+Neon_01: $E_0$ vs $\beta$. With and without GTOs.\\
+Neon_02: Blocking with and without GTOs.\\
+Neon_03: Density plot, with and without Jastrow.\\
+Neon_04: $E_0$ vs sample number. With and without GTOs.\\
+}]
 \clearpage
 \twocolumn[{%
 \section*{References}
@@ -1938,6 +2031,8 @@ ch. 14-16
 [7] Mobarhan, M.H. (2014). \textit{Ab Initio Molecular Dynamics: A Virtual Laboratory}
 (Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/41844}
 
+[8] Norli, O.T.B (2014). \textit{Coupled Cluster Studies in Computational Chemistry}
+(Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/42315}
 
 
 }]
