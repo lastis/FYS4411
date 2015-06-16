@@ -39,7 +39,7 @@ int main(int argc, const char *argv[])
     wrapper.useWaveFunction2();
     wrapper.useLocalEnergyHelium2();
     wrapper.useImportanceSampling(true);
-    wrapper.timeStep = 0.001;
+    wrapper.timeStep = 0.01;
     wrapper.D = 0.5;
 
     Vector vEnergyArray = Vector(nCycles);
@@ -75,8 +75,8 @@ int main(int argc, const char *argv[])
     Vector binSizes = Vector();
     Vector energyVariance = Vector();
     util::blockingVar(1,vEnergyArray,energyVariance,binSizes);
-    util::appendToFile(adress,"bins_01.txt",binSizes);
-    util::appendToFile(adress,"energy_variance_01.txt",energyVariance);
+    util::appendToFile(adress,"bins_02.txt",binSizes);
+    util::appendToFile(adress,"energy_variance_02.txt",energyVariance);
 
     return 0;
 }
