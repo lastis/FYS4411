@@ -36,8 +36,8 @@ fig, ax = plt.subplots()
 n = len(mean1)
 x = range(0,n)
 
-ax.plot(x, mean1,'r',label='')
-ax.fill_between(x, mean1-meanVar1, mean1+meanVar1, color='r', alpha=0.2)
+ax.plot(x, mean1,'b',label='HL')
+ax.fill_between(x, mean1-meanVar1, mean1+meanVar1, color='b', alpha=0.2)
 
 ax.set_ylabel(r'$E_0$ [a.u.]')
 ax.set_xlabel(r'Sample number')

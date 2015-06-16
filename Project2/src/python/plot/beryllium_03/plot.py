@@ -35,10 +35,10 @@ plt.rc('font',**font)
 
 fig, ax = plt.subplots()
 
-ax.plot(bins1, densityMean1,'r',label='HL')
-ax.fill_between(bins1, densityMean1-densityStd1, densityMean1+densityStd1, color='r', alpha=0.2)
-ax.plot(bins2, densityMean2,'b',label='GTO 3-21G')
-ax.fill_between(bins2, densityMean2-densityStd2, densityMean2+densityStd2, color='b', alpha=0.2)
+ax.plot(bins1, densityMean1,'b',label='HL')
+ax.fill_between(bins1, densityMean1-densityStd1, densityMean1+densityStd1, color='b', alpha=0.2)
+ax.plot(bins2, densityMean2,'r',label='GTO 3-21G')
+ax.fill_between(bins2, densityMean2-densityStd2, densityMean2+densityStd2, color='r', alpha=0.2)
 
 ax.set_ylabel(r'Density')
 ax.set_xlabel(r'Radius')
