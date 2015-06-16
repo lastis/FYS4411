@@ -29,8 +29,34 @@ std2   = np.loadtxt(fileNameVariance2)
 blocks3  = np.loadtxt(fileNameBins3)
 std3   = np.loadtxt(fileNameVariance3)
 
-plt.plot(blocks1, std1)
-plt.plot(blocks2, std2)
-plt.plot(blocks3, std3)
-plt.savefig('helium_06.png')
+
+
+font = {'family' : 'serif',
+        'size'   : 15}
+
+plt.rc('font',**font)
+
+fig, ax = plt.subplots()
+
+ax.plot(blocks2, std2,'b',label=r'$\Delta t = 0.01$')
+ax.plot(blocks1, std1,'r',label=r'$\Delta t = 0.001$')
+ax.plot(blocks3, std3,'g',label=r'$\Delta t = 0.0001$')
+
+ax.set_ylabel(r'Variance')
+ax.set_xlabel(r'Block size')
+ax.legend(loc='lower right', fontsize=15)
+
+ax.grid('on')
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+plt.savefig('helium_06_pretty.png')
 plt.show()
+
+
+
+
+# plt.plot(blocks1, std1)
+# plt.plot(blocks2, std2)
+# plt.plot(blocks3, std3)
+# plt.savefig('helium_06.png')
+# plt.show()
