@@ -89,11 +89,12 @@
  {\normalsize Daniel Marelius Bj\o rnstad$^1$ and Alexander Fleischer$^1$}\\[0.1em]
 	{\small $^1$Department of Physics, University in Oslo, Norway}\\
  {\small\url{https://github.com/lastis/FYS4411}}\\[1em]
- Delivered: June 15 2015
+ Delivered: June 15 2015\\
+ Correspondence: danielmb@fys.uio.no, alexanfl@fys.uio.no
 
   \begin{abstract}{\center}
     This project aims to find good approximations to the ground state energies
-    of the atoms Helium, Beryllium and Neon, and the di-molecules $H_2$ and $Be_2$
+    of the atoms Helium, Beryllium and Neon.
     This was achieved by implementing the Variational Monte Carlo method of
     Metropolis-Hastings.
     The trial wave function of the 
@@ -110,7 +111,7 @@
 
 \section{Introduction} 
 The aim of the project is to estimate the ground state energies of the
-atoms (Hydrogen, Helium, Beryllium and Neon) and some simple molecules ($H_2$ and $Be_2$).
+atoms (Hydrogen, Helium, Beryllium and Neon).
 
 In the method and theory section (II), 
 we first discuss some elements of the quantum mechanical system 
@@ -674,7 +675,7 @@ The following wave functions are the ones we used in the implementation.
 \subsubsection{The First Trial Wave Function of Helium}
 We first model the variational solution with a trial function of one
 variation parameter $\alpha$ 
-(corresponding to the $\alpha$ in Hydrogen solution(\ref{eq:psi})).
+(corresponding to the $\alpha$ in Hydrogen solution equation (\ref{eq:psi})).
 It has the form
 \eq{
 \psi_{T1}^{He}({\bf r_1},{\bf r_2}) = 
@@ -1174,11 +1175,11 @@ The ones we implemented are shown in the appendix.
 \subsubsection{VMCSolver.cpp}
 Simulations run on \verb!C++! objects called VMCSolver. There are 3 VMCSolvers
 implemented in the code.\\
-"VMCSolver" - Contains the simulation environment for the hydrogen-like wave
+"VMCSolver" -- Contains the simulation environment for the hydrogen-like wave
 function simulator.\\
-"VMCSolverGto" - Contains the simulation environment for the GTOs, can only run
+"VMCSolverGto" -- Contains the simulation environment for the GTOs, can only run
 without importance sampling.\\
-"VMCSolverGtoI" -Contains the simulation environment for the GTOs, can only run
+"VMCSolverGtoI" -- Contains the simulation environment for the GTOs, can only run
 with importance sampling.\\
 
 The reason for splitting the solvers was that code gradually became too complex
@@ -1216,7 +1217,7 @@ and Beryllium with a (relativly high) threshold of 0.5. A comment on these tests
 that they were largely useless. When we had errounous calculation in the code, these tests often passed
 because the simulation gave reasonable values within this threshold. And the reason for keeping the threshold
 high was because we were not sure about the accuracy and precision of the simulation. Another comment 
-is that a good test to check for bugs in the code is by looking at the shape of the ground state, $E_0$, 
+is that a good test to check for bugs, is by looking at the shape of the ground state, $E_0$, 
 over the parameter space. Bugs are more easy to detect there.\\
 
 \noindent{\bf Efficient-Slater calculation tests:}
@@ -1256,7 +1257,7 @@ one mean value of a range of samples equal to the block size.
 All variance from results are obtained by use of blocking with 4 threads. 
 The combination of threads and blocks are what we refer to as \textit{trials}. 
 To get the total number of samples on one thread,
-one should divide by 4.
+one should take the block size, multiplied by the trials, and divide by 4.
 
 Second to the data integration, making the complete blocking plot was the 
 most CPU intensive operation in the program.
@@ -1264,7 +1265,7 @@ Blocking was done in an easy way to get all possible divisions of the full sampl
 into blocks via a brute force method\footnote{\url{https://github.com/lastis/FYS4411/blob/master/Project2/src/cpp/vmcsolver/util.h}}.
 
 Figure \ref{fig:beryllium_02} tells us that we need a block size
-of at least 500-1000 samples to calculate the variuance using the blocking technique.
+of at least 500-1000 samples to calculate the variance using the blocking technique.
 This however does not mean that this gives enough total number of samples
 in a single run.
 
@@ -1276,7 +1277,17 @@ in a single run.
 	\label{fig:beryllium_02}
 \end{figure}
 
-\subsubsection{Imrovements}
+If we look at blocking for different time steps,
+we see that a value of $\Delta t = 0.001$ gives the best result with
+respect to the variance. This is shown in Figure \ref{fig:helium_06}
+\begin{figure}[H]
+	\includegraphics[width=\columnwidth]{../res/plot/helium_06/helium_06_pretty.png}
+	\caption{Blocking for Hydrogen-like wave function of Helium
+	for different time steps $\Delta t$.}
+	\label{fig:helium_06}
+\end{figure}
+
+\subsubsection{Improvements}
 The implementation had some flaws, of the biggest were implementing GTOs 
 and optimizing the code.\\
 
@@ -1302,7 +1313,7 @@ This was not a big focus of the project, but
 it is very useful for getting results in a timely fashion. The biggest way this
 can be improved is by using an external analyzation tool for \verb!C++! code. 
 
-A consequence of slow runtime was the convergence of 
+A consequence of slow runtime was the inaccurate and unprecise convergence of 
 the conjugate gradient method for Beryllium and Neon. 
 Our parameters were 1e5 samples for Beryllium and 1e4 samples for Neon, with 4 trials
 on both. We think both of these variables should be at least 10x higher to give
@@ -2014,25 +2025,25 @@ Neon_04: $E_0$ vs sample number. With and without GTOs.\\
 \twocolumn[{%
 \section*{References}
 [1] Hjorth-Jensen, M. (2013). \textit{Computational Physics Lecture Notes},
-ch. 14-16
+ch. 14-16\\
 
 [2] Hammond, B.L., Lester, W.A. and Reynolds, P.J. (1994). 
-\textit{Monte Carlo Methods in Ab Initio Quantum Chemistry}
+\textit{Monte Carlo Methods in Ab Initio Quantum Chemistry}\\
 
-[3] Lewars E., (2010). \textit{Computational Chemistry: Introduction to the Theory and Applications of Molecular and Quantum Mechanics}. Ch. 5
+[3] Lewars E., (2010). \textit{Computational Chemistry: Introduction to the Theory and Applications of Molecular and Quantum Mechanics}. Ch. 5\\
 
-[4] Alexander, S.A., and Coldwell, R.L., Int. Journal of Quantum Chemistry, 63 (1997) 1001
+[4] Alexander, S.A., and Coldwell, R.L., Int. Journal of Quantum Chemistry, 63 (1997) 1001\\
 
-[5] Nocedal, J. (2006), \textit{Numerical Optimization}. Ch. 5
+[5] Nocedal, J. (2006), \textit{Numerical Optimization}. Ch. 5\\
 
 [6] Sandsdalen, H. (2010). \textit{Variational Monte Carlo Studies of Atoms}
-(Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/10964}
+(Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/10964}\\
 
 [7] Mobarhan, M.H. (2014). \textit{Ab Initio Molecular Dynamics: A Virtual Laboratory}
-(Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/41844}
+(Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/41844}\\
 
 [8] Norli, O.T.B (2014). \textit{Coupled Cluster Studies in Computational Chemistry}
-(Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/42315}
+(Master's thesis, University of Oslo, Norway). Retrieved from \url{https://www.duo.uio.no/handle/10852/42315}\\
 
 [9] Blocking: H. Flyvbjerg and H. G. Petersen: Averages of correlated data, The Journal of Chemical Physics \textbf{91}, p. 461 (1989)
 
