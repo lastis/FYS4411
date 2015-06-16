@@ -11,7 +11,7 @@ resDir = "../../../../res/plot/helium_06/";
 # Delete files that have the matching number as this program.
 os.chdir(curDir)
 os.chdir(resDir)
-fileList = [f for f in os.listdir(".") if "01" in f]
+fileList = [f for f in os.listdir(".") if "02" in f]
 try :
     for f in fileList:
         os.remove(f)
@@ -24,6 +24,6 @@ alpha = 1.79
 # Compile the code
 os.chdir(curDir)
 os.chdir(cppDir)
-call(["make","cpp_file=main_01.cpp"])
+call(["make","cpp_file=main_02.cpp"])
 # Run the cpp code
 call(["./a.out", str(alpha), str(beta)])
